@@ -32,15 +32,48 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 ### Examples
 
-```{r, eval = FALSE}
-require(spacyr)
+The `tag()` function calls spaCy to both tokenize and tag the texts, and returns a special class of tokenizedText object (see [**quanteda**](http://githiub.com/kbenoit/quanteda)) that has both tokens and tags.  The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
-# coming soon
+```{r}
+require(spacyr)
+# set this for Ken's macOS system, because homebrew Python is doing the work
+options(PYTHON_PATH = "/usr/local/bin")
+
+# show tag on some sample sentences
+head(data_sentences)
+taggedsents <- tag(data_sentences[1:6])
+taggedsents
+```
+
+Note that while the printed structure appears to append the token and its tag, in fact the structure of the object records these separately:
+```{r}
+str(taggedsents)
+```
+
+To get a summary of the parts of speech for each document, use the data.frame returned by the `summary()` method for this new object class:
+```{r}
+summary(taggedsents)
+```
+
+Alternatively the [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) part-of-speech tagset can be applied:
+```{r}
+taggedsents2 <- tag(data_sentences[1:6], tagset = "penn")
+summary(taggedsents2)
+```
+
+Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
+```{r}
+docnames(taggedsents)
+ndoc(taggedsents)
+ntoken(taggedsents)
+ntype(taggedsents)
 ```
 
 
 ## Comments and feedback
 
 We welcome your comments and feedback.  Please file issues on the issues page, and/or send me comments at kbenoit@lse.ac.uk.
+
+Plans moving ahead include finding much more efficient methods of calling spaCy from R than [the current use of `system2()`](https://github.com/kbenoit/spacyr/blob/master/R/tag.R).
 
 
