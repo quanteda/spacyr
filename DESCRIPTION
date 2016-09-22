@@ -1,0 +1,19 @@
+Package: spacyr
+Type: Package
+Title: R wrapper to the SpaCy NLP system
+Version: 0.1.0
+Date: 2016-09-22
+Author: Kenneth Benoit
+Maintainer: Kenneth Benoit <kbenoit@lse.ac.uk>
+Description: Built as a wrapper to the Python (Cython) SpaCy NLP system, 
+    from http://spacy.io. 
+License: GPL-3
+LazyData: TRUE
+Depends:
+    R (>= 3.3.0)
+Imports:
+    quanteda (>= 0.9.8)
+URL: http://github.com/kbenoit/spacyr
+Encoding: UTF-8
+BugReports: https://github.com/kbenoit/spacyr/issues
+RoxygenNote: 5.0.1
