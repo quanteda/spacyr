@@ -34,6 +34,7 @@ check_spacy <- function(which_python = NA) {
   } else {
     all_python <- which_python
   }
+  all_python <- unique(all_python)
   spacy_found <- rep(NA, length(all_python))
   for (i in 1:length(all_python)){
     python_full <- all_python[i]
@@ -52,7 +53,7 @@ check_spacy <- function(which_python = NA) {
     options("PYTHON_PATH" = python_path)
   } else if (sum(spacy_found) > 1) {
     stop(paste("More than one python installation with spacy was found",
-               "Run check_spacy() again with which_python specified", 
+               "Run check_spacy() again with \"which_python\" specified", 
                sep = "\n"))
   } else {
     stop(paste("Could not find spacy installation.",
@@ -79,6 +80,6 @@ check_spacy <- function(which_python = NA) {
     options("PYTHON_PATH" = NULL) # delete the option so that tag() will not run
     stop(err_msg)
   } else {
-    print("tag() is ready to run")
+    cat("tag() is ready to run\n")
   }
 }
