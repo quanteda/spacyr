@@ -1,9 +1,11 @@
 [![CRAN Version](http://www.r-pkg.org/badges/version/spacyr)](http://cran.r-project.org/package=spacyr) ![Downloads](http://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI Build Status](https://travis-ci.org/kbenoit/spacyr.svg?branch=master)](https://travis-ci.org/kbenoit/spacyr) [![codecov.io](https://codecov.io/github/kbenoit/spacyr/spacyr.svg?branch=master)](https://codecov.io/github/kbenoit/spacyr/coverage.svg?branch=master)
 
+(note: the Travis build fails because our script does not install spaCy and the English language files - once these are installed, it passes the R Check.)
+
 spacyr: an R wrapper for spaCy
 ==============================
 
-This package is an R wrapper to the spaCy "industrial strength natural language processing" library from <http://spacy.io>.
+This package is an R wrapper to the spaCy "industrial strength natural language processing" Python library from <http://spacy.io>.
 
 ### Prerequisites
 
@@ -197,4 +199,4 @@ Comments and feedback
 
 We welcome your comments and feedback. Please file issues on the issues page, and/or send me comments at <kbenoit@lse.ac.uk>.
 
-Plans moving ahead include finding much more efficient methods of calling spaCy from R than [the current use of `system2()`](https://github.com/kbenoit/spacyr/blob/master/R/tag.R).
+Plans moving ahead include finding much more efficient methods of calling spaCy from R than [the current use of `system2()`](https://github.com/kbenoit/spacyr/blob/master/R/tag.R#L71).
