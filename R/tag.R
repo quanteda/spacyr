@@ -8,20 +8,11 @@
 #'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
 #'   scheme from the Penn Treebank.  
 #' @param ... arguments passed to specific methods
-#' @section Setting the path to the python executable: Note that on some 
-#'   systems, notably OS X / macOS, you may have installed a different version 
-#'   of Python from that included in the base system.  OS X / macOS installs a 
-#'   slightly older version of 2.7.x by default, for instance, in 
-#'   \code{/usr/bin/python}.  Using homebrew, you may have installed a different
-#'   version that gets placed in \code{/usr/local/bin}.  Even when this is 
-#'   working at a command line (e.g. bash in the Terminal), when called from R 
-#'   it may still look for \code{usr/bin/python}. The solution is to set the 
-#'   system variable \code{PYTHON_PATH} as in the examples below using 
-#'   \code{\link{options}}.
 #' @return tagged object
 #' @examples 
-#' # for my system
-#' options(PYTHON_PATH = "/usr/local/bin")
+#' # 
+#' check_spacy()
+#' # the result has to be "tag() is ready to run" to run the following
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")
 #' tag(txt)
@@ -61,7 +52,8 @@ tag.character <- function(x, tagset = c("google", "penn"), ...) {
     if (!is.null(options()$PYTHON_PATH)) {
         PYTHON_PATH <- paste0(options()$PYTHON_PATH, "/")
     } else {
-        PYTHON_PATH <- ""
+        # PYTHON_PATH <- ""
+        stop("Availability of spaCy has not been checked. Please run check_spacy()")    
     }
         
     # tag for distinguishing documents
