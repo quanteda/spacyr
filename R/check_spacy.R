@@ -1,16 +1,16 @@
 #' Checking the availability of spacy
 #' 
-#' Checking the availablity of spaCy in the python on the system, as well as 
-#' the availability of spaCy model for English. 
-#' This function has to be executed before running \code{tag()}.
+#' Checking the availablity of spaCy in the python on the system, as well as the
+#' availability of spaCy model for English. This function has to be executed
+#' before running \code{tag()}.
 #' 
 #' @param which_python specific python path you want to test the availability of
-#'  spacy. If you do not specify, this fuction looks for all python intallation on 
-#'  the computer
-#'
+#'   spacy. If you do not specify, this fuction looks for all python intallation
+#'   on the computer
+#'   
 #' @return NULL
 #' @export
-#'
+#' 
 #' @section Setting the path to the python executable: Note that on some 
 #'   systems, notably OS X / macOS, you may have installed a different version 
 #'   of Python from that included in the base system.  OS X / macOS installs a 
@@ -20,7 +20,7 @@
 #'   working at a command line (e.g. bash in the Terminal), when called from R 
 #'   it may still look for \code{usr/bin/python}. This function finds the python
 #'   executable with spaCy and set the path to it.
-
+#' @author Akitaka Matsuo
 check_spacy <- function(which_python = NA) {
   all_python <- NULL
   

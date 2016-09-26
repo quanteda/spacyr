@@ -1,9 +1,12 @@
 Package: spacyr
 Type: Package
 Title: R wrapper to the SpaCy NLP system
-Version: 0.1.1
-Date: 2016-09-22
-Author: Kenneth Benoit
+Version: 0.1.2
+Date: 2016-09-26
+Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
+    c("aut", "cre")), person("Matsuo", "Akitaka", email = "A.Matsuo@lse.ac.uk",
+    role = "aut") )
+Author: Kenneth Benoit [aut, cre], Akitaka Matsuo [aut]
 Maintainer: Kenneth Benoit <kbenoit@lse.ac.uk>
 Description: Built as a wrapper to the Python (Cython) spaCy NLP system, 
     from http://spacy.io. 
