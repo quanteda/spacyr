@@ -17,6 +17,7 @@
 #'   working at a command line (e.g. bash in the Terminal), when called from R 
 #'   it may still look for \code{usr/bin/python}. This function finds the python
 #'   executable with spaCy and set the path to it.
+#' @importFrom quanteda docnames
 #' @author Akitaka Matsuo
 check_spacy <- function(which_python = NA) {
     all_python <- NULL

@@ -30,8 +30,7 @@ Options exist for using either the Google or Penn tagsets. See
 \url{http://spacy.io}.
 }
 \examples{
-# 
-check_spacy()
+\donttest{check_spacy()
 # the result has to be "tag() is ready to run" to run the following
 txt <- c(text1 = "This is the first sentence.\\nHere is the second sentence.", 
          text2 = "This is the second document.")
@@ -41,5 +40,6 @@ tag(txt, tagset = "penn")
 # more extensive texts
 tag(data_paragraph)
 tag(data_sentences[1:10])
+}
 }
 

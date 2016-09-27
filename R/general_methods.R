@@ -90,7 +90,6 @@ print.tokenizedTexts_tagged <- function(x, sep = "_", ...) {
 #' summarize a tagged tokenizedTexts object
 #' 
 #' Generate frequency counts of POS by document, returning a data.frame.
-#' 
 #' @param object tokenizedTexts_tagged object to be summarized
 #' @param ... unused
 #' @importFrom data.table rbindlist

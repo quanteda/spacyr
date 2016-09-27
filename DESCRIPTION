@@ -14,7 +14,7 @@ License: GPL-3
 LazyData: TRUE
 Depends:
     R (>= 3.3.0),
-    quanteda (>= 0.9.8)
+    quanteda (>= 0.9.8),
 Imports:
     data.table
 URL: http://github.com/kbenoit/spacyr

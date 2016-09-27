@@ -8,13 +8,13 @@ check_spacy(which_python = NA)
 }
 \arguments{
 \item{which_python}{specific python path you want to test the availability of
-spacy. If you do not specify, this fuction looks for all python intallation on 
-the computer}
+spacy. If you do not specify, this fuction looks for all python intallation
+on the computer}
 }
 \description{
-Checking the availablity of spaCy in the python on the system, as well as 
-the availability of spaCy model for English. 
-This function has to be executed before running \code{tag()}.
+Checking the availablity of spaCy in the python on the system, as well as the
+availability of spaCy model for English. This function has to be executed
+before running \code{tag()}.
 }
 \section{Setting the path to the python executable}{
  Note that on some 
@@ -26,5 +26,8 @@ This function has to be executed before running \code{tag()}.
   working at a command line (e.g. bash in the Terminal), when called from R 
   it may still look for \code{usr/bin/python}. This function finds the python
   executable with spaCy and set the path to it.
+}
+\author{
+Akitaka Matsuo
 }
 
