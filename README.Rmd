@@ -26,6 +26,19 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/).
 
+    Installation on Windows:  
+    a)  (If you have not yet installed Python:)  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer.  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."  
+    b)  Install spaCy and the English language model using these commands at the command line:  
+        ```
+        pip install -U spacy
+        python -m spacy.en.download
+        ```
+        For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).  
+    c)  Test your installation at the command line using:  
+        ```
+        python -c "import spacy; spacy.load('en'); print('OK')"
+        ```
+
 3.  You need (of course) to install this package:  
     ```{r, eval = FALSE}
     devtools::install_github("kbenoit/spacyr")
@@ -38,8 +51,8 @@ The `tag()` function calls spaCy to both tokenize and tag the texts, and returns
 
 ```{r}
 require(spacyr)
-# set this for Ken's macOS system, because homebrew Python is doing the work
-options(PYTHON_PATH = "/usr/local/bin")
+# find spaCy and set the correct environment variables
+check_spacy()
 
 # show tag on some sample sentences
 head(data_sentences)

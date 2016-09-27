@@ -22,11 +22,12 @@ check_spacy <- function(which_python = NA) {
     all_python <- NULL
     
     if (is.na(which_python)) {
-        tryCatch({all_python <- system2(ifelse(Sys.info()['sysname'] == "Windows", "where", "which -a"),
-                                        c("python"), stdout = T)}, 
+        tryCatch({all_python <- system2(ifelse(Sys.info()['sysname'] == "Windows", "where", "which"),
+                                        c(ifelse(Sys.info()['sysname'] == "Windows", NULL, "-a"), "python"),
+                                        stdout = TRUE)}, 
                  warning = function(e) {
                      if (is.atomic(all_python)) {
-                         stop("No python found in the sysetm")
+                         stop("No python found in the system")
                      }
                  })
         
