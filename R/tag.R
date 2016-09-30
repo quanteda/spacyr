@@ -10,7 +10,7 @@
 #' @param ... arguments passed to specific methods
 #' @return tagged object
 #' @examples
-#' \donttest{check_spacy()
+#' \donttest{initialize_spacy()
 #' # the result has to be "tag() is ready to run" to run the following
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")

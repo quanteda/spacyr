@@ -1,8 +1,10 @@
-#' Checking the availability of spacy
+#' Check the availability of spaCy and initialize paths
 #' 
-#' Checking the availablity of spaCy in the python on the system, as well as the
-#' availability of spaCy model for English. This function has to be executed
-#' before running \code{tag()}.
+#' Check the availablity of spaCy on the user's system, as well as the 
+#' availability of spaCy model for English. This function has to be executed 
+#' before running \code{tag()}.  This function not only checks the availability,
+#' but also sets options to the path where spaCy is installed, in case the user
+#' has more than one version of Python installed, or is using a virtualenv.
 #' @param which_python specific python path you want to test the availability of
 #'   spacy. If you do not specify, this fuction looks for all python intallation
 #'   on the computer
@@ -19,7 +21,7 @@
 #'   executable with spaCy and set the path to it.
 #' @importFrom quanteda docnames
 #' @author Akitaka Matsuo
-check_spacy <- function(which_python = NA) {
+initialize_spacy <- function(which_python = NA) {
     all_python <- NULL
     
     if (is.na(which_python)) {

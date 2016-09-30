@@ -13,6 +13,18 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 2.  spaCy must be installed on your system. Follow [these instructions](http://spacy.io/docs/).
 
+    Installation on Windows:
+    1.  (If you have not yet installed Python:) Download and install [Python for Windows](https://www.python.org/downloads/windows/). We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer. During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
+    2.  Install spaCy and the English language model using these commands at the command line:
+
+            pip install -U spacy
+            python -m spacy.en.download
+
+        For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).
+    3.  Test your installation at the command line using:
+
+            python -c "import spacy; spacy.load('en'); print('OK')"
+
 3.  You need (of course) to install this package:
 
     ``` r
@@ -33,8 +45,9 @@ require(spacyr)
 #> The following object is masked from 'package:base':
 #> 
 #>     sample
-# set this for Ken's macOS system, because homebrew Python is doing the work
-options(PYTHON_PATH = "/usr/local/bin")
+# find spaCy and set the correct environment variables
+initialize_spacy()
+#> tag() is ready to run
 
 # show tag on some sample sentences
 head(data_sentences)
@@ -46,7 +59,7 @@ head(data_sentences)
 #> [6] "Some expansion in peacetime medical research and other programs of the Public Health Service is provided for in the appropriation estimates for these purposes totaling approximately 87 million dollars for the fiscal year 1947 which are submitted under provisions of existing law."
 taggedsents <- tag(data_sentences[1:6])
 taggedsents
-#> tokenizedText_tagged object from 2 documents (tagset = Google).
+#> tokenizedText_tagged object from 2 documents (tagset = google).
 #> text1 :
 #>  [1] "They_PRON"          "can_VERB"           "at_ADP"            
 #>  [4] "any_DET"            "moment_NOUN"        "have_VERB"         

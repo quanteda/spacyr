@@ -52,7 +52,7 @@ The `tag()` function calls spaCy to both tokenize and tag the texts, and returns
 ```{r}
 require(spacyr)
 # find spaCy and set the correct environment variables
-check_spacy()
+initialize_spacy()
 
 # show tag on some sample sentences
 head(data_sentences)
