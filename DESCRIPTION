@@ -15,6 +15,7 @@ LazyData: TRUE
 Depends:
     R (>= 3.3.0),
     quanteda (>= 0.9.8),
+    rPython
 Imports:
     data.table,
     rmarkdown,

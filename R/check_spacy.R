@@ -86,3 +86,17 @@ initialize_spacy <- function(which_python = NA) {
         cat("tag() is ready to run\n")
     }
 }
+
+
+#' Initialize spaCy via rPython
+#' 
+#' @param homebrew boolian for homebrewed version of spacy.
+#' @return NULL
+#' @export
+#' @importFrom quanteda docnames
+#' @author Akitaka Matsuo
+#' 
+initialize_spacy_rpython <- function(homebrew = FALSE) {
+  python.load(system.file("python", "initialize.py", package = 'spacyr'))
+  options("spacy_rpython" = TRUE)
+}
