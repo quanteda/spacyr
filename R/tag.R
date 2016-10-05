@@ -157,8 +157,6 @@ tag_rPython <- function(x, tagset = c("google", "penn"), ...){
   
 }
 
-
-
 #' tag parts of speech using spaCy via rPython (different implementation)
 #' 
 #' Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 

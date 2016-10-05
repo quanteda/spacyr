@@ -96,7 +96,7 @@ initialize_spacy <- function(which_python = NA) {
 #' @importFrom quanteda docnames
 #' @author Akitaka Matsuo
 #' 
-initialize_spacy_rpython <- function(homebrew = FALSE) {
-  python.load(system.file("python", "initialize.py", package = 'spacyr'))
+initialize_spacy_rpython <- function() {
+  python.load(system.file("python", "initialize_rPython.py", package = 'spacyr'))
   options("spacy_rpython" = TRUE)
 }
