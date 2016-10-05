@@ -94,8 +94,6 @@ initialize_spacy <- function(which_python = NA) {
 #' @return NULL
 #' @export
 #' @author Akitaka Matsuo
-# NOTE: THIS IS NOT AN ARGUMENT TO THE FUNCTION -kb
-# @param homebrew boolean for homebrewed version of spacy.
 initialize_spacy_rpython <- function() {
     rPython::python.load(system.file("python", "initialize_rPython.py", package = 'spacyr'))
     options("spacy_rpython" = TRUE)
