@@ -133,6 +133,7 @@ tag_rPython <- function(x, tagset = c("google", "penn"), ...){
   x <- gsub("\\n", "\\n ", x)
   x <- gsub("'", "''", x, fixed = T)
   x <- gsub("\"", "", x, fixed = T)
+  x <- gsub("\\", "", x, fixed = T)
   x <- unname(x)
   
   # send the texts to python
