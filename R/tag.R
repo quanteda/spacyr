@@ -116,10 +116,11 @@ tag.character <- function(x, tagset = c("google", "penn"), ...) {
 #' tag_rPython(data_sentences[1:4])
 #' }
 #' @export
-tag_rPython <- function(x, tagset = c("google", "penn"), ...){
-  if(is.null(options()$spacy_rpython)) initialize_spacy_rpython()
+tag_rPython <- function(x, tagset = c("google", "penn"), ...) {
+  if (is.null(options()$spacy_rpython)) 
+      initialize_spacy_rpython()
   tagset <- match.arg(tagset)
-  python.assign("option_tag", tagset)
+  rPython::python.assign("option_tag", tagset)
 
   # get or set document names
   if (!is.null(names(x))) {
@@ -137,13 +138,13 @@ tag_rPython <- function(x, tagset = c("google", "penn"), ...){
   x <- unname(x)
   
   # send the texts to python
-  python.assign("texts", x)
+  rPython::python.assign("texts", x)
   
   # run the tagging function
-  python.load(system.file("python", "posTagExec.py", package = "spacyr"))
+  rPython::python.load(system.file("python", "posTagExec.py", package = "spacyr"))
   
-  tokens <- python.get("all_words")
-  tags <- python.get("all_tags")
+  tokens <- rPython::python.get("all_words")
+  tags <- rPython::python.get("all_tags")
 
   # add back docnames
   if (!is.null(docnames)) names(tokens) <- docnames
@@ -188,7 +189,7 @@ tag_rPython <- function(x, tagset = c("google", "penn"), ...){
 tag_rPython2 <- function(x, tagset = c("google", "penn"), ...){
   if(is.null(options()$spacy_rpython)) initialize_spacy_rpython()
   tagset <- match.arg(tagset)
-  python.assign("option_tag", tagset)
+  rPython::python.assign("option_tag", tagset)
   
   # get or set document names
   if (!is.null(names(x))) {
@@ -206,12 +207,12 @@ tag_rPython2 <- function(x, tagset = c("google", "penn"), ...){
   x <- unname(x)
   
   # send the texts to python
-  python.assign("texts", x)
+  rPython::python.assign("texts", x)
   
   # run the tagging function
-  python.load(system.file("python", "posTagExec2.py", package = "spacyr"))
+  rPython::python.load(system.file("python", "posTagExec2.py", package = "spacyr"))
   # call the Python code
-  ret <- python.get("all_outs")
+  ret <- rPython::python.get("all_outs")
   ret <- paste(ret, collapse = " ")
   
   
