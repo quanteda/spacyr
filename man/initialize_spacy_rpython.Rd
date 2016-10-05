@@ -4,13 +4,10 @@
 \alias{initialize_spacy_rpython}
 \title{Initialize spaCy via rPython}
 \usage{
-initialize_spacy_rpython(homebrew = FALSE)
-}
-\arguments{
-\item{homebrew}{boolian for homebrewed version of spacy.}
+initialize_spacy_rpython()
 }
 \description{
-Initialize spaCy via rPython
+Initialize spaCy using an alternative method via the rPython package.
 }
 \author{
 Akitaka Matsuo

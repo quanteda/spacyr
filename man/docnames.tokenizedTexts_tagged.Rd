@@ -4,7 +4,7 @@
 \alias{docnames.tokenizedTexts_tagged}
 \title{get or set document names}
 \usage{
-docnames.tokenizedTexts_tagged(x)
+\method{docnames}{tokenizedTexts_tagged}(x)
 }
 \arguments{
 \item{x}{the object with docnames}

@@ -84,6 +84,28 @@ ntoken(taggedsents)
 ntype(taggedsents)
 ```
 
+## Notes for Mac Users using Homebrew (or other) Version of Python
+
+If your install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R. 
+
+In Terminal, type
+```
+$ python --version
+```
+and in R, enter following
+```{r}
+library(rPython)
+python.exec("import platform\nprint(platform.python_version())")
+```
+If the outputs are different, loading spaCy is likely to fail.
+
+To resolve the issue please follow the step. Open R from Terminal (just enter `R`), then reinstall rPython from source by entering
+```{r}
+install.packages("rPython", type = "source")
+```
+then execute the R-commands above again to check the version of Python calling from rPython.
+
+
 
 ## Comments and feedback
 
