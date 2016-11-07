@@ -25,11 +25,6 @@ txt <- c(text1 = "This is the first sentence.\\nHere is the second sentence.",
          text2 = "This is the second document.")
 results <- parse_spacy(txt)
 
-tag(txt, tagset = "penn")
-
-# more extensive texts
-tag(data_paragraph)
-tag(data_sentences[1:10])
 }
 }
 

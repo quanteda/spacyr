@@ -12,11 +12,6 @@
 #'          text2 = "This is the second document.")
 #' results <- parse_spacy(txt)
 #' 
-#' tag(txt, tagset = "penn")
-#'
-#' # more extensive texts
-#' tag(data_paragraph)
-#' tag(data_sentences[1:10])
 #' }
 #' @export
 parse_spacy <- function(x, ...) {
@@ -46,5 +41,66 @@ parse_spacy <- function(x, ...) {
     return(output)
 }
 
+#' get tokens from spaCy output
+#'
+#' @param spacy_out an spacy out object
+#'
+#' @return a list of tokens
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
+#'          text2 = "This is the second document.")
+#' results <- parse_spacy(txt)
+#' get_tags(results)
+#' }
+get_tokens <- function(spacy_out) {
+    rPython::python.assign('timestamps', spacy_out$timestamps)
+    rPython::python.exec('tokens_list = spobj.tokens(timestamps)')
+    tokens <- rPython::python.get("tokens_list")
+    names(tokens) <- spacy_out$docnames
+    return(tokens)
+}
+
+#' get tags from spaCy output
+#'
+#' @param spacy_out an spacy out object
+#'
+#' @return a list of tags
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
+#'          text2 = "This is the second document.")
+#' results <- parse_spacy(txt)
+#' get_tags(results)
+#' }
+get_tags <- function(spacy_out,  tagset = c("google", "penn")) {
+    tagset <- match.arg(tagset)
+    rPython::python.assign('timestamps', spacy_out$timestamps)
+    rPython::python.assign('tag_type', tag_type)
+    rPython::python.exec('tags_list = spobj.tags(timestamps, tag_type)')
+    tags <- rPython::python.get("tags_list")
+    names(tags) <- spacy_out$docnames
+    return(tags)
+}
 
 
+#' get arbitrary attributes from spacy output
+#'
+#' @param spacy_out 
+#' @param attr_name 
+#'
+#' @return a list of attributes
+#' @export
+get_attrs <- function(spacy_out, attr_name) {
+    rPython::python.assign('timestamps', spacy_out$timestamps)
+    rPython::python.assign('attr_name', attr_name)
+    
+    rPython::python.exec('tags_list = spobj.attributes(timestamps, attr_name)')
+    tags <- rPython::python.get("tags_list")
+    names(tags) <- spacy_out$docnames
+    return(tags)
+}
