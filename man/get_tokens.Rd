@@ -7,7 +7,7 @@
 get_tokens(spacy_out)
 }
 \arguments{
-\item{spacy_out}{an spacy out object}
+\item{spacy_out}{a spacy_out object}
 }
 \value{
 a list of tokens

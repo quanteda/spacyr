@@ -37,13 +37,13 @@ parse_spacy <- function(x, ...) {
     timestamps = as.character(rPython::python.get("results"))
     
     output <- list(docnames = docnames, timestamps = timestamps)
-    attr(output, "class") <- "spacy_out"
+    class(output) <- c("spacy_out", class(output))
     return(output)
 }
 
 #' get tokens from spaCy output
 #'
-#' @param spacy_out an spacy out object
+#' @param spacy_out a spacy_out object
 #'
 #' @return a list of tokens
 #' @export
@@ -65,7 +65,8 @@ get_tokens <- function(spacy_out) {
 
 #' get tags from spaCy output
 #'
-#' @param spacy_out an spacy out object
+#' @param spacy_out a spacy_out object
+#' @param tagset 
 #'
 #' @return a list of tags
 #' @export
@@ -80,8 +81,8 @@ get_tokens <- function(spacy_out) {
 get_tags <- function(spacy_out,  tagset = c("google", "penn")) {
     tagset <- match.arg(tagset)
     rPython::python.assign('timestamps', spacy_out$timestamps)
-    rPython::python.assign('tag_type', tag_type)
-    rPython::python.exec('tags_list = spobj.tags(timestamps, tag_type)')
+    rPython::python.assign('tagset', tagset)
+    rPython::python.exec('tags_list = spobj.tags(timestamps, tagset)')
     tags <- rPython::python.get("tags_list")
     names(tags) <- spacy_out$docnames
     return(tags)
@@ -103,4 +104,26 @@ get_attrs <- function(spacy_out, attr_name) {
     tags <- rPython::python.get("tags_list")
     names(tags) <- spacy_out$docnames
     return(tags)
+}
+
+#' tag parts of speech using spaCy via rPython
+#' 
+#' Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 
+#' Options exist for using either the Google or Penn tagsets. See 
+#' \url{http://spacy.io}.
+#'
+#' @param spacy_out a spacy_out object generated from \code{parse_spacy}
+#' @param tagset character label for the tagset to use, either \code{"google"} 
+#'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
+#'   scheme from the Penn Treebank.  
+#'
+#' @return a tokenizedTexts_tagged object
+#' @export
+tag_new <- function(spacy_out, tagset = c("penn", "google")) {
+    tags <- get_tags(spacy_out, tagset)
+    tokens <- get_tokens(spacy_out)
+    ret <- list(tokens = tokens, tags = tags)
+    attr(ret, "tagset") <- tagset
+    class(ret) <- c("tokenizedTexts_tagged", class(ret))
+    return(ret)
 }

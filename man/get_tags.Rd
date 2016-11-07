@@ -7,7 +7,9 @@
 get_tags(spacy_out, tagset = c("google", "penn"))
 }
 \arguments{
-\item{spacy_out}{an spacy out object}
+\item{spacy_out}{a spacy_out object}
+
+\item{tagset}{}
 }
 \value{
 a list of tags

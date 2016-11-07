@@ -37,6 +37,8 @@ class spacyr:
     
     def attributes(self, timestamps, attrname):
         all_attrs = {}
+        if isinstance(timestamps, list) == False:
+            timestamps = [timestamps]
         for ts in timestamps:
             ts = int(ts)
             c_output = self.outputs[ts]
