@@ -106,11 +106,11 @@ get_attrs <- function(spacy_out, attr_name) {
     rPython::python.assign('timestamps', spacy_out$timestamps)
     rPython::python.assign('attr_name', attr_name)
     
-    rPython::python.exec('tags_list = spobj.attributes(timestamps, attr_name)')
-    tags <- rPython::python.get("tags_list")
-    tags <- tags[spacy_out$timestamps]
-    names(tags) <- spacy_out$docnames
-    return(tags)
+    rPython::python.exec('attrs_list = spobj.attributes(timestamps, attr_name)')
+    attrs <- rPython::python.get("attrs_list")
+    attrs <- attrs[spacy_out$timestamps]
+    names(attrs) <- spacy_out$docnames
+    return(attrs)
 }
 
 #' tag parts of speech using spaCy via rPython
@@ -137,7 +137,7 @@ tag_new <- function(spacy_out, tagset = c("penn", "google")) {
 
 #' Title
 #'
-#' this function will be hidden in future
+#' this function may be hidden in future
 #'
 #' @param spacy_out a spacy_out object
 #' 
@@ -180,23 +180,44 @@ get_entities <- function(spacy_out){
 }
 
 
+#' Title
+#'
+#' @param spacy_out a spacy_out object
+#'
+#' @return data.frame of dependency relations
+#' @export
 get_dependency_data <- function(spacy_out){
-    rPython::python.assign('timestamps', spacy_out$timestamps)
-    rPython::python.exec('ents_type = spobj.attributes(timestamps, "ent_type_")')
-    ent_type <- rPython::python.get("ents_type")
-    ent_type  <- ent_type[spacy_out$timestamps]
-    rPython::python.exec('ents_iob = spobj.attributes(timestamps, "ent_iob_")')
-    ent_iob <- rPython::python.get("ents_iob")
-    ent_iob <- ent_iob[spacy_out$timestamps]
+    id <- get_attrs(spacy_out, "i")
+    token <- get_attrs(spacy_out, "orth_")
+    lemma <-  get_attrs(spacy_out, "lemma_")
+    google <-  get_attrs(spacy_out, "pos_")
+    penn <-  get_attrs(spacy_out, "tag_")
     
-    names(ent_type) <- spacy_out$docnames
-    names(ent_iob) <- spacy_out$docnames
-    for(i in 1:length(ent_type)){
-        iob <- sub("O", "", ent_iob[[i]])
-        ent_type[[i]] <- paste(ent_type[[i]], iob, sep = "_")
-        ent_type[[i]][grepl("^_$", ent_type[[i]])] <- ""
+    # get ids of head of each token
+    rPython::python.assign('timestamps', spacy_out$timestamps)
+    rPython::python.exec('head_id = spobj.dep_head_id(timestamps)')
+    head_id <- rPython::python.get("head_id")
+    head_id  <- head_id[spacy_out$timestamps]
+    
+    dep_rel <- get_attrs(spacy_out, "dep_")
+    
+    out_data <- NULL
+    for(i in seq(length(spacy_out$timestamps))){
+        #ts <- spacy_out$timestamps[i]
+        docname <- spacy_out$docnames[i]
+        tmp_data <- data.frame(docname, 
+                               id = id[[i]],
+                               token = token[[i]], 
+                               lemma = lemma[[i]], 
+                               google = google[[i]], 
+                               penn = penn[[i]], 
+                               head_id = head_id[[i]], 
+                               dep_rel = dep_rel[[i]])
+        out_data <- rbind(out_data, tmp_data)
     }
-    return(ent_type)
+        
+    
+    return(out_data)
 }
 
 

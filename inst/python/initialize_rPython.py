@@ -97,7 +97,19 @@ class spacyr:
                 entities.append((entity.label_, ' '.join(t.orth_ for t in entity)))
             all_entities[ts] = entities
         return all_entities
-
+        
+    def dep_head_id(self, timestamps):
+        all_head_ids = {}
+        if isinstance(timestamps, list) == False:
+            timestamps = [timestamps]
+        for ts in timestamps:
+            ts = int(ts)
+            c_document = self.documents[ts]
+            head_ids = []
+            for w in c_document:
+                head_ids.append(w.head.i)
+            all_head_ids[ts] = head_ids
+        return all_head_ids
 
 # def tokens(self, timestamps):
     #     all_tokens = {}
