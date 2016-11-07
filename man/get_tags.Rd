@@ -9,7 +9,9 @@ get_tags(spacy_out, tagset = c("google", "penn"))
 \arguments{
 \item{spacy_out}{a spacy_out object}
 
-\item{tagset}{}
+\item{tagset}{character label for the tagset to use, either \code{"google"} 
+or \code{"penn"} to use the simplified Google tagset, or the more detailed 
+scheme from the Penn Treebank.}
 }
 \value{
 a list of tags

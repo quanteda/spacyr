@@ -7,9 +7,9 @@
 get_attrs(spacy_out, attr_name)
 }
 \arguments{
-\item{spacy_out}{}
+\item{spacy_out}{a spacy_out object}
 
-\item{attr_name}{}
+\item{attr_name}{name of spacy token attributes to extract}
 }
 \value{
 a list of attributes

@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse.R
 \name{get_tokens}
 \alias{get_tokens}
-\title{get tokens from spaCy output}
+\title{get tokens from tokenized texts}
 \usage{
 get_tokens(spacy_out)
 }
@@ -13,7 +13,7 @@ get_tokens(spacy_out)
 a list of tokens
 }
 \description{
-get tokens from spaCy output
+get tokens from tokenized texts
 }
 \examples{
 \donttest{

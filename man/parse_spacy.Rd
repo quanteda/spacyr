@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse.R
 \name{parse_spacy}
 \alias{parse_spacy}
-\title{parse text using spaCy}
+\title{tokenize text using spaCy}
 \usage{
 parse_spacy(x, ...)
 }
@@ -15,7 +15,7 @@ parse_spacy(x, ...)
 result marker object
 }
 \description{
-Parse text using spaCy. The results of parsing is stored as a python object. To obtain the results in R, use functions such as get_tokens(), get_tags() etc.
+Tokenize text using spaCy. The results of tokenization is stored as a python object. To obtain the tokens results in R, use \code{get_tokens()}.
 \url{http://spacy.io}.
 }
 \examples{
