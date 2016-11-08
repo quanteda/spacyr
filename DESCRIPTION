@@ -12,6 +12,7 @@ Description: An R wrapper to the Python (Cython) spaCy NLP system,
     from http://spacy.io. 
 License: GPL-3
 LazyData: TRUE
+SystemRequirements: python (>= 2.7.6)
 Depends:
     R (>= 3.3.0),
     quanteda (>= 0.9.8),
