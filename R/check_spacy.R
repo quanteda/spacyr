@@ -94,7 +94,7 @@ initialize_spacy <- function(which_python = NA) {
 #' @return NULL
 #' @export
 #' @author Akitaka Matsuo
-initialize_spacy_rpython <- function() {
+spacy_initialize <- function() {
     rPython::python.load(system.file("python", "initialize_rPython.py", package = 'spacyr'))
     options("spacy_rpython" = TRUE)
 }

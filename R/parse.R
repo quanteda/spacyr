@@ -3,18 +3,24 @@
 #' Tokenize text using spaCy. The results of tokenization is stored as a python object. To obtain the tokens results in R, use \code{get_tokens()}.
 #' \url{http://spacy.io}.
 #' @param x input text
+#' @param tokenize_only Logical. If TRUE, spaCy will run all parsing 
+#' functionalities including the tagging, named entity recognisiton, dependency 
+#' analysis. 
+#' This slows down \code{spacy_parse()} but speeds up the later parsing. 
+#' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
+#' relevant functions are called.
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @examples
-#' \donttest{initialize_spacy_rpython()
+#' \donttest{spacy_initialize()
 #' # the result has to be "tag() is ready to run" to run the following
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")
-#' results <- parse_spacy(txt)
+#' results <- spacy_parse(txt)
 #' 
 #' }
 #' @export
-parse_spacy <- function(x, ...) {
+spacy_parse <- function(x, tokenize_only = FALSE,  ...) {
     # get or set document names
     if (!is.null(names(x))) {
         docnames <- names(x) 
@@ -37,52 +43,95 @@ parse_spacy <- function(x, ...) {
     rPython::python.exec("results = spobj.parse(texts)")
     timestamps = as.character(rPython::python.get("results"))
     
-    output <- list(docnames = docnames, timestamps = timestamps)
-    class(output) <- c("spacy_out", class(output))
+    # output <- list(docnames = docnames, timestamps = timestamps)
+    # class(output) <- c("spacy_out", class(output))
+    output <- spacy_out$new(docnames = docnames, 
+                            timestamps = timestamps,
+                            tokenize_only = tokenize_only)
     return(output)
 }
 
+spacy_out <- setRefClass(
+    Class = "spacy_out",
+    fields = list(
+        timestamps = 'character',
+        docnames = 'character',
+        tokenize_only = 'logical',
+        tagger = 'logical',
+        entity = 'logical',
+        parse = 'logical'
+    ),
+    methods = list(
+        initialize = function(tokenize_only = FALSE,
+                              timestamps = NULL, docnames = NULL) {
+            if(tokenize_only){
+                tagger <<- entity <<- parse <<- FALSE
+            } else {
+                tagger <<- entity <<- parse <<- TRUE
+            }
+            tokenize_only <<- tokenize_only
+            timestamps <<- timestamps
+            docnames <<- docnames
+        }
+    )
+)
+
+
+
 #' get tokens from tokenized texts
 #'
-#' @param spacy_out a spacy_out object
-#'
-#' @return a list of tokens
+#' @return an tokenized text object in tokenizedText_spacyr class
 #' @export
 #'
 #' @examples
 #' \donttest{
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")
-#' results <- parse_spacy(txt)
-#' get_tags(results)
+#' results <- spacy_parse(txt)
+#' tokens <- tokens(results)
 #' }
-get_tokens <- function(spacy_out) {
+tokens <- function(x, ...) {
+    UseMethod("tokens")
+}
+
+#' @describeIn tokens Get tokens using spacy_out object
+#' @param spacy_out a spacy_out object
+#' @export
+tokens.spacy_out <- function(spacy_out) {
     rPython::python.assign('timestamps', spacy_out$timestamps)
     rPython::python.exec('tokens_list = spobj.tokens(timestamps)')
     tokens <- rPython::python.get("tokens_list")
     tokens <- tokens[spacy_out$timestamps]
     names(tokens) <- spacy_out$docnames
-    return(tokens)
+    output <- list(tokens = tokens, 
+                   spacy_out = spacy_out)
+    class(output) <- c("tokenizedText", 'tokenizedText_spacyr', class(output))
+    return(output)
 }
 
-#' get tags from spaCy output
+#' tag parts of speech using spaCy via rPython
+#' 
+#' Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 
+#' Options exist for using either the Google or Penn tagsets. See 
+#' \url{http://spacy.io}.
 #'
-#' @param spacy_out a spacy_out object
+#' @return a tokenized text object with tags
+#' @param tokens a tokenizedText_spacyr object
 #' @param tagset character label for the tagset to use, either \code{"google"} 
 #'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
 #'   scheme from the Penn Treebank.  
-#'
-#' @return a list of tags
-#' @export
-#'
+#' @export 
 #' @examples
 #' \donttest{
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")
-#' results <- parse_spacy(txt)
-#' get_tags(results)
+#' results <- spacy_parse(txt)
+#' tokens <- tokens(results)
+#' tokens_with_tag <- tokens_tag(tokens)
 #' }
-get_tags <- function(spacy_out,  tagset = c("google", "penn")) {
+tokens_tag <- function(tokens,  tagset = c("google", "penn")) {
+    stopifnot("tokenizedText_spacyr" %in% class(tokens))
+    spacy_out <- tokens$spacy_out
     tagset <- match.arg(tagset)
     rPython::python.assign('timestamps', spacy_out$timestamps)
     
@@ -91,7 +140,9 @@ get_tags <- function(spacy_out,  tagset = c("google", "penn")) {
     tags <- rPython::python.get("tags_list")
     tags <- tags[spacy_out$timestamps]
     names(tags) <- spacy_out$docnames
-    return(tags)
+    tokens$tags <- tags
+    class(tokens) <- union(class(tokens), "tokenizedTexts_tagged")
+    return(tokens)
 }
 
 
@@ -113,27 +164,6 @@ get_attrs <- function(spacy_out, attr_name) {
     return(attrs)
 }
 
-#' tag parts of speech using spaCy via rPython
-#' 
-#' Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 
-#' Options exist for using either the Google or Penn tagsets. See 
-#' \url{http://spacy.io}.
-#'
-#' @param spacy_out a spacy_out object generated from \code{parse_spacy}
-#' @param tagset character label for the tagset to use, either \code{"google"} 
-#'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
-#'   scheme from the Penn Treebank.  
-#'
-#' @return a tokenizedTexts_tagged object
-#' @export
-tag_new <- function(spacy_out, tagset = c("penn", "google")) {
-    tags <- get_tags(spacy_out, tagset)
-    tokens <- get_tokens(spacy_out)
-    ret <- list(tokens = tokens, tags = tags)
-    attr(ret, "tagset") <- tagset
-    class(ret) <- c("tokenizedTexts_tagged", class(ret))
-    return(ret)
-}
 
 #' Title
 #'
@@ -160,7 +190,7 @@ all_entities <- function(spacy_out){
 #' 
 #' @return list of named entities in texts
 #' @export
-get_entities <- function(spacy_out){
+tokens_named_entities <- function(spacy_out){
     rPython::python.assign('timestamps', spacy_out$timestamps)
     rPython::python.exec('ents_type = spobj.attributes(timestamps, "ent_type_")')
     ent_type <- rPython::python.get("ents_type")
