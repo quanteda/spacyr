@@ -5,7 +5,7 @@
 \title{get tokens from a text vector}
 \usage{
 tokens(x, pos_tag = TRUE, named_entity = FALSE, dependency = FALSE,
-  hash_tokens = FALSE, full_parse = FALSE, tagset = "penn", ...)
+  hash_tokens = FALSE, full_parse = FALSE, ...)
 }
 \arguments{
 \item{x}{a text vector}
