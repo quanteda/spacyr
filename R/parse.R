@@ -30,7 +30,7 @@ spacy_parse <- function(x, tokenize_only = FALSE,  ...) {
     
     
     #x <- iconv(x, "UTF-8", "ASCII",  sub="")
-    #x <- gsub("\\n", "\\n ", x)
+    x <- gsub("\\n", "\\n ", x)
     x <- gsub("'", "''", x, fixed = T)
     x <- gsub("\"", "", x, fixed = T)
     x <- gsub("\\", "", x, fixed = T)
