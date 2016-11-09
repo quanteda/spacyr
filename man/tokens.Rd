@@ -2,26 +2,28 @@
 % Please edit documentation in R/parse.R
 \name{tokens}
 \alias{tokens}
-\alias{tokens.spacy_out}
-\title{get tokens from tokenized texts}
+\title{get tokens from a text vector}
 \usage{
-tokens(x, ...)
-
-\method{tokens}{spacy_out}(spacy_out)
+tokens(x, pos_tag = TRUE, named_entity = FALSE, dependency = FALSE,
+  hash_tokens = FALSE, full_parse = FALSE, tagset = "penn", ...)
 }
 \arguments{
-\item{spacy_out}{a spacy_out object}
+\item{x}{a text vector}
+
+\item{pos_tag}{Logical. Part of speech tagging}
+
+\item{named_entity}{Logical. Conduct nemed entity recognition}
+
+\item{dependency}{Logical. Conduct dependency analysis.}
+
+\item{hash_tokens}{Logical. Hash tokens.}
 }
 \value{
-an tokenized text object in tokenizedText_spacyr class
+an tokenized text object
 }
 \description{
-get tokens from tokenized texts
+get tokens from a text vector
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{spacy_out}: Get tokens using spacy_out object
-}}
 \examples{
 \donttest{
 txt <- c(text1 = "This is the first sentence.\\nHere is the second sentence.", 

@@ -29,8 +29,8 @@ spacy_parse <- function(x, tokenize_only = FALSE,  ...) {
     }
     
     
-    x <- iconv(x, "UTF-8", "ASCII",  sub="") 
-    x <- gsub("\\n", "\\n ", x)
+    #x <- iconv(x, "UTF-8", "ASCII",  sub="")
+    #x <- gsub("\\n", "\\n ", x)
     x <- gsub("'", "''", x, fixed = T)
     x <- gsub("\"", "", x, fixed = T)
     x <- gsub("\\", "", x, fixed = T)
@@ -78,9 +78,14 @@ spacy_out <- setRefClass(
 
 
 
-#' get tokens from tokenized texts
-#'
-#' @return an tokenized text object in tokenizedText_spacyr class
+#' get tokens from a text vector
+#' @param x a text vector
+#' @param pos_tag Logical. Part of speech tagging
+#' @param named_entity Logical. Conduct nemed entity recognition
+#' @param dependency Logical. Conduct dependency analysis.
+#' @param hash_tokens Logical. Hash tokens.
+#' @import quanteda
+#' @return an tokenized text object 
 #' @export
 #'
 #' @examples
@@ -90,23 +95,46 @@ spacy_out <- setRefClass(
 #' results <- spacy_parse(txt)
 #' tokens <- tokens(results)
 #' }
-tokens <- function(x, ...) {
-    UseMethod("tokens")
+tokens <- function(x, pos_tag = TRUE, 
+                   named_entity = FALSE, 
+                   dependency = FALSE,
+                   hash_tokens = FALSE, 
+                   full_parse = FALSE, 
+                   tagset = "penn" , ...) {
+    tagset <- match.arg(tagset, c("google", "penn"))
+    tokenize_only <- ifelse(sum(pos_tag, named_entity, dependency) == 3 | 
+                                full_parse == T, 
+                            FALSE, TRUE)
+    spacy_out <- spacy_parse(x, tokenize_only = tokenize_only)
+    output <- get_tokens(spacy_out)
+    if (hash_tokens) output <- quanteda::tokens_hash(output)
+    if (pos_tag) {
+        tags <- get_tags(spacy_out)
+        attr(tags, "tagset") <- tagset
+        attr(output, "tags") <- tags
+    }
+    
+    ## there will be a cleaning up functionality
+    return(output)
 }
 
-#' @describeIn tokens Get tokens using spacy_out object
+#' get tokens
+#' 
+#' 
 #' @param spacy_out a spacy_out object
 #' @export
-tokens.spacy_out <- function(spacy_out) {
+get_tokens <- function(spacy_out) {
     rPython::python.assign('timestamps', spacy_out$timestamps)
     rPython::python.exec('tokens_list = spobj.tokens(timestamps)')
     tokens <- rPython::python.get("tokens_list")
     tokens <- tokens[spacy_out$timestamps]
     names(tokens) <- spacy_out$docnames
-    output <- list(tokens = tokens, 
-                   spacy_out = spacy_out)
-    class(output) <- c("tokenizedText", 'tokenizedText_spacyr', class(output))
-    return(output)
+    #output <- list(tokens = tokens)
+    class(tokens) <- c("tokenizedText", class(tokens))
+    attr(tokens, "what") <- "word"
+    attr(tokens, "ngrams") <- 1
+    attr(tokens, "concatenator") <- ""
+    return(tokens)
 }
 
 #' tag parts of speech using spaCy via rPython
@@ -116,7 +144,7 @@ tokens.spacy_out <- function(spacy_out) {
 #' \url{http://spacy.io}.
 #'
 #' @return a tokenized text object with tags
-#' @param tokens a tokenizedText_spacyr object
+#' @param spacy_out a spacy_out object
 #' @param tagset character label for the tagset to use, either \code{"google"} 
 #'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
 #'   scheme from the Penn Treebank.  
@@ -129,20 +157,19 @@ tokens.spacy_out <- function(spacy_out) {
 #' tokens <- tokens(results)
 #' tokens_with_tag <- tokens_tag(tokens)
 #' }
-tokens_tag <- function(tokens,  tagset = c("google", "penn")) {
-    stopifnot("tokenizedText_spacyr" %in% class(tokens))
-    spacy_out <- tokens$spacy_out
+get_tags <- function(spacy_out, tagset = c("google", "penn")) {
+    #stopifnot("tokenizedText_spacyr" %in% class(tokens))
+    #spacy_out <- tokens$spacy_out
     tagset <- match.arg(tagset)
     rPython::python.assign('timestamps', spacy_out$timestamps)
-    
     rPython::python.assign('tagset', tagset)
     rPython::python.exec('tags_list = spobj.tags(timestamps, tagset)')
     tags <- rPython::python.get("tags_list")
     tags <- tags[spacy_out$timestamps]
     names(tags) <- spacy_out$docnames
-    tokens$tags <- tags
-    class(tokens) <- union(class(tokens), "tokenizedTexts_tagged")
-    return(tokens)
+    #tokens$tags <- tags
+    #class(tokens) <- union(class(tokens), "tokenizedTexts_tagged")
+    return(tags)
 }
 
 
