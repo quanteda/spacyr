@@ -310,7 +310,7 @@ get_dependency <- function(spacy_out){
 #' @return a data.table of all named entities
 #' @export
 all_named_entities <- function(dt) {
-    if("named_entity" %in% names(dt)) {
+    if(!"named_entity" %in% names(dt)) {
         stop("Named Entity Recognition is not conducted")
     }
     dt <- dt[nchar(dt$named_entity) > 0]
@@ -318,7 +318,7 @@ all_named_entities <- function(dt) {
     dt[, iob := sub(".+_", "", named_entity)]
     dt[, ent_id := cumsum(iob=="B")]
     entities <- dt[, lapply(.SD, function(x) x[1]), by = ent_id, 
-                   .SDcols = c("docname", "entity_type")]
+                   .SDcols = c("docname", "id", "entity_type")]
     entities[, entity := dt[, lapply(.SD, function(x) paste(x, collapse = " ")), 
                             by = ent_id, 
                             .SDcols = c("tokens")]$tokens]    
