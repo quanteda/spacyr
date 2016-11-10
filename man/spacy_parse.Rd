@@ -2,36 +2,19 @@
 % Please edit documentation in R/parse.R
 \name{spacy_parse}
 \alias{spacy_parse}
-\title{tokenize text using spaCy}
+\alias{spacy_parse.corpus}
+\title{Tokens}
 \usage{
-spacy_parse(x, tokenize_only = FALSE, ...)
+spacy_parse(x, ...)
+
+\method{spacy_parse}{corpus}(x, ...)
 }
 \arguments{
-\item{x}{input text}
+\item{x}{objet to be parsed}
 
-\item{tokenize_only}{Logical. If TRUE, spaCy will run all parsing 
-functionalities including the tagging, named entity recognisiton, dependency 
-analysis. 
-This slows down \code{spacy_parse()} but speeds up the later parsing. 
-If FALSE, tagging, entity recogitions, and dependendcy analysis when 
-relevant functions are called.}
-
-\item{...}{arguments passed to specific methods}
-}
-\value{
-result marker object
+\item{...}{additional arguments not used}
 }
 \description{
-Tokenize text using spaCy. The results of tokenization is stored as a python object. To obtain the tokens results in R, use \code{get_tokens()}.
-\url{http://spacy.io}.
-}
-\examples{
-\donttest{spacy_initialize()
-# the result has to be "tag() is ready to run" to run the following
-txt <- c(text1 = "This is the first sentence.\\nHere is the second sentence.", 
-         text2 = "This is the second document.")
-results <- spacy_parse(txt)
-
-}
+Tokens
 }
 

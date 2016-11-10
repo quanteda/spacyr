@@ -26,13 +26,16 @@ class spacyr:
         self.nlp = spacy.en.English()
         self.documents = {}
     
-    def parse(self, texts):
+    def parse(self, texts, tokenize_only):
         epoch_nanos = []
         if isinstance(texts, list) == False:
             texts = [texts]
         for text in texts:
             epoch_nano = int(time.time() * 1000000)
-            doc = self.nlp(unicode(text))
+            if tokenize_only == 0:
+                doc = self.nlp(unicode(text))
+            else:
+                doc = self.nlp.tokenizer(unicode(text))
             self.documents[epoch_nano] = doc
             epoch_nanos.append(epoch_nano)
         return epoch_nanos 

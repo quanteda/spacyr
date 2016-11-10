@@ -20,7 +20,8 @@
 #' 
 #' }
 #' @export
-spacy_parse <- function(x, tokenize_only = FALSE,  ...) {
+process_document <- function(x, tokenize_only = FALSE,  ...) {
+    # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
         docnames <- names(x) 
@@ -40,7 +41,8 @@ spacy_parse <- function(x, tokenize_only = FALSE,  ...) {
     if (is.null(options()$spacy_rpython)) 
         initialize_spacy_rpython()
     rPython::python.assign("texts", x)
-    rPython::python.exec("results = spobj.parse(texts)")
+    rPython::python.assign("tokenize_only", tokenize_only)
+    rPython::python.exec("results = spobj.parse(texts, tokenize_only)")
     timestamps = as.character(rPython::python.get("results"))
     
     # output <- list(docnames = docnames, timestamps = timestamps)
@@ -59,15 +61,15 @@ spacy_out <- setRefClass(
         tokenize_only = 'logical',
         tagger = 'logical',
         entity = 'logical',
-        parse = 'logical'
+        parser = 'logical'
     ),
     methods = list(
         initialize = function(tokenize_only = FALSE,
                               timestamps = NULL, docnames = NULL) {
             if(tokenize_only){
-                tagger <<- entity <<- parse <<- FALSE
+                tagger <<- entity <<- parser <<- FALSE
             } else {
-                tagger <<- entity <<- parse <<- TRUE
+                tagger <<- entity <<- parser <<- TRUE
             }
             tokenize_only <<- tokenize_only
             timestamps <<- timestamps
@@ -76,7 +78,15 @@ spacy_out <- setRefClass(
     )
 )
 
-
+#' Tokens 
+#' 
+#' @rdname spacy_parse
+#' @param x objet to be parsed
+#' @param ... additional arguments not used
+#' @export
+spacy_parse <- function(x, ...) {
+    UseMethod("spacy_parse")
+}
 
 #' get tokens from a text vector
 #' @param x a text vector
@@ -95,7 +105,7 @@ spacy_out <- setRefClass(
 #' results <- spacy_parse(txt)
 #' tokens <- tokens(results)
 #' }
-tokens <- function(x, pos_tag = TRUE, 
+spacy_parse.character <- function(x, pos_tag = TRUE, 
                    named_entity = FALSE, 
                    dependency = FALSE,
                    hash_tokens = FALSE, 
@@ -103,7 +113,7 @@ tokens <- function(x, pos_tag = TRUE,
     tokenize_only <- ifelse(sum(pos_tag, named_entity, dependency) == 3 | 
                                 full_parse == T, 
                             FALSE, TRUE)
-    spacy_out <- spacy_parse(x, tokenize_only = tokenize_only)
+    spacy_out <- process_document(x, tokenize_only = tokenize_only)
     output <- get_tokens(spacy_out)
     if (hash_tokens) output <- quanteda::tokens_hash(output)
     if (pos_tag) {
@@ -115,12 +125,19 @@ tokens <- function(x, pos_tag = TRUE,
         attr(output, "named_entities") <- get_named_entities(spacy_out)
     }
     if (dependency) {
-        attr(output, "dependency") <- get_dependency_data(spacy_out)
+        attr(output, "dependency") <- get_dependency(spacy_out)
     }
     attr(output, "lemma") <- get_attrs(spacy_out, "lemma_")
     attr(output, "id") <- get_attrs(spacy_out, "i")
     ## there will be a cleaning up functionality
     return(output)
+}
+
+
+#' @rdname spacy_parse
+#' @export
+spacy_parse.corpus <- function(x, ...) {
+    tokens(texts(x), ...)
 }
 
 #' get tokens
@@ -167,6 +184,10 @@ get_tags <- function(spacy_out, tagset = c("google", "penn")) {
     #spacy_out <- tokens$spacy_out
     tagset <- match.arg(tagset)
     rPython::python.assign('timestamps', spacy_out$timestamps)
+    if(spacy_out$tagger == FALSE) {
+        rPython::python.exec('tags_list = spobj.run_tagger(timestamps)')
+        spacy_out$tagger <- TRUE
+    }
     rPython::python.assign('tagset', tagset)
     rPython::python.exec('tags_list = spobj.tags(timestamps, tagset)')
     tags <- rPython::python.get("tags_list")
@@ -224,6 +245,10 @@ all_entities <- function(spacy_out){
 #' @export
 get_named_entities <- function(spacy_out){
     rPython::python.assign('timestamps', spacy_out$timestamps)
+    if(spacy_out$entity == FALSE) {
+        rPython::python.exec('tags_list = spobj.run_entity(timestamps)')
+        spacy_out$entity <- TRUE
+    }
     rPython::python.exec('ents_type = spobj.attributes(timestamps, "ent_type_")')
     ent_type <- rPython::python.get("ents_type")
     ent_type  <- ent_type[spacy_out$timestamps]
@@ -248,9 +273,13 @@ get_named_entities <- function(spacy_out){
 #'
 #' @return data.frame of dependency relations
 #' @export
-get_dependency_data <- function(spacy_out){
+get_dependency <- function(spacy_out){
     # get ids of head of each token
     rPython::python.assign('timestamps', spacy_out$timestamps)
+    if(spacy_out$parser == FALSE) {
+        rPython::python.exec('tags_list = spobj.run_dependency_parser(timestamps)')
+        spacy_out$parser <- TRUE
+    }
     rPython::python.exec('head_id = spobj.dep_head_id(timestamps)')
     head_id <- rPython::python.get("head_id")
     head_id  <- head_id[spacy_out$timestamps]
@@ -270,6 +299,8 @@ convert_to_data_table <- function(tokens){
     for(i in 1:length(tokens)){
         names(tokens[[i]]) <- NA
     }
+    if("tokens" %in% class(tokens))
+        tokens <- quanteda::as.tokenizedTexts(tokens)
     tok <- unlist(tokens)
     docname <- sub("\\.NA", "", names(tok))
     output <- data.table(docname = docname, 
