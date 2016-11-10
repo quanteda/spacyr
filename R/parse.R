@@ -321,6 +321,7 @@ all_named_entities <- function(dt) {
                    .SDcols = c("docname", "id", "entity_type")]
     entities[, entity := dt[, lapply(.SD, function(x) paste(x, collapse = " ")), 
                             by = ent_id, 
-                            .SDcols = c("tokens")]$tokens]    
+                            .SDcols = c("tokens")]$tokens] 
+    return(entities)
 }
 
