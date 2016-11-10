@@ -127,7 +127,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     if (dependency) {
         attr(output, "dependency") <- get_dependency(spacy_out)
     }
-    attr(output, "lemma") <- get_attrs(spacy_out, "lemma_")
+    if(pos_tag) attr(output, "lemma") <- get_attrs(spacy_out, "lemma_")
     attr(output, "id") <- get_attrs(spacy_out, "i")
     ## there will be a cleaning up functionality
     return(output)
@@ -296,11 +296,11 @@ get_dependency <- function(spacy_out){
 #' @export
 #'
 convert_to_data_table <- function(tokens){
+    if("tokens" %in% class(tokens))
+        tokens <- quanteda::as.tokenizedTexts(tokens)
     for(i in 1:length(tokens)){
         names(tokens[[i]]) <- NA
     }
-    if("tokens" %in% class(tokens))
-        tokens <- quanteda::as.tokenizedTexts(tokens)
     tok <- unlist(tokens)
     docname <- sub("\\.NA", "", names(tok))
     output <- data.table(docname = docname, 
