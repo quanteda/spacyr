@@ -251,26 +251,6 @@ get_attrs <- function(spacy_out, attr_name) {
     return(attrs)
 }
 
-
-#' Title
-#'
-#' this function may be hidden in future
-#'
-#' @param spacy_out a spacy_out object
-#' 
-#' @return list of named entities in texts
-#' @export
-all_entities <- function(spacy_out){
-    rPython::python.assign('timestamps', spacy_out$timestamps)
-    
-    rPython::python.exec('ents_list = spobj.list_entities(timestamps)')
-    ents <- rPython::python.get("ents_list")
-    ents <- ents[spacy_out$timestamps]
-    names(ents) <- spacy_out$docnames
-    return(ents)
-}
-
-
 #' Title
 #'
 #' @param spacy_out a spacy_out object
@@ -320,5 +300,27 @@ get_dependency <- function(spacy_out){
     
     dep_rel <- get_attrs(spacy_out, "dep_")
     return(list(head_id = head_id, dep_rel = dep_rel))
+}
+
+
+#' Obtain a data of all named entities in spacy out data.table
+#'
+#' @param dt a data table object from 
+#'
+#' @return a data.table of all named entities
+#' @export
+all_named_entities <- function(dt) {
+    if("named_entity" %in% names(dt)) {
+        stop("Named Entity Recognition is not conducted")
+    }
+    dt <- dt[nchar(dt$named_entity) > 0]
+    dt[, entity_type := sub("_.+", "", named_entity)]
+    dt[, iob := sub(".+_", "", named_entity)]
+    dt[, ent_id := cumsum(iob=="B")]
+    entities <- dt[, lapply(.SD, function(x) x[1]), by = ent_id, 
+                   .SDcols = c("docname", "entity_type")]
+    entities[, entity := dt[, lapply(.SD, function(x) paste(x, collapse = " ")), 
+                            by = ent_id, 
+                            .SDcols = c("tokens")]$tokens]    
 }
 
