@@ -38,8 +38,7 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     x <- unname(x)
 
     
-    if (is.null(options()$spacy_rpython)) 
-        initialize_spacy_rpython()
+    if (is.null(options()$spacy_rpython)) spacy_initialize()
     rPython::python.assign("texts", x)
     rPython::python.assign("tokenize_only", tokenize_only)
     rPython::python.exec("results = spobj.parse(texts, tokenize_only)")
@@ -114,23 +113,58 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                 full_parse == T, 
                             FALSE, TRUE)
     spacy_out <- process_document(x, tokenize_only = tokenize_only)
-    output <- get_tokens(spacy_out)
-    if (hash_tokens) output <- quanteda::tokens_hash(output)
-    if (pos_tag) {
-        tags <- list(google = get_tags(spacy_out, "google"), 
-                     penn = get_tags(spacy_out, "penn"))
-        attr(output, "tags") <- tags
+    tokens <- get_tokens(spacy_out)
+    if (hash_tokens) tokens <- quanteda::tokens_hash(tokens)
+    
+    
+    ## initialize data table with three fields
+    for(i in 1:length(tokens)){
+        names(tokens[[i]]) <- NA
     }
-    if (named_entity) {
-        attr(output, "named_entities") <- get_named_entities(spacy_out)
+    tok <- unlist(tokens)
+    docname <- sub("\\.NA", "", names(tok))
+    if("tokens" %in% class(tokens)){
+        #tokens <- quanteda::as.tokenizedTexts(tokens)
+        types <- attr(tokens, "types")
+        tok <- factor(tok, labels = types)
     }
+    dt <- data.table(docname = docname, 
+                         id = unlist(get_attrs(spacy_out, "i"), use.names = F),
+                         tokens = tok)
+    
+    ## add lemma, tags in google and penn (lemmatization in spacy is 
+    ## a part of pos_tagging, so without pos_tag, lemma cannot be done.)
+    
+    if(pos_tag) {
+        #
+        gl <- get_tags(spacy_out, "google")
+        pn <- get_tags(spacy_out, "penn")
+        lem <- get_attrs(spacy_out, "lemma_")
+        
+        gl <- unlist(gl, use.names = F)
+        pn <- unlist(pn, use.names = F)
+        lem <- unlist(lem, use.names = F)
+        
+        dt[, lemma := lem][, google := gl][, penn:= pn]
+    }
+    ## add dependency data fields
     if (dependency) {
-        attr(output, "dependency") <- get_dependency(spacy_out)
+        de <- get_dependency(spacy_out)
+        hid <- unlist(de$head_id, use.names = F)
+        depl <- unlist(de$dep_rel, use.names = F)
+        dt[, head_id := hid ][, dep_rel := depl]
     }
-    if(pos_tag) attr(output, "lemma") <- get_attrs(spacy_out, "lemma_")
-    attr(output, "id") <- get_attrs(spacy_out, "i")
+    ## named entity fields
+    if (named_entity) {
+        ne <- get_named_entities(spacy_out)
+        ne <- unlist(ne, use.names = F)
+        dt[, named_entity := ne]
+    }
+    
+    class(dt) <- c("spacyr_data_table", class(dt))
+    ##attr(output, "id") <- get_attrs(spacy_out, "i")
     ## there will be a cleaning up functionality
-    return(output)
+    return(dt)
 }
 
 
@@ -288,40 +322,3 @@ get_dependency <- function(spacy_out){
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
 
-#' Title
-#'
-#' @param tokens 
-#'
-#' @return a data table of all variables in the data
-#' @export
-#'
-convert_to_data_table <- function(tokens){
-    if("tokens" %in% class(tokens))
-        tokens <- quanteda::as.tokenizedTexts(tokens)
-    for(i in 1:length(tokens)){
-        names(tokens[[i]]) <- NA
-    }
-    tok <- unlist(tokens)
-    docname <- sub("\\.NA", "", names(tok))
-    output <- data.table(docname = docname, 
-                         id = unlist(attr(tokens, 'id'), use.names = F),
-                         tokens = tok,
-                         lemma = unlist(attr(tokens, "lemma"), use.names = F))
-    if(!is.null(attr(tokens, 'tags'))) {
-        gl <- unlist(attr(tokens, 'tags')$google, use.names = F)
-        pn <- unlist(attr(tokens, 'tags')$penn, use.names = F)
-        output[ , google:= gl]
-        output[ , penn := pn]
-    }
-    if(!is.null(attr(tokens, 'dependency'))) {
-        hid <- unlist(attr(tokens, 'dependency')$head_id, use.names = F)
-        drel <- unlist(attr(tokens, 'dependency')$dep_rel, use.names = F)
-        output[ , head_id := hid]
-        output[ ,dep_rel := drel]
-    }
-    if(!is.null(attr(out, 'named_entit'))) {
-        ne <- unlist(attr(tokens, 'named_entities'), use.names = F)
-        output[, named_entites := ne]
-    }
-    return(output)
-}
