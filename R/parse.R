@@ -251,26 +251,6 @@ get_attrs <- function(spacy_out, attr_name) {
     return(attrs)
 }
 
-
-#' Title
-#'
-#' this function may be hidden in future
-#'
-#' @param spacy_out a spacy_out object
-#' 
-#' @return list of named entities in texts
-#' @export
-all_entities <- function(spacy_out){
-    rPython::python.assign('timestamps', spacy_out$timestamps)
-    
-    rPython::python.exec('ents_list = spobj.list_entities(timestamps)')
-    ents <- rPython::python.get("ents_list")
-    ents <- ents[spacy_out$timestamps]
-    names(ents) <- spacy_out$docnames
-    return(ents)
-}
-
-
 #' Title
 #'
 #' @param spacy_out a spacy_out object
@@ -321,4 +301,5 @@ get_dependency <- function(spacy_out){
     dep_rel <- get_attrs(spacy_out, "dep_")
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
+
 
