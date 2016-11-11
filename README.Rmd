@@ -22,9 +22,9 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 ### Prerequisites
 
-1.  Python must be installed on your system.  
+1.  Python (> 2.7 or 3) must be installed on your system.  
 
-2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/).
+2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/). 
 
     Installation on Windows:  
     a)  (If you have not yet installed Python:)  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer.  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."  
@@ -47,34 +47,41 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 ### Examples
 
-The `tag()` function calls spaCy to both tokenize and tag the texts, and returns a special class of tokenizedText object (see [**quanteda**](http://githiub.com/kbenoit/quanteda)) that has both tokens and tags.  The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
+The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
 ```{r}
 require(spacyr)
-# find spaCy and set the correct environment variables
-initialize_spacy()
+# start a python process and initialize spaCy in it.
+# it takes several seconds for initialization.
+spacy_initialize()
 
-# show tag on some sample sentences
+# process documents and obtain a data.table
 head(data_sentences)
-taggedsents <- tag(data_sentences[1:6])
+results <- spacy_parse(data_sentences[1:6])
+head(results)
+```
+
+By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
+
+
+The package spacyr works nicely with quanteda. The fist step is to generate a tokenized texts object from the results of `spacy_parse()`. 
+```{r}
+taggedsents <- tokens_tags_out(results, tagset = "penn")
 taggedsents
 ```
+
 
 Note that while the printed structure appears to append the token and its tag, in fact the structure of the object records these separately:
 ```{r}
 str(taggedsents)
 ```
+This object has the identical structure of quanteda's tokenizedText objects with an additional attribute of tags and will work with methods applied to tokenizedText in quanteda. 
 
 To get a summary of the parts of speech for each document, use the data.frame returned by the `summary()` method for this new object class:
 ```{r}
 summary(taggedsents)
 ```
 
-Alternatively the [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) part-of-speech tagset can be applied:
-```{r}
-taggedsents2 <- tag(data_sentences[1:6], tagset = "penn")
-summary(taggedsents2)
-```
 
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
 ```{r}
@@ -84,9 +91,39 @@ ntoken(taggedsents)
 ntype(taggedsents)
 ```
 
+### Document processing with addiitonal features
+
+The following codes conduct more detailed document processing, including dependency parsing and named entitiy recognition.
+
+```{r}
+results_detailed <- spacy_parse(data_sentences[1:6], 
+                                pos_tag = TRUE,
+                                named_entity = TRUE,
+                                dependency = TRUE)
+head(results_detailed)
+```
+When a named entity recognition was conducted the list of all named entities are provided with:
+
+```{r}
+all_named_entities(results_detailed)
+```
+
+
+#### Support of hashed tokens class of quanteda
+
+Recent versions of quanteda provides a new class of object called `tokens`. The spacyr package provides a support for this new class.
+```{r}
+results_hashed <- spacy_parse(data_sentences[1:6], 
+                              hash_tokens = TRUE)
+head(results_hashed)
+taggedsents_hashed <- tokens_tags_out(results_hashed)
+str(taggedsents_hashed)
+```
+
+
 ## Notes for Mac Users using Homebrew (or other) Version of Python
 
-If your install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R. 
+If you install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R. 
 
 In Terminal, type
 ```
@@ -97,10 +134,10 @@ and in R, enter following
 library(rPython)
 python.exec("import platform\nprint(platform.python_version())")
 ```
-If the outputs are different, loading spaCy is likely to fail.
+If the outputs are different, loading spaCy is likely to fail as the python executable the R system calls is different from the version of python spaCy is intalled.
 
-To resolve the issue please follow the step. Open R from Terminal (just enter `R`), then reinstall rPython from source by entering
-```{r}
+To resolve the issue please follow the step. Open R *from Terminal* (just enter `R`), then reinstall rPython from source by entering
+```{r, eval = FALSE}
 install.packages("rPython", type = "source")
 ```
 then execute the R-commands above again to check the version of Python calling from rPython.
