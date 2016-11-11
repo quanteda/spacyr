@@ -7,7 +7,7 @@
 \method{print}{tokenizedTexts_tagged}(x, sep = "_", ...)
 }
 \arguments{
-\item{x}{a tokenizedText_tagged object created by \link{tag}}
+\item{x}{a tokenizedText_tagged object created by \link{tokens_tags_out}}
 
 \item{sep}{separator for printing tokens and tags, default is \code{"_"}.  If
 \code{NULL}, print tokens and tags separately.}

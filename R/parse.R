@@ -335,7 +335,6 @@ all_named_entities <- function(dt) {
 #' @export
 tokens_out <- function(dt) {
     tok <- dt$token
-    types <- NULL
     output <- split(tok, dt$docname)
     class(output) <- c("tokenizedText", class(output))
     if(is.factor(tok)) {
@@ -350,3 +349,23 @@ tokens_out <- function(dt) {
     return(output)
 }
 
+#' create quanteda tokenized text object from spacy results with tag
+#'
+#' @param dt a data.table output from spacy_parse()
+#'
+#' @return a tokenizedText object
+#' @export
+tokens_tags_out <- function(dt, tagset = "penn") {
+    tagset <- match.arg(tagset, c('penn', 'google'))
+    output <- tokens_out(dt)
+    if(tagset == 'penn'){
+        tag <- dt$penn
+    } else {
+        tag <- dt$google
+    }
+    tag <- split(tag, dt$docname)
+    attr(output, 'tags') <- tag
+    
+    class(output) <- c("tokenizedTexts_tagged", class(output))
+    return(output)
+}

@@ -14,13 +14,4 @@
 \description{
 Generate frequency counts of POS by document, returning a data.frame.
 }
-\examples{
-\donttest{initialize_spacy()
-txt <- c(text1 = "This is the first sentence.\\nHere is the second sentence.", 
-         text2 = "This is the second document.")
-taggedtoks <- tag(txt)
-taggedtoks
-summary(taggedtoks)
-summary(tag(txt, tagset = "penn"))}
-}
 
