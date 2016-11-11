@@ -55,40 +55,24 @@ require(spacyr)
 # it takes several seconds for initialization.
 spacy_initialize()
 
+txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. It is written from the ground up in carefully memory-managed Cython. Independent research has confirmed that spaCy is the fastest in the world. If your application needs to process entire web dumps, spaCy is the library you want to be using.",
+         getdone = "spaCy is designed to help you do real work — to build real products, or gather real insights. The library respects your time, and tries to avoid wasting it. It is easy to install, and its API is simple and productive. I like to think of spaCy as the Ruby on Rails of Natural Language Processing.")
+
 # process documents and obtain a data.table
-head(data_sentences)
-results <- spacy_parse(data_sentences[1:6])
-head(results)
+parsedtxt <- spacy_parse(txt)
+head(parsedtxt)
 ```
 
 By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
 
 
-The package spacyr works nicely with quanteda. The fist step is to generate a tokenized texts object from the results of `spacy_parse()`. 
-```{r}
-taggedsents <- tokens_tags_out(results, tagset = "penn")
-taggedsents
-```
-
-
-Note that while the printed structure appears to append the token and its tag, in fact the structure of the object records these separately:
-```{r}
-str(taggedsents)
-```
-This object has the identical structure of quanteda's tokenizedText objects with an additional attribute of tags and will work with methods applied to tokenizedText in quanteda. 
-
-To get a summary of the parts of speech for each document, use the data.frame returned by the `summary()` method for this new object class:
-```{r}
-summary(taggedsents)
-```
-
-
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
 ```{r}
-docnames(taggedsents)
-ndoc(taggedsents)
-ntoken(taggedsents)
-ntype(taggedsents)
+require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
+docnames(parsedtxt)
+ndoc(parsedtxt)
+ntoken(parsedtxt)
+ntype(parsedtxt)
 ```
 
 ### Document processing with addiitonal features
@@ -96,29 +80,13 @@ ntype(taggedsents)
 The following codes conduct more detailed document processing, including dependency parsing and named entitiy recognition.
 
 ```{r}
-results_detailed <- spacy_parse(data_sentences[1:6], 
+results_detailed <- spacy_parse(txt,
                                 pos_tag = TRUE,
                                 named_entity = TRUE,
                                 dependency = TRUE)
-head(results_detailed)
-```
-When a named entity recognition was conducted the list of all named entities are provided with:
-
-```{r}
-all_named_entities(results_detailed)
+head(results_detailed, 30)
 ```
 
-
-#### Support of hashed tokens class of quanteda
-
-Recent versions of quanteda provides a new class of object called `tokens`. The spacyr package provides a support for this new class.
-```{r}
-results_hashed <- spacy_parse(data_sentences[1:6], 
-                              hash_tokens = TRUE)
-head(results_hashed)
-taggedsents_hashed <- tokens_tags_out(results_hashed)
-str(taggedsents_hashed)
-```
 
 
 ## Notes for Mac Users using Homebrew (or other) Version of Python
@@ -146,8 +114,6 @@ then execute the R-commands above again to check the version of Python calling f
 
 ## Comments and feedback
 
-We welcome your comments and feedback.  Please file issues on the issues page, and/or send me comments at kbenoit@lse.ac.uk.
-
-Plans moving ahead include finding much more efficient methods of calling spaCy from R than [the current use of `system2()`](https://github.com/kbenoit/spacyr/blob/master/R/tag.R#L71).
+We welcome your comments and feedback.  Please file issues on the issues page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.
 
 
