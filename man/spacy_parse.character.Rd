@@ -8,21 +8,28 @@
   dependency = FALSE, hash_tokens = FALSE, full_parse = FALSE, ...)
 }
 \arguments{
-\item{x}{a text vector}
+\item{x}{a character object}
 
-\item{pos_tag}{Logical. Part of speech tagging}
+\item{pos_tag}{logical; if \code{TRUE}, tag parts of speech}
 
-\item{named_entity}{Logical. Conduct nemed entity recognition}
+\item{named_entity}{logical; if \code{TRUE}, report named entities}
 
-\item{dependency}{Logical. Conduct dependency analysis.}
+\item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
 
-\item{hash_tokens}{Logical. Hash tokens.}
+\item{hash_tokens}{logical; if \code{TRUE}, hash the tokens}
+
+\item{full_parse}{logical; if \code{TRUE}, conduct the one-shot parse 
+regardless of the value of other parameters. This  option exists because
+the parsing outcomes of named entities are slightly different different
+when named entities are run separately from the parsing.}
+
+\item{...}{additional arguments required for methods passing}
 }
 \value{
 an tokenized text object
 }
 \description{
-get tokens from a text vector
+Full description awaits.
 }
 \examples{
 \donttest{

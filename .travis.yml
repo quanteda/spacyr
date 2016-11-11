@@ -1,13 +1,14 @@
-r_packages:
-  - covr
-  - knitr
-  - rmarkdown
-
 language: r
 sudo: true
 
 r_binary_packages:
-- testthat
+  - testthat
+
+r_packages:
+  - covr
+
+r_github_packages:
+  - kbenoit/quanteda
 
 env:
   global:

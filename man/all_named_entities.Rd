@@ -13,6 +13,6 @@ all_named_entities(dt)
 a data.table of all named entities
 }
 \description{
-Obtain a data of all named entities in spacy out data.table
+Extended description to go here.
 }
 

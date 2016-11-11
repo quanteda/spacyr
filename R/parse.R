@@ -52,6 +52,7 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     return(output)
 }
 
+
 spacy_out <- setRefClass(
     Class = "spacy_out",
     fields = list(
@@ -65,7 +66,7 @@ spacy_out <- setRefClass(
     methods = list(
         initialize = function(tokenize_only = FALSE,
                               timestamps = NULL, docnames = NULL) {
-            if(tokenize_only){
+            if (tokenize_only) {
                 tagger <<- entity <<- parser <<- FALSE
             } else {
                 tagger <<- entity <<- parser <<- TRUE
@@ -82,21 +83,29 @@ spacy_out <- setRefClass(
 #' @rdname spacy_parse
 #' @param x objet to be parsed
 #' @param ... additional arguments not used
+#' @importFrom methods new
 #' @export
 spacy_parse <- function(x, ...) {
     UseMethod("spacy_parse")
 }
 
 #' get tokens from a text vector
-#' @param x a text vector
-#' @param pos_tag Logical. Part of speech tagging
-#' @param named_entity Logical. Conduct nemed entity recognition
-#' @param dependency Logical. Conduct dependency analysis.
-#' @param hash_tokens Logical. Hash tokens.
+#' 
+#' Full description awaits.
+#' @param x a character object
+#' @param pos_tag logical; if \code{TRUE}, tag parts of speech
+#' @param named_entity logical; if \code{TRUE}, report named entities
+#' @param dependency logical; if \code{TRUE}, analyze and return dependencies
+#' @param hash_tokens logical; if \code{TRUE}, hash the tokens
+#' @param full_parse  logical; if \code{TRUE}, conduct the one-shot parse 
+#'   regardless of the value of other parameters. This  option exists because
+#'   the parsing outcomes of named entities are slightly different different
+#'   when named entities are run separately from the parsing.
+#' @param ... additional arguments required for methods passing
 #' @import quanteda
-#' @return an tokenized text object 
+#' @return an tokenized text object
 #' @export
-#'
+#' 
 #' @examples
 #' \donttest{
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
@@ -109,6 +118,9 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                    dependency = FALSE,
                    hash_tokens = FALSE, 
                    full_parse = FALSE, ...) {
+    
+    lemma <- google <- penn <- head_id <- dep_rel <- NULL
+    
     tokenize_only <- ifelse(sum(pos_tag, named_entity, dependency) == 3 | 
                                 full_parse == T, 
                             FALSE, TRUE)
@@ -304,12 +316,17 @@ get_dependency <- function(spacy_out){
 
 
 #' Obtain a data of all named entities in spacy out data.table
-#'
+#' 
+#' Extended description to go here.
 #' @param dt a data table object from 
-#'
 #' @return a data.table of all named entities
+#' @import data.table
 #' @export
 all_named_entities <- function(dt) {
+    
+    # needed to stop "no visible binding" warnings
+    entity_type <- named_entity <- iob <- ent_id <- NULL
+    
     if(!"named_entity" %in% names(dt)) {
         stop("Named Entity Recognition is not conducted")
     }
@@ -350,9 +367,12 @@ tokens_out <- function(dt) {
 }
 
 #' create quanteda tokenized text object from spacy results with tag
-#'
-#' @param dt a data.table output from spacy_parse()
-#'
+#' 
+#' Full description goes here.
+#' @param dt a data.table output from \code{\link{spacy_parse}}
+#' @param tagset character label for the tagset to use, either \code{"google"} 
+#'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
+#'   scheme from the Penn Treebank. 
 #' @return a tokenizedText object
 #' @export
 tokens_tags_out <- function(dt, tagset = "penn") {

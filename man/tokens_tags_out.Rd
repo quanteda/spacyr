@@ -7,12 +7,16 @@
 tokens_tags_out(dt, tagset = "penn")
 }
 \arguments{
-\item{dt}{a data.table output from spacy_parse()}
+\item{dt}{a data.table output from \code{\link{spacy_parse}}}
+
+\item{tagset}{character label for the tagset to use, either \code{"google"} 
+or \code{"penn"} to use the simplified Google tagset, or the more detailed 
+scheme from the Penn Treebank.}
 }
 \value{
 a tokenizedText object
 }
 \description{
-create quanteda tokenized text object from spacy results with tag
+Full description goes here.
 }
 
