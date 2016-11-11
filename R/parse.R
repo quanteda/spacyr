@@ -325,3 +325,28 @@ all_named_entities <- function(dt) {
     return(entities)
 }
 
+
+
+#' create quanteda tokenized text object from spacy results
+#'
+#' @param dt a data.table output from spacy_parse()
+#'
+#' @return a tokenizedText object
+#' @export
+tokens_out <- function(dt) {
+    tok <- dt$token
+    types <- NULL
+    output <- split(tok, dt$docname)
+    class(output) <- c("tokenizedText", class(output))
+    if(is.factor(tok)) {
+        output <- lapply(output, as.numeric)
+        types <- levels(tok)
+        class(output) <- c("tokens", class(output))
+        attr(output, 'types') <- types
+    }
+    attr(output, "what") <- "word"
+    attr(output, "ngrams") <- 1
+    attr(output, "concatenator") <- ""
+    return(output)
+}
+
