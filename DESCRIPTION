@@ -15,12 +15,14 @@ LazyData: TRUE
 Depends:
     R (>= 3.3.0)
 Imports:
-    rmarkdown,
-    knitr,
     rPython,
     methods,
     quanteda,
     data.table
+Suggests:
+    rmarkdown,
+    testthat,
+    knitr
 URL: http://github.com/kbenoit/spacyr
 Encoding: UTF-8
 BugReports: https://github.com/kbenoit/spacyr/issues

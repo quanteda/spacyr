@@ -2,19 +2,49 @@
 % Please edit documentation in R/parse.R
 \name{spacy_parse}
 \alias{spacy_parse}
-\alias{spacy_parse.corpus}
-\title{Tokens}
+\title{parse a text using spaCy}
 \usage{
-spacy_parse(x, ...)
-
-\method{spacy_parse}{corpus}(x, ...)
+spacy_parse(x, pos_tag = TRUE, named_entity = FALSE, dependency = FALSE,
+  hash_tokens = FALSE, full_parse = FALSE, ...)
 }
 \arguments{
-\item{x}{objet to be parsed}
+\item{x}{a character or \pkg{quanteda} corpus object}
 
-\item{...}{additional arguments not used}
+\item{pos_tag}{logical; if \code{TRUE}, tag parts of speech}
+
+\item{named_entity}{logical; if \code{TRUE}, report named entities}
+
+\item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
+
+\item{hash_tokens}{logical; if \code{TRUE}, hash the tokens}
+
+\item{full_parse}{logical; if \code{TRUE}, conduct the one-shot parse 
+regardless of the value of other parameters. This  option exists because 
+the parsing outcomes of named entities are slightly different different 
+when named entities are run separately from the parsing.}
+
+\item{...}{not used directly}
+}
+\value{
+an tokenized text object
 }
 \description{
-Tokens
+Full description awaits.
+}
+\examples{
+\donttest{
+spacy_initialize()
+# See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html
+txt <- "And now for something completely different."
+spacy_parse(txt)
+spacy_parse(txt, pos_tag = FALSE)
+spacy_parse(txt, dependency = TRUE)
+
+txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.", 
+          doc2 = "This is the second document.",
+          doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
+spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
+tokens(results)
+}
 }
 

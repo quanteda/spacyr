@@ -1,0 +1,42 @@
+---
+title: "spacy_parse failures"
+author: "Kenneth Benoit"
+date: "11/11/2016"
+output: html_document
+---
+
+```{r, echo = FALSE}
+require(spacyr)
+spacy_initialize()
+```
+
+### Issue #5: escaped space characters need special handling
+
+```{r error = TRUE}
+#spacy_parse("This \n newline fails.")
+spacy_parse("This \\n newline succeeds.")
+#spacy_parse("This \t tab fails.")
+spacy_parse("This \\t tab succeeds.")
+```
+
+### Issue #6: escaped quotes need special handling
+
+Single quotes just plain fail:
+```{r}
+#spacy_parse("Failure for \'single\' quotes.")
+#spacy_parse("Failure for \\\'single\\\' quotes.")
+```
+
+Double-quotes work if you use three `\` characters:
+```{r}
+spacy_parse("Failure for \"double\" quotes.")
+#spacy_parse("Success for \\\"double\\\" quotes.")
+```
+
+### Issue #7: `spacy_parse()` returns previous object value after failure
+
+```{r}
+spacy_parse("Parsing this sentence is easy.")
+#spacy_parse("Failure for \"double\" quotes.")
+```
+
