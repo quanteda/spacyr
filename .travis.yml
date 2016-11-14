@@ -10,6 +10,9 @@ r_packages:
 r_github_packages:
   - kbenoit/quanteda
 
+before_install:
+  - ./tvavis_install.sh
+
 env:
   global:
     - R_CHECK_ARGS="--no-build-vignettes"
