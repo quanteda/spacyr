@@ -135,17 +135,22 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
         docnames <- paste0("text", 1:length(x))
     }
 
-    x <- gsub("\\\\","", x)
-    x <- gsub("\\n","\\\\n", x)
-    x <- gsub("\\t","\\\\t", x)
-    x <- gsub("'","\\\\'", x)
-    x <- gsub('"','\\\\"', x)
+    x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
+    x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
+    x <- gsub("\\\\","", x) # delete unnecessary backslashes
+    x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
+    x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
+    x <- gsub("'","\\\\'", x) # escape single quotes 
+    x <- gsub('"','\\\\"', x) # escape double quotes
     x <- unname(x)
+    
+    # construct a python statement 
     text_modified <- sprintf("[%s]", 
                      paste(sapply(x, function(x) sprintf("\"%s\"", x)),
                            collapse = ", "))
     
     if (is.null(options()$spacy_rpython)) spacy_initialize()
+    #rPython::python.exec("del spobj")
     rPython::python.exec("spobj = spacyr()")
     exec_out <- rPython::python.exec(paste0("texts = ", text_modified),
                                      get.exception = F)
