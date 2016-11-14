@@ -5,7 +5,6 @@
 #' @param pos_tag logical; if \code{TRUE}, tag parts of speech
 #' @param named_entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
-#' @param hash_tokens logical; if \code{TRUE}, hash the tokens
 #' @param full_parse  logical; if \code{TRUE}, conduct the one-shot parse 
 #'   regardless of the value of other parameters. This  option exists because 
 #'   the parsing outcomes of named entities are slightly different different 
@@ -29,12 +28,10 @@
 #'           doc2 = "This is the second document.",
 #'           doc3 = "This is a \\\"quoted\\\" text." )
 #' spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
-#' tokens(results)
 #' }
 spacy_parse <- function(x, pos_tag = TRUE, 
                         named_entity = FALSE, 
                         dependency = FALSE,
-                        hash_tokens = FALSE, 
                         full_parse = FALSE, 
                         # data.table = TRUE, 
                         ...) {
@@ -48,18 +45,17 @@ spacy_parse <- function(x, pos_tag = TRUE,
 spacy_parse.character <- function(x, pos_tag = TRUE, 
                                   named_entity = FALSE, 
                                   dependency = FALSE,
-                                  hash_tokens = FALSE, 
                                   full_parse = FALSE, 
                                   # data.table = TRUE, 
                                   ...) {
     
     lemma <- google <- penn <- head_id <- dep_rel <- NULL
     
-    tokenize_only <- ifelse(sum(pos_tag, named_entity, dependency) == 3 | 
-                                full_parse == T, 
-                            FALSE, TRUE)
+    # only set tokenize_only flag to TRUE if nothing else is requested
+    tokenize_only <- ifelse(any(pos_tag, named_entity, dependency) | full_parse, FALSE, TRUE)
+                             
     spacy_out <- process_document(x, tokenize_only = tokenize_only)
-    if(is.null(spacy_out$timestamps)){
+    if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
     

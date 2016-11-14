@@ -5,7 +5,7 @@
 \title{parse a text using spaCy}
 \usage{
 spacy_parse(x, pos_tag = TRUE, named_entity = FALSE, dependency = FALSE,
-  hash_tokens = FALSE, full_parse = FALSE, ...)
+  full_parse = FALSE, ...)
 }
 \arguments{
 \item{x}{a character or \pkg{quanteda} corpus object}
@@ -15,8 +15,6 @@ spacy_parse(x, pos_tag = TRUE, named_entity = FALSE, dependency = FALSE,
 \item{named_entity}{logical; if \code{TRUE}, report named entities}
 
 \item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
-
-\item{hash_tokens}{logical; if \code{TRUE}, hash the tokens}
 
 \item{full_parse}{logical; if \code{TRUE}, conduct the one-shot parse 
 regardless of the value of other parameters. This  option exists because 
@@ -44,7 +42,6 @@ txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.",
           doc2 = "This is the second document.",
           doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
 spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
-tokens(results)
 }
 }
 
