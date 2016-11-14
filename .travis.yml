@@ -1,6 +1,8 @@
 language: r
 sudo: true
 
+warnings_are_errors: false
+
 r_binary_packages:
   - testthat
 
