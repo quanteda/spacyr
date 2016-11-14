@@ -11,7 +11,7 @@ r_github_packages:
   - kbenoit/quanteda
 
 before_install:
-  - ./tvavis_install.sh
+  - source travis_install.sh
 
 env:
   global:
