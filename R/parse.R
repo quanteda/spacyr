@@ -59,6 +59,9 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                 full_parse == T, 
                             FALSE, TRUE)
     spacy_out <- process_document(x, tokenize_only = tokenize_only)
+    if(is.null(spacy_out$timestamps)){
+        stop("Document parsing failed")
+    }
     
     tokens <- get_tokens(spacy_out)
 
@@ -140,7 +143,7 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
     x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
     x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
-    x <- gsub("'","\\\\'", x) # escape single quotes 
+    x <- gsub("'","\\\\'", x) # escape single quotes
     x <- gsub('"','\\\\"', x) # escape double quotes
     x <- unname(x)
     
@@ -150,7 +153,8 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
                            collapse = ", "))
     
     if (is.null(options()$spacy_rpython)) spacy_initialize()
-    #rPython::python.exec("del spobj")
+    rPython::python.exec("try:\n del spobj\nexcept NameError:\n 1")
+    rPython::python.exec("texts = []")
     rPython::python.exec("spobj = spacyr()")
     exec_out <- rPython::python.exec(paste0("texts = ", text_modified),
                                      get.exception = F)
@@ -158,13 +162,9 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
         stop("Failed to assign text values")
     }
     rPython::python.assign("tokenize_only", tokenize_only)
-    rPython::python.exec("results = spobj.parse(texts, tokenize_only)")
+    rPython::python.exec("timestamps = spobj.parse(texts, tokenize_only)")
     
-    timestamps = as.character(rPython::python.get("results"))
-    rPython::python.exec("del results")
-    
-    # output <- list(docnames = docnames, timestamps = timestamps)
-    # class(output) <- c("spacy_out", class(output))
+    timestamps = as.character(rPython::python.get("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
                             timestamps = timestamps,
                             tokenize_only = tokenize_only)
