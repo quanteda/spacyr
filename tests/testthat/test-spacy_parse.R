@@ -5,10 +5,10 @@ spacy_initialize()
 test_that("spacy_parse handles newlines and tabs ok", {
     txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
               doc2 = "Sentence\tthree.")
-    expect_success(
-        spacy_parse(txt1, dependency = TRUE)
+    expect_equal(
+        dim(spacy_parse(txt1, dependency = TRUE)),
+        c(11, 8)
     )
-  
     txt2 <- c(doc1 = "Sentence one.\\nSentence two.", 
               doc2 = "Sentence\\tthree.")
     expect_equal(
