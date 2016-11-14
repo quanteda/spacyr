@@ -59,6 +59,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                 full_parse == T, 
                             FALSE, TRUE)
     spacy_out <- process_document(x, tokenize_only = tokenize_only)
+    
     tokens <- get_tokens(spacy_out)
 
     dt <- data.table(docname = rep(names(tokens), lengths(tokens)), 
@@ -134,18 +135,28 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
         docnames <- paste0("text", 1:length(x))
     }
 
-    #x <- iconv(x, "UTF-8", "ASCII",  sub="")
-    # x <- gsub("\\n", "\\n ", x)
-    # x <- gsub("'", "''", x, fixed = T)
-    # x <- gsub("\"", "", x, fixed = T)
-    # x <- gsub("\\", "", x, fixed = T)
+    x <- gsub("\\\\","", x)
+    x <- gsub("\\n","\\\\n", x)
+    x <- gsub("\\t","\\\\t", x)
+    x <- gsub("'","\\\\'", x)
+    x <- gsub('"','\\\\"', x)
     x <- unname(x)
+    text_modified <- sprintf("[%s]", 
+                     paste(sapply(x, function(x) sprintf("\"%s\"", x)),
+                           collapse = ", "))
     
     if (is.null(options()$spacy_rpython)) spacy_initialize()
-    rPython::python.assign("texts", x)
+    rPython::python.exec("spobj = spacyr()")
+    exec_out <- rPython::python.exec(paste0("texts = ", text_modified),
+                                     get.exception = F)
+    if(exec_out == -1) {
+        stop("Failed to assign text values")
+    }
     rPython::python.assign("tokenize_only", tokenize_only)
     rPython::python.exec("results = spobj.parse(texts, tokenize_only)")
+    
     timestamps = as.character(rPython::python.get("results"))
+    rPython::python.exec("del results")
     
     # output <- list(docnames = docnames, timestamps = timestamps)
     # class(output) <- c("spacy_out", class(output))

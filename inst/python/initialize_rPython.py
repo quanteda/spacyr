@@ -18,12 +18,12 @@ from spacy.lemmatizer import Lemmatizer
 import re
 import time
 
-#nlp = spacy.en.English()
+nlp = spacy.en.English()
 
 
 class spacyr:
     def __init__(self):
-        self.nlp = spacy.en.English()
+        self.nlp = nlp
         self.documents = {}
     
     def parse(self, texts, tokenize_only):
@@ -33,6 +33,7 @@ class spacyr:
         for text in texts:
             epoch_nano = int(time.time() * 1000000)
             if tokenize_only == 0:
+                text = text.decode('utf-8')
                 doc = self.nlp(unicode(text))
             else:
                 doc = self.nlp.tokenizer(unicode(text))
@@ -152,7 +153,7 @@ class spacyr:
     #         all_entities[ts] = entities
     #     return all_entities
 
-spobj = spacyr()
+
 
 # def parse(texts):
 #     epoch_nano = int(time.time() * 1000)
