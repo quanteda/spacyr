@@ -8,4 +8,4 @@ source testenv/bin/activate
 # Python dependencies
 sudo pip install --upgrade pip
 sudo pip install spacy
-sudo python -m spacy.en.download all
+sudo python -m spacy.en.download all > dump.log
