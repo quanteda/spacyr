@@ -104,11 +104,12 @@ python.exec("import platform\nprint(platform.python_version())")
 ```
 If the outputs are different, loading spaCy is likely to fail as the python executable the R system calls is different from the version of python spaCy is intalled.
 
-To resolve the issue please follow the step. Open R *from Terminal* (just enter `R`), then reinstall rPython from source by entering
+To resolve the issue, you can alter an environmental variable and then reinstall rPython. Suppose that your brew python is in `/usr/local/bin`, run the following:
 ```{r, eval = FALSE}
+Sys.setenv(PATH=paste("/usr/local/bin",Sys.getenv("PATH"), sep=":"))
 install.packages("rPython", type = "source")
 ```
-then execute the R-commands above again to check the version of Python calling from rPython.
+Once installation is done, restart R then execute commands above again to check the version of Python calling from rPython.
 
 
 
