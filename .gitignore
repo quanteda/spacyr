@@ -6,3 +6,10 @@
 .DS_Store
 old_python_codes
 legacy_codes.R
+auto4te.cache
+config.log
+config.status
+*.o
+*.so
+config.R
+Makevars

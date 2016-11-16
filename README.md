@@ -1,43 +1,52 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+
+
 [![CRAN Version](http://www.r-pkg.org/badges/version/spacyr)](http://cran.r-project.org/package=spacyr) ![Downloads](http://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI Build Status](https://travis-ci.org/kbenoit/spacyr.svg?branch=master)](https://travis-ci.org/kbenoit/spacyr) [![codecov.io](https://codecov.io/github/kbenoit/spacyr/spacyr.svg?branch=master)](https://codecov.io/github/kbenoit/spacyr/coverage.svg?branch=master)
 
 (note: the Travis build fails because our script does not install spaCy and the English language files - once these are installed, it passes the R Check.)
 
-spacyr: an R wrapper for spaCy
-==============================
+# spacyr: an R wrapper for spaCy
 
-This package is an R wrapper to the spaCy "industrial strength natural language processing" Python library from <http://spacy.io>.
+This package is an R wrapper to the spaCy "industrial strength natural language processing" Python library from http://spacy.io.
 
 ### Prerequisites
 
-1.  Python (&gt; 2.7 or 3) must be installed on your system.
+1.  Python (> 2.7 or 3) must be installed on your system.  
 
-2.  spaCy must be installed on your system. Follow [these instructions](http://spacy.io/docs/).
+2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/). 
 
-    Installation on Windows:
-    1.  (If you have not yet installed Python:) Download and install [Python for Windows](https://www.python.org/downloads/windows/). We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer. During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
-    2.  Install spaCy and the English language model using these commands at the command line:
+    Installation on Windows:  
+    a)  (If you have not yet installed Python:)  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer.  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."  
+    b)  Install spaCy and the English language model using these commands at the command line:  
+        ```
+        pip install -U spacy
+        python -m spacy.en.download
+        ```
+        For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).  
+    c)  Test your installation at the command line using:  
+        ```
+        python -c "import spacy; spacy.load('en'); print('OK')"
+        ```
 
-            pip install -U spacy
-            python -m spacy.en.download
-
-        For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).
-    3.  Test your installation at the command line using:
-
-            python -c "import spacy; spacy.load('en'); print('OK')"
-
-3.  You need (of course) to install this package:
-
-    ``` r
+3.  You need (of course) to install this package:  
+    
+    ```r
     devtools::install_github("kbenoit/spacyr")
     ```
 
+
 ### Examples
 
-The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
+The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
-``` r
+
+```r
 require(spacyr)
-#> Loading required package: spacyr
 # start a python process and initialize spaCy in it.
 # it takes several seconds for initialization.
 spacy_initialize()
@@ -48,22 +57,22 @@ txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. I
 # process documents and obtain a data.table
 parsedtxt <- spacy_parse(txt)
 head(parsedtxt)
-#>    docname id  tokens lemma google penn
-#> 1: fastest  0   spaCy         NOUN   NN
-#> 2: fastest  1 excells         NOUN  NNS
-#> 3: fastest  2      at          ADP   IN
-#> 4: fastest  3   large          ADJ   JJ
-#> 5: fastest  4       -        PUNCT HYPH
-#> 6: fastest  5   scale         NOUN   NN
+#>    docname id  tokens   lemma google penn
+#> 1: fastest  0   spaCy   spacy   NOUN   NN
+#> 2: fastest  1 excells excells   NOUN  NNS
+#> 3: fastest  2      at      at    ADP   IN
+#> 4: fastest  3   large   large    ADJ   JJ
+#> 5: fastest  4       -       -  PUNCT HYPH
+#> 6: fastest  5   scale   scale   NOUN   NN
 ```
 
 By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
 
+
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
 
-``` r
+```r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-#> quanteda version 0.9.8.10
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -80,7 +89,8 @@ ntype(parsedtxt)
 
 The following codes conduct more detailed document processing, including dependency parsing and named entitiy recognition.
 
-``` r
+
+```r
 results_detailed <- spacy_parse(txt,
                                 pos_tag = TRUE,
                                 named_entity = TRUE,
@@ -119,7 +129,7 @@ head(results_detailed, 30)
 #> 30: fastest 29       spaCy       spacy  PROPN  NNP      30     nsubj
 #>     docname id      tokens       lemma google penn head_id   dep_rel
 #>     named_entity
-#>  1:    PRODUCT_B
+#>  1:             
 #>  2:             
 #>  3:             
 #>  4:             
@@ -148,38 +158,40 @@ head(results_detailed, 30)
 #> 27:             
 #> 28:             
 #> 29:             
-#> 30:    PRODUCT_B
+#> 30:             
 #>     named_entity
 ```
 
-Notes for Mac Users using Homebrew (or other) Version of Python
----------------------------------------------------------------
 
-If you install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R.
+
+## Notes for Mac Users using Homebrew (or other) Version of Python
+
+If you install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R. 
 
 In Terminal, type
-
-    $ python --version
-
+```
+$ python --version
+```
 and in R, enter following
 
-``` r
+```r
 library(rPython)
-#> Loading required package: RJSONIO
 python.exec("import platform\nprint(platform.python_version())")
 ```
-
 If the outputs are different, loading spaCy is likely to fail as the python executable the R system calls is different from the version of python spaCy is intalled.
 
-To resolve the issue please follow the step. Open R *from Terminal* (just enter `R`), then reinstall rPython from source by entering
+To resolve the issue, you can alter an environmental variable and then reinstall rPython. Suppose that your brew python is in `/usr/local/bin`, run the following:
 
-``` r
+```r
+Sys.setenv(PATH=paste("/usr/local/bin",Sys.getenv("PATH"), sep=":"))
 install.packages("rPython", type = "source")
 ```
+Once installation is done, restart R then execute commands above again to check the version of Python calling from rPython.
 
-then execute the R-commands above again to check the version of Python calling from rPython.
 
-Comments and feedback
----------------------
 
-We welcome your comments and feedback. Please file issues on the issues page, and/or send us comments at <kbenoit@lse.ac.uk> and <A.Matsuo@lse.ac.uk>.
+## Comments and feedback
+
+We welcome your comments and feedback.  Please file issues on the issues page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.
+
+
