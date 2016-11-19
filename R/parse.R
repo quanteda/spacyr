@@ -58,7 +58,6 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                   # data.table = TRUE, 
                                   ...) {
     
-    lemma <- google <- penn <- head_id <- dep_rel <- NULL
     
     if(pos_tag == TRUE & is.na(tagset)) {
         tagset = "both"
@@ -82,11 +81,16 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     
     ## add lemma, tags in google and penn (lemmatization in spacy is 
     ## a part of pos_tagging, so without pos_tag, lemma cannot be done.)
+    if (lemma) {
+        dt[, "lemma" := get_attrs(spacy_out, "lemma_")]
+    }
     if (pos_tag) {
-        dt[, c("lemma", "google", "penn") := 
-               list(get_attrs(spacy_out, "lemma_"),
-                    get_tags(spacy_out, "google"),
-                    get_tags(spacy_out, "penn"))]
+        if(tagset %in% c("google", "both")){
+            dt[, "google" := get_tags(spacy_out, "google")]
+        }
+        if(tagset %in% c("penn", "both")){
+            dt[, "penn" := get_tags(spacy_out, "penn")]
+        }
     }
 
     ## add dependency data fields
