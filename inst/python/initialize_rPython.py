@@ -33,16 +33,25 @@ class spacyr:
         for text in texts:
             epoch_nano = int(time.time() * 1000000)
             if tokenize_only == 0:
-                text = text.decode('utf-8')
+                if rpython ==1:
+                    text = text.decode('utf-8')
                 doc = self.nlp(unicode(text))
             else:
                 doc = self.nlp.tokenizer(unicode(text))
             self.documents[epoch_nano] = doc
             epoch_nanos.append(epoch_nano)
         return epoch_nanos 
-    
+        
+    def ntokens(self, timestamps):
+        ntok = []
+        for ts in timestamps:
+            ts = int(ts)
+            c_document = self.documents[ts]
+            ntok.append(len(c_document))
+        return ntok
+        
     def attributes(self, timestamps, attrname):
-        all_attrs = {}
+        all_attrs = []
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
@@ -51,7 +60,7 @@ class spacyr:
             attrs = []
             for w in c_document:
                 attrs.append(getattr(w, attrname))
-            all_attrs[ts] = attrs
+            all_attrs.extend(attrs)
         return all_attrs
     
     def tokens(self, timestamps):
@@ -103,7 +112,7 @@ class spacyr:
         return all_entities
         
     def dep_head_id(self, timestamps):
-        all_head_ids = {}
+        all_head_ids = []
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
@@ -112,55 +121,6 @@ class spacyr:
             head_ids = []
             for w in c_document:
                 head_ids.append(w.head.i)
-            all_head_ids[ts] = head_ids
+            all_head_ids.extend(head_ids)
         return all_head_ids
 
-# def tokens(self, timestamps):
-    #     all_tokens = {}
-    #     if isinstance(timestamps, list) == False:
-    #         timestamps = [timestamps]
-    #     for ts in timestamps:
-    #         ts = int(ts)
-    #         c_document = self.documents[ts]
-    #         tokens = []
-    #         for w in c_document:
-    #             tokens.append(w.orth_)
-    #         all_tokens[ts] = tokens
-    #     return all_tokens
-    # 
-    # def tags(self, timestamps):
-    #     all_tags = {}
-    #     if isinstance(timestamps, list) == False:
-    #         timestamps = [timestamps]
-    #     for ts in timestamps:
-    #         ts = int(ts)
-    #         c_document = self.documents[ts]
-    #         tags = []
-    #         for w in c_document:
-    #             tags.append(w.tag_)
-    #         all_tags[ts] = tags
-    #     return all_tags
-    # 
-    # def entities(self, timestamps):
-    #     all_entities = {}
-    #     for ts in timestamps:
-    #         ts = int(ts)
-    #         c_document = self.documents[ts]
-    #         ts = int(ts)
-    #         entities = []
-    #         for w in c_document:
-    #             entities.append(w.ent_type_)
-    #         all_entities[ts] = entities
-    #     return all_entities
-
-
-
-# def parse(texts):
-#     epoch_nano = int(time.time() * 1000)
-#     spacy_documents[epoch_nano] = nlp(texts)
-# 
-# def tag(timestamp, mode):
-#     return 0
-# 
-    
-  

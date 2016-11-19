@@ -6,5 +6,6 @@
 #' @author Akitaka Matsuo
 spacy_initialize <- function() {
     rPython::python.load(system.file("python", "initialize_rPython.py", package = 'spacyr'))
+    rPython::python.assign("rpython", 1)
     options("spacy_rpython" = TRUE)
 }

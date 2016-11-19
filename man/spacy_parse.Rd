@@ -4,13 +4,20 @@
 \alias{spacy_parse}
 \title{parse a text using spaCy}
 \usage{
-spacy_parse(x, pos_tag = TRUE, named_entity = FALSE, dependency = FALSE,
-  full_parse = FALSE, ...)
+spacy_parse(x, pos_tag = TRUE, tagset = NA, lemma = FALSE,
+  named_entity = FALSE, dependency = FALSE, full_parse = FALSE, ...)
 }
 \arguments{
 \item{x}{a character or \pkg{quanteda} corpus object}
 
 \item{pos_tag}{logical; if \code{TRUE}, tag parts of speech}
+
+\item{tagset}{character label for the tagset to use, either \code{"google"} 
+or \code{"penn"} to use the simplified Google tagset, or the more detailed 
+scheme from the Penn Treebank. \code{"both"} returns both google and penn 
+tagsets.}
+
+\item{lemma}{logical; inlucde lemmatized tokens in the output}
 
 \item{named_entity}{logical; if \code{TRUE}, report named entities}
 

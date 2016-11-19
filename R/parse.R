@@ -5,6 +5,11 @@
 #' @param pos_tag logical; if \code{TRUE}, tag parts of speech
 #' @param named_entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
+#' @param tagset character label for the tagset to use, either \code{"google"} 
+#'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
+#'   scheme from the Penn Treebank. \code{"both"} returns both google and penn 
+#'   tagsets.
+#' @param lemma logical; inlucde lemmatized tokens in the output
 #' @param full_parse  logical; if \code{TRUE}, conduct the one-shot parse 
 #'   regardless of the value of other parameters. This  option exists because 
 #'   the parsing outcomes of named entities are slightly different different 
@@ -29,7 +34,9 @@
 #'           doc3 = "This is a \\\"quoted\\\" text." )
 #' spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
 #' }
-spacy_parse <- function(x, pos_tag = TRUE, 
+spacy_parse <- function(x, pos_tag = TRUE,
+                        tagset = NA, 
+                        lemma = FALSE,
                         named_entity = FALSE, 
                         dependency = FALSE,
                         full_parse = FALSE, 
@@ -43,6 +50,8 @@ spacy_parse <- function(x, pos_tag = TRUE,
 #' @importFrom data.table data.table
 #' @noRd
 spacy_parse.character <- function(x, pos_tag = TRUE, 
+                                  tagset = NA,
+                                  lemma = FALSE,
                                   named_entity = FALSE, 
                                   dependency = FALSE,
                                   full_parse = FALSE, 
@@ -51,8 +60,13 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     
     lemma <- google <- penn <- head_id <- dep_rel <- NULL
     
+    if(pos_tag == TRUE & is.na(tagset)) {
+        tagset = "both"
+    }
+    
     # only set tokenize_only flag to TRUE if nothing else is requested
-    tokenize_only <- ifelse(any(pos_tag, named_entity, dependency) | full_parse, FALSE, TRUE)
+    tokenize_only <- ifelse(any(pos_tag, lemma, named_entity, dependency) | 
+                                full_parse, FALSE, TRUE)
                              
     spacy_out <- process_document(x, tokenize_only = tokenize_only)
     if (is.null(spacy_out$timestamps)) {
@@ -60,30 +74,31 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     }
     
     tokens <- get_tokens(spacy_out)
-
-    dt <- data.table(docname = rep(names(tokens), lengths(tokens)), 
-                     id = unlist(get_attrs(spacy_out, "i"), use.names = FALSE),
-                     tokens = unlist(tokens, use.names = FALSE))
+    ntokens <- get_ntokens(spacy_out)
+    
+    dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
+                     id = get_attrs(spacy_out, "i"),
+                     tokens = tokens)
     
     ## add lemma, tags in google and penn (lemmatization in spacy is 
     ## a part of pos_tagging, so without pos_tag, lemma cannot be done.)
     if (pos_tag) {
         dt[, c("lemma", "google", "penn") := 
-               list(unlist(get_attrs(spacy_out, "lemma_"), use.names = FALSE),
-                    unlist(get_tags(spacy_out, "google"), use.names = FALSE),
-                    unlist(get_tags(spacy_out, "penn"), use.names = FALSE))]
+               list(get_attrs(spacy_out, "lemma_"),
+                    get_tags(spacy_out, "google"),
+                    get_tags(spacy_out, "penn"))]
     }
 
     ## add dependency data fields
     if (dependency) {
         deps <- get_dependency(spacy_out)
-        dt[, c("head_id", "dep_rel") := list(unlist(deps$head_id, use.names = FALSE),
-                                             unlist(deps$dep_rel, use.names = FALSE))]
+        dt[, c("head_id", "dep_rel") := list(deps$head_id,
+                                             deps$dep_rel)]
     }
     
     ## named entity fields
     if (named_entity) {
-        dt[, named_entity := unlist(get_named_entities(spacy_out), use.names = FALSE)]
+        dt[, named_entity := get_named_entities(spacy_out)]
     }
     
     # coerce to a data.frame if a data.table-ly challeged user pitifully requests it 

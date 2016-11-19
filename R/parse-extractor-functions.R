@@ -36,8 +36,8 @@ get_tokens <- function(spacy_out) {
     rPython::python.assign('timestamps', spacy_out$timestamps)
     rPython::python.exec('tokens_list = spobj.tokens(timestamps)')
     tokens <- rPython::python.get("tokens_list")
-    tokens <- tokens[spacy_out$timestamps]
-    names(tokens) <- spacy_out$docnames
+    # tokens <- tokens[spacy_out$timestamps]
+    # names(tokens) <- spacy_out$docnames
     # #output <- list(tokens = tokens)
     # class(tokens) <- c("tokenizedText", class(tokens))
     # attr(tokens, "what") <- "word"
@@ -79,8 +79,8 @@ get_tags <- function(spacy_out, tagset = c("google", "penn")) {
     rPython::python.assign('tagset', tagset)
     rPython::python.exec('tags_list = spobj.tags(timestamps, tagset)')
     tags <- rPython::python.get("tags_list")
-    tags <- tags[spacy_out$timestamps]
-    names(tags) <- spacy_out$docnames
+    # tags <- tags[spacy_out$timestamps]
+    # names(tags) <- spacy_out$docnames
     #tokens$tags <- tags
     #class(tokens) <- union(class(tokens), "tokenizedTexts_tagged")
     return(tags)
@@ -101,8 +101,8 @@ get_attrs <- function(spacy_out, attr_name) {
     
     rPython::python.exec('attrs_list = spobj.attributes(timestamps, attr_name)')
     attrs <- rPython::python.get("attrs_list")
-    attrs <- attrs[spacy_out$timestamps]
-    names(attrs) <- spacy_out$docnames
+    # attrs <- attrs[spacy_out$timestamps]
+    # names(attrs) <- spacy_out$docnames
     return(attrs)
 }
 
@@ -121,18 +121,21 @@ get_named_entities <- function(spacy_out){
     }
     rPython::python.exec('ents_type = spobj.attributes(timestamps, "ent_type_")')
     ent_type <- rPython::python.get("ents_type")
-    ent_type  <- ent_type[spacy_out$timestamps]
+    # ent_type  <- ent_type[spacy_out$timestamps]
     rPython::python.exec('ents_iob = spobj.attributes(timestamps, "ent_iob_")')
     ent_iob <- rPython::python.get("ents_iob")
-    ent_iob <- ent_iob[spacy_out$timestamps]
+    # ent_iob <- ent_iob[spacy_out$timestamps]
     
-    names(ent_type) <- spacy_out$docnames
-    names(ent_iob) <- spacy_out$docnames
-    for(i in 1:length(ent_type)){
-        iob <- sub("O", "", ent_iob[[i]])
-        ent_type[[i]] <- paste(ent_type[[i]], iob, sep = "_")
-        ent_type[[i]][grepl("^_$", ent_type[[i]])] <- ""
-    }
+    iob <- sub("O", "", ent_iob)
+    ent_type <- paste(ent_type, iob, sep = "_")
+    ent_type[grepl("^_$", ent_type)] <- ""
+    # names(ent_type) <- spacy_out$docnames
+    # names(ent_iob) <- spacy_out$docnames
+    # for(i in 1:length(ent_type)){
+    #     iob <- sub("O", "", ent_iob[[i]])
+    #     ent_type[[i]] <- paste(ent_type[[i]], iob, sep = "_")
+    #     ent_type[[i]][grepl("^_$", ent_type[[i]])] <- ""
+    # }
     return(ent_type)
 }
 
@@ -153,11 +156,28 @@ get_dependency <- function(spacy_out){
     }
     rPython::python.exec('head_id = spobj.dep_head_id(timestamps)')
     head_id <- rPython::python.get("head_id")
-    head_id  <- head_id[spacy_out$timestamps]
+    # head_id  <- head_id[spacy_out$timestamps]
     
     dep_rel <- get_attrs(spacy_out, "dep_")
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
+
+#' Title
+#'
+#' @param spacy_out a spacy_out object
+#'
+#' @return data.frame of dependency relations
+#' @export
+#' @keywords internal
+get_ntokens <- function(spacy_out){
+    # get ids of head of each token
+    rPython::python.assign('timestamps', spacy_out$timestamps)
+    rPython::python.exec('ntok = spobj.ntokens(timestamps)')
+    ntokens <- rPython::python.get("ntok")
+    names(ntokens) <- spacy_out$timestamps
+    return(ntokens)
+}
+
 
 #' Obtain a data of all named entities in spacy out data.table
 #' 
