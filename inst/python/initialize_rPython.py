@@ -44,6 +44,8 @@ class spacyr:
         
     def ntokens(self, timestamps):
         ntok = []
+        if isinstance(timestamps, list) == False:
+            timestamps = [timestamps]
         for ts in timestamps:
             ts = int(ts)
             c_document = self.documents[ts]
