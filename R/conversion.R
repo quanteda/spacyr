@@ -144,10 +144,10 @@ pytype_str <- function(var){
 #' @export
 Rvar <- function(var)
 {
-  cmd <- substitute(var)
-  if (!is.character(cmd))
-    var = deparse(cmd)
-  
+  # cmd <- substitute(var)
+  # if (!is.character(cmd))
+  #   var = deparse(cmd)
+  # 
   type <- pytype_str(var)
   if (type=="str" || type=="unicode")
     return(char_to_R(var))

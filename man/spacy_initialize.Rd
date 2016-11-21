@@ -4,7 +4,7 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy via rPython}
 \usage{
-spacy_initialize()
+spacy_initialize(python_exec = "rPython")
 }
 \description{
 Initialize spaCy using an alternative method via the rPython package.

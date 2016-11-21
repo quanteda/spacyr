@@ -183,7 +183,7 @@ process_document <- function(x, tokenize_only = FALSE, python_exec,  ...) {
     # initialize spacyr() object
     spacyr_pyexec("spobj = spacyr()", python_exec = python_exec)
     
-    spacyr_pyassign("tokenize_only", tokenize_only, python_exec = python_exec)
+    spacyr_pyassign("tokenize_only", as.numeric(tokenize_only), python_exec = python_exec)
     spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)", python_exec = python_exec)
     
     timestamps = as.character(spacyr_pyget("timestamps"))
@@ -198,11 +198,18 @@ spacyr_pyassign <- function(pyvarname, values, python_exec = 'rPython') {
     if(python_exec == 'rPython') {
         rPython::python.assign(pyvarname, values)
     }
+    if(python_exec == 'Rcpp') {
+        if(length(values) > 1) pyvar(pyvarname, values)
+        else pyrun(paste0(pyvarname, " = ", deparse(values)))
+    }
 }
 
 spacyr_pyget <- function(pyvarname, python_exec = 'rPython') {
     if(python_exec == 'rPython') {
         return(rPython::python.get(pyvarname))
+    }    
+    if(python_exec == 'Rcpp') {
+        return(Rvar(pyvarname))
     }    
 }
 
@@ -210,5 +217,8 @@ spacyr_pyexec <- function(pystring, python_exec = 'rPython') {
     if(python_exec == 'rPython') {
         rPython::python.exec(pystring)
     }
+    if(python_exec == 'Rcpp') {
+        pyrun(pystring)
+    }    
 }
 
