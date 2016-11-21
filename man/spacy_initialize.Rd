@@ -6,6 +6,10 @@
 \usage{
 spacy_initialize(python_exec = "rPython")
 }
+\arguments{
+\item{python_exec}{character; select connection type to spaCy, either 
+"rPython" or "Rcpp".}
+}
 \description{
 Initialize spaCy using an alternative method via the rPython package.
 }

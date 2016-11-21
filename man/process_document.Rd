@@ -16,7 +16,7 @@ This slows down \code{spacy_parse()} but speeds up the later parsing.
 If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 relevant functions are called.}
 
-\item{python_exec}{character; select backend implementation spacy from 
+\item{python_exec}{character; select connection type to spaCy, either 
 "rPython" or "Rcpp".}
 
 \item{...}{arguments passed to specific methods}

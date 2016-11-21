@@ -7,7 +7,7 @@
 pyprint(x)
 }
 \arguments{
-\item{name}{name of the python object}
+\item{x}{name of the python object}
 }
 \description{
 Print python object

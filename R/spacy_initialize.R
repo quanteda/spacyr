@@ -1,6 +1,8 @@
 #' Initialize spaCy via rPython
 #' 
 #' Initialize spaCy using an alternative method via the rPython package.
+#' @param python_exec character; select connection type to spaCy, either 
+#' "rPython" or "Rcpp". 
 #' @return NULL
 #' @export
 #' @author Akitaka Matsuo

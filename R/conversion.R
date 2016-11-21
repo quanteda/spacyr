@@ -55,14 +55,7 @@ topy.list <- function(l, name)
 topy.data.frame <- topy.list
 
 
-#' Copy variables to a Python dictionary in __main__
-#' 
-#' @param x R object to copy
-#' @param key Key of the object as string 
-#' @param name of the dictionary
-#'
-#'  
-#' @export
+# Copy variables to a Python dictionary in __main__
 pydict <- function(x, key, dictname) UseMethod("pydict") #Some of the methods defined in pylab.cpp
 
 pydict.factor <- function(x, key, dictname)
@@ -85,7 +78,7 @@ plotvar <- function(name, x, dictname="_pvars")
 
 #' Print python object
 #' 
-#' @param name name of the python object
+#' @param x name of the python object
 #' 
 #' @examples
 #' pyvar("x", 1:10)
@@ -107,7 +100,8 @@ pyprint <- function(x)
 
 #' Get the type of Python variable
 #' 
-#' var name of the Pytho variable
+#' var name of the Python variable
+#' @param var name of the variable to lookup 
 #' 
 #' @examples
 #' pyvar("x", 1:10)

@@ -29,7 +29,7 @@ regardless of the value of other parameters. This  option exists because
 the parsing outcomes of named entities are slightly different different 
 when named entities are run separately from the parsing.}
 
-\item{python_exec}{character; select backend implementation spacy from 
+\item{python_exec}{character; select connection type to spaCy, either 
 "rPython" or "Rcpp".}
 
 \item{...}{not used directly}

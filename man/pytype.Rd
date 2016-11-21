@@ -6,8 +6,11 @@
 \usage{
 pytype(var)
 }
+\arguments{
+\item{var}{name of the variable to lookup}
+}
 \description{
-var name of the Pytho variable
+var name of the Python variable
 }
 \examples{
 pyvar("x", 1:10)

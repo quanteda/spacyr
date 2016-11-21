@@ -22,9 +22,3 @@ microbenchmark(spacy_parse(inaugTexts, pos_tag = F, named_entity = F, dependency
                times = 10)
 
 
-# comparison between rPython and Rcpp
-spacy_initialize()
-spacy_initialize("Rcpp")
-microbenchmark(spacy_parse(inaugTexts, pos_tag = T, named_entity = T, dependency = T, python_exec = "rPython"),
-               spacy_parse(inaugTexts, pos_tag = T, named_entity = T, dependency = T, python_exec = "Rcpp"),
-               times = 10)
