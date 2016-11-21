@@ -4,7 +4,7 @@
 \alias{process_document}
 \title{tokenize text using spaCy}
 \usage{
-process_document(x, tokenize_only = FALSE, ...)
+process_document(x, tokenize_only = FALSE, python_exec, ...)
 }
 \arguments{
 \item{x}{input text}
@@ -15,6 +15,9 @@ analysis.
 This slows down \code{spacy_parse()} but speeds up the later parsing. 
 If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 relevant functions are called.}
+
+\item{python_exec}{character; select backend implementation spacy from 
+"rPython" or "Rcpp".}
 
 \item{...}{arguments passed to specific methods}
 }

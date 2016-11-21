@@ -10,6 +10,8 @@
 #'   scheme from the Penn Treebank. \code{"both"} returns both google and penn 
 #'   tagsets.
 #' @param lemma logical; inlucde lemmatized tokens in the output
+#' @param python_exec character; select backend implementation spacy from 
+#' "rPython" or "Rcpp". 
 #' @param full_parse  logical; if \code{TRUE}, conduct the one-shot parse 
 #'   regardless of the value of other parameters. This  option exists because 
 #'   the parsing outcomes of named entities are slightly different different 
@@ -40,6 +42,7 @@ spacy_parse <- function(x, pos_tag = TRUE,
                         named_entity = FALSE, 
                         dependency = FALSE,
                         full_parse = FALSE, 
+                        python_exec = 'rPython',
                         # data.table = TRUE, 
                         ...) {
     UseMethod("spacy_parse")
@@ -55,6 +58,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                   named_entity = FALSE, 
                                   dependency = FALSE,
                                   full_parse = FALSE, 
+                                  python_exec = 'rPython',
                                   # data.table = TRUE, 
                                   ...) {
     
@@ -62,12 +66,13 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     if(pos_tag == TRUE & is.na(tagset)) {
         tagset = "both"
     }
+    python_exec <- match.arg(python_exec, c("rPython", "Rcpp"))
     
     # only set tokenize_only flag to TRUE if nothing else is requested
     tokenize_only <- ifelse(any(pos_tag, lemma, named_entity, dependency) | 
                                 full_parse, FALSE, TRUE)
                              
-    spacy_out <- process_document(x, tokenize_only = tokenize_only)
+    spacy_out <- process_document(x, tokenize_only = tokenize_only, python_exec = python_exec)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
@@ -131,6 +136,8 @@ spacy_parse.corpus <- function(x, ...) {
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
 #' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 #' relevant functions are called.
+#' @param python_exec character; select backend implementation spacy from 
+#' "rPython" or "Rcpp". 
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @importFrom methods new
@@ -144,7 +151,7 @@ spacy_parse.corpus <- function(x, ...) {
 #' }
 #' @export
 #' @keywords internal
-process_document <- function(x, tokenize_only = FALSE,  ...) {
+process_document <- function(x, tokenize_only = FALSE, python_exec,  ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
@@ -162,40 +169,45 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     x <- gsub('"','\\\\"', x) # escape double quotes
     x <- unname(x)
     
-    # construct a python statement 
+    # construct a python statement for variable declaration
     text_modified <- sprintf("[%s]", 
                      paste(sapply(x, function(x) sprintf("\"%s\"", x)),
                            collapse = ", "))
+    rpytnon <- ifelse(python_exec == "rPython", TRUE, FALSE)
     
     if (is.null(options()$spacy_rpython)) spacy_initialize()
-    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
-    spacyr_pyexec("texts = []")
-    spacyr_pyexec("spobj = spacyr()")
-    spacyr_pyexec(paste0("texts = ", text_modified))
-    spacyr_pyassign("tokenize_only", tokenize_only)
-    spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)")
+    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1", python_exec = python_exec)
+    spacyr_pyexec("texts = []", python_exec = python_exec)
+    spacyr_pyexec(paste0("texts = ", text_modified), python_exec = python_exec)
+    
+    # initialize spacyr() object
+    spacyr_pyexec("spobj = spacyr()", python_exec = python_exec)
+    
+    spacyr_pyassign("tokenize_only", tokenize_only, python_exec = python_exec)
+    spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)", python_exec = python_exec)
     
     timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
                             timestamps = timestamps,
-                            tokenize_only = tokenize_only)
+                            tokenize_only = tokenize_only,
+                            python_exec = python_exec)
     return(output)
 }
 
-spacyr_pyassign <- function(pyvarname, values, rpython = TRUE) {
-    if(rpython) {
+spacyr_pyassign <- function(pyvarname, values, python_exec = 'rPython') {
+    if(python_exec == 'rPython') {
         rPython::python.assign(pyvarname, values)
     }
 }
 
-spacyr_pyget <- function(pyvarname, rpython = TRUE) {
-    if(rpython) {
+spacyr_pyget <- function(pyvarname, python_exec = 'rPython') {
+    if(python_exec == 'rPython') {
         return(rPython::python.get(pyvarname))
     }    
 }
 
-spacyr_pyexec <- function(pystring, rpython = TRUE) {
-    if(rpython) {
+spacyr_pyexec <- function(pystring, python_exec = 'rPython') {
+    if(python_exec == 'rPython') {
         rPython::python.exec(pystring)
     }
 }
