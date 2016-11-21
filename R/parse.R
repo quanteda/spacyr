@@ -168,21 +168,35 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
                            collapse = ", "))
     
     if (is.null(options()$spacy_rpython)) spacy_initialize()
-    rPython::python.exec("try:\n del spobj\nexcept NameError:\n 1")
-    rPython::python.exec("texts = []")
-    rPython::python.exec("spobj = spacyr()")
-    exec_out <- rPython::python.exec(paste0("texts = ", text_modified),
-                                     get.exception = F)
-    if(exec_out == -1) {
-        stop("Failed to assign text values")
-    }
-    rPython::python.assign("tokenize_only", tokenize_only)
-    rPython::python.exec("timestamps = spobj.parse(texts, tokenize_only)")
+    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
+    spacyr_pyexec("texts = []")
+    spacyr_pyexec("spobj = spacyr()")
+    spacyr_pyexec(paste0("texts = ", text_modified))
+    spacyr_pyassign("tokenize_only", tokenize_only)
+    spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)")
     
-    timestamps = as.character(rPython::python.get("timestamps"))
+    timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
                             timestamps = timestamps,
                             tokenize_only = tokenize_only)
     return(output)
+}
+
+spacyr_pyassign <- function(pyvarname, values, rpython = TRUE) {
+    if(rpython) {
+        rPython::python.assign(pyvarname, values)
+    }
+}
+
+spacyr_pyget <- function(pyvarname, rpython = TRUE) {
+    if(rpython) {
+        return(rPython::python.get(pyvarname))
+    }    
+}
+
+spacyr_pyexec <- function(pystring, rpython = TRUE) {
+    if(rpython) {
+        rPython::python.exec(pystring)
+    }
 }
 
