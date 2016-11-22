@@ -13,15 +13,15 @@ Description: An R wrapper to the Python (Cython) spaCy NLP system,
 License: GPL-3
 LazyData: TRUE
 Depends:
-    R (>= 3.3.0),
-    Rcpp,
-    utils
+    R (>= 3.3.0)
 LinkingTo: Rcpp
 Imports:
     rPython,
     methods,
     quanteda,
-    data.table
+    data.table,
+    Rcpp,
+    utils
 Suggests:
     rmarkdown,
     testthat,
