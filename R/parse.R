@@ -160,33 +160,37 @@ process_document <- function(x, tokenize_only = FALSE, python_exec,  ...) {
         docnames <- paste0("text", 1:length(x))
     }
 
-    x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
-    x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
-    x <- gsub("\\\\","", x) # delete unnecessary backslashes
-    x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
-    x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
-    x <- gsub("'","\\\\'", x) # escape single quotes
-    x <- gsub('"','\\\\"', x) # escape double quotes
-    x <- unname(x)
-    
-    # construct a python statement for variable declaration
-    text_modified <- sprintf("[%s]", 
-                     paste(sapply(x, function(x) sprintf("\"%s\"", x)),
-                           collapse = ", "))
-    rpytnon <- ifelse(python_exec == "rPython", TRUE, FALSE)
-    
     if (is.null(options()$spacy_rpython)) spacy_initialize()
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1", python_exec = python_exec)
     spacyr_pyexec("texts = []", python_exec = python_exec)
-    spacyr_pyexec(paste0("texts = ", text_modified), python_exec = python_exec)
     
+    x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
+    x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
+    x <- gsub("\\\\","", x) # delete unnecessary backslashes
+    x <- unname(x)
+    
+    if(python_exec == 'rPython'){
+        x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
+        x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
+        x <- gsub("'","\\\\'", x) # escape single quotes
+        x <- gsub('"','\\\\"', x) # escape double quotes
+        # construct a python statement for variable declaration
+        text_modified <- sprintf("[%s]", 
+                                 paste(sapply(x, function(x) sprintf("\"%s\"", x)),
+                                       collapse = ", "))
+        spacyr_pyexec(paste0("texts = ", text_modified), python_exec = python_exec)
+    } else {
+        spacyr_pyassign("texts", x, python_exec = python_exec)
+        spacyr_pyexec("texts = [t.encode('utf-8') for t in texts]", 
+                      python_exec = python_exec)
+    }
     # initialize spacyr() object
     spacyr_pyexec("spobj = spacyr()", python_exec = python_exec)
     
     spacyr_pyassign("tokenize_only", as.numeric(tokenize_only), python_exec = python_exec)
     spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)", python_exec = python_exec)
     
-    timestamps = as.character(spacyr_pyget("timestamps"))
+    timestamps = as.character(spacyr_pyget("timestamps", python_exec = python_exec))
     output <- spacy_out$new(docnames = docnames, 
                             timestamps = timestamps,
                             tokenize_only = tokenize_only,
