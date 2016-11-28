@@ -179,14 +179,23 @@ get_ntokens <- function(spacy_out){
 }
 
 
-#' Obtain a data of all named entities in spacy out data.table
+#' Obtain a list of all named entities in spacy out data.table
 #' 
-#' Extended description to go here.
-#' @param dt a data table object from 
+#' Generate a list of all named entities from the named entity recoginition
+#' in spaCy. 
+#' @param dt a data table object from \code{"spacy_parse"} with 
+#' named_entity option TRUE.
 #' @return a data.table of all named entities
 #' @import data.table
+#' @examples
+#' \donttest{
+#' txt <- "And now for something completely different, United States of America, President Barack Obama."
+#' dt <- spacy_parse(txt, dependency = TRUE, named_entity = TRUE)
+#' named_entities <- spacyr:::all_named_entities(dt)
+#' dim(named_entities)
+#' head(named_entities)
+#' }
 #' @export
-#' @keywords internal
 all_named_entities <- function(dt) {
     
     # needed to stop "no visible binding" warnings
