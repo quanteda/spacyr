@@ -2,18 +2,28 @@
 % Please edit documentation in R/parse-extractor-functions.R
 \name{all_named_entities}
 \alias{all_named_entities}
-\title{Obtain a data of all named entities in spacy out data.table}
+\title{Obtain a list of all named entities in spacy out data.table}
 \usage{
 all_named_entities(dt)
 }
 \arguments{
-\item{dt}{a data table object from}
+\item{dt}{a data table object from \code{"spacy_parse"} with 
+named_entity option TRUE.}
 }
 \value{
 a data.table of all named entities
 }
 \description{
-Extended description to go here.
+Generate a list of all named entities from the named entity recoginition
+in spaCy.
 }
-\keyword{internal}
+\examples{
+\donttest{
+txt <- "And now for something completely different, United States of America, President Barack Obama."
+dt <- spacy_parse(txt, dependency = TRUE, named_entity = TRUE)
+named_entities <- spacyr:::all_named_entities(dt)
+dim(named_entities)
+head(named_entities)
+}
+}
 
