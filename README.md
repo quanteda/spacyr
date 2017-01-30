@@ -1,11 +1,3 @@
----
-output:
-  md_document:
-    variant: markdown_github
----
-
-
-
 [![CRAN Version](http://www.r-pkg.org/badges/version/spacyr)](http://cran.r-project.org/package=spacyr) ![Downloads](http://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI Build Status](https://travis-ci.org/kbenoit/spacyr.svg?branch=master)](https://travis-ci.org/kbenoit/spacyr) [![codecov.io](https://codecov.io/github/kbenoit/spacyr/spacyr.svg?branch=master)](https://codecov.io/github/kbenoit/spacyr/coverage.svg?branch=master)
 
 (note: the Travis build fails because our script does not install spaCy and the English language files - once these are installed, it passes the R Check.)
@@ -38,7 +30,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     ```r
     devtools::install_github("kbenoit/spacyr")
     ```
-    If the python executable in your system is different from the system default python, see the instruction below. 
+
 
 ### Examples
 
@@ -97,7 +89,7 @@ results_detailed <- spacy_parse(txt,
                                 dependency = TRUE)
 head(results_detailed, 30)
 #>     docname id      tokens google penn head_id   dep_rel named_entity
-#>  1: fastest  0       spaCy   NOUN   NN       1  compound    PRODUCT_B
+#>  1: fastest  0       spaCy   NOUN   NN       1  compound             
 #>  2: fastest  1     excells   NOUN  NNS       1      ROOT             
 #>  3: fastest  2          at    ADP   IN       1      prep             
 #>  4: fastest  3       large    ADJ   JJ       5      amod             
@@ -126,44 +118,15 @@ head(results_detailed, 30)
 #> 27: fastest 26         has   VERB  VBZ      27       aux             
 #> 28: fastest 27   confirmed   VERB  VBN      27      ROOT             
 #> 29: fastest 28        that    ADP   IN      30      mark             
-#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj    PRODUCT_B
+#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj             
 #>     docname id      tokens google penn head_id   dep_rel named_entity
 ```
-
-## Rcpp backend implementation
-
-This package has two ways to call python from R, through `rPython` and `Rcpp`. By default, the package uses `rPython` connection, but the `Rcpp` connection is slightly faster because of the difference in transfering an python objects to R. One can use `Rcpp` implementation by just setting the option of `python_exec = 'Rcpp'` in initialization and parse. 
-
-
-```r
-require(spacyr)
-# start a python process and initialize spaCy in it.
-# it takes several seconds for initialization.
-spacy_initialize(python_exec = 'Rcpp')
-
-txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. It is written from the ground up in carefully memory-managed Cython. Independent research has confirmed that spaCy is the fastest in the world. If your application needs to process entire web dumps, spaCy is the library you want to be using.",
-         getdone = "spaCy is designed to help you do real work — to build real products, or gather real insights. The library respects your time, and tries to avoid wasting it. It is easy to install, and its API is simple and productive. I like to think of spaCy as the Ruby on Rails of Natural Language Processing.")
-
-# process documents and obtain a data.table
-parsedtxt <- spacy_parse(txt, python_exec = 'Rcpp')
-head(parsedtxt)
-#>    docname id  tokens google penn
-#> 1: fastest  0   spaCy   NOUN   NN
-#> 2: fastest  1 excells   NOUN  NNS
-#> 3: fastest  2      at    ADP   IN
-#> 4: fastest  3   large    ADJ   JJ
-#> 5: fastest  4       -  PUNCT HYPH
-#> 6: fastest  5   scale   NOUN   NN
-```
-
 
 
 
 ## Notes for Mac Users using Homebrew (or other) Version of Python
 
-If you install Python other than the system default and installed spaCy on that Python, there are a few extra steps for installing the package. This package uses two implementations for connecting R and python through `rPython` and `Rcpp`. For each of them the python path has to be set correctly. In the following example, we assume that the correct python path is `/usr/local/bin/python`.
-
-First, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R. 
+If you install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R. 
 
 In Terminal, type
 ```
@@ -176,7 +139,7 @@ library(rPython)
 python.exec("import platform\nprint(platform.python_version())")
 #> 2.7.12
 ```
-If the outputs are different, loading spaCy will fail as the python executable the R system calls is different from the version of python spaCy is intalled.
+If the outputs are different, loading spaCy is likely to fail as the python executable the R system calls is different from the version of python spaCy is intalled.
 
 To resolve the issue, you can alter an environmental variable and then reinstall rPython. Suppose that your brew python is in `/usr/local/bin`, run the following:
 
@@ -186,25 +149,9 @@ install.packages("rPython", type = "source")
 ```
 Once installation is done, restart R then execute commands above again to check the version of Python calling from rPython.
 
-Second, you need to set the python path for `Rcpp` appropriately. The path is set when `spacy` is installed. The path has to be set as an environmental variable before the installation. 
-
-
-```r
-Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
-devtools::install_github("kbenoit/spacyr")
-```
-Once the package is installed, check whether the package can find spaCy, by running initialization function for both `rPython` and `Rcpp`.
-
-```r
-spacy_initialize('rPython')
-spacy_initialize('Rcpp')
-```
-
-
 
 
 ## Comments and feedback
 
 We welcome your comments and feedback.  Please file issues on the issues page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.
-
 
