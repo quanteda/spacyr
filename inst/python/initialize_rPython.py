@@ -33,10 +33,7 @@ class spacyr:
         for text in texts:
             epoch_nano = str(int(time.time() * 1000000))
             text = text.decode('utf-8')
-            # if rpython ==1:
-            #     
-            # else:
-            #     text = text.encode('utf-8')
+            text = text.encode('utf-8')
             if tokenize_only == 0:
                 doc = self.nlp(unicode(text))
             else:
