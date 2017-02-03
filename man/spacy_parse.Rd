@@ -5,8 +5,7 @@
 \title{parse a text using spaCy}
 \usage{
 spacy_parse(x, pos_tag = TRUE, tagset = NA, lemma = FALSE,
-  named_entity = FALSE, dependency = FALSE, full_parse = FALSE,
-  python_exec = "rPython", ...)
+  named_entity = FALSE, dependency = FALSE, full_parse = FALSE, ...)
 }
 \arguments{
 \item{x}{a character or \pkg{quanteda} corpus object}
@@ -29,10 +28,10 @@ regardless of the value of other parameters. This  option exists because
 the parsing outcomes of named entities are slightly different different 
 when named entities are run separately from the parsing.}
 
+\item{...}{not used directly}
+
 \item{python_exec}{character; select connection type to spaCy, either 
 "rPython" or "Rcpp".}
-
-\item{...}{not used directly}
 }
 \value{
 an tokenized text object

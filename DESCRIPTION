@@ -16,7 +16,6 @@ Depends:
     R (>= 3.3.0)
 LinkingTo: Rcpp
 Imports:
-    rPython,
     methods,
     quanteda,
     data.table,

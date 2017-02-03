@@ -1,3 +1,4 @@
+
 [![CRAN Version](http://www.r-pkg.org/badges/version/spacyr)](http://cran.r-project.org/package=spacyr) ![Downloads](http://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI Build Status](https://travis-ci.org/kbenoit/spacyr.svg?branch=master)](https://travis-ci.org/kbenoit/spacyr) [![codecov.io](https://codecov.io/github/kbenoit/spacyr/spacyr.svg?branch=master)](https://codecov.io/github/kbenoit/spacyr/coverage.svg?branch=master)
 
 (note: the Travis build fails because our script does not install spaCy and the English language files - once these are installed, it passes the R Check.)
@@ -89,7 +90,7 @@ results_detailed <- spacy_parse(txt,
                                 dependency = TRUE)
 head(results_detailed, 30)
 #>     docname id      tokens google penn head_id   dep_rel named_entity
-#>  1: fastest  0       spaCy   NOUN   NN       1  compound             
+#>  1: fastest  0       spaCy   NOUN   NN       1  compound    PRODUCT_B
 #>  2: fastest  1     excells   NOUN  NNS       1      ROOT             
 #>  3: fastest  2          at    ADP   IN       1      prep             
 #>  4: fastest  3       large    ADJ   JJ       5      amod             
@@ -118,7 +119,7 @@ head(results_detailed, 30)
 #> 27: fastest 26         has   VERB  VBZ      27       aux             
 #> 28: fastest 27   confirmed   VERB  VBN      27      ROOT             
 #> 29: fastest 28        that    ADP   IN      30      mark             
-#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj             
+#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj    PRODUCT_B
 #>     docname id      tokens google penn head_id   dep_rel named_entity
 ```
 
@@ -136,6 +137,7 @@ and in R, enter following
 
 ```r
 library(rPython)
+#> Loading required package: RJSONIO
 python.exec("import platform\nprint(platform.python_version())")
 #> 2.7.12
 ```

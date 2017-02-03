@@ -42,7 +42,7 @@ spacy_parse <- function(x, pos_tag = TRUE,
                         named_entity = FALSE, 
                         dependency = FALSE,
                         full_parse = FALSE, 
-                        python_exec = 'rPython',
+                        # python_exec = 'rPython',
                         # data.table = TRUE, 
                         ...) {
     UseMethod("spacy_parse")
@@ -58,7 +58,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                   named_entity = FALSE, 
                                   dependency = FALSE,
                                   full_parse = FALSE, 
-                                  python_exec = 'rPython',
+                                  # python_exec = 'rPython',
                                   # data.table = TRUE, 
                                   ...) {
     
@@ -66,13 +66,13 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     if(pos_tag == TRUE & is.na(tagset)) {
         tagset = "both"
     }
-    python_exec <- match.arg(python_exec, c("rPython", "Rcpp"))
+    # python_exec <- match.arg(python_exec, c("rPython", "Rcpp"))
     
     # only set tokenize_only flag to TRUE if nothing else is requested
     tokenize_only <- ifelse(any(pos_tag, lemma, named_entity, dependency) | 
                                 full_parse, FALSE, TRUE)
                              
-    spacy_out <- process_document(x, tokenize_only = tokenize_only, python_exec = python_exec)
+    spacy_out <- process_document(x, tokenize_only = tokenize_only)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
@@ -151,7 +151,7 @@ spacy_parse.corpus <- function(x, ...) {
 #' }
 #' @export
 #' @keywords internal
-process_document <- function(x, tokenize_only = FALSE, python_exec,  ...) {
+process_document <- function(x, tokenize_only = FALSE,  ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
@@ -161,68 +161,52 @@ process_document <- function(x, tokenize_only = FALSE, python_exec,  ...) {
     }
 
     if (is.null(options()$spacy_rpython)) spacy_initialize()
-    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1", python_exec = python_exec)
-    spacyr_pyexec("texts = []", python_exec = python_exec)
+    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
+    spacyr_pyexec("texts = []")
     
     x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
     x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
     x <- unname(x)
     
-    if(python_exec == 'rPython'){
-        x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
-        x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
-        x <- gsub("'","\\\\'", x) # escape single quotes
-        x <- gsub('"','\\\\"', x) # escape double quotes
-        # construct a python statement for variable declaration
-        text_modified <- sprintf("[%s]", 
-                                 paste(sapply(x, function(x) sprintf("\"%s\"", x)),
-                                       collapse = ", "))
-        spacyr_pyexec(paste0("texts = ", text_modified), python_exec = python_exec)
-    } else {
-        spacyr_pyassign("texts", x, python_exec = python_exec)
-        spacyr_pyexec("texts = [t.encode('utf-8') for t in texts]", 
-                      python_exec = python_exec)
-    }
+    # if(python_exec == 'rPython'){
+    #     x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
+    #     x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
+    #     x <- gsub("'","\\\\'", x) # escape single quotes
+    #     x <- gsub('"','\\\\"', x) # escape double quotes
+    #     # construct a python statement for variable declaration
+    #     text_modified <- sprintf("[%s]", 
+    #                              paste(sapply(x, function(x) sprintf("\"%s\"", x)),
+    #                                    collapse = ", "))
+    #     spacyr_pyexec(paste0("texts = ", text_modified))
+    # } else {
+    spacyr_pyassign("texts", x)
+    spacyr_pyexec("texts = [t.encode('utf-8') for t in texts]")
+    # }
     # initialize spacyr() object
-    spacyr_pyexec("spobj = spacyr()", python_exec = python_exec)
+    spacyr_pyexec("spobj = spacyr()")
     
-    spacyr_pyassign("tokenize_only", as.numeric(tokenize_only), python_exec = python_exec)
-    spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)", python_exec = python_exec)
+    spacyr_pyassign("tokenize_only", as.numeric(tokenize_only))
+    spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)")
     
-    timestamps = as.character(spacyr_pyget("timestamps", python_exec = python_exec))
+    timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
                             timestamps = timestamps,
-                            tokenize_only = tokenize_only,
-                            python_exec = python_exec)
+                            tokenize_only = tokenize_only)
     return(output)
 }
 
-spacyr_pyassign <- function(pyvarname, values, python_exec = 'rPython') {
-    if(python_exec == 'rPython') {
-        rPython::python.assign(pyvarname, values)
-    }
-    if(python_exec == 'Rcpp') {
-        if(length(values) > 1) pyvar(pyvarname, values)
-        else pyrun(paste0(pyvarname, " = ", deparse(values)))
-    }
+spacyr_pyassign <- function(pyvarname, values) {
+    if(length(values) > 1) pyvar(pyvarname, values)
+    else pyrun(paste0(pyvarname, " = ", deparse(values)))
 }
 
-spacyr_pyget <- function(pyvarname, python_exec = 'rPython') {
-    if(python_exec == 'rPython') {
-        return(rPython::python.get(pyvarname))
-    }    
-    if(python_exec == 'Rcpp') {
-        return(Rvar(pyvarname))
-    }    
+spacyr_pyget <- function(pyvarname) {
+
+    return(Rvar(pyvarname))
 }
 
-spacyr_pyexec <- function(pystring, python_exec = 'rPython') {
-    if(python_exec == 'rPython') {
-        rPython::python.exec(pystring)
-    }
-    if(python_exec == 'Rcpp') {
-        pyrun(pystring)
-    }    
+spacyr_pyexec <- function(pystring) {
+    pyrun(pystring)
 }
 

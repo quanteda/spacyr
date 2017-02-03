@@ -4,11 +4,7 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy via rPython}
 \usage{
-spacy_initialize(python_exec = c("rPython", "Rcpp"))
-}
-\arguments{
-\item{python_exec}{character; select connection type to spaCy, either 
-\code{"rPython"} or \code{"Rcpp"}.}
+spacy_initialize()
 }
 \description{
 Initialize spaCy for use from R.
