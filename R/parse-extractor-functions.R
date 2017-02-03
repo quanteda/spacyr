@@ -162,7 +162,7 @@ get_dependency <- function(spacy_out){
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
 
-#' Title
+#' get the number of tokens from spacyr output
 #'
 #' @param spacy_out a spacy_out object
 #'
@@ -176,35 +176,6 @@ get_ntokens <- function(spacy_out){
     ntokens <- spacyr_pyget("ntok")
     names(ntokens) <- spacy_out$timestamps
     return(ntokens)
-}
-
-
-#' Obtain a data of all named entities in spacy out data.table
-#' 
-#' Extended description to go here.
-#' @param dt a data table object from 
-#' @return a data.table of all named entities
-#' @import data.table
-#' @export
-#' @keywords internal
-all_named_entities <- function(dt) {
-    
-    # needed to stop "no visible binding" warnings
-    entity_type <- named_entity <- iob <- ent_id <- NULL
-    
-    if(!"named_entity" %in% names(dt)) {
-        stop("Named Entity Recognition is not conducted")
-    }
-    dt <- dt[nchar(dt$named_entity) > 0]
-    dt[, entity_type := sub("_.+", "", named_entity)]
-    dt[, iob := sub(".+_", "", named_entity)]
-    dt[, ent_id := cumsum(iob=="B")]
-    entities <- dt[, lapply(.SD, function(x) x[1]), by = ent_id, 
-                   .SDcols = c("docname", "id", "entity_type")]
-    entities[, entity := dt[, lapply(.SD, function(x) paste(x, collapse = " ")), 
-                            by = ent_id, 
-                            .SDcols = c("tokens")]$tokens] 
-    return(entities)
 }
 
 
