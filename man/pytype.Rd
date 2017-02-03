@@ -17,4 +17,5 @@ pyvar("x", 1:10)
 pytype(x)
 pytype(x[1])
 }
+\keyword{internal}
 

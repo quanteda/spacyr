@@ -12,4 +12,5 @@ numvec_to_R(name)
 \description{
 The data retrieved from Python has to be a list of numbers.
 }
+\keyword{internal}
 

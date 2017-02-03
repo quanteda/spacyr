@@ -14,6 +14,7 @@
 #' pyvar("l", list(a=3, b=1:10, z="a"))
 #' pyprint(l)
 #' @export
+#' @keywords internal
 pyvar <- function(name, x)
 {
   if (missing(x)){
@@ -85,6 +86,7 @@ plotvar <- function(name, x, dictname="_pvars")
 #' pyprint(x)
 #' pyprint("dir()") #You can quote Python commands
 #' @export
+#' @keywords internal
 pyprint <- function(x)
 {
   cmd <- substitute(x)
@@ -109,6 +111,7 @@ pyprint <- function(x)
 #' pytype(x[1])
 #' @importFrom utils capture.output
 #' @export
+#' @keywords internal
 pytype <- function(var){
   cmd <- substitute(var)
   if (!is.character(cmd))
@@ -136,6 +139,7 @@ pytype_str <- function(var){
 #' pyrun("s2 = 'a'")
 #' Rvar("s2")
 #' @export
+#' @keywords internal
 Rvar <- function(var)
 {
   # cmd <- substitute(var)

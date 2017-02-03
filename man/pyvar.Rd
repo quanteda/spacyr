@@ -25,4 +25,5 @@ pyprint(df)
 pyvar("l", list(a=3, b=1:10, z="a"))
 pyprint(l)
 }
+\keyword{internal}
 

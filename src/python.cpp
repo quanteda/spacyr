@@ -19,6 +19,7 @@ using namespace Rcpp;
 //' @examples
 //' pyrun("print(range(5))")
 //' @export
+//' @keywords internal
 //[[Rcpp::export]]
 void pyrun(std::string command) {
   PyRun_SimpleString(command.c_str());
@@ -60,6 +61,7 @@ void finalize_python() {
 //' 
 //' @param name Python variable name as string
 //' @param x Numeric vector to copy to Python
+//' @keywords internal
 //[[Rcpp::export(name="topy.numeric")]]
 void numvec_to_python(NumericVector x, std::string name){
   to_main(name, to_list(x));

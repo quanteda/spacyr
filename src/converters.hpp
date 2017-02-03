@@ -70,6 +70,7 @@ void add_to_dict(std::string name, std::string dictname, PyObject *pyobj)
 //' @param name Python variable name
 //' 
 //' @export
+//' @keywords internal
 //[[Rcpp::export]]
 NumericVector numvec_to_R(std::string name){
   PyObject *list = from_main(name);
@@ -104,6 +105,7 @@ NumericVector numvec_to_R(std::string name){
 //' @param name Python variable name
 //' 
 //' @export
+//' @keywords internal
 //[[Rcpp::export]]
 std::vector<std::string> charvec_to_R(std::string name){
   PyObject *list = from_main(name);

@@ -3,7 +3,7 @@
 \docType{data}
 \name{data_paragraph}
 \alias{data_paragraph}
-\title{short [aragraph of text for testing}
+\title{short paragraph of text for testing}
 \description{
 A sample of text from the Irish budget debate of 2010.
 }

@@ -8,6 +8,7 @@
 #' @param name Python variable name
 #' 
 #' @export
+#' @keywords internal
 numvec_to_R <- function(name) {
     .Call('spacyr_numvec_to_R', PACKAGE = 'spacyr', name)
 }
@@ -24,6 +25,7 @@ numvec_to_R <- function(name) {
 #' @param name Python variable name
 #' 
 #' @export
+#' @keywords internal
 charvec_to_R <- function(name) {
     .Call('spacyr_charvec_to_R', PACKAGE = 'spacyr', name)
 }
@@ -44,6 +46,7 @@ num_to_R <- function(name) {
 #' @examples
 #' pyrun("print(range(5))")
 #' @export
+#' @keywords internal
 pyrun <- function(command) {
     invisible(.Call('spacyr_pyrun', PACKAGE = 'spacyr', command))
 }
@@ -60,6 +63,7 @@ finalize_python <- function() {
 #' 
 #' @param name Python variable name as string
 #' @param x Numeric vector to copy to Python
+#' @keywords internal
 topy.numeric <- function(x, name) {
     invisible(.Call('spacyr_numvec_to_python', PACKAGE = 'spacyr', x, name))
 }
