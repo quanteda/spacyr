@@ -181,7 +181,7 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     #     spacyr_pyexec(paste0("texts = ", text_modified))
     # } else {
     spacyr_pyassign("texts", x)
-    spacyr_pyexec("texts = [t.encode('utf-8') for t in texts]")
+    #spacyr_pyexec("texts = [t.encode('utf-8', 'ignore') for t in texts]")
     # }
     # initialize spacyr() object
     spacyr_pyexec("spobj = spacyr()")

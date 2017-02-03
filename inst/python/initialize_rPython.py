@@ -32,12 +32,17 @@ class spacyr:
             texts = [texts]
         for text in texts:
             epoch_nano = str(int(time.time() * 1000000))
-            text = text.decode('utf-8')
-            text = text.encode('utf-8')
+            #text = text.decode('utf-8')
+            try: 
+                if not isinstance(text, unicode):
+                    text = unicode(text, errors = 'ignore')
+            except NameError:
+                pass
+
             if tokenize_only == 0:
-                doc = self.nlp(unicode(text))
+                doc = self.nlp(text)
             else:
-                doc = self.nlp.tokenizer(unicode(text))
+                doc = self.nlp.tokenizer(text)
             self.documents[epoch_nano] = doc
             epoch_nanos.append(epoch_nano)
         return epoch_nanos 
