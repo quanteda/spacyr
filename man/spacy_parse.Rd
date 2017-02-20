@@ -29,9 +29,6 @@ the parsing outcomes of named entities are slightly different different
 when named entities are run separately from the parsing.}
 
 \item{...}{not used directly}
-
-\item{python_exec}{character; select connection type to spaCy, either 
-"rPython" or "Rcpp".}
 }
 \value{
 an tokenized text object

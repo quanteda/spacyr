@@ -3,7 +3,6 @@
 #' Initialize spaCy for use from R.
 #' @return NULL
 #' @export
-#' @importFrom rPython python.load python.assign
 #' @author Akitaka Matsuo
 spacy_initialize <- function() {
     code <- readLines(system.file("python", "initialize_rPython.py", package = 'spacyr'))

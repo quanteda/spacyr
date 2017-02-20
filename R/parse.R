@@ -10,8 +10,6 @@
 #'   scheme from the Penn Treebank. \code{"both"} returns both google and penn 
 #'   tagsets.
 #' @param lemma logical; inlucde lemmatized tokens in the output
-#' @param python_exec character; select connection type to spaCy, either 
-#' "rPython" or "Rcpp". 
 #' @param full_parse  logical; if \code{TRUE}, conduct the one-shot parse 
 #'   regardless of the value of other parameters. This  option exists because 
 #'   the parsing outcomes of named entities are slightly different different 
