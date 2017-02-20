@@ -38,7 +38,6 @@ class spacyr:
                     text = unicode(text, errors = 'ignore')
             except NameError:
                 pass
-
             if tokenize_only == 0:
                 doc = self.nlp(text)
             else:
@@ -71,7 +70,7 @@ class spacyr:
     def tokens(self, timestamps):
         all_tokens = self.attributes(timestamps, 'orth_')
         return all_tokens
-
+        
     def tags(self, timestamps, tag_type):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
@@ -90,7 +89,7 @@ class spacyr:
             timestamps = [timestamps]
         for ts in timestamps:
             self.nlp.tagger(self.documents[ts])
-
+            
     def run_dependency_parser(self, timestamps):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
