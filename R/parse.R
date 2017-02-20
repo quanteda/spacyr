@@ -1,6 +1,14 @@
 #' parse a text using spaCy
 #' 
-#' Full description awaits.
+#' The spacy_parse() function calls spaCy to both tokenize and tag the texts,
+#' and returns a data.table of the results. 
+#' The function provides options on the types of gats sets (\code{tagset})
+#' either  \code{"google"} or \code{"penn"} (or \code{"both"}), as well
+#' as lemmatization (\code{lemma}).
+#' It provides a functionalities of dependency parsing and named entity 
+#' recognition as an option. If \code{"full_parse = TRUE"} is provided, 
+#' the function returns the most extensive list of the parsing results from spaCy.
+#' 
 #' @param x a character or \pkg{quanteda} corpus object
 #' @param pos_tag logical; if \code{TRUE}, tag parts of speech
 #' @param named_entity logical; if \code{TRUE}, report named entities
