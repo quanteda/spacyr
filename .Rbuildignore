@@ -4,11 +4,9 @@
 ^\.travis\.yml$
 ^benchmarks
 ^dump\.log$
-^dump\.log$
 ^test\.env$
 ^travis_install\.sh$
 ^testenv
 ^spacyr/testenv
 
-
-
+^appveyor\.yml$
