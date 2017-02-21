@@ -47,12 +47,12 @@ txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. I
 parsedtxt <- spacy_parse(txt)
 head(parsedtxt)
 #>    docname id  tokens google penn
-#> 1: fastest  0   spaCy            
-#> 2: fastest  1 excells            
-#> 3: fastest  2      at            
-#> 4: fastest  3   large            
-#> 5: fastest  4       -            
-#> 6: fastest  5   scale
+#> 1: fastest  0   spaCy   NOUN   NN
+#> 2: fastest  1 excells   NOUN  NNS
+#> 3: fastest  2      at    ADP   IN
+#> 4: fastest  3   large    ADJ   JJ
+#> 5: fastest  4       -  PUNCT HYPH
+#> 6: fastest  5   scale   NOUN   NN
 ```
 
 By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
@@ -62,7 +62,7 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 #> quanteda version 0.9.9.24
-#> Using 7 of 8 cores for parallel computing
+#> Using 3 of 4 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -85,38 +85,38 @@ results_detailed <- spacy_parse(txt,
                                 named_entity = TRUE,
                                 dependency = TRUE)
 head(results_detailed, 30)
-#>     docname id      tokens google penn head_id dep_rel named_entity
-#>  1: fastest  0       spaCy                   0                     
-#>  2: fastest  1     excells                   1                     
-#>  3: fastest  2          at                   2                     
-#>  4: fastest  3       large                   3                     
-#>  5: fastest  4           -                   4                     
-#>  6: fastest  5       scale                   5                     
-#>  7: fastest  6 information                   6                     
-#>  8: fastest  7  extraction                   7                     
-#>  9: fastest  8       tasks                   8                     
-#> 10: fastest  9           .                   9                     
-#> 11: fastest 10          It                  10                     
-#> 12: fastest 11          is                  11                     
-#> 13: fastest 12     written                  12                     
-#> 14: fastest 13        from                  13                     
-#> 15: fastest 14         the                  14                     
-#> 16: fastest 15      ground                  15                     
-#> 17: fastest 16          up                  16                     
-#> 18: fastest 17          in                  17                     
-#> 19: fastest 18   carefully                  18                     
-#> 20: fastest 19      memory                  19                     
-#> 21: fastest 20           -                  20                     
-#> 22: fastest 21     managed                  21                     
-#> 23: fastest 22      Cython                  22                     
-#> 24: fastest 23           .                  23                     
-#> 25: fastest 24 Independent                  24                     
-#> 26: fastest 25    research                  25                     
-#> 27: fastest 26         has                  26                     
-#> 28: fastest 27   confirmed                  27                     
-#> 29: fastest 28        that                  28                     
-#> 30: fastest 29       spaCy                  29                     
-#>     docname id      tokens google penn head_id dep_rel named_entity
+#>     docname id      tokens google penn head_id   dep_rel named_entity
+#>  1: fastest  0       spaCy   NOUN   NN       1  compound    PRODUCT_B
+#>  2: fastest  1     excells   NOUN  NNS       1      ROOT             
+#>  3: fastest  2          at    ADP   IN       1      prep             
+#>  4: fastest  3       large    ADJ   JJ       5      amod             
+#>  5: fastest  4           -  PUNCT HYPH       5     punct             
+#>  6: fastest  5       scale   NOUN   NN       8  compound             
+#>  7: fastest  6 information   NOUN   NN       7  compound             
+#>  8: fastest  7  extraction   NOUN   NN       8  compound             
+#>  9: fastest  8       tasks   NOUN  NNS       2      pobj             
+#> 10: fastest  9           .  PUNCT    .       1     punct             
+#> 11: fastest 10          It   PRON  PRP      12 nsubjpass             
+#> 12: fastest 11          is   VERB  VBZ      12   auxpass             
+#> 13: fastest 12     written   VERB  VBN      12      ROOT             
+#> 14: fastest 13        from    ADP   IN      12      prep             
+#> 15: fastest 14         the    DET   DT      15       det             
+#> 16: fastest 15      ground   NOUN   NN      13      pobj             
+#> 17: fastest 16          up    ADV   RB      12    advmod             
+#> 18: fastest 17          in    ADP   IN      12      prep             
+#> 19: fastest 18   carefully    ADV   RB      21    advmod             
+#> 20: fastest 19      memory   NOUN   NN      21  npadvmod             
+#> 21: fastest 20           -  PUNCT HYPH      21     punct             
+#> 22: fastest 21     managed   VERB  VBN      12      conj             
+#> 23: fastest 22      Cython  PROPN  NNP      21      dobj        ORG_B
+#> 24: fastest 23           .  PUNCT    .      12     punct             
+#> 25: fastest 24 Independent    ADJ   JJ      25      amod             
+#> 26: fastest 25    research   NOUN   NN      27     nsubj             
+#> 27: fastest 26         has   VERB  VBZ      27       aux             
+#> 28: fastest 27   confirmed   VERB  VBN      27      ROOT             
+#> 29: fastest 28        that    ADP   IN      30      mark             
+#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj    PRODUCT_B
+#>     docname id      tokens google penn head_id   dep_rel named_entity
 ```
 
 When you finish
