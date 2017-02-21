@@ -166,7 +166,7 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
         docnames <- paste0("text", 1:length(x))
     }
 
-    if (is.null(options()$spacy_rpython)) spacy_initialize()
+    if (is.null(options()$spacy_initialized)) spacy_initialize()
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
     spacyr_pyexec("texts = []")
     
