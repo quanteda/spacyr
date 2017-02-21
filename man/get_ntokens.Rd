@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse-extractor-functions.R
 \name{get_ntokens}
 \alias{get_ntokens}
-\title{Title}
+\title{get the number of tokens from spacyr output}
 \usage{
 get_ntokens(spacy_out)
 }
@@ -13,7 +13,6 @@ get_ntokens(spacy_out)
 data.frame of dependency relations
 }
 \description{
-Title
+get the number of tokens from spacyr output
 }
 \keyword{internal}
-

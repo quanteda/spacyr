@@ -31,13 +31,17 @@ class spacyr:
         if isinstance(texts, list) == False:
             texts = [texts]
         for text in texts:
-            epoch_nano = int(time.time() * 1000000)
+            epoch_nano = str(int(time.time() * 1000000))
+            #text = text.decode('utf-8')
+            try: 
+                if not isinstance(text, unicode):
+                    text = unicode(text, errors = 'ignore')
+            except NameError:
+                pass
             if tokenize_only == 0:
-                if rpython ==1:
-                    text = text.decode('utf-8')
-                doc = self.nlp(unicode(text))
+                doc = self.nlp(text)
             else:
-                doc = self.nlp.tokenizer(unicode(text))
+                doc = self.nlp.tokenizer(text)
             self.documents[epoch_nano] = doc
             epoch_nanos.append(epoch_nano)
         return epoch_nanos 
@@ -47,7 +51,6 @@ class spacyr:
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
-            ts = int(ts)
             c_document = self.documents[ts]
             ntok.append(len(c_document))
         return ntok
@@ -57,7 +60,6 @@ class spacyr:
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
-            ts = int(ts)
             c_document = self.documents[ts]
             attrs = []
             for w in c_document:
@@ -68,12 +70,10 @@ class spacyr:
     def tokens(self, timestamps):
         all_tokens = self.attributes(timestamps, 'orth_')
         return all_tokens
-
+        
     def tags(self, timestamps, tag_type):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
-        for ts in timestamps:
-            ts = int(ts)
         attr_name = "tag_" if tag_type == "penn" else "pos_"
         all_tokens = self.attributes(timestamps, attr_name)
         return all_tokens
@@ -82,21 +82,18 @@ class spacyr:
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
-            ts = int(ts)
             self.nlp.entity(self.documents[ts])
     
     def run_tagger(self, timestamps):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
-            ts = int(ts)
             self.nlp.tagger(self.documents[ts])
-
+            
     def run_dependency_parser(self, timestamps):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
-            ts = int(ts)
             self.nlp.parser(self.documents[ts])
             
     def list_entities(self, timestamps):
@@ -104,7 +101,6 @@ class spacyr:
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
-            ts = int(ts)
             c_document = self.documents[ts]
             ents = list(c_document.ents)
             entities = []
@@ -118,7 +114,6 @@ class spacyr:
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
-            ts = int(ts)
             c_document = self.documents[ts]
             head_ids = []
             for w in c_document:

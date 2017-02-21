@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 
 [![CRAN Version](http://www.r-pkg.org/badges/version/spacyr)](http://cran.r-project.org/package=spacyr) ![Downloads](http://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI Build Status](https://travis-ci.org/kbenoit/spacyr.svg?branch=master)](https://travis-ci.org/kbenoit/spacyr) [![codecov.io](https://codecov.io/github/kbenoit/spacyr/spacyr.svg?branch=master)](https://codecov.io/github/kbenoit/spacyr/coverage.svg?branch=master)
 
-(note: the Travis build fails because our script does not install spaCy and the English language files - once these are installed, it passes the R Check.)
 
 # spacyr: an R wrapper for spaCy
 
@@ -24,7 +23,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 1.  Python (> 2.7 or 3) must be installed on your system.  
 
-2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/). 
+2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/).
 
     Installation on Windows:  
     a)  (If you have not yet installed Python:)  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer.  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."  
@@ -87,34 +86,35 @@ results_detailed <- spacy_parse(txt,
 head(results_detailed, 30)
 ```
 
+## When you finish
+
+A background process of python is initiated when you ran `spacy_initialize`. Because of the size of English language module of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
+
+```{r}
+spacy_finalize()
+```
 
 
 ## Notes for Mac Users using Homebrew (or other) Version of Python
 
-If you install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R. 
+If you install Python other than the system default and installed spaCy on that Python, you need to set the path to the python executable with spaCy and build `spacyr`. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
 
-In Terminal, type
+Open a Terminal window, and type
 ```
-$ python --version
+$ python --version; which python
 ```
 and in R, enter following
 ```{r}
-library(rPython)
-python.exec("import platform\nprint(platform.python_version())")
+system('python --version; which python')
 ```
-If the outputs are different, loading spaCy is likely to fail as the python executable the R system calls is different from the version of python spaCy is intalled.
+If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable and then reinstall rPython. Suppose that your brew python is in `/usr/local/bin`, run the following:
+To resolve the issue, you can alter an environmental variable and then reinstall `spacyr`. Suppose that your python with spaCy is  `/usr/local/bin/python`, run the following:
 ```{r, eval = FALSE}
-Sys.setenv(PATH=paste("/usr/local/bin",Sys.getenv("PATH"), sep=":"))
-install.packages("rPython", type = "source")
+Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
+devtools::install_github("kbenoit/spacyr")
 ```
-Once installation is done, restart R then execute commands above again to check the version of Python calling from rPython.
-
-
 
 ## Comments and feedback
 
 We welcome your comments and feedback.  Please file issues on the issues page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.
-
-

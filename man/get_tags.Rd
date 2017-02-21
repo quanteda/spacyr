@@ -31,4 +31,3 @@ tokens_with_tag <- tokens_tag(tokens)
 }
 }
 \keyword{internal}
-

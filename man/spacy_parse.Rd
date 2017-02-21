@@ -34,7 +34,14 @@ when named entities are run separately from the parsing.}
 an tokenized text object
 }
 \description{
-Full description awaits.
+The spacy_parse() function calls spaCy to both tokenize and tag the texts,
+and returns a data.table of the results. 
+The function provides options on the types of gats sets (\code{tagset})
+either  \code{"google"} or \code{"penn"} (or \code{"both"}), as well
+as lemmatization (\code{lemma}).
+It provides a functionalities of dependency parsing and named entity 
+recognition as an option. If \code{"full_parse = TRUE"} is provided, 
+the function returns the most extensive list of the parsing results from spaCy.
 }
 \examples{
 \donttest{
@@ -51,4 +58,3 @@ txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.",
 spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
 }
 }
-

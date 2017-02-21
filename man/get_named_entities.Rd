@@ -16,4 +16,3 @@ list of named entities in texts
 Title
 }
 \keyword{internal}
-

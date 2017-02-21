@@ -2,14 +2,13 @@
 % Please edit documentation in R/spacy_initialize.R
 \name{spacy_initialize}
 \alias{spacy_initialize}
-\title{Initialize spaCy via rPython}
+\title{Initialize spaCy}
 \usage{
 spacy_initialize()
 }
 \description{
-Initialize spaCy using an alternative method via the rPython package.
+Initialize spaCy to call from R.
 }
 \author{
 Akitaka Matsuo
 }
-

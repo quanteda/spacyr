@@ -14,11 +14,13 @@ License: GPL-3
 LazyData: TRUE
 Depends:
     R (>= 3.3.0)
+LinkingTo: Rcpp
 Imports:
-    rPython,
     methods,
     quanteda,
-    data.table
+    data.table,
+    Rcpp,
+    utils
 Suggests:
     rmarkdown,
     testthat,
@@ -26,4 +28,4 @@ Suggests:
 URL: http://github.com/kbenoit/spacyr
 Encoding: UTF-8
 BugReports: https://github.com/kbenoit/spacyr/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

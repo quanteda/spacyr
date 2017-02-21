@@ -22,6 +22,7 @@ to work.
 
 \code{ntype(x, ...)} returns the number of types (unique tokens) by document
 }
+
 \examples{
 \dontrun{
 require(quanteda)
@@ -35,4 +36,3 @@ ndoc(parsed)
 docnames(parsed)
 }
 }
-

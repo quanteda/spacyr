@@ -1,7 +1,5 @@
 [![CRAN Version](http://www.r-pkg.org/badges/version/spacyr)](http://cran.r-project.org/package=spacyr) ![Downloads](http://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI Build Status](https://travis-ci.org/kbenoit/spacyr.svg?branch=master)](https://travis-ci.org/kbenoit/spacyr) [![codecov.io](https://codecov.io/github/kbenoit/spacyr/spacyr.svg?branch=master)](https://codecov.io/github/kbenoit/spacyr/coverage.svg?branch=master)
 
-(note: the Travis build fails because our script does not install spaCy and the English language files - once these are installed, it passes the R Check.)
-
 spacyr: an R wrapper for spaCy
 ==============================
 
@@ -48,13 +46,13 @@ txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. I
 # process documents and obtain a data.table
 parsedtxt <- spacy_parse(txt)
 head(parsedtxt)
-#>    docname id  tokens   lemma google penn
-#> 1: fastest  0   spaCy   spacy   NOUN   NN
-#> 2: fastest  1 excells excells   NOUN  NNS
-#> 3: fastest  2      at      at    ADP   IN
-#> 4: fastest  3   large   large    ADJ   JJ
-#> 5: fastest  4       -       -  PUNCT HYPH
-#> 6: fastest  5   scale   scale   NOUN   NN
+#>    docname id  tokens google penn
+#> 1: fastest  0   spaCy            
+#> 2: fastest  1 excells            
+#> 3: fastest  2      at            
+#> 4: fastest  3   large            
+#> 5: fastest  4       -            
+#> 6: fastest  5   scale
 ```
 
 By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
@@ -63,7 +61,8 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-#> quanteda version 0.9.8.15
+#> quanteda version 0.9.9.24
+#> Using 7 of 8 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -86,99 +85,72 @@ results_detailed <- spacy_parse(txt,
                                 named_entity = TRUE,
                                 dependency = TRUE)
 head(results_detailed, 30)
-#>     docname id      tokens       lemma google penn head_id   dep_rel
-#>  1: fastest  0       spaCy       spacy   NOUN   NN       1  compound
-#>  2: fastest  1     excells     excells   NOUN  NNS       1      ROOT
-#>  3: fastest  2          at          at    ADP   IN       1      prep
-#>  4: fastest  3       large       large    ADJ   JJ       5      amod
-#>  5: fastest  4           -           -  PUNCT HYPH       5     punct
-#>  6: fastest  5       scale       scale   NOUN   NN       8  compound
-#>  7: fastest  6 information information   NOUN   NN       7  compound
-#>  8: fastest  7  extraction  extraction   NOUN   NN       8  compound
-#>  9: fastest  8       tasks        task   NOUN  NNS       2      pobj
-#> 10: fastest  9           .           .  PUNCT    .       1     punct
-#> 11: fastest 10          It          it   PRON  PRP      12 nsubjpass
-#> 12: fastest 11          is          be   VERB  VBZ      12   auxpass
-#> 13: fastest 12     written       write   VERB  VBN      12      ROOT
-#> 14: fastest 13        from        from    ADP   IN      12      prep
-#> 15: fastest 14         the         the    DET   DT      15       det
-#> 16: fastest 15      ground      ground   NOUN   NN      13      pobj
-#> 17: fastest 16          up          up    ADV   RB      12    advmod
-#> 18: fastest 17          in          in    ADP   IN      12      prep
-#> 19: fastest 18   carefully   carefully    ADV   RB      21    advmod
-#> 20: fastest 19      memory      memory   NOUN   NN      21  npadvmod
-#> 21: fastest 20           -           -  PUNCT HYPH      21     punct
-#> 22: fastest 21     managed      manage   VERB  VBN      12      conj
-#> 23: fastest 22      Cython      cython  PROPN  NNP      21      dobj
-#> 24: fastest 23           .           .  PUNCT    .      12     punct
-#> 25: fastest 24 Independent independent    ADJ   JJ      25      amod
-#> 26: fastest 25    research    research   NOUN   NN      27     nsubj
-#> 27: fastest 26         has        have   VERB  VBZ      27       aux
-#> 28: fastest 27   confirmed     confirm   VERB  VBN      27      ROOT
-#> 29: fastest 28        that        that    ADP   IN      30      mark
-#> 30: fastest 29       spaCy       spacy  PROPN  NNP      30     nsubj
-#>     docname id      tokens       lemma google penn head_id   dep_rel
-#>     named_entity
-#>  1:    PRODUCT_B
-#>  2:             
-#>  3:             
-#>  4:             
-#>  5:             
-#>  6:             
-#>  7:             
-#>  8:             
-#>  9:             
-#> 10:             
-#> 11:             
-#> 12:             
-#> 13:             
-#> 14:             
-#> 15:             
-#> 16:             
-#> 17:             
-#> 18:             
-#> 19:             
-#> 20:             
-#> 21:             
-#> 22:             
-#> 23:        ORG_B
-#> 24:             
-#> 25:             
-#> 26:             
-#> 27:             
-#> 28:             
-#> 29:             
-#> 30:    PRODUCT_B
-#>     named_entity
+#>     docname id      tokens google penn head_id dep_rel named_entity
+#>  1: fastest  0       spaCy                   0                     
+#>  2: fastest  1     excells                   1                     
+#>  3: fastest  2          at                   2                     
+#>  4: fastest  3       large                   3                     
+#>  5: fastest  4           -                   4                     
+#>  6: fastest  5       scale                   5                     
+#>  7: fastest  6 information                   6                     
+#>  8: fastest  7  extraction                   7                     
+#>  9: fastest  8       tasks                   8                     
+#> 10: fastest  9           .                   9                     
+#> 11: fastest 10          It                  10                     
+#> 12: fastest 11          is                  11                     
+#> 13: fastest 12     written                  12                     
+#> 14: fastest 13        from                  13                     
+#> 15: fastest 14         the                  14                     
+#> 16: fastest 15      ground                  15                     
+#> 17: fastest 16          up                  16                     
+#> 18: fastest 17          in                  17                     
+#> 19: fastest 18   carefully                  18                     
+#> 20: fastest 19      memory                  19                     
+#> 21: fastest 20           -                  20                     
+#> 22: fastest 21     managed                  21                     
+#> 23: fastest 22      Cython                  22                     
+#> 24: fastest 23           .                  23                     
+#> 25: fastest 24 Independent                  24                     
+#> 26: fastest 25    research                  25                     
+#> 27: fastest 26         has                  26                     
+#> 28: fastest 27   confirmed                  27                     
+#> 29: fastest 28        that                  28                     
+#> 30: fastest 29       spaCy                  29                     
+#>     docname id      tokens google penn head_id dep_rel named_entity
+```
+
+When you finish
+---------------
+
+A background process of python is initiated when you ran `spacy_initialize`. Because of the size of English language module of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
+
+``` r
+spacy_finalize()
 ```
 
 Notes for Mac Users using Homebrew (or other) Version of Python
 ---------------------------------------------------------------
 
-If you install Python other than the system default and installed spaCy on that Python, you might have to reinstall `rPython` to re-set the python path. In order to check whether this is an issue, check the versions of Pythons in Terminal and R.
+If you install Python other than the system default and installed spaCy on that Python, you need to set the path to the python executable with spaCy and build `spacyr`. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
 
-In Terminal, type
+Open a Terminal window, and type
 
-    $ python --version
+    $ python --version; which python
 
 and in R, enter following
 
 ``` r
-library(rPython)
-#> Loading required package: RJSONIO
-python.exec("import platform\nprint(platform.python_version())")
+system('python --version; which python')
 ```
 
-If the outputs are different, loading spaCy is likely to fail as the python executable the R system calls is different from the version of python spaCy is intalled.
+If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable and then reinstall rPython. Suppose that your brew python is in `/usr/local/bin`, run the following:
+To resolve the issue, you can alter an environmental variable and then reinstall `spacyr`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 
 ``` r
-Sys.setenv(PATH=paste("/usr/local/bin",Sys.getenv("PATH"), sep=":"))
-install.packages("rPython", type = "source")
+Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
+devtools::install_github("kbenoit/spacyr")
 ```
-
-Once installation is done, restart R then execute commands above again to check the version of Python calling from rPython.
 
 Comments and feedback
 ---------------------

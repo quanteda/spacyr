@@ -17,6 +17,9 @@ If FALSE, tagging, entity recogitions, and dependendcy analysis when
 relevant functions are called.}
 
 \item{...}{arguments passed to specific methods}
+
+\item{python_exec}{character; select connection type to spaCy, either 
+"rPython" or "Rcpp".}
 }
 \value{
 result marker object
@@ -35,4 +38,3 @@ results <- spacy_parse(txt)
 }
 }
 \keyword{internal}
-

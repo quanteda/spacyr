@@ -13,4 +13,3 @@ get_tokens(spacy_out)
 Extract tokens from a spacy reference object.
 }
 \keyword{internal}
-

@@ -13,3 +13,4 @@ config.status
 *.so
 config.R
 Makevars
+R/unused

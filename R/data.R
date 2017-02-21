@@ -7,6 +7,6 @@ NULL
 
 #' @name data_paragraph
 #' @docType data
-#' @title short [aragraph of text for testing
+#' @title short paragraph of text for testing
 #' @description A sample of text from the Irish budget debate of 2010.
 NULL

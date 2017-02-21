@@ -4,6 +4,9 @@
 #' 
 #' An R wrapper to the Python (Cython) spaCy NLP system, 
 #' from http://spacy.io.  Nicely integrated with \pkg{quanteda}.
-"_PACKAGE"
-
+#' @docType package
+#' @name spacyr
+#' @importFrom Rcpp evalCpp
+#' @useDynLib spacyr
+NULL
 

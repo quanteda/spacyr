@@ -18,4 +18,3 @@ a list of attributes
 get arbitrary attributes from spacy output
 }
 \keyword{internal}
-

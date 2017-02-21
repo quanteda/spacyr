@@ -6,6 +6,7 @@
 # 
 # Author: Akitaka Matsuo (A.Matsuo@lse.ac.uk)
 # Created: 2016-11-11
+# Modified: 2016-11-21
 library(spacyr)
 library(microbenchmark)
 
@@ -19,3 +20,5 @@ microbenchmark(spacy_parse(inaugTexts, pos_tag = F, named_entity = F, dependency
                spacy_parse(inaugTexts, pos_tag = T, named_entity = T, dependency = F),
                spacy_parse(inaugTexts, pos_tag = T, named_entity = T, dependency = T),
                times = 10)
+
+

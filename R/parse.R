@@ -1,6 +1,14 @@
 #' parse a text using spaCy
 #' 
-#' Full description awaits.
+#' The spacy_parse() function calls spaCy to both tokenize and tag the texts,
+#' and returns a data.table of the results. 
+#' The function provides options on the types of gats sets (\code{tagset})
+#' either  \code{"google"} or \code{"penn"} (or \code{"both"}), as well
+#' as lemmatization (\code{lemma}).
+#' It provides a functionalities of dependency parsing and named entity 
+#' recognition as an option. If \code{"full_parse = TRUE"} is provided, 
+#' the function returns the most extensive list of the parsing results from spaCy.
+#' 
 #' @param x a character or \pkg{quanteda} corpus object
 #' @param pos_tag logical; if \code{TRUE}, tag parts of speech
 #' @param named_entity logical; if \code{TRUE}, report named entities
@@ -40,6 +48,7 @@ spacy_parse <- function(x, pos_tag = TRUE,
                         named_entity = FALSE, 
                         dependency = FALSE,
                         full_parse = FALSE, 
+                        # python_exec = 'rPython',
                         # data.table = TRUE, 
                         ...) {
     UseMethod("spacy_parse")
@@ -55,6 +64,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                   named_entity = FALSE, 
                                   dependency = FALSE,
                                   full_parse = FALSE, 
+                                  # python_exec = 'rPython',
                                   # data.table = TRUE, 
                                   ...) {
     
@@ -62,6 +72,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     if(pos_tag == TRUE & is.na(tagset)) {
         tagset = "both"
     }
+    # python_exec <- match.arg(python_exec, c("rPython", "Rcpp"))
     
     # only set tokenize_only flag to TRUE if nothing else is requested
     tokenize_only <- ifelse(any(pos_tag, lemma, named_entity, dependency) | 
@@ -131,6 +142,8 @@ spacy_parse.corpus <- function(x, ...) {
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
 #' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 #' relevant functions are called.
+#' @param python_exec character; select connection type to spaCy, either 
+#' "rPython" or "Rcpp". 
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @importFrom methods new
@@ -153,36 +166,53 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
         docnames <- paste0("text", 1:length(x))
     }
 
+    if (is.null(options()$spacy_initialized)) spacy_initialize()
+    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
+    spacyr_pyexec("texts = []")
+    
     x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
     x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
-    x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
-    x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
-    x <- gsub("'","\\\\'", x) # escape single quotes
-    x <- gsub('"','\\\\"', x) # escape double quotes
     x <- unname(x)
     
-    # construct a python statement 
-    text_modified <- sprintf("[%s]", 
-                     paste(sapply(x, function(x) sprintf("\"%s\"", x)),
-                           collapse = ", "))
+    # if(python_exec == 'rPython'){
+    #     x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
+    #     x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
+    #     x <- gsub("'","\\\\'", x) # escape single quotes
+    #     x <- gsub('"','\\\\"', x) # escape double quotes
+    #     # construct a python statement for variable declaration
+    #     text_modified <- sprintf("[%s]", 
+    #                              paste(sapply(x, function(x) sprintf("\"%s\"", x)),
+    #                                    collapse = ", "))
+    #     spacyr_pyexec(paste0("texts = ", text_modified))
+    # } else {
+    spacyr_pyassign("texts", x)
+    #spacyr_pyexec("texts = [t.encode('utf-8', 'ignore') for t in texts]")
+    # }
+    # initialize spacyr() object
+    spacyr_pyexec("spobj = spacyr()")
     
-    if (is.null(options()$spacy_rpython)) spacy_initialize()
-    rPython::python.exec("try:\n del spobj\nexcept NameError:\n 1")
-    rPython::python.exec("texts = []")
-    rPython::python.exec("spobj = spacyr()")
-    exec_out <- rPython::python.exec(paste0("texts = ", text_modified),
-                                     get.exception = F)
-    if(exec_out == -1) {
-        stop("Failed to assign text values")
-    }
-    rPython::python.assign("tokenize_only", tokenize_only)
-    rPython::python.exec("timestamps = spobj.parse(texts, tokenize_only)")
+    spacyr_pyassign("tokenize_only", as.numeric(tokenize_only))
+    spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)")
     
-    timestamps = as.character(rPython::python.get("timestamps"))
+    timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
                             timestamps = timestamps,
                             tokenize_only = tokenize_only)
     return(output)
+}
+
+spacyr_pyassign <- function(pyvarname, values) {
+    if(length(values) > 1) pyvar(pyvarname, values)
+    else pyrun(paste0(pyvarname, " = ", deparse(values)))
+}
+
+spacyr_pyget <- function(pyvarname) {
+
+    return(Rvar(pyvarname))
+}
+
+spacyr_pyexec <- function(pystring) {
+    pyrun(pystring)
 }
 
