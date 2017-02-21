@@ -18,4 +18,3 @@ pyprint(x)
 pyprint("dir()") #You can quote Python commands
 }
 \keyword{internal}
-

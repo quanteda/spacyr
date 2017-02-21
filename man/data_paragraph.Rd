@@ -7,4 +7,3 @@
 \description{
 A sample of text from the Irish budget debate of 2010.
 }
-

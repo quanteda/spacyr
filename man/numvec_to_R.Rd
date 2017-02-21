@@ -13,4 +13,3 @@ numvec_to_R(name)
 The data retrieved from Python has to be a list of numbers.
 }
 \keyword{internal}
-

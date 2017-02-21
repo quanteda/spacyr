@@ -38,4 +38,3 @@ results <- spacy_parse(txt)
 }
 }
 \keyword{internal}
-

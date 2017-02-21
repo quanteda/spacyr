@@ -18,4 +18,3 @@ pytype(x)
 pytype(x[1])
 }
 \keyword{internal}
-

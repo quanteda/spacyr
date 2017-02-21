@@ -16,4 +16,3 @@ data.frame of dependency relations
 get the number of tokens from spacyr output
 }
 \keyword{internal}
-

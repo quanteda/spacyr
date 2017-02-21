@@ -23,4 +23,3 @@ pyrun("s2 = 'a'")
 Rvar("s2")
 }
 \keyword{internal}
-

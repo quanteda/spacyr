@@ -33,4 +33,3 @@ dim(named_entities)
 head(named_entities, 30)
 }
 }
-

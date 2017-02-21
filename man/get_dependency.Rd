@@ -16,4 +16,3 @@ data.frame of dependency relations
 Title
 }
 \keyword{internal}
-

@@ -58,4 +58,3 @@ txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.",
 spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
 }
 }
-

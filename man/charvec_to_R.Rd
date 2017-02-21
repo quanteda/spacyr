@@ -21,4 +21,3 @@ pyrun("l2 = [u'a', u'b']")
 charvec_to_R("l2")
 }
 \keyword{internal}
-

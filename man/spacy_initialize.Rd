@@ -12,4 +12,3 @@ Initialize spaCy to call from R.
 \author{
 Akitaka Matsuo
 }
-

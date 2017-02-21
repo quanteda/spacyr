@@ -7,4 +7,3 @@
 \description{
 Some sample short documents in plain text format for testing.  Each document is one or two short sentences.
 }
-

@@ -28,4 +28,4 @@ Suggests:
 URL: http://github.com/kbenoit/spacyr
 Encoding: UTF-8
 BugReports: https://github.com/kbenoit/spacyr/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
