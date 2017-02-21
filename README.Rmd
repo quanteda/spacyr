@@ -86,6 +86,13 @@ results_detailed <- spacy_parse(txt,
 head(results_detailed, 30)
 ```
 
+## When you finish
+
+A background process of python is initiated when you ran `spacy_initialize`. Because of the size of English language module of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
+
+```{r}
+spacy_finalize()
+```
 
 
 ## Notes for Mac Users using Homebrew (or other) Version of Python

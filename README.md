@@ -1,46 +1,41 @@
-
-
-
 [![CRAN Version](http://www.r-pkg.org/badges/version/spacyr)](http://cran.r-project.org/package=spacyr) ![Downloads](http://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI Build Status](https://travis-ci.org/kbenoit/spacyr.svg?branch=master)](https://travis-ci.org/kbenoit/spacyr) [![codecov.io](https://codecov.io/github/kbenoit/spacyr/spacyr.svg?branch=master)](https://codecov.io/github/kbenoit/spacyr/coverage.svg?branch=master)
 
+spacyr: an R wrapper for spaCy
+==============================
 
-# spacyr: an R wrapper for spaCy
-
-This package is an R wrapper to the spaCy "industrial strength natural language processing" Python library from http://spacy.io.
+This package is an R wrapper to the spaCy "industrial strength natural language processing" Python library from <http://spacy.io>.
 
 ### Prerequisites
 
-1.  Python (> 2.7 or 3) must be installed on your system.  
+1.  Python (&gt; 2.7 or 3) must be installed on your system.
 
-2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/).
+2.  spaCy must be installed on your system. Follow [these instructions](http://spacy.io/docs/).
 
-    Installation on Windows:  
-    a)  (If you have not yet installed Python:)  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer.  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."  
-    b)  Install spaCy and the English language model using these commands at the command line:  
-        ```
-        pip install -U spacy
-        python -m spacy.en.download
-        ```
-        For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).  
-    c)  Test your installation at the command line using:  
-        ```
-        python -c "import spacy; spacy.load('en'); print('OK')"
-        ```
+    Installation on Windows:
+    1.  (If you have not yet installed Python:) Download and install [Python for Windows](https://www.python.org/downloads/windows/). We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer. During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
+    2.  Install spaCy and the English language model using these commands at the command line:
 
-3.  You need (of course) to install this package:  
-    
-    ```r
+            pip install -U spacy
+            python -m spacy.en.download
+
+        For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).
+    3.  Test your installation at the command line using:
+
+            python -c "import spacy; spacy.load('en'); print('OK')"
+
+3.  You need (of course) to install this package:
+
+    ``` r
     devtools::install_github("kbenoit/spacyr")
     ```
 
-
 ### Examples
 
-The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
+The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
-
-```r
+``` r
 require(spacyr)
+#> Loading required package: spacyr
 # start a python process and initialize spaCy in it.
 # it takes several seconds for initialization.
 spacy_initialize()
@@ -62,11 +57,12 @@ head(parsedtxt)
 
 By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
 
-
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
 
-```r
+``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
+#> quanteda version 0.9.9.24
+#> Using 3 of 4 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -83,8 +79,7 @@ ntype(parsedtxt)
 
 The following codes conduct more detailed document processing, including dependency parsing and named entitiy recognition.
 
-
-```r
+``` r
 results_detailed <- spacy_parse(txt,
                                 pos_tag = TRUE,
                                 named_entity = TRUE,
@@ -124,30 +119,40 @@ head(results_detailed, 30)
 #>     docname id      tokens google penn head_id   dep_rel named_entity
 ```
 
+When you finish
+---------------
 
+A background process of python is initiated when you ran `spacy_initialize`. Because of the size of English language module of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
 
-## Notes for Mac Users using Homebrew (or other) Version of Python
+``` r
+spacy_finalize()
+```
+
+Notes for Mac Users using Homebrew (or other) Version of Python
+---------------------------------------------------------------
 
 If you install Python other than the system default and installed spaCy on that Python, you need to set the path to the python executable with spaCy and build `spacyr`. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
 
 Open a Terminal window, and type
-```
-$ python --version; which python
-```
+
+    $ python --version; which python
+
 and in R, enter following
 
-```r
+``` r
 system('python --version; which python')
 ```
+
 If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable and then reinstall `spacyr`. Suppose that your python with spaCy is  `/usr/local/bin/python`, run the following:
+To resolve the issue, you can alter an environmental variable and then reinstall `spacyr`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 
-```r
+``` r
 Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
 devtools::install_github("kbenoit/spacyr")
 ```
 
-## Comments and feedback
+Comments and feedback
+---------------------
 
-We welcome your comments and feedback.  Please file issues on the issues page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.
+We welcome your comments and feedback. Please file issues on the issues page, and/or send us comments at <kbenoit@lse.ac.uk> and <A.Matsuo@lse.ac.uk>.
