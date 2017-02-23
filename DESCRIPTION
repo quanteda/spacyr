@@ -8,8 +8,8 @@ Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
     role = "aut") )
 Author: Kenneth Benoit [aut, cre], Akitaka Matsuo [aut]
 Maintainer: Kenneth Benoit <kbenoit@lse.ac.uk>
-Description: An R wrapper to the Python (Cython) spaCy NLP system, 
-    from http://spacy.io. 
+Description: An R wrapper to the Python (Cython) spaCy NLP system,
+    from http://spacy.io.
 License: GPL-3
 LazyData: TRUE
 Depends:
