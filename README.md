@@ -12,14 +12,20 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 2.  spaCy must be installed on your system. Follow [these instructions](http://spacy.io/docs/).
 
     Installation on Windows:
-    1.  (If you have not yet installed Python:) Download and install [Python for Windows](https://www.python.org/downloads/windows/). We recommend the 2.7.12, using (if appropriate) the Windows x86-64 MSI installer. During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
-    2.  Install spaCy and the English language model using these commands at the command line:
+    1.  (If you have not yet installed Python:) Download and install [Python for Windows](https://www.python.org/downloads/windows/). We recommend the latest 2.7.x release (currently 2.7.13). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
+
+    2.  You will also need to install the [Microsoft Visual C++ Compiler for Python 2.7](http://aka.ms/vcpython27).
+
+    3.  Install spaCy and the English language model using these commands at the command line:
 
             pip install -U spacy
             python -m spacy.en.download
 
         For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).
-    3.  Test your installation at the command line using:
+
+        Depending on your system, you may be prompted to install additional components, after which you will need to re-run the `pip install -U spacy` command. For instance, you may need to install the .NET Framework 3.5.
+
+    4.  Test your installation at the command line using:
 
             python -c "import spacy; spacy.load('en'); print('OK')"
 
