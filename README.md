@@ -81,7 +81,7 @@ ntype(parsedtxt)
 #>      44      46
 ```
 
-### Document processing with addiitonal features
+### Document processing with additional features
 
 The following codes conduct more detailed document processing, including dependency parsing and named entitiy recognition.
 
