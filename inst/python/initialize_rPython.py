@@ -13,7 +13,7 @@ import sys
 import spacy
 import time
 
-nlp = spacy.load('en')
+nlp = spacy.load(lang)
 
 
 class spacyr:

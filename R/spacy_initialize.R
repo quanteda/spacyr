@@ -2,9 +2,15 @@
 #' 
 #' Initialize spaCy to call from R.
 #' @return NULL
+#' @param lang Language package for loading spacy. Either \code{en} (English) or 
+#' \code{de} (German). Default is \code{en}.
 #' @export
 #' @author Akitaka Matsuo
-spacy_initialize <- function() {
+spacy_initialize <- function(lang = 'en') {
+    if(! lang %in% c('en', 'de')) {
+        stop('value of lang option should be either "en" or "de"')
+    }
+    pyrun(sprintf("lang = '%s'", lang))
     code <- readLines(system.file("python", "initialize_rPython.py", package = 'spacyr'))
     code <- paste(code, collapse = "\n")
     # pyrun("rpython = 0")
