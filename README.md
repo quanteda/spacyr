@@ -19,7 +19,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     3.  Install spaCy and the English language model using these commands at the command line:
 
             pip install -U spacy
-            python -m spacy.en.download
+            python -m spacy.en.download all
 
         For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).
 
@@ -35,7 +35,8 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     devtools::install_github("kbenoit/spacyr")
     ```
 
-### Examples
+Examples
+--------
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
@@ -68,7 +69,7 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 #> quanteda version 0.9.9.24
-#> Using 3 of 4 cores for parallel computing
+#> Using 7 of 8 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -92,7 +93,7 @@ results_detailed <- spacy_parse(txt,
                                 dependency = TRUE)
 head(results_detailed, 30)
 #>     docname id      tokens google penn head_id   dep_rel named_entity
-#>  1: fastest  0       spaCy   NOUN   NN       1  compound    PRODUCT_B
+#>  1: fastest  0       spaCy   NOUN   NN       1  compound             
 #>  2: fastest  1     excells   NOUN  NNS       1      ROOT             
 #>  3: fastest  2          at    ADP   IN       1      prep             
 #>  4: fastest  3       large    ADJ   JJ       5      amod             
@@ -121,12 +122,93 @@ head(results_detailed, 30)
 #> 27: fastest 26         has   VERB  VBZ      27       aux             
 #> 28: fastest 27   confirmed   VERB  VBN      27      ROOT             
 #> 29: fastest 28        that    ADP   IN      30      mark             
-#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj    PRODUCT_B
+#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj             
 #>     docname id      tokens google penn head_id   dep_rel named_entity
 ```
 
-When you finish
----------------
+### Use German language model
+
+In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `lang` option when `spacy_initialize` is called.
+
+``` r
+spacy_initialize(lang = 'de')
+
+txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
+               python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
+results_german <- spacy_parse(txt_german,
+                                pos_tag = TRUE,
+                                named_entity = TRUE,
+                                dependency = TRUE)
+head(results_german, 30)
+#>     docname id             tokens google  penn head_id dep_rel
+#>  1:       R  0                  R      X    XY       1      sb
+#>  2:       R  1                ist    AUX VAFIN       1    ROOT
+#>  3:       R  2               eine    DET   ART       4      nk
+#>  4:       R  3              freie    ADJ  ADJA       4      nk
+#>  5:       R  4 Programmiersprache   NOUN    NN       1      pd
+#>  6:       R  5                für    ADP  APPR       4     mnr
+#>  7:       R  6       statistische    ADJ  ADJA       7      nk
+#>  8:       R  7       Berechnungen   NOUN    NN       5      nk
+#>  9:       R  8                und   CONJ   KON       7      cd
+#> 10:       R  9           Grafiken   NOUN    NN       8      cj
+#> 11:       R 10                  .  PUNCT    $.       1   punct
+#> 12:       R 11                Sie   PRON  PPER      12      sb
+#> 13:       R 12              wurde    AUX VAFIN      12    ROOT
+#> 14:       R 13                von    ADP  APPR      20     sbp
+#> 15:       R 14       Statistikern   NOUN    NN      13      nk
+#> 16:       R 15                für    ADP  APPR      14     mnr
+#> 17:       R 16           Anwender   NOUN    NN      15      nk
+#> 18:       R 17                mit    ADP  APPR      20      mo
+#> 19:       R 18      statistischen    ADJ  ADJA      19      nk
+#> 20:       R 19           Aufgaben   NOUN    NN      17      nk
+#> 21:       R 20         entwickelt   VERB  VVPP      12      oc
+#> 22:       R 21                  .  PUNCT    $.      12   punct
+#> 23:       R 22                Die    DET   ART      23      nk
+#> 24:       R 23             Syntax   NOUN    NN      24      sb
+#> 25:       R 24         orientiert   VERB VVFIN      24    ROOT
+#> 26:       R 25               sich   PRON   PRF      24      oa
+#> 27:       R 26                 an    ADP  APPR      24      mo
+#> 28:       R 27                der    DET   ART      28      nk
+#> 29:       R 28 Programmiersprache   NOUN    NN      26      nk
+#> 30:       R 29                  S  PROPN    NE      28      nk
+#>     docname id             tokens google  penn head_id dep_rel
+#>     named_entity
+#>  1:             
+#>  2:             
+#>  3:             
+#>  4:             
+#>  5:             
+#>  6:             
+#>  7:             
+#>  8:             
+#>  9:             
+#> 10:             
+#> 11:             
+#> 12:             
+#> 13:             
+#> 14:             
+#> 15:             
+#> 16:             
+#> 17:             
+#> 18:             
+#> 19:             
+#> 20:             
+#> 21:             
+#> 22:             
+#> 23:             
+#> 24:             
+#> 25:             
+#> 26:             
+#> 27:             
+#> 28:             
+#> 29:             
+#> 30:             
+#>     named_entity
+```
+
+The German language model has to be installed (`python -m spacy.en.download all`) before you call `spacy_initialize`.
+
+### When you finish
 
 A background process of python is initiated when you ran `spacy_initialize`. Because of the size of English language module of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
 
