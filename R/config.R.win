@@ -21,7 +21,7 @@ py_config <- function() {
   }
   
   # extract python library from PKG_LIBS
-  match <- regexpr("-lpython\\d+\\.\\d+", PKG_LIBS)
+  match <- regexpr("-lpython\\d+", PKG_LIBS)
   if (match == -1)
     stop("Unable to parse -lpython from ", PKG_LIBS)
   libpython_lib <- regmatches(PKG_LIBS, match)
