@@ -10,15 +10,10 @@
 # from __future__ import unicode_literals 
 import os
 import sys
-import argparse
-import codecs
-import spacy.en
-from spacy.parts_of_speech import *
-from spacy.lemmatizer import Lemmatizer
-import re
+import spacy
 import time
 
-nlp = spacy.en.English()
+nlp = spacy.load(lang)
 
 
 class spacyr:

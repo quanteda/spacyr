@@ -4,7 +4,11 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy}
 \usage{
-spacy_initialize()
+spacy_initialize(lang = "en")
+}
+\arguments{
+\item{lang}{Language package for loading spacy. Either \code{en} (English) or 
+\code{de} (German). Default is \code{en}.}
 }
 \description{
 Initialize spaCy to call from R.
