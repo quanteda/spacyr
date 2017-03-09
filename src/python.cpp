@@ -3,7 +3,10 @@
 #include "redirect.hpp"
 #include "converters.hpp"
 
+#ifndef WIN32
 #include <dlfcn.h>
+#endif
+
 
 // Based on:
 // http://gallery.rcpp.org/articles/matplotlib-from-R/
@@ -27,18 +30,20 @@ void pyrun(std::string command) {
 
 //[[Rcpp::export]]
 void py_initialize(const std::string& pythonSharedLibrary) {
+
+#ifndef WIN32
   
-#ifndef __APPLE__
-  // force RTLD_GLOBAL for importing python libraries on Linux
-  // http://stackoverflow.com/questions/29880931/
-  // https://mail.python.org/pipermail/new-bugs-announce/2008-November/003322.html
-  void *lib = dlopen(pythonSharedLibrary.c_str(), RTLD_NOW|RTLD_GLOBAL);
-  if (lib == NULL) {
-    const char* err = dlerror();
-    stop(err);
-  }
+  #ifndef __APPLE__
+    // force RTLD_GLOBAL for importing python libraries on Linux
+    // http://stackoverflow.com/questions/29880931/
+    // https://mail.python.org/pipermail/new-bugs-announce/2008-November/003322.html
+    void *lib = dlopen(pythonSharedLibrary.c_str(), RTLD_NOW|RTLD_GLOBAL);
+    if (lib == NULL) {
+      const char* err = dlerror();
+      stop(err);
+    }
+  #endif
 #endif
-  
   Py_Initialize();
   PyObject *m = PyImport_AddModule("__main__");
   PyObject *main = PyModule_GetDict(m);
