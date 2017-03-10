@@ -1,0 +1,17 @@
+#!/bin/sh
+
+CONFIGFILE='R/config.R'
+
+PYTHON=$(python -c "import os;import sys;print(os.path.dirname(sys.executable))")
+PYVER=$(python -c "import sys;print(str(sys.version_info[0]) + str(sys.version_info[1]))")
+# echo ${PYTHON}
+# echo ${PYVER}
+
+echo ${PYTHON} | sed 's/\\/\//g' > temp
+PYTHON=`cat temp`
+#echo ${PYTHON}
+echo "PYTHON_BIN <- \"$PYTHON/python.exe\"" > "$CONFIGFILE"
+echo "PKG_LIBS <- \"$PYTHON/libs -lpython$PYVER -DMS_WIN64 \"" >> "$CONFIGFILE"
+cat 'R/config.R.win' >> "$CONFIGFILE"
+rm temp
+
