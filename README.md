@@ -240,6 +240,42 @@ Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
 devtools::install_github("kbenoit/spacyr")
 ```
 
+Installation on Windows
+-----------------------
+
+The current branch `temp_win` is supposed to work with Windows. In the test environemnt, it worked with the latest Anaconda2.
+
+### Python requirement
+
+In addition to have `spaCy` on your system, you need to have `libpython` package installed in your Python. If `libpython` is available for `pip` install for your version of Python, you can just type:
+
+    pip install libpython
+
+or for codna Python, you can type:
+
+    conda install -c anaconda libpython=2.0
+
+If not, you can download one from somewhere on the internet.
+
+### R requirement
+
+You need to install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
+
+### Instalallation
+
+``` r
+devtools::install_github("kbenoit/spacyr", ref = "temp_win")
+```
+
+### Multiple Python executables in your system
+
+If you have multiple python executables in your system, you are supposed to be able to spacify the python path using the same methoded described above, which is to set an enviromental variable `SPACY_PYTHON`. Here is an example (**Don't use backslach**)
+
+``` r
+Sys.setenv(SPACY_PYTHON = "C:/Users/***/Anaconda2/python.exe")
+devtools::install_github("kbenoit/spacyr", ref = "temp_win")
+```
+
 Comments and feedback
 ---------------------
 
