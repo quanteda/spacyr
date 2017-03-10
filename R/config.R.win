@@ -1,7 +1,4 @@
-# Based on rstudio/tensorflow
-
-PYTHON_BIN <- "@PYTHON_BIN@"
-PKG_LIBS <- "@PKG_LIBS@"
+## Based on rstudio/tensorflow
 
 # Python configuration
 #
