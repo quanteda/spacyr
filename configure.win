@@ -2,8 +2,24 @@
 
 CONFIGFILE='R/config.R'
 
-PYTHON=$(python -c "import os;import sys;print(os.path.dirname(sys.executable))")
-PYVER=$(python -c "import sys;print(str(sys.version_info[0]) + str(sys.version_info[1]))")
+
+# find spacy target python binary
+if test -z "${SPACY_PYTHON}"
+then
+  echo "Using python binary from PATH"
+  USE_PYTHON=python
+else
+  echo "Using python binary at ${SPACY_PYTHON}"
+  USE_PYTHON=${SPACY_PYTHON}
+fi
+
+echo ${USE_PYTHON}
+
+# CONFIGFILE='R/config.R'
+
+
+PYTHON=$("$USE_PYTHON" -c "import os;import sys;print(os.path.dirname(sys.executable))")
+PYVER=$("$USE_PYTHON" -c "import sys;print(str(sys.version_info[0]) + str(sys.version_info[1]))")
 # echo ${PYTHON}
 # echo ${PYVER}
 
