@@ -63,11 +63,12 @@ ndoc.spacyr_parsed <- function(x) {
 #' \code{ntoken} returns the number of tokens by document
 #' 
 #' @importFrom quanteda ntoken
+#' @importFrom data.table data.table
 #' @method ntoken spacyr_parsed
 #' @noRd
 #' @export
 ntoken.spacyr_parsed <- function(x, ...) {
-    N <- docname <- NULL
+    N <- .N <- docname <- NULL
     ret <- x[, .N, by = docname][, N]
     names(ret) <- docnames(x)
     ret
@@ -78,11 +79,12 @@ ntoken.spacyr_parsed <- function(x, ...) {
 #' \code{ntype} returns the number of types (unique tokens) by document
 #' 
 #' @importFrom quanteda ntype
+#' @importFrom data.table data.table
 #' @method ntype spacyr_parsed
 #' @noRd
 #' @export
 ntype.spacyr_parsed <- function(x, ...) {
-    docname <- tokens <- NULL
+    docname <- tokens <- .N <- NULL
     ntoken(x[, .N, by = list(docname, tokens)])
 }
 
