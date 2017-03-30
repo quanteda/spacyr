@@ -35,7 +35,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
         conda install -c anaconda libpython=2.0
         ```
 
-3.  You will need to install spaCy. (More [instructions](http://spacy.io/docs/) are here.)
+3.  You will need to install spaCy.
 
     Install spaCy and the English language model using these commands at the command line:
 
@@ -44,13 +44,15 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     python -m spacy download en
     ```
 
-4.  Test your installation at the command line using:
+    Test your installation at the command line using:
 
     ``` bash
     python -c "import spacy; spacy.load('en'); print('OK')"
     ```
 
-5.  Installing the **spacyr** R package:
+    There are alternative methods of installing spaCy, especially if you have installed a different Python (e.g. through Anaconda). Full installation instructions are available from the [spaCy page](http://spacy.io/docs/).
+
+4.  Installing the **spacyr** R package:
 
     This needs an environment variable set to the location of your Python executable, and then you need to install the package from source. Note that depending on your operating system and Python installation, the first command might be slightly different.
 
