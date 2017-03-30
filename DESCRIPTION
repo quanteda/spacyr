@@ -1,14 +1,11 @@
 Package: spacyr
 Type: Package
-Title: R wrapper to the spaCy NLP system
 Version: 0.2.0
-Date: 2016-11-11
+Title: R Wrapper to the spaCy NLP Library
 Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
-    c("aut", "cre")), person("Matsuo", "Akitaka", email = "A.Matsuo@lse.ac.uk",
-    role = "aut") )
-Author: Kenneth Benoit [aut, cre], Akitaka Matsuo [aut]
-Maintainer: Kenneth Benoit <kbenoit@lse.ac.uk>
-Description: An R wrapper to the Python (Cython) spaCy NLP system,
+    c("aut", "cre", "cph")), 
+    person("Akitaka", "Matsuo", email = "A.Matsuo@lse.ac.uk", role = "aut") )
+Description: An R wrapper to the Python spaCy NLP library,
     from http://spacy.io.
 License: GPL-3
 LazyData: TRUE
@@ -28,4 +25,5 @@ Suggests:
 URL: http://github.com/kbenoit/spacyr
 Encoding: UTF-8
 BugReports: https://github.com/kbenoit/spacyr/issues
+VignetteBuilder: knitr
 RoxygenNote: 6.0.1
