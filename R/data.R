@@ -1,12 +1,23 @@
+#' An R wrapper to the spaCy NLP system
+#' 
+#' An R wrapper to the Python (Cython) spaCy NLP system, from http://spacy.io. 
+#' Nicely integrated with \pkg{quanteda}.
+#' 
+#' To use \pkg{spacyr}, you must first have Python and spaCy installed on your
+#' system.  See the installation instructions from the links below.
+#' @references \url{http://spacy.io}
+#' @author Ken Benoit and Akitaka Matsuo
+#' @importFrom Rcpp evalCpp
+#' @useDynLib spacyr
+"_PACKAGE"
 
-#' @name data_sentences
-#' @docType data
-#' @title sample short documents for testing
-#' @description Some sample short documents in plain text format for testing.  Each document is one or two short sentences.
-NULL
+#' sample short documents for testing
+#' 
+#' A character object consisting of 30 short documents in plain text format for
+#' testing.  Each document is one or two brief sentences.
+"data_char_sentences"
 
-#' @name data_paragraph
-#' @docType data
-#' @title short paragraph of text for testing
-#' @description A sample of text from the Irish budget debate of 2010.
-NULL
+#' a short paragraph of text for testing
+#' 
+#' A sample of text from the Irish budget debate of 2010 (531 tokens long).
+"data_char_paragraph"
