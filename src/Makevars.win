@@ -1,9 +1,9 @@
-#https://github.com/mpastell/Rpyplot/edit/master/src/Makevars.win 
-#You need to have libpythonxx.a installed
-#pip install wheel
-#Get the correct libpython from http://www.lfd.uci.edu/~gohlke/pythonlibs/#libpython
-#e.g.
-#pip install http://www.lfd.uci.edu/~gohlke/pythonlibs/6icuform/libpython-3.4.3-cp34-none-win_amd64.whl
+# https://github.com/mpastell/Rpyplot/edit/master/src/Makevars.win 
+# You need to have libpythonxx.a installed
+# pip install wheel
+# Get the correct libpython from http://www.lfd.uci.edu/~gohlke/pythonlibs/#libpython
+# e.g.
+# pip install http://www.lfd.uci.edu/~gohlke/pythonlibs/6icuform/libpython-3.4.3-cp34-none-win_amd64.whl
 
 # find spacy target python binary
 ifeq ($(SPACY_PYTHON),)
