@@ -68,8 +68,8 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-#> quanteda version 0.9.9.24
-#> Using 7 of 8 cores for parallel computing
+#> quanteda version 0.9.9.41
+#> Using 3 of 4 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -93,7 +93,7 @@ results_detailed <- spacy_parse(txt,
                                 dependency = TRUE)
 head(results_detailed, 30)
 #>     docname id      tokens google penn head_id   dep_rel named_entity
-#>  1: fastest  0       spaCy   NOUN   NN       1  compound             
+#>  1: fastest  0       spaCy   NOUN   NN       1  compound    PRODUCT_B
 #>  2: fastest  1     excells   NOUN  NNS       1      ROOT             
 #>  3: fastest  2          at    ADP   IN       1      prep             
 #>  4: fastest  3       large    ADJ   JJ       5      amod             
@@ -122,7 +122,7 @@ head(results_detailed, 30)
 #> 27: fastest 26         has   VERB  VBZ      27       aux             
 #> 28: fastest 27   confirmed   VERB  VBN      27      ROOT             
 #> 29: fastest 28        that    ADP   IN      30      mark             
-#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj             
+#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj    PRODUCT_B
 #>     docname id      tokens google penn head_id   dep_rel named_entity
 ```
 
@@ -140,70 +140,70 @@ results_german <- spacy_parse(txt_german,
                                 named_entity = TRUE,
                                 dependency = TRUE)
 head(results_german, 30)
-#>     docname id             tokens google  penn head_id dep_rel
-#>  1:       R  0                  R      X    XY       1      sb
-#>  2:       R  1                ist    AUX VAFIN       1    ROOT
-#>  3:       R  2               eine    DET   ART       4      nk
-#>  4:       R  3              freie    ADJ  ADJA       4      nk
-#>  5:       R  4 Programmiersprache   NOUN    NN       1      pd
-#>  6:       R  5                für    ADP  APPR       4     mnr
-#>  7:       R  6       statistische    ADJ  ADJA       7      nk
-#>  8:       R  7       Berechnungen   NOUN    NN       5      nk
-#>  9:       R  8                und   CONJ   KON       7      cd
-#> 10:       R  9           Grafiken   NOUN    NN       8      cj
-#> 11:       R 10                  .  PUNCT    $.       1   punct
-#> 12:       R 11                Sie   PRON  PPER      12      sb
-#> 13:       R 12              wurde    AUX VAFIN      12    ROOT
-#> 14:       R 13                von    ADP  APPR      20     sbp
-#> 15:       R 14       Statistikern   NOUN    NN      13      nk
-#> 16:       R 15                für    ADP  APPR      14     mnr
-#> 17:       R 16           Anwender   NOUN    NN      15      nk
-#> 18:       R 17                mit    ADP  APPR      20      mo
-#> 19:       R 18      statistischen    ADJ  ADJA      19      nk
-#> 20:       R 19           Aufgaben   NOUN    NN      17      nk
-#> 21:       R 20         entwickelt   VERB  VVPP      12      oc
-#> 22:       R 21                  .  PUNCT    $.      12   punct
-#> 23:       R 22                Die    DET   ART      23      nk
-#> 24:       R 23             Syntax   NOUN    NN      24      sb
-#> 25:       R 24         orientiert   VERB VVFIN      24    ROOT
-#> 26:       R 25               sich   PRON   PRF      24      oa
-#> 27:       R 26                 an    ADP  APPR      24      mo
-#> 28:       R 27                der    DET   ART      28      nk
-#> 29:       R 28 Programmiersprache   NOUN    NN      26      nk
-#> 30:       R 29                  S  PROPN    NE      28      nk
-#>     docname id             tokens google  penn head_id dep_rel
-#>     named_entity
-#>  1:             
-#>  2:             
-#>  3:             
-#>  4:             
-#>  5:             
-#>  6:             
-#>  7:             
-#>  8:             
-#>  9:             
-#> 10:             
-#> 11:             
-#> 12:             
-#> 13:             
-#> 14:             
-#> 15:             
-#> 16:             
-#> 17:             
-#> 18:             
-#> 19:             
-#> 20:             
-#> 21:             
-#> 22:             
-#> 23:             
-#> 24:             
-#> 25:             
-#> 26:             
-#> 27:             
-#> 28:             
-#> 29:             
-#> 30:             
-#>     named_entity
+#>     docname id             tokens google penn head_id  dep_rel
+#>  1:       R  0                  R   NOUN   NN       2 compound
+#>  2:       R  1                ist   NOUN   NN       2 compound
+#>  3:       R  2               eine   NOUN   NN       3    nsubj
+#>  4:       R  3              freie   VERB  VBZ       3     ROOT
+#>  5:       R  4 Programmiersprache  PROPN  NNP       5     amod
+#>  6:       R  5                für      X   FW       7     nmod
+#>  7:       R  6       statistische      X   FW       7     nmod
+#>  8:       R  7       Berechnungen  PROPN  NNP       9 compound
+#>  9:       R  8                und    ADV   RB       9 compound
+#> 10:       R  9           Grafiken  PROPN  NNP       3     dobj
+#> 11:       R 10                  .  PUNCT    .       3    punct
+#> 12:       R 11                Sie  PROPN  NNP      12    nsubj
+#> 13:       R 12              wurde   VERB  VBD      12     ROOT
+#> 14:       R 13                von  PROPN  NNP      14 compound
+#> 15:       R 14       Statistikern  PROPN  NNP      17 compound
+#> 16:       R 15                für   NOUN   NN      17 compound
+#> 17:       R 16           Anwender  PROPN  NNP      17 compound
+#> 18:       R 17                mit   NOUN   NN      12     dobj
+#> 19:       R 18      statistischen   NOUN   NN      20 compound
+#> 20:       R 19           Aufgaben  PROPN  NNP      20 compound
+#> 21:       R 20         entwickelt   NOUN   NN      17    appos
+#> 22:       R 21                  .  PUNCT    .      12    punct
+#> 23:       R 22                Die   VERB   VB      25 npadvmod
+#> 24:       R 23             Syntax  PROPN  NNP      24 compound
+#> 25:       R 24         orientiert   NOUN   NN      25    nsubj
+#> 26:       R 25               sich   VERB  VBZ      25     ROOT
+#> 27:       R 26                 an    DET   DT      27      det
+#> 28:       R 27                der   NOUN   NN      29 compound
+#> 29:       R 28 Programmiersprache  PROPN  NNP      29 compound
+#> 30:       R 29                  S  PROPN  NNP      25    nsubj
+#>     docname id             tokens google penn head_id  dep_rel
+#>      named_entity
+#>  1:              
+#>  2:              
+#>  3:              
+#>  4:              
+#>  5: WORK_OF_ART_B
+#>  6:              
+#>  7:              
+#>  8:              
+#>  9:              
+#> 10:              
+#> 11:              
+#> 12:      PERSON_B
+#> 13:              
+#> 14:      PERSON_B
+#> 15:      PERSON_I
+#> 16:              
+#> 17:              
+#> 18:              
+#> 19:              
+#> 20:         ORG_B
+#> 21:              
+#> 22:              
+#> 23:              
+#> 24:              
+#> 25:              
+#> 26:              
+#> 27:              
+#> 28:              
+#> 29:     PRODUCT_B
+#> 30:     PRODUCT_I
+#>      named_entity
 ```
 
 The German language model has to be installed (`python -m spacy.en.download all`) before you call `spacy_initialize`.
@@ -247,7 +247,9 @@ The current branch `temp_win` is supposed to work with Windows. In the test envi
 
 ### Python requirement
 
-In addition to have `spaCy` on your system, you need to have `libpython` package installed in your Python. If `libpython` is available for `pip` install for your version of Python, you can just type:
+First of all you need to install `spaCy`. The installation instruction is available [here](https://spacy.io/docs/usage/#source-windows). The package could be installed through `pip` or `conda`, but you also need to install Visual Studio Express. The version of Visual Studio Express you need depends on the version of python you want to install `spaCy` in.
+
+In addition to have `spaCy` on your system, you also need to have `libpython` package installed in your Python. If `libpython` is available for `pip` install for your version of Python, you can just type:
 
     pip install libpython
 
@@ -264,7 +266,7 @@ You need to install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
 ### Instalallation
 
 ``` r
-devtools::install_github("kbenoit/spacyr", ref = "temp_win")
+devtools::install_github("kbenoit/spacyr")
 ```
 
 ### Multiple Python executables in your system
@@ -273,8 +275,10 @@ If you have multiple python executables in your system, you are supposed to be a
 
 ``` r
 Sys.setenv(SPACY_PYTHON = "C:/Users/***/Anaconda2/python.exe")
-devtools::install_github("kbenoit/spacyr", ref = "temp_win")
+devtools::install_github("kbenoit/spacyr")
 ```
+
+If this installation still fails, you can try our reticulate branch of `spacyr` package. In the back end, it uses [`reticulate`](https://github.com/rstudio/reticulate) package. This version works smoothly python 3.x in our test. There reticualte branch is available [here](https://github.com/kbenoit/spacyr/tree/dev_reticulate).
 
 Comments and feedback
 ---------------------
