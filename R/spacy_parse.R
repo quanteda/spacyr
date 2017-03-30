@@ -68,6 +68,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                   # data.table = TRUE, 
                                   ...) {
     
+    `:=` <- NULL
     
     if(pos_tag == TRUE & is.na(tagset)) {
         tagset = "both"
