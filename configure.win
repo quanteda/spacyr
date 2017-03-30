@@ -1,0 +1,33 @@
+#!/bin/sh
+
+CONFIGFILE='R/config.R'
+
+
+# find spacy target python binary
+if test -z "${SPACY_PYTHON}"
+then
+  echo "Using python binary from PATH"
+  USE_PYTHON=python
+else
+  echo "Using python binary at ${SPACY_PYTHON}"
+  USE_PYTHON=${SPACY_PYTHON}
+fi
+
+echo ${USE_PYTHON}
+
+# CONFIGFILE='R/config.R'
+
+
+PYTHON=$("$USE_PYTHON" -c "import os;import sys;print(os.path.dirname(sys.executable))")
+PYVER=$("$USE_PYTHON" -c "import sys;print(str(sys.version_info[0]) + str(sys.version_info[1]))")
+# echo ${PYTHON}
+# echo ${PYVER}
+
+echo ${PYTHON} | sed 's/\\/\//g' > temp
+PYTHON=`cat temp`
+#echo ${PYTHON}
+echo "PYTHON_BIN <- \"$PYTHON/python.exe\"" > "$CONFIGFILE"
+echo "PKG_LIBS <- \"$PYTHON/libs -lpython$PYVER -DMS_WIN64 \"" >> "$CONFIGFILE"
+cat 'R/config.R.win' >> "$CONFIGFILE"
+rm temp
+

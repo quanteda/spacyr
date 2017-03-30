@@ -23,32 +23,56 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 1.  Python (> 2.7 or 3) must be installed on your system.  
 
-2.  spaCy must be installed on your system.  Follow [these instructions](http://spacy.io/docs/).
+    **(Windows only)**  If you have not yet installed Python,  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We recommend the latest 2.7.x release (currently 2.7.13).  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x." 
 
-    Installation on Windows:  
-    a)  (If you have not yet installed Python:)  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We recommend the latest 2.7.x release (currently 2.7.13).  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x." 
+2.  A C++ compiler must be installed on your system.  
+
+    * **(Mac only)** Install XTools.  Either get the full XTools from the App Store, or install the command-line XTools using this command from the Terminal:
     
-    b)  You will also need to install the [Microsoft Visual C++ Compiler for Python 2.7](http://aka.ms/vcpython27).
+        ```{bash, eval = FALSE}
+        xcode-select --install
+        ```
     
-    c)  Install spaCy and the English language model using these commands at the command line:  
-        ```
-        pip install -U spacy
-        python -m spacy.en.download all
-        ```
-        For alternative installations or troubleshooting, see the [spaCy docs](https://spacy.io/docs/).  
+    * **(Windows only)** Install the [Rtools](https://CRAN.R-project.org/bin/windows/Rtools/) software available 
+    from CRAN
+    
+        You will also need to install the [Microsoft Visual C++ Compiler for Python 2.7](http://aka.ms/vcpython27).
         
-        Depending on your system, you may be prompted to install additional components, after which you will need to re-run the `pip install -U spacy` command.  For instance, you may need to install the .NET Framework 3.5.
-        
-    d)  Test your installation at the command line using:  
-        ```
-        python -c "import spacy; spacy.load('en'); print('OK')"
+        In addition to have `spaCy` on your system, you need to have `libpython` package installed in your Python. If `libpython` is available for `pip` install for your version of Python, you can just type:
+
+        ```{bash, eval = FALSE}
+        pip install libpython
         ```
 
-3.  You need (of course) to install this package:  
+        or for conda Python:
+        ```{bash, eval = FALSE}
+        conda install -c anaconda libpython=2.0
+        ```
+    
+3.  You will need to install spaCy. (More [instructions](http://spacy.io/docs/) are here.)
+
+    Install spaCy and the English language model using these commands at the command line:  
+    ```{bash, eval = FALSE}
+    pip install -U spacy
+    python -m spacy download en
+    ```
+
+4.  Test your installation at the command line using:  
+
+    ```{bash, eval = FALSE}
+    python -c "import spacy; spacy.load('en'); print('OK')"
+    ```
+
+5.  Installing the **spacyr** R package:
+
+    This needs an environment variable set to the location of your Python executable, and then you need to install the package from source.  Note that depending on your operating system and Python installation, the first command might be slightly different.
+    
     ```{r, eval = FALSE}
+    Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
     devtools::install_github("kbenoit/spacyr")
     ```
 
+If these steps do not work, see [Installation Problems](#installproblems) below.
 
 ## Examples
 
@@ -118,9 +142,11 @@ spacy_finalize()
 ```
 
 
-## Notes for Mac Users using Homebrew (or other) Version of Python
+## <a name="installproblems"></a>Installation Problems
 
-If you install Python other than the system default and installed spaCy on that Python, you need to set the path to the python executable with spaCy and build `spacyr`. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
+### macOS using Homebrew (or other) versions of Python
+
+If you installed a Python other than the system default and installed spaCy on that Python, then you will need to set the path to the Python executable with spaCy and build `spacyr`. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
 
 Open a Terminal window, and type
 ```
@@ -138,6 +164,18 @@ Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
 devtools::install_github("kbenoit/spacyr")
 ```
 
+
+### Multiple Python executables in your system 
+
+If you have multiple python executables in your system, you should be able to specify the Python path using the same method described above, which is to set an enviromental variable `SPACY_PYTHON`.  Example:
+
+```{r, eval = FALSE}
+Sys.setenv(SPACY_PYTHON = "C:/Users/***/Anaconda2/python.exe")
+devtools::install_github("kbenoit/spacyr")
+```
+
+If this installation still fails, you can try our reticulate branch of `spacyr` package. In the back end, it uses [`reticulate`](https://github.com/rstudio/reticulate) package. This version works smoothly python 3.x in our test. There reticualte branch is available [here](https://github.com/kbenoit/spacyr/tree/dev_reticulate).
+
 ## Comments and feedback
 
-We welcome your comments and feedback.  Please file issues on the issues page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.
+We welcome your comments and feedback.  Please file issues on the [issues](https://github.com/kbenoit/spacyr/issues) page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.

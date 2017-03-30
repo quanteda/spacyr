@@ -14,3 +14,4 @@ config.status
 config.R
 Makevars
 R/unused
+src/spacyr.dll

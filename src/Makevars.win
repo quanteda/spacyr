@@ -1,0 +1,21 @@
+# https://github.com/mpastell/Rpyplot/edit/master/src/Makevars.win 
+# You need to have libpythonxx.a installed
+# pip install wheel
+# Get the correct libpython from http://www.lfd.uci.edu/~gohlke/pythonlibs/#libpython
+# e.g.
+# pip install http://www.lfd.uci.edu/~gohlke/pythonlibs/6icuform/libpython-3.4.3-cp34-none-win_amd64.whl
+
+# find spacy target python binary
+ifeq ($(SPACY_PYTHON),)
+   USE_PYTHON=python
+else 
+   USE_PYTHON=$(SPACY_PYTHON)
+endif
+
+PYTHON = $(shell "$(USE_PYTHON)" -c "import os;import sys;print(os.path.dirname(sys.executable))")
+PYVER = $(shell "$(USE_PYTHON)" -c "import sys;print(str(sys.version_info[0]) + str(sys.version_info[1]))")
+PKG_CXXFLAGS=-I"$(PYTHON)\include" -I"$(PYTHON)\PCBuild" -DMS_WIN64
+PKG_LIBS= -L"$(PYTHON)\libs" -lpython$(PYVER) -DMS_WIN64
+
+#http://stackoverflow.com/questions/24517754/python-official-installer-missing-python27-dll
+#a
