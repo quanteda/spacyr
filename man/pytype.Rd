@@ -13,8 +13,10 @@ pytype(var)
 var name of the Python variable
 }
 \examples{
+\donttest{
 pyvar("x", 1:10)
 pytype(x)
 pytype(x[1])
+}
 }
 \keyword{internal}

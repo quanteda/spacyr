@@ -4,6 +4,7 @@
 #' @param x R data, numeric and character vectors and numeric matrices are currently supported.
 #'
 #' @examples
+#' \donttest{
 #' pyvar("x", 1:10)
 #' pyprint(x)
 #' pyvar("s", c("Hello", "R!")) 
@@ -13,6 +14,7 @@
 #' pyprint(df)
 #' pyvar("l", list(a=3, b=1:10, z="a"))
 #' pyprint(l)
+#' }
 #' @export
 #' @keywords internal
 pyvar <- function(name, x)
@@ -82,9 +84,11 @@ plotvar <- function(name, x, dictname="_pvars")
 #' @param x name of the python object
 #' 
 #' @examples
+#' \donttest{
 #' pyvar("x", 1:10)
 #' pyprint(x)
 #' pyprint("dir()") #You can quote Python commands
+#' }
 #' @export
 #' @keywords internal
 pyprint <- function(x)
@@ -106,9 +110,11 @@ pyprint <- function(x)
 #' @param var name of the variable to lookup 
 #' 
 #' @examples
+#' \donttest{
 #' pyvar("x", 1:10)
 #' pytype(x)
 #' pytype(x[1])
+#' }
 #' @importFrom utils capture.output
 #' @export
 #' @keywords internal
@@ -130,6 +136,7 @@ pytype_str <- function(var){
 #' @param var Python variable name
 #' 
 #' @examples
+#' \donttest{
 #' pyvar("x", 1:10)
 #' Rvar("x")
 #' pyrun("f = 3")
@@ -138,6 +145,7 @@ pytype_str <- function(var){
 #' Rvar("s")
 #' pyrun("s2 = 'a'")
 #' Rvar("s2")
+#' }
 #' @export
 #' @keywords internal
 Rvar <- function(var)
