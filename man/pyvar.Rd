@@ -15,6 +15,7 @@ pyvar(name, x)
 Copy variable from R to Python
 }
 \examples{
+\donttest{
 pyvar("x", 1:10)
 pyprint(x)
 pyvar("s", c("Hello", "R!")) 
@@ -24,5 +25,6 @@ pyvar(df)
 pyprint(df)
 pyvar("l", list(a=3, b=1:10, z="a"))
 pyprint(l)
+}
 }
 \keyword{internal}

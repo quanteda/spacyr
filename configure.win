@@ -28,6 +28,6 @@ PYTHON=`cat temp`
 #echo ${PYTHON}
 echo "PYTHON_BIN <- \"$PYTHON/python.exe\"" > "$CONFIGFILE"
 echo "PKG_LIBS <- \"$PYTHON/libs -lpython$PYVER -DMS_WIN64 \"" >> "$CONFIGFILE"
-cat 'R/config.R.win' >> "$CONFIGFILE"
+cat 'inst/config_win/config.R.win' >> "$CONFIGFILE"
 rm temp
 
