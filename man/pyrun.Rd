@@ -12,7 +12,4 @@ pyrun(command)
 \description{
 Runs Python code in namespace __main__ .
 }
-\examples{
-pyrun("print(range(5))")
-}
 \keyword{internal}

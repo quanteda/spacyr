@@ -96,12 +96,13 @@ NumericVector numvec_to_R(std::string name){
 //' Copy list of strings from Python to R character vector
 //' 
 //' @examples
-//'
+//'\donttest{
 //'pyrun("l = ['a', 'b']")
 //'pyrun("print(l)")
 //'charvec_to_R("l")
 //'pyrun("l2 = [u'a', u'b']")
 //'charvec_to_R("l2")
+//'}
 //' @param name Python variable name
 //' 
 //' @export

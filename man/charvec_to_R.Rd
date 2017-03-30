@@ -13,11 +13,12 @@ charvec_to_R(name)
 Copy list of strings from Python to R character vector
 }
 \examples{
-
+\donttest{
 pyrun("l = ['a', 'b']")
 pyrun("print(l)")
 charvec_to_R("l")
 pyrun("l2 = [u'a', u'b']")
 charvec_to_R("l2")
+}
 }
 \keyword{internal}
