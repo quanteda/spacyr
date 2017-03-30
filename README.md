@@ -277,6 +277,8 @@ Sys.setenv(SPACY_PYTHON = "C:/Users/***/Anaconda2/python.exe")
 devtools::install_github("kbenoit/spacyr")
 ```
 
+If this installation still fails, you can try our reticulate branch of `spacyr` package. In the back end, it uses [`reticulate`](https://github.com/rstudio/reticulate) package. This version works smoothly python 3.x in our test. There reticualte branch is available [here](https://github.com/kbenoit/spacyr/tree/dev_reticulate).
+
 Comments and feedback
 ---------------------
 
