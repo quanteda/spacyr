@@ -11,7 +11,7 @@ config.log
 config.status
 *.o
 *.so
-config.R
+#config.R
 Makevars
 R/unused
 src/spacyr.dll
