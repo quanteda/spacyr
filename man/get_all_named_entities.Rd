@@ -7,29 +7,26 @@
 get_all_named_entities(spacy_result)
 }
 \arguments{
-\item{spacy_result}{A data.table object from \code{spacy_parse()}}
+\item{spacy_result}{a \code{data.frame} from \code{\link{spacy_parse}}.}
 }
 \value{
-A data.table of all named entities. The data.table contains following fields: 
-\item{ent_id}{serial numbers of named entity} 
+A \code{data.table} of all named entities, containing the following fields: 
+\itemize{
   \item{docname}{name of the documument a named entity is found} 
-  \item{id}{index of the starting word of a named entity with in a document.
-  The index starts from 0} \item{entity_type}{type of named entities (e.g. ORG, PERCENT)} 
-  \item{entity}{content of named entity}
+  \item{entity}{the named entity}
+  \item{entity_type}{type of named entities (e.g. PERSON, ORG, PERCENT, etc.)} 
+  }
 }
 \description{
-\code{get_all_named_entities} construct a list of all named entities from
+\code{get_all_named_entities} construct a table of all named entities from
 the results of \code{spacy_parse}
 }
 \examples{
 \donttest{
 spacy_initialize()
-data(data_sentences)
 
-parsed_sentences <- spacy_parse(data_sentences, full_parse = TRUE, named_entity = TRUE, 
-dependency = TRUE)
+parsed_sentences <- spacy_parse(data_char_sentences, full_parse = TRUE, named_entity = TRUE)
 named_entities <- get_all_named_entities(parsed_sentences)
-dim(named_entities)
 head(named_entities, 30)
 }
 }
