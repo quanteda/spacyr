@@ -13,6 +13,7 @@ Rvar(var)
 Copy a variable from Python to R
 }
 \examples{
+\donttest{
 pyvar("x", 1:10)
 Rvar("x")
 pyrun("f = 3")
@@ -21,5 +22,6 @@ pyrun("s = ['a', 'b', 'c']")
 Rvar("s")
 pyrun("s2 = 'a'")
 Rvar("s2")
+}
 }
 \keyword{internal}

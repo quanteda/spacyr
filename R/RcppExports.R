@@ -16,12 +16,13 @@ numvec_to_R <- function(name) {
 #' Copy list of strings from Python to R character vector
 #' 
 #' @examples
-#'
+#'\donttest{
 #'pyrun("l = ['a', 'b']")
 #'pyrun("print(l)")
 #'charvec_to_R("l")
 #'pyrun("l2 = [u'a', u'b']")
 #'charvec_to_R("l2")
+#'}
 #' @param name Python variable name
 #' 
 #' @export
@@ -40,11 +41,9 @@ num_to_R <- function(name) {
 
 #' Run python code
 #'
-#' Runs Python code in namespace __main__ . 
-#' 
+#' Runs Python code in namespace __main__ .
+#'
 #' @param command Python code to execute as string
-#' @examples
-#' pyrun("print(range(5))")
 #' @export
 #' @keywords internal
 pyrun <- function(command) {
@@ -60,7 +59,7 @@ finalize_python <- function() {
 }
 
 #' Push data to python __main__ namespace
-#' 
+#'
 #' @param name Python variable name as string
 #' @param x Numeric vector to copy to Python
 #' @keywords internal

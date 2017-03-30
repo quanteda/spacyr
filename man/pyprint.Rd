@@ -13,8 +13,10 @@ pyprint(x)
 Print python object
 }
 \examples{
+\donttest{
 pyvar("x", 1:10)
 pyprint(x)
 pyprint("dir()") #You can quote Python commands
+}
 }
 \keyword{internal}

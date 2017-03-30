@@ -5,7 +5,8 @@ spacyr: an R wrapper for spaCy
 
 This package is an R wrapper to the spaCy "industrial strength natural language processing" Python library from <http://spacy.io>.
 
-### Prerequisites
+Installing the package
+----------------------
 
 1.  Python (&gt; 2.7 or 3) must be installed on your system.
 

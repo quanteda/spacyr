@@ -16,11 +16,9 @@ using namespace Rcpp;
 
 //' Run python code
 //'
-//' Runs Python code in namespace __main__ . 
-//' 
+//' Runs Python code in namespace __main__ .
+//'
 //' @param command Python code to execute as string
-//' @examples
-//' pyrun("print(range(5))")
 //' @export
 //' @keywords internal
 //[[Rcpp::export]]
@@ -32,7 +30,7 @@ void pyrun(std::string command) {
 void py_initialize(const std::string& pythonSharedLibrary) {
 
 #ifndef WIN32
-  
+
   #ifndef __APPLE__
     // force RTLD_GLOBAL for importing python libraries on Linux
     // http://stackoverflow.com/questions/29880931/
@@ -63,7 +61,7 @@ void finalize_python() {
 }
 
 //' Push data to python __main__ namespace
-//' 
+//'
 //' @param name Python variable name as string
 //' @param x Numeric vector to copy to Python
 //' @keywords internal
