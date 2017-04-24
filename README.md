@@ -10,7 +10,9 @@ Installing the package
 
 1.  Python (&gt; 2.7 or 3) must be installed on your system.
 
-    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We recommend the latest 2.7.x release (currently 2.7.13). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
+    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). As installation of `spaCy` on Python 2.7.\* in Windows is not straightforward, we recommend to use Python 3, and the following instructions is based on the use of Python 3.
+
+    We recommend the latest 3.6.\* release (currently 3.6.1). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
 
 2.  A C++ compiler must be installed on your system.
 
@@ -22,19 +24,7 @@ Installing the package
 
     -   **(Windows only)** Install the [Rtools](https://CRAN.R-project.org/bin/windows/Rtools/) software available from CRAN
 
-        You will also need to install the [Microsoft Visual C++ Compiler for Python 2.7](http://aka.ms/vcpython27).
-
-        In addition to have `spaCy` on your system, you need to have `libpython` package installed in your Python. If `libpython` is available for `pip` install for your version of Python, you can just type:
-
-        ``` bash
-        pip install libpython
-        ```
-
-        or for conda Python:
-
-        ``` bash
-        conda install -c anaconda libpython=2.0
-        ```
+        You will also need to install the [Visial Studio Express 2015](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
 
 3.  You will need to install spaCy.
 
@@ -97,8 +87,7 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-#> quanteda version 0.9.9.42
-#> Using 7 of 8 cores for parallel computing
+#> quanteda version 0.9.9.11
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -276,11 +265,17 @@ devtools::install_github("kbenoit/spacyr")
 If you have multiple python executables in your system, you should be able to specify the Python path using the same method described above, which is to set an enviromental variable `SPACY_PYTHON`. Example:
 
 ``` r
-Sys.setenv(SPACY_PYTHON = "C:/Users/***/Anaconda2/python.exe")
+Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python3")
 devtools::install_github("kbenoit/spacyr")
 ```
 
 If this installation still fails, you can try our reticulate branch of `spacyr` package. In the back end, it uses [`reticulate`](https://github.com/rstudio/reticulate) package. This version works smoothly python 3.x in our test. There reticualte branch is available [here](https://github.com/kbenoit/spacyr/tree/dev_reticulate).
+
+### Step-by-step instructions for Windows users
+
+Installation of `spaCy` and `spacyr` has not always been successful in our test environment (Windows 10 virtual machine on Parallels 10). Followings steps discribed in an issue comment are most likely to succeed in our experience:
+
+<https://github.com/kbenoit/spacyr/issues/19#issuecomment-296362599>
 
 Comments and feedback
 ---------------------
