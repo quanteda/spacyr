@@ -203,17 +203,3 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     return(output)
 }
 
-spacyr_pyassign <- function(pyvarname, values) {
-    if(length(values) > 1) pyvar(pyvarname, values)
-    else pyrun(paste0(pyvarname, " = ", deparse(values)))
-}
-
-spacyr_pyget <- function(pyvarname) {
-
-    return(Rvar(pyvarname))
-}
-
-spacyr_pyexec <- function(pystring) {
-    pyrun(pystring)
-}
-

@@ -7,8 +7,6 @@
 #' system.  See the installation instructions from the links below.
 #' @references \url{http://spacy.io}
 #' @author Ken Benoit and Akitaka Matsuo
-#' @importFrom Rcpp evalCpp
-#' @useDynLib spacyr
 "_PACKAGE"
 
 #' sample short documents for testing
