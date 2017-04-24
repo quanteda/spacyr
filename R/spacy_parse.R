@@ -86,8 +86,10 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
-    
+    ntokens_by_sent <- get_ntokens_by_sent(spacy_out)
+
     dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
+                     sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(1:length(x), x))),
                      token_id = get_attrs(spacy_out, "i") + 1, ## + 1 for shifting the first id = 1
                      tokens = tokens)
     
@@ -109,7 +111,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     if (dependency) {
         deps <- get_dependency(spacy_out)
         dt[, c("head_token_id", "dep_rel") := list(deps$head_id,
-                                             deps$dep_rel)]
+                                                   deps$dep_rel)]
     }
     
     ## named entity fields

@@ -49,6 +49,18 @@ class spacyr:
             c_document = self.documents[ts]
             ntok.append(len(c_document))
         return ntok
+
+    def ntokens_by_sent(self, timestamps):
+        ntok_by_sent = []
+        if isinstance(timestamps, list) == False:
+            timestamps = [timestamps]
+        for ts in timestamps:
+            c_document = self.documents[ts]
+            ntok_in_sent = []
+            for sent in c_document.sents:
+                ntok_in_sent.append(len(sent))
+            ntok_by_sent.append(ntok_in_sent)
+        return ntok_by_sent
         
     def attributes(self, timestamps, attrname):
         all_attrs = []

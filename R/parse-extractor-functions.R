@@ -177,4 +177,22 @@ get_ntokens <- function(spacy_out){
     return(ntokens)
 }
 
+#' get the number of tokens by sentence from spacyr output
+#'
+#' @param spacy_out a spacy_out object
+#'
+#' @return data.frame of dependency relations
+#' @export
+#' @keywords internal
+get_ntokens_by_sent <- function(spacy_out){
+    # get ids of head of each token
+    spacyr_pyassign('timestamps', spacy_out$timestamps)
+    spacyr_pyexec('ntok_by_sent = spobj.ntokens_by_sent(timestamps)')
+    ntok_by_sent <- spacyr_pyget("ntok_by_sent")
+    #names(ntok_by_sent) <- spacy_out$timestamps
+    return(ntok_by_sent)
+}
+
+
+
 
