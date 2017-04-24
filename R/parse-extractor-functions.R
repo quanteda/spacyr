@@ -155,8 +155,7 @@ get_dependency <- function(spacy_out){
         spacy_out$parser <- TRUE
     }
     spacyr_pyexec('head_id = spobj.dep_head_id(timestamps)')
-    head_id <- spacyr_pyget("head_id")
-    # head_id  <- head_id[spacy_out$timestamps]
+    head_id <- spacyr_pyget("head_id") + 1 ## + 1 is for fixing the start index to 1
     
     dep_rel <- get_attrs(spacy_out, "dep_")
     return(list(head_id = head_id, dep_rel = dep_rel))

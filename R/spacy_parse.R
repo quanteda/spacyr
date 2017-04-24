@@ -88,7 +88,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     ntokens <- get_ntokens(spacy_out)
     
     dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
-                     id = get_attrs(spacy_out, "i"),
+                     token_id = get_attrs(spacy_out, "i") + 1, ## + 1 for shifting the first id = 1
                      tokens = tokens)
     
     ## add lemma, tags in google and penn (lemmatization in spacy is 
@@ -108,7 +108,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     ## add dependency data fields
     if (dependency) {
         deps <- get_dependency(spacy_out)
-        dt[, c("head_id", "dep_rel") := list(deps$head_id,
+        dt[, c("head_token_id", "dep_rel") := list(deps$head_id,
                                              deps$dep_rel)]
     }
     
