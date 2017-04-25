@@ -8,9 +8,6 @@ init:
         Import-Module '..\appveyor-tool.ps1'
 
 # Adapt as necessary starting from here
-before_build:
-  - bash configure.win
-
 install:
   ps: Bootstrap
 
