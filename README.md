@@ -54,20 +54,21 @@ Installing the package
 Examples
 --------
 
-Before loading the package, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. The detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
-
-``` r
-Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python")
-```
-
-The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
+Before initializing spacy, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. A detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
 
 ``` r
 require(spacyr)
 #> Loading required package: spacyr
 # start a python process and initialize spaCy in it.
 # it takes several seconds for initialization.
+# you may have to set the path to the python with spaCy 
+Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python")
 spacy_initialize()
+```
+
+The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
+
+``` r
 
 txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. It is written from the ground up in carefully memory-managed Cython. Independent research has confirmed that spaCy is the fastest in the world. If your application needs to process entire web dumps, spaCy is the library you want to be using.",
          getdone = "spaCy is designed to help you do real work — to build real products, or gather real insights. The library respects your time, and tries to avoid wasting it. It is easy to install, and its API is simple and productive. I like to think of spaCy as the Ruby on Rails of Natural Language Processing.")
@@ -291,24 +292,28 @@ system('python --version; which python')
 
 If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable before loading `spacyr`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
+To resolve the issue, you can alter an environmental variable before initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 
 ``` r
-Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
 library(spacyr)
+Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
+spacy_initialize()
 ```
 
 If you've failed to set the environmental path before loading `spacyr`, you will get an error message like this:
 
     > library(spacyr)
-    Error : .onLoad failed in loadNamespace() for 'spacyr', details:
-      call: py_run_file_impl(file, convert)
-      error: ImportError: No module named spacy
+    > spacy_initialize()
+     Show Traceback
+     
+     Rerun with Debug
+     Error in py_run_file_impl(file, convert) : 
+      ImportError: No module named spacy
 
     Detailed traceback: 
-      File "<string>", line 9, in <module>
+      File "<string>", line 9, in <module> 
 
-    Error: package or namespace load failed for ‘spacyr’
+If this happened, please restart R and follow the appropriate steps to initialize spaCy.
 
 ### Step-by-step instructions for Windows users
 
