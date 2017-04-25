@@ -49,14 +49,14 @@ get_tokens <- function(spacy_out) {
 #' tag parts of speech using spaCy via rPython
 #' 
 #' Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 
-#' Options exist for using either the Google or Penn tagsets. See 
+#' Options exist for using either the Google or Detaled tagsets. See 
 #' \url{http://spacy.io}.
 #'
 #' @return a tokenized text object with tags
 #' @param spacy_out a spacy_out object
 #' @param tagset character label for the tagset to use, either \code{"google"} 
-#'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
-#'   scheme from the Penn Treebank.  
+#'   or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
+#'   scheme from the Penn Treebank (or the German Text Archive in case of German language model).  
 #' @export 
 #' @examples
 #' \donttest{
@@ -67,7 +67,7 @@ get_tokens <- function(spacy_out) {
 #' tokens_with_tag <- tokens_tag(tokens)
 #' }
 #' @keywords internal
-get_tags <- function(spacy_out, tagset = c("google", "penn")) {
+get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
     tagset <- match.arg(tagset)
     spacyr_pyassign('timestamps', spacy_out$timestamps)
     if(spacy_out$tagger == FALSE) {

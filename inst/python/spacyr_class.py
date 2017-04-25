@@ -75,7 +75,7 @@ class spacyr:
     def tags(self, timestamps, tag_type):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
-        attr_name = "tag_" if tag_type == "penn" else "pos_"
+        attr_name = "tag_" if tag_type == "detailed" else "pos_"
         all_tokens = self.attributes(timestamps, attr_name)
         return all_tokens
         

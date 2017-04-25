@@ -4,18 +4,21 @@
 \alias{spacy_parse}
 \title{parse a text using spaCy}
 \usage{
-spacy_parse(x, pos_tag = TRUE, tagset = NA, lemma = FALSE,
-  named_entity = FALSE, dependency = FALSE, full_parse = FALSE, ...)
+spacy_parse(x, pos_tag = TRUE, tagset_detailed = TRUE,
+  tagset_google = TRUE, lemma = FALSE, named_entity = FALSE,
+  dependency = FALSE, full_parse = FALSE, ...)
 }
 \arguments{
 \item{x}{a character or \pkg{quanteda} corpus object}
 
 \item{pos_tag}{logical; if \code{TRUE}, tag parts of speech}
 
-\item{tagset}{character label for the tagset to use, either \code{"google"} 
-or \code{"penn"} to use the simplified Google tagset, or the more detailed 
-scheme from the Penn Treebank. \code{"both"} returns both google and penn 
-tagsets.}
+\item{tagset_detailed}{logical whether a detailed tagset outcome is included in the result.
+In the case of using \code{"en"} model, default tagset is scheme from the Penn Treebank. 
+In the case of using \code{"de"} model, default tagset is scheme from the German Text Archive (http://www.deutschestextarchiv.de/doku/pos).}
+
+\item{tagset_google}{logical whether a simplified \code{"google"} tagset will be 
+returned.}
 
 \item{lemma}{logical; inlucde lemmatized tokens in the output}
 
@@ -36,8 +39,8 @@ an tokenized text object
 \description{
 The spacy_parse() function calls spaCy to both tokenize and tag the texts,
 and returns a data.table of the results. 
-The function provides options on the types of gats sets (\code{tagset})
-either  \code{"google"} or \code{"penn"} (or \code{"both"}), as well
+The function provides options on the types of tagsets (\code{tagset_} options)
+either  \code{"google"} or \code{"detailed"}, as well
 as lemmatization (\code{lemma}).
 It provides a functionalities of dependency parsing and named entity 
 recognition as an option. If \code{"full_parse = TRUE"} is provided, 
