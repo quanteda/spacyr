@@ -2,8 +2,8 @@
 #' 
 #' The spacy_parse() function calls spaCy to both tokenize and tag the texts,
 #' and returns a data.table of the results. 
-#' The function provides options on the types of gats sets (\code{tagset})
-#' either  \code{"google"} or \code{"penn"} (or \code{"both"}), as well
+#' The function provides options on the types of tagsets (\code{tagset_} options)
+#' either  \code{"google"} or \code{"detailed"}, as well
 #' as lemmatization (\code{lemma}).
 #' It provides a functionalities of dependency parsing and named entity 
 #' recognition as an option. If \code{"full_parse = TRUE"} is provided, 
@@ -13,10 +13,11 @@
 #' @param pos_tag logical; if \code{TRUE}, tag parts of speech
 #' @param named_entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
-#' @param tagset character label for the tagset to use, either \code{"google"} 
-#'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
-#'   scheme from the Penn Treebank. \code{"both"} returns both google and penn 
-#'   tagsets.
+#' @param tagset_detailed logical whether a detailed tagset outcome is included in the result.
+#'   In the case of using \code{"en"} model, default tagset is scheme from the Penn Treebank. 
+#'   In the case of using \code{"de"} model, default tagset is scheme from the German Text Archive (http://www.deutschestextarchiv.de/doku/pos). 
+#' @param tagset_google logical whether a simplified \code{"google"} tagset will be 
+#'   returned.
 #' @param lemma logical; inlucde lemmatized tokens in the output
 #' @param full_parse  logical; if \code{TRUE}, conduct the one-shot parse 
 #'   regardless of the value of other parameters. This  option exists because 
@@ -43,13 +44,12 @@
 #' spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
 #' }
 spacy_parse <- function(x, pos_tag = TRUE,
-                        tagset = NA, 
+                        tagset_detailed = TRUE, 
+                        tagset_google = TRUE, 
                         lemma = FALSE,
                         named_entity = FALSE, 
                         dependency = FALSE,
                         full_parse = FALSE, 
-                        # python_exec = 'rPython',
-                        # data.table = TRUE, 
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -59,23 +59,21 @@ spacy_parse <- function(x, pos_tag = TRUE,
 #' @importFrom data.table data.table
 #' @noRd
 spacy_parse.character <- function(x, pos_tag = TRUE, 
-                                  tagset = NA,
+                                  tagset_detailed = TRUE, 
+                                  tagset_google = TRUE, 
                                   lemma = FALSE,
                                   named_entity = FALSE, 
                                   dependency = FALSE,
                                   full_parse = FALSE, 
-                                  # python_exec = 'rPython',
-                                  # data.table = TRUE, 
                                   ...) {
     
     `:=` <- NULL
     
-    if(pos_tag == TRUE & is.na(tagset)) {
-        tagset = "both"
+    if(full_parse == TRUE) {
+        pos_tag <- tagset_detailed <- tagset_google <- lemma <-
+            named_entity <- dependency <- TRUE
     }
-    # python_exec <- match.arg(python_exec, c("rPython", "Rcpp"))
     
-    # only set tokenize_only flag to TRUE if nothing else is requested
     tokenize_only <- ifelse(any(pos_tag, lemma, named_entity, dependency) | 
                                 full_parse, FALSE, TRUE)
                              
@@ -86,30 +84,31 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
-    
+    ntokens_by_sent <- get_ntokens_by_sent(spacy_out)
+
     dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
-                     id = get_attrs(spacy_out, "i"),
+                     sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(1:length(x), x))),
+                     token_id = get_attrs(spacy_out, "i") + 1, ## + 1 for shifting the first id = 1
                      tokens = tokens)
     
-    ## add lemma, tags in google and penn (lemmatization in spacy is 
-    ## a part of pos_tagging, so without pos_tag, lemma cannot be done.)
     if (lemma) {
         dt[, "lemma" := get_attrs(spacy_out, "lemma_")]
     }
     if (pos_tag) {
-        if(tagset %in% c("google", "both")){
-            dt[, "google" := get_tags(spacy_out, "google")]
+        if(tagset_detailed){
+            dt[, "tag_detailed" := get_tags(spacy_out, "detailed")]
         }
-        if(tagset %in% c("penn", "both")){
-            dt[, "penn" := get_tags(spacy_out, "penn")]
+        if(tagset_google){
+            dt[, "tag_google" := get_tags(spacy_out, "google")]
+            
         }
     }
 
     ## add dependency data fields
     if (dependency) {
         deps <- get_dependency(spacy_out)
-        dt[, c("head_id", "dep_rel") := list(deps$head_id,
-                                             deps$dep_rel)]
+        dt[, c("head_token_id", "dep_rel") := list(deps$head_id,
+                                                   deps$dep_rel)]
     }
     
     ## named entity fields
@@ -117,9 +116,6 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
         dt[, named_entity := get_named_entities(spacy_out)]
     }
     
-    # coerce to a data.frame if a data.table-ly challeged user pitifully requests it 
-    # if (!data.table) dt <- as.data.frame(dt)
-
     class(dt) <- c("spacyr_parsed", class(dt))
     return(dt)
 }
@@ -176,21 +172,7 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
     x <- unname(x)
     
-    # if(python_exec == 'rPython'){
-    #     x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
-    #     x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
-    #     x <- gsub("'","\\\\'", x) # escape single quotes
-    #     x <- gsub('"','\\\\"', x) # escape double quotes
-    #     # construct a python statement for variable declaration
-    #     text_modified <- sprintf("[%s]", 
-    #                              paste(sapply(x, function(x) sprintf("\"%s\"", x)),
-    #                                    collapse = ", "))
-    #     spacyr_pyexec(paste0("texts = ", text_modified))
-    # } else {
     spacyr_pyassign("texts", x)
-    #spacyr_pyexec("texts = [t.encode('utf-8', 'ignore') for t in texts]")
-    # }
-    # initialize spacyr() object
     spacyr_pyexec("spobj = spacyr()")
     
     spacyr_pyassign("tokenize_only", as.numeric(tokenize_only))
@@ -201,19 +183,5 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
                             timestamps = timestamps,
                             tokenize_only = tokenize_only)
     return(output)
-}
-
-spacyr_pyassign <- function(pyvarname, values) {
-    if(length(values) > 1) pyvar(pyvarname, values)
-    else pyrun(paste0(pyvarname, " = ", deparse(values)))
-}
-
-spacyr_pyget <- function(pyvarname) {
-
-    return(Rvar(pyvarname))
-}
-
-spacyr_pyexec <- function(pystring) {
-    pyrun(pystring)
 }
 

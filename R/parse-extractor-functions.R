@@ -49,14 +49,14 @@ get_tokens <- function(spacy_out) {
 #' tag parts of speech using spaCy via rPython
 #' 
 #' Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 
-#' Options exist for using either the Google or Penn tagsets. See 
+#' Options exist for using either the Google or Detaled tagsets. See 
 #' \url{http://spacy.io}.
 #'
 #' @return a tokenized text object with tags
 #' @param spacy_out a spacy_out object
 #' @param tagset character label for the tagset to use, either \code{"google"} 
-#'   or \code{"penn"} to use the simplified Google tagset, or the more detailed 
-#'   scheme from the Penn Treebank.  
+#'   or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
+#'   scheme from the Penn Treebank (or the German Text Archive in case of German language model).  
 #' @export 
 #' @examples
 #' \donttest{
@@ -67,9 +67,7 @@ get_tokens <- function(spacy_out) {
 #' tokens_with_tag <- tokens_tag(tokens)
 #' }
 #' @keywords internal
-get_tags <- function(spacy_out, tagset = c("google", "penn")) {
-    #stopifnot("tokenizedText_spacyr" %in% class(tokens))
-    #spacy_out <- tokens$spacy_out
+get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
     tagset <- match.arg(tagset)
     spacyr_pyassign('timestamps', spacy_out$timestamps)
     if(spacy_out$tagger == FALSE) {
@@ -79,10 +77,6 @@ get_tags <- function(spacy_out, tagset = c("google", "penn")) {
     spacyr_pyassign('tagset', tagset)
     spacyr_pyexec('tags_list = spobj.tags(timestamps, tagset)')
     tags <- spacyr_pyget("tags_list")
-    # tags <- tags[spacy_out$timestamps]
-    # names(tags) <- spacy_out$docnames
-    #tokens$tags <- tags
-    #class(tokens) <- union(class(tokens), "tokenizedTexts_tagged")
     return(tags)
 }
 
@@ -101,8 +95,6 @@ get_attrs <- function(spacy_out, attr_name) {
     
     spacyr_pyexec('attrs_list = spobj.attributes(timestamps, attr_name)')
     attrs <- spacyr_pyget("attrs_list")
-    # attrs <- attrs[spacy_out$timestamps]
-    # names(attrs) <- spacy_out$docnames
     return(attrs)
 }
 
@@ -121,30 +113,21 @@ get_named_entities <- function(spacy_out){
     }
     spacyr_pyexec('ents_type = spobj.attributes(timestamps, "ent_type_")')
     ent_type <- spacyr_pyget("ents_type")
-    # ent_type  <- ent_type[spacy_out$timestamps]
     spacyr_pyexec('ents_iob = spobj.attributes(timestamps, "ent_iob_")')
     ent_iob <- spacyr_pyget("ents_iob")
-    # ent_iob <- ent_iob[spacy_out$timestamps]
-    
+
     iob <- sub("O", "", ent_iob)
     ent_type <- paste(ent_type, iob, sep = "_")
     ent_type[grepl("^_$", ent_type)] <- ""
-    # names(ent_type) <- spacy_out$docnames
-    # names(ent_iob) <- spacy_out$docnames
-    # for(i in 1:length(ent_type)){
-    #     iob <- sub("O", "", ent_iob[[i]])
-    #     ent_type[[i]] <- paste(ent_type[[i]], iob, sep = "_")
-    #     ent_type[[i]][grepl("^_$", ent_type[[i]])] <- ""
-    # }
     return(ent_type)
 }
 
 
-#' Title
+#' Returns data of dependecy parsing outputs
 #'
 #' @param spacy_out a spacy_out object
 #'
-#' @return data.frame of dependency relations
+#' @return data.table of dependency relations
 #' @export
 #' @keywords internal
 get_dependency <- function(spacy_out){
@@ -155,8 +138,7 @@ get_dependency <- function(spacy_out){
         spacy_out$parser <- TRUE
     }
     spacyr_pyexec('head_id = spobj.dep_head_id(timestamps)')
-    head_id <- spacyr_pyget("head_id")
-    # head_id  <- head_id[spacy_out$timestamps]
+    head_id <- spacyr_pyget("head_id") + 1 ## + 1 is for fixing the start index to 1
     
     dep_rel <- get_attrs(spacy_out, "dep_")
     return(list(head_id = head_id, dep_rel = dep_rel))
@@ -170,12 +152,28 @@ get_dependency <- function(spacy_out){
 #' @export
 #' @keywords internal
 get_ntokens <- function(spacy_out){
-    # get ids of head of each token
     spacyr_pyassign('timestamps', spacy_out$timestamps)
     spacyr_pyexec('ntok = spobj.ntokens(timestamps)')
     ntokens <- spacyr_pyget("ntok")
     names(ntokens) <- spacy_out$timestamps
     return(ntokens)
 }
+
+#' get the number of tokens by sentence from spacyr output
+#'
+#' @param spacy_out a spacy_out object
+#'
+#' @return data.frame of dependency relations
+#' @export
+#' @keywords internal
+get_ntokens_by_sent <- function(spacy_out){
+    # get ids of head of each token
+    spacyr_pyassign('timestamps', spacy_out$timestamps)
+    spacyr_pyexec('ntok_by_sent = spobj.ntokens_by_sent(timestamps)')
+    ntok_by_sent <- spacyr_pyget("ntok_by_sent")
+    return(ntok_by_sent)
+}
+
+
 
 

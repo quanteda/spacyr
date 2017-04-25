@@ -4,21 +4,21 @@
 \alias{get_tags}
 \title{tag parts of speech using spaCy via rPython}
 \usage{
-get_tags(spacy_out, tagset = c("google", "penn"))
+get_tags(spacy_out, tagset = c("google", "detailed"))
 }
 \arguments{
 \item{spacy_out}{a spacy_out object}
 
 \item{tagset}{character label for the tagset to use, either \code{"google"} 
-or \code{"penn"} to use the simplified Google tagset, or the more detailed 
-scheme from the Penn Treebank.}
+or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
+scheme from the Penn Treebank (or the German Text Archive in case of German language model).}
 }
 \value{
 a tokenized text object with tags
 }
 \description{
 Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 
-Options exist for using either the Google or Penn tagsets. See 
+Options exist for using either the Google or Detaled tagsets. See 
 \url{http://spacy.io}.
 }
 \examples{

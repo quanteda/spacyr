@@ -7,14 +7,18 @@
 #' @export
 #' @author Akitaka Matsuo
 spacy_initialize <- function(lang = 'en') {
+    # if SPACY_PYTHON is defined then forward it to RETICULATE_PYTHON
+    spacy_python <- Sys.getenv("SPACY_PYTHON", unset = NA)
+    if (!is.na(spacy_python))
+        Sys.setenv(RETICULATE_PYTHON = spacy_python)
+    spacyr_pyexec(pyfile = system.file("python", "spacyr_class.py",
+                                       package = 'spacyr'))
     if(! lang %in% c('en', 'de')) {
         stop('value of lang option should be either "en" or "de"')
     }
-    pyrun(sprintf("lang = '%s'", lang))
-    code <- readLines(system.file("python", "initialize_spacyPython.py", package = 'spacyr'))
-    code <- paste(code, collapse = "\n")
-    # pyrun("rpython = 0")
-    pyrun(code)
+    spacyr_pyassign("lang", lang)
+    spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
+                                       package = 'spacyr'))
     options("spacy_initialized" = TRUE)
 }
 
@@ -32,9 +36,8 @@ spacy_finalize <- function() {
     if(is.null(getOption("spacy_initialized"))) {
         stop("Nothing to finalize. Spacy is not initialized")
     }
-    code <- readLines(system.file("python", "finalize_spacyPython.py", package = 'spacyr'))
-    code <- paste(code, collapse = "\n")
-    pyrun(code)
+    spacyr_pyexec(pyfile = system.file("python", "finalize_spacyPython.py",
+                                       package = 'spacyr'))
     options("spacy_initialized" = NULL)
 }
 

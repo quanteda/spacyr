@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse-extractor-functions.R
 \name{get_dependency}
 \alias{get_dependency}
-\title{Title}
+\title{Returns data of dependecy parsing outputs}
 \usage{
 get_dependency(spacy_out)
 }
@@ -10,9 +10,9 @@ get_dependency(spacy_out)
 \item{spacy_out}{a spacy_out object}
 }
 \value{
-data.frame of dependency relations
+data.table of dependency relations
 }
 \description{
-Title
+Returns data of dependecy parsing outputs
 }
 \keyword{internal}
