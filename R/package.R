@@ -5,12 +5,10 @@
 #' @name spacyr
 NULL
 
+
+common_obj <- new.env(parent=emptyenv())
+
 .onLoad <- function(libname, pkgname) {
-    # require(reticulate)
-    # print("hello")
-    # py_run_string('import sys\nprint(sys.version_info)')
-    # 
-    # 
     # if SPACY_PYTHON is defined then forward it to RETICULATE_PYTHON
     spacy_python <- Sys.getenv("SPACY_PYTHON", unset = NA)
     if (!is.na(spacy_python))

@@ -148,9 +148,5 @@ summary.spacyr_parsed <- function(object, ...) {
     result[is.na(result)] <- 0
     row.names(result) <- docnames(object)
     
-    # cat("Part of speech summary (", attr(object, "tagset"), " tagset):\n\n", sep = "")
-    # print(result)
-    
-    # invisible(result)
     result
 }

@@ -48,8 +48,6 @@ spacy_parse <- function(x, pos_tag = TRUE,
                         named_entity = FALSE, 
                         dependency = FALSE,
                         full_parse = FALSE, 
-                        # python_exec = 'rPython',
-                        # data.table = TRUE, 
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -64,8 +62,6 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                                   named_entity = FALSE, 
                                   dependency = FALSE,
                                   full_parse = FALSE, 
-                                  # python_exec = 'rPython',
-                                  # data.table = TRUE, 
                                   ...) {
     
     `:=` <- NULL
@@ -73,9 +69,6 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     if(pos_tag == TRUE & is.na(tagset)) {
         tagset = "both"
     }
-    # python_exec <- match.arg(python_exec, c("rPython", "Rcpp"))
-    
-    # only set tokenize_only flag to TRUE if nothing else is requested
     tokenize_only <- ifelse(any(pos_tag, lemma, named_entity, dependency) | 
                                 full_parse, FALSE, TRUE)
                              
@@ -93,8 +86,6 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
                      token_id = get_attrs(spacy_out, "i") + 1, ## + 1 for shifting the first id = 1
                      tokens = tokens)
     
-    ## add lemma, tags in google and penn (lemmatization in spacy is 
-    ## a part of pos_tagging, so without pos_tag, lemma cannot be done.)
     if (lemma) {
         dt[, "lemma" := get_attrs(spacy_out, "lemma_")]
     }
@@ -119,9 +110,6 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
         dt[, named_entity := get_named_entities(spacy_out)]
     }
     
-    # coerce to a data.frame if a data.table-ly challeged user pitifully requests it 
-    # if (!data.table) dt <- as.data.frame(dt)
-
     class(dt) <- c("spacyr_parsed", class(dt))
     return(dt)
 }
@@ -178,21 +166,7 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
     x <- unname(x)
     
-    # if(python_exec == 'rPython'){
-    #     x <- gsub("\\n","\\\\n", x) # reescape \n (convert to \\n)
-    #     x <- gsub("\\t","\\\\t", x) # reescape \t (convert to \\t)
-    #     x <- gsub("'","\\\\'", x) # escape single quotes
-    #     x <- gsub('"','\\\\"', x) # escape double quotes
-    #     # construct a python statement for variable declaration
-    #     text_modified <- sprintf("[%s]", 
-    #                              paste(sapply(x, function(x) sprintf("\"%s\"", x)),
-    #                                    collapse = ", "))
-    #     spacyr_pyexec(paste0("texts = ", text_modified))
-    # } else {
     spacyr_pyassign("texts", x)
-    #spacyr_pyexec("texts = [t.encode('utf-8', 'ignore') for t in texts]")
-    # }
-    # initialize spacyr() object
     spacyr_pyexec("spobj = spacyr()")
     
     spacyr_pyassign("tokenize_only", as.numeric(tokenize_only))
