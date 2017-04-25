@@ -44,20 +44,20 @@ test_that("spacy_parse handles quotes ok", {
     txt2 <- c(doc1 = "Sentence \\\"quoted\\\" one.")
     expect_equal(
         dim(spacy_parse(txt2, dependency = TRUE)),
-        c(6, 7)
+        c(6, 8)
     )
     
     txt3 <- c(doc1 = "Second sentence \\\'quoted\\\' example.")
     expect_equal(
         dim(spacy_parse(txt3, dependency = TRUE)),
-        c(7, 7)
+        c(7, 8)
     )
 
     txt4 <- c(doc1 = "Sentence \\\"quoted\\\" one.", 
               doc2 = "Sentence \\\'quoted\\\' two.")
     expect_equal(
         dim(spacy_parse(txt4, dependency = TRUE)), 
-        c(12, 7)
+        c(12, 8)
     )
     expect_silent(spacy_finalize())
 })

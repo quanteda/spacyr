@@ -45,17 +45,20 @@ Installing the package
 
 4.  Installing the **spacyr** R package:
 
-    This needs an environment variable set to the location of your Python executable, and then you need to install the package from source. Note that depending on your operating system and Python installation, the first command might be slightly different.
+    To install the package from source, you can simply run the following.
 
     ``` r
-    Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
     devtools::install_github("kbenoit/spacyr")
     ```
 
-If these steps do not work, see [Installation Problems](#installproblems) below.
-
 Examples
 --------
+
+Before loading the package, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. The detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
+
+``` r
+Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python")
+```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
@@ -72,22 +75,23 @@ txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. I
 # process documents and obtain a data.table
 parsedtxt <- spacy_parse(txt)
 head(parsedtxt)
-#>    docname id  tokens google penn
-#> 1: fastest  0   spaCy   NOUN   NN
-#> 2: fastest  1 excells   NOUN  NNS
-#> 3: fastest  2      at    ADP   IN
-#> 4: fastest  3   large    ADJ   JJ
-#> 5: fastest  4       -  PUNCT HYPH
-#> 6: fastest  5   scale   NOUN   NN
+#>    docname sentence_id token_id  tokens tag_detailed tag_google
+#> 1: fastest           1        1   spaCy           NN       NOUN
+#> 2: fastest           1        2 excells          NNS       NOUN
+#> 3: fastest           1        3      at           IN        ADP
+#> 4: fastest           1        4   large           JJ        ADJ
+#> 5: fastest           1        5       -         HYPH      PUNCT
+#> 6: fastest           1        6   scale           NN       NOUN
 ```
 
-By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
+By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `tag_google` or `tag_detailed` field in the data.table corresponds to each of these tagsets.
 
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-#> quanteda version 0.9.9.11
+#> quanteda version 0.9.9.50
+#> Using 7 of 8 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -107,41 +111,74 @@ The following codes conduct more detailed document processing, including depende
 ``` r
 results_detailed <- spacy_parse(txt,
                                 pos_tag = TRUE,
+                                lemma = TRUE,
                                 named_entity = TRUE,
                                 dependency = TRUE)
 head(results_detailed, 30)
-#>     docname id      tokens google penn head_id   dep_rel named_entity
-#>  1: fastest  0       spaCy   NOUN   NN       1  compound    PRODUCT_B
-#>  2: fastest  1     excells   NOUN  NNS       1      ROOT             
-#>  3: fastest  2          at    ADP   IN       1      prep             
-#>  4: fastest  3       large    ADJ   JJ       5      amod             
-#>  5: fastest  4           -  PUNCT HYPH       5     punct             
-#>  6: fastest  5       scale   NOUN   NN       8  compound             
-#>  7: fastest  6 information   NOUN   NN       7  compound             
-#>  8: fastest  7  extraction   NOUN   NN       8  compound             
-#>  9: fastest  8       tasks   NOUN  NNS       2      pobj             
-#> 10: fastest  9           .  PUNCT    .       1     punct             
-#> 11: fastest 10          It   PRON  PRP      12 nsubjpass             
-#> 12: fastest 11          is   VERB  VBZ      12   auxpass             
-#> 13: fastest 12     written   VERB  VBN      12      ROOT             
-#> 14: fastest 13        from    ADP   IN      12      prep             
-#> 15: fastest 14         the    DET   DT      15       det             
-#> 16: fastest 15      ground   NOUN   NN      13      pobj             
-#> 17: fastest 16          up    ADV   RB      12    advmod             
-#> 18: fastest 17          in    ADP   IN      12      prep             
-#> 19: fastest 18   carefully    ADV   RB      21    advmod             
-#> 20: fastest 19      memory   NOUN   NN      21  npadvmod             
-#> 21: fastest 20           -  PUNCT HYPH      21     punct             
-#> 22: fastest 21     managed   VERB  VBN      12      conj             
-#> 23: fastest 22      Cython  PROPN  NNP      21      dobj        ORG_B
-#> 24: fastest 23           .  PUNCT    .      12     punct             
-#> 25: fastest 24 Independent    ADJ   JJ      25      amod             
-#> 26: fastest 25    research   NOUN   NN      27     nsubj             
-#> 27: fastest 26         has   VERB  VBZ      27       aux             
-#> 28: fastest 27   confirmed   VERB  VBN      27      ROOT             
-#> 29: fastest 28        that    ADP   IN      30      mark             
-#> 30: fastest 29       spaCy  PROPN  NNP      30     nsubj    PRODUCT_B
-#>     docname id      tokens google penn head_id   dep_rel named_entity
+#>     docname sentence_id token_id      tokens       lemma tag_detailed
+#>  1: fastest           1        1       spaCy       spacy           NN
+#>  2: fastest           1        2     excells      excell          NNS
+#>  3: fastest           1        3          at          at           IN
+#>  4: fastest           1        4       large       large           JJ
+#>  5: fastest           1        5           -           -         HYPH
+#>  6: fastest           1        6       scale       scale           NN
+#>  7: fastest           1        7 information information           NN
+#>  8: fastest           1        8  extraction  extraction           NN
+#>  9: fastest           1        9       tasks        task          NNS
+#> 10: fastest           1       10           .           .            .
+#> 11: fastest           2       11          It      -PRON-          PRP
+#> 12: fastest           2       12          is          be          VBZ
+#> 13: fastest           2       13     written       write          VBN
+#> 14: fastest           2       14        from        from           IN
+#> 15: fastest           2       15         the         the           DT
+#> 16: fastest           2       16      ground      ground           NN
+#> 17: fastest           2       17          up          up           RB
+#> 18: fastest           2       18          in          in           IN
+#> 19: fastest           2       19   carefully   carefully           RB
+#> 20: fastest           2       20      memory      memory           NN
+#> 21: fastest           2       21           -           -         HYPH
+#> 22: fastest           2       22     managed      manage          VBN
+#> 23: fastest           2       23      Cython      cython          NNP
+#> 24: fastest           2       24           .           .            .
+#> 25: fastest           3       25 Independent independent           JJ
+#> 26: fastest           3       26    research    research           NN
+#> 27: fastest           3       27         has        have          VBZ
+#> 28: fastest           3       28   confirmed     confirm          VBN
+#> 29: fastest           3       29        that        that           IN
+#> 30: fastest           3       30       spaCy       spacy          NNP
+#>     docname sentence_id token_id      tokens       lemma tag_detailed
+#>     tag_google head_token_id   dep_rel named_entity
+#>  1:       NOUN             2  compound             
+#>  2:       NOUN             2      ROOT             
+#>  3:        ADP             2      prep             
+#>  4:        ADJ             6      amod             
+#>  5:      PUNCT             6     punct             
+#>  6:       NOUN             7  compound             
+#>  7:       NOUN             8  compound             
+#>  8:       NOUN             9  compound             
+#>  9:       NOUN             3      pobj             
+#> 10:      PUNCT             2     punct             
+#> 11:       PRON            13 nsubjpass             
+#> 12:       VERB            13   auxpass             
+#> 13:       VERB            13      ROOT             
+#> 14:        ADP            13      prep             
+#> 15:        DET            16       det             
+#> 16:       NOUN            14      pobj             
+#> 17:        ADV            13       prt             
+#> 18:        ADP            17      prep             
+#> 19:        ADV            22    advmod             
+#> 20:       NOUN            22  npadvmod             
+#> 21:      PUNCT            22     punct             
+#> 22:       VERB            13      prep             
+#> 23:      PROPN            22      dobj        ORG_B
+#> 24:      PUNCT            13     punct             
+#> 25:        ADJ            26      amod             
+#> 26:       NOUN            28     nsubj             
+#> 27:       VERB            28       aux             
+#> 28:       VERB            28      ROOT             
+#> 29:        ADP            31      mark             
+#> 30:      PROPN            31     nsubj             
+#>     tag_google head_token_id   dep_rel named_entity
 ```
 
 ### Use German language model
@@ -154,92 +191,93 @@ spacy_initialize(lang = 'de')
 txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
 results_german <- spacy_parse(txt_german,
-                                pos_tag = TRUE,
-                                named_entity = TRUE,
-                                dependency = TRUE)
+                              pos_tag = TRUE,
+                              lemma = TRUE,
+                              named_entity = TRUE,
+                              dependency = TRUE)
 head(results_german, 30)
-#>     docname id             tokens google penn head_id  dep_rel
-#>  1:       R  0                  R   NOUN   NN       2 compound
-#>  2:       R  1                ist   NOUN   NN       2 compound
-#>  3:       R  2               eine   NOUN   NN       3    nsubj
-#>  4:       R  3              freie   VERB  VBZ       3     ROOT
-#>  5:       R  4 Programmiersprache  PROPN  NNP       5     amod
-#>  6:       R  5                für      X   FW       7     nmod
-#>  7:       R  6       statistische      X   FW       7     nmod
-#>  8:       R  7       Berechnungen  PROPN  NNP       9 compound
-#>  9:       R  8                und    ADV   RB       9 compound
-#> 10:       R  9           Grafiken  PROPN  NNP       3     dobj
-#> 11:       R 10                  .  PUNCT    .       3    punct
-#> 12:       R 11                Sie  PROPN  NNP      12    nsubj
-#> 13:       R 12              wurde   VERB  VBD      12     ROOT
-#> 14:       R 13                von  PROPN  NNP      14 compound
-#> 15:       R 14       Statistikern  PROPN  NNP      17 compound
-#> 16:       R 15                für   NOUN   NN      17 compound
-#> 17:       R 16           Anwender  PROPN  NNP      17 compound
-#> 18:       R 17                mit   NOUN   NN      12     dobj
-#> 19:       R 18      statistischen   NOUN   NN      20 compound
-#> 20:       R 19           Aufgaben  PROPN  NNP      20 compound
-#> 21:       R 20         entwickelt   NOUN   NN      17    appos
-#> 22:       R 21                  .  PUNCT    .      12    punct
-#> 23:       R 22                Die   VERB   VB      25 npadvmod
-#> 24:       R 23             Syntax  PROPN  NNP      24 compound
-#> 25:       R 24         orientiert   NOUN   NN      25    nsubj
-#> 26:       R 25               sich   VERB  VBZ      25     ROOT
-#> 27:       R 26                 an    DET   DT      27      det
-#> 28:       R 27                der   NOUN   NN      29 compound
-#> 29:       R 28 Programmiersprache  PROPN  NNP      29 compound
-#> 30:       R 29                  S  PROPN  NNP      25    nsubj
-#>     docname id             tokens google penn head_id  dep_rel
-#>      named_entity
-#>  1:              
-#>  2:              
-#>  3:              
-#>  4:              
-#>  5: WORK_OF_ART_B
-#>  6:              
-#>  7:              
-#>  8:              
-#>  9:              
-#> 10:              
-#> 11:              
-#> 12:      PERSON_B
-#> 13:              
-#> 14:      PERSON_B
-#> 15:      PERSON_I
-#> 16:              
-#> 17:              
-#> 18:              
-#> 19:              
-#> 20:         ORG_B
-#> 21:              
-#> 22:              
-#> 23:              
-#> 24:              
-#> 25:              
-#> 26:              
-#> 27:              
-#> 28:              
-#> 29:     PRODUCT_B
-#> 30:     PRODUCT_I
-#>      named_entity
+#>     docname sentence_id token_id             tokens              lemma
+#>  1:       R           1        1                  R                  r
+#>  2:       R           1        2                ist                ist
+#>  3:       R           1        3               eine               eine
+#>  4:       R           1        4              freie              freie
+#>  5:       R           1        5 Programmiersprache programmiersprache
+#>  6:       R           1        6                 fr                 fr
+#>  7:       R           1        7       statistische       statistische
+#>  8:       R           1        8       Berechnungen       berechnungen
+#>  9:       R           1        9                und                und
+#> 10:       R           1       10           Grafiken           grafiken
+#> 11:       R           1       11                  .                  .
+#> 12:       R           2       12                Sie                sie
+#> 13:       R           2       13              wurde              wurde
+#> 14:       R           2       14                von                von
+#> 15:       R           2       15       Statistikern       statistikern
+#> 16:       R           2       16                 fr                 fr
+#> 17:       R           2       17           Anwender           anwender
+#> 18:       R           2       18                mit                mit
+#> 19:       R           2       19      statistischen      statistischen
+#> 20:       R           2       20           Aufgaben           aufgaben
+#> 21:       R           2       21         entwickelt         entwickelt
+#> 22:       R           2       22                  .                  .
+#> 23:       R           3       23                Die                die
+#> 24:       R           3       24             Syntax             syntax
+#> 25:       R           3       25         orientiert         orientiert
+#> 26:       R           3       26               sich               sich
+#> 27:       R           3       27                 an                 an
+#> 28:       R           3       28                der                der
+#> 29:       R           3       29 Programmiersprache programmiersprache
+#> 30:       R           3       30                  S                  s
+#>     docname sentence_id token_id             tokens              lemma
+#>     tag_detailed tag_google head_token_id dep_rel named_entity
+#>  1:           XY          X             2      sb             
+#>  2:        VAFIN        AUX             2    ROOT             
+#>  3:          ART        DET             5      nk             
+#>  4:         ADJA        ADJ             5      nk             
+#>  5:           NN       NOUN             2      pd             
+#>  6:           NE      PROPN             5      nk             
+#>  7:         ADJA        ADJ             8      nk             
+#>  8:           NN       NOUN             2      pd             
+#>  9:          KON       CONJ             8      cd             
+#> 10:           NN       NOUN             9      cj             
+#> 11:           $.      PUNCT             2   punct             
+#> 12:         PPER       PRON            13      sb             
+#> 13:        VAFIN        AUX            13    ROOT             
+#> 14:         APPR        ADP            17      pg             
+#> 15:           NN       NOUN            14      nk             
+#> 16:           NE      PROPN            17      nk             
+#> 17:           NN       NOUN            21      oa             
+#> 18:         APPR        ADP            21      mo             
+#> 19:         ADJA        ADJ            20      nk             
+#> 20:           NN       NOUN            18      nk             
+#> 21:         VVPP       VERB            13      oc             
+#> 22:           $.      PUNCT            13   punct             
+#> 23:          ART        DET            24      nk             
+#> 24:           NN       NOUN            25      sb             
+#> 25:        VVFIN       VERB            25    ROOT             
+#> 26:          PRF       PRON            25      oa             
+#> 27:         APPR        ADP            25      mo             
+#> 28:          ART        DET            29      nk             
+#> 29:           NN       NOUN            27      nk             
+#> 30:           NE      PROPN            29      nk             
+#>     tag_detailed tag_google head_token_id dep_rel named_entity
 ```
 
-The German language model has to be installed (`python -m spacy.en.download all`) before you call `spacy_initialize`.
+The German language model has to be installed (`python -m spacy download de`) before you call `spacy_initialize`.
 
 ### When you finish
 
-A background process of python is initiated when you ran `spacy_initialize`. Because of the size of English language module of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
+A background process of spaCy is initiated when you ran `spacy_initialize`. Because of the size of language models of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
 
 ``` r
 spacy_finalize()
 ```
 
-<a name="installproblems"></a>Installation Problems
----------------------------------------------------
+By calling `spacy_initialize()` again, you can restart the backend spaCy.
 
-### macOS using Homebrew (or other) versions of Python
+<a name="multiplepythons"></a>Multiple Python executables in your system
+------------------------------------------------------------------------
 
-If you installed a Python other than the system default and installed spaCy on that Python, then you will need to set the path to the Python executable with spaCy and build `spacyr`. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
+If you have multiple Python executables in your systems (e.g. you, a Mac user, have brewed python2 or python3), then you will need to set the path to the Python executable with spaCy before you load spacy. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
 
 Open a Terminal window, and type
 
@@ -253,23 +291,24 @@ system('python --version; which python')
 
 If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable and then reinstall `spacyr`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
+To resolve the issue, you can alter an environmental variable before loading `spacyr`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 
 ``` r
 Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
-devtools::install_github("kbenoit/spacyr")
+library(spacyr)
 ```
 
-### Multiple Python executables in your system
+If you've failed to set the environmental path before loading `spacyr`, you will get an error message like this:
 
-If you have multiple python executables in your system, you should be able to specify the Python path using the same method described above, which is to set an enviromental variable `SPACY_PYTHON`. Example:
+    > library(spacyr)
+    Error : .onLoad failed in loadNamespace() for 'spacyr', details:
+      call: py_run_file_impl(file, convert)
+      error: ImportError: No module named spacy
 
-``` r
-Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python3")
-devtools::install_github("kbenoit/spacyr")
-```
+    Detailed traceback: 
+      File "<string>", line 9, in <module>
 
-If this installation still fails, you can try our reticulate branch of `spacyr` package. In the back end, it uses [`reticulate`](https://github.com/rstudio/reticulate) package. This version works smoothly python 3.x in our test. There reticualte branch is available [here](https://github.com/kbenoit/spacyr/tree/dev_reticulate).
+    Error: package or namespace load failed for ‘spacyr’
 
 ### Step-by-step instructions for Windows users
 

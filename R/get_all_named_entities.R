@@ -31,7 +31,7 @@ get_all_named_entities <- function(spacy_result) {
     spacy_result[, iob := sub(".+_", "", named_entity)]
     spacy_result[, entity_id := cumsum(iob=="B")]
     entities <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id, 
-                   .SDcols = c("docname", "id", "entity_type")]
+                   .SDcols = c("docname", "token_id", "entity_type")]
     entities[, entity := spacy_result[, lapply(.SD, function(x) paste(x, collapse = " ")), 
                             by = entity_id, 
                             .SDcols = c("tokens")]$tokens] 

@@ -59,16 +59,19 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 4.  Installing the **spacyr** R package:
 
-    This needs an environment variable set to the location of your Python executable, and then you need to install the package from source.  Note that depending on your operating system and Python installation, the first command might be slightly different.
+    To install the package from source, you can simply run the following.
     
     ```{r, eval = FALSE}
-    Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
     devtools::install_github("kbenoit/spacyr")
     ```
 
-If these steps do not work, see [Installation Problems](#installproblems) below.
-
 ## Examples
+
+Before loading the package, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. The detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
+
+```{r}
+Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python")
+```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
@@ -86,7 +89,7 @@ parsedtxt <- spacy_parse(txt)
 head(parsedtxt)
 ```
 
-By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `google` or `penn` field in the data.table corresponds to each of these tagsets.
+By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `tag_google` or `tag_detailed` field in the data.table corresponds to each of these tagsets.
 
 
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
@@ -105,6 +108,7 @@ The following codes conduct more detailed document processing, including depende
 ```{r}
 results_detailed <- spacy_parse(txt,
                                 pos_tag = TRUE,
+                                lemma = TRUE,
                                 named_entity = TRUE,
                                 dependency = TRUE)
 head(results_detailed, 30)
@@ -120,27 +124,26 @@ spacy_initialize(lang = 'de')
 txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
 results_german <- spacy_parse(txt_german,
-                                pos_tag = TRUE,
-                                named_entity = TRUE,
-                                dependency = TRUE)
+                              pos_tag = TRUE,
+                              lemma = TRUE,
+                              named_entity = TRUE,
+                              dependency = TRUE)
 head(results_german, 30)
 ```
-The German language model has to be installed (`python -m spacy.en.download all`) before you call `spacy_initialize`.
+The German language model has to be installed (`python -m spacy download de`) before you call `spacy_initialize`.
 
 ### When you finish
 
-A background process of python is initiated when you ran `spacy_initialize`. Because of the size of English language module of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
+A background process of spaCy is initiated when you ran `spacy_initialize`. Because of the size of language models of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
 
 ```{r, eval = FALSE}
 spacy_finalize()
 ```
+By calling `spacy_initialize()` again, you can restart the backend spaCy.
 
+## <a name="multiplepythons"></a>Multiple Python executables in your system 
 
-## <a name="installproblems"></a>Installation Problems
-
-### macOS using Homebrew (or other) versions of Python
-
-If you installed a Python other than the system default and installed spaCy on that Python, then you will need to set the path to the Python executable with spaCy and build `spacyr`. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
+If you have multiple Python executables in your systems (e.g. you, a Mac user, have brewed python2 or python3), then you will need to set the path to the Python executable with spaCy before you load spacy. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
 
 Open a Terminal window, and type
 ```
@@ -152,23 +155,24 @@ system('python --version; which python')
 ```
 If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable and then reinstall `spacyr`. Suppose that your python with spaCy is  `/usr/local/bin/python`, run the following:
+To resolve the issue, you can alter an environmental variable before loading `spacyr`. Suppose that your python with spaCy is  `/usr/local/bin/python`, run the following:
 ```{r, eval = FALSE}
 Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
-devtools::install_github("kbenoit/spacyr")
+library(spacyr)
 ```
 
-
-### Multiple Python executables in your system 
-
-If you have multiple python executables in your system, you should be able to specify the Python path using the same method described above, which is to set an enviromental variable `SPACY_PYTHON`.  Example:
-
-```{r, eval = FALSE}
-Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python3")
-devtools::install_github("kbenoit/spacyr")
+If you've failed to set the environmental path before loading `spacyr`, you will get an error message like this:
 ```
+> library(spacyr)
+Error : .onLoad failed in loadNamespace() for 'spacyr', details:
+  call: py_run_file_impl(file, convert)
+  error: ImportError: No module named spacy
 
-If this installation still fails, you can try our reticulate branch of `spacyr` package. In the back end, it uses [`reticulate`](https://github.com/rstudio/reticulate) package. This version works smoothly python 3.x in our test. There reticualte branch is available [here](https://github.com/kbenoit/spacyr/tree/dev_reticulate).
+Detailed traceback: 
+  File "<string>", line 9, in <module>
+
+Error: package or namespace load failed for ‘spacyr’
+```
 
 ### Step-by-step instructions for Windows users
 
