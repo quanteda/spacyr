@@ -24,7 +24,7 @@ Installing the package
 
     -   **(Windows only)** Install the [Rtools](https://CRAN.R-project.org/bin/windows/Rtools/) software available from CRAN
 
-        You will also need to install the [Visial Studio Express 2015](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
+        You will also need to install the [Visual Studio Express 2015](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
 
 3.  You will need to install spaCy.
 
