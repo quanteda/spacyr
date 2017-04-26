@@ -4,11 +4,20 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy}
 \usage{
-spacy_initialize(lang = "en")
+spacy_initialize(lang = "en", use_python = NA, use_virtualenv = NA,
+  use_condaenv = NA)
 }
 \arguments{
 \item{lang}{Language package for loading spacy. Either \code{en} (English) or 
 \code{de} (German). Default is \code{en}.}
+
+\item{use_python}{set a path to the python excutable with spaCy.}
+
+\item{use_virtualenv}{set a path to the python virtual environment with spaCy. 
+Example: \code{use_virtualenv = "~/myenv"}}
+
+\item{use_condaenv}{set a path to the anaconda virtual environment with spaCy. 
+Example: \code{use_condalenv = "myenv"}}
 }
 \description{
 Initialize spaCy to call from R.
