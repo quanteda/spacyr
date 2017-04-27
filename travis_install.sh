@@ -7,6 +7,7 @@ source testenv/bin/activate
 
 # Python dependencies
 sudo pip install --upgrade pip
+sudo pip install requests[security]
 sudo pip install spacy
 sudo python -m spacy download en
 
