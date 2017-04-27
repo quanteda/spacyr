@@ -3,8 +3,8 @@ require(testthat)
 test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
     skip_on_appveyor()
-    expect_silent(spacy_initialize())
-
+    expect_message(spacy_initialize(), "successfully")
+    
     txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
               doc2 = "Sentence\tthree.")
     expect_equal(
@@ -35,7 +35,7 @@ test_that("spacy_parse handles newlines and tabs ok", {
 test_that("spacy_parse handles quotes ok", {
     skip_on_cran()
     skip_on_appveyor()
-    expect_silent(spacy_initialize())
+    expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "Sentence \"quoted\" one.", 
               doc2 = "Sentence \'quoted\' two.")
@@ -65,7 +65,7 @@ test_that("spacy_parse handles quotes ok", {
 test_that("getting named entities works", {
     skip_on_cran()
     skip_on_appveyor()
-    expect_silent(spacy_initialize())
+    expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
               doc2 = "New buildings on the New York skyline.")
