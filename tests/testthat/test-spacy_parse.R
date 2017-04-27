@@ -9,25 +9,25 @@ test_that("spacy_parse handles newlines and tabs ok", {
               doc2 = "Sentence\tthree.")
     expect_equal(
         dim(spacy_parse(txt1, dependency = TRUE)),
-        c(11, 7)
+        c(11, 8)
     )
     txt2 <- c(doc1 = "Sentence one.\\nSentence two.", 
               doc2 = "Sentence\\tthree.")
     expect_equal(
         dim(spacy_parse(txt2, dependency = TRUE)),
-        c(11, 7)
+        c(11, 8)
     )
     
     ## multiple tagsets
     expect_equal(
-        names(tag1 <- spacy_parse(txt2, tagset = "google")),
-        c("docname", "id", "tokens", "google") 
+        names(tag1 <- spacy_parse(txt2, tagset_google = TRUE, tagset_detailed = FALSE)),
+        c("docname", "sentence_id" ,"token_id", "tokens", "tag_google") 
     )
     expect_equal(
-        names(tag2 <- spacy_parse(txt2, tagset = "penn")),
-        c("docname", "id", "tokens", "penn") 
+        names(tag2 <- spacy_parse(txt2, tagset_google = FALSE, tagset_detailed = TRUE)),
+        c("docname", "sentence_id" ,"token_id", "tokens", "tag_detailed") 
     )
-    expect_false(any(tag1$google == tag2$penn))
+    expect_false(any(tag1$tag_google == tag2$tag_detailed))
 
     expect_silent(spacy_finalize())
 })
