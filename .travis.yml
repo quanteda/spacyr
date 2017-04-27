@@ -2,6 +2,12 @@ language: r
 sudo: true
 dist: trusty
 
+addons:
+  apt:
+    packages:
+      - python2.7
+      - python-numpy
+
 warnings_are_errors: true
 
 r_binary_packages:
