@@ -23,7 +23,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 1.  Python (> 2.7 or 3) must be installed on your system.  
 
-    **(Windows only)**  If you have not yet installed Python,  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  As installation of `spaCy` on Python 2.7.* in Windows is not straightforward, we recommend to use Python 3, and the following instructions is based on the use of Python 3. 
+    **(Windows only)**  If you have not yet installed Python,  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. More detailed installation instructions for installing `spacy` and `spacyr` are found in [Windows Installation](vignettes/WINDOWS.md).
 
     We recommend the latest 3.6.\* release (currently 3.6.1).  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x." 
 
@@ -56,7 +56,6 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     ```
     There are alternative methods of installing spaCy, especially if you have installed a different Python (e.g. through Anaconda). Full installation instructions are available from the [spaCy page](http://spacy.io/docs/).
 
-
 4.  Installing the **spacyr** R package:
 
     To install the package from source, you can simply run the following.
@@ -67,15 +66,16 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 ## Examples
 
-Before initializing spacy, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. A detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
+When initializing spaCy, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. A detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
 
 ```{r}
 require(spacyr)
 # start a python process and initialize spaCy in it.
 # it takes several seconds for initialization.
 # you may have to set the path to the python with spaCy 
-Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python")
-spacy_initialize()
+# in this example spaCy is installed in the python 
+# in "/usr/local/bin/python"
+spacy_initialize(use_python = "/usr/local/bin/python")
 ```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
@@ -156,14 +156,13 @@ system('python --version; which python')
 ```
 If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable before initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is  `/usr/local/bin/python`, run the following:
+To resolve the issue, you can alter an environmental variable when initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 ```{r, eval = FALSE}
 library(spacyr)
-Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
-spacy_initialize()
+spacy_initialize(use_python = "/usr/local/bin/python")
 ```
 
-If you've failed to set the environmental path before loading `spacyr`, you will get an error message like this:
+If you've failed to set the python path when calling `spacy_initialize()`, you will get an error message like this:
 ```
 > library(spacyr)
 > spacy_initialize()
@@ -176,7 +175,7 @@ If you've failed to set the environmental path before loading `spacyr`, you will
 Detailed traceback: 
   File "<string>", line 9, in <module> 
 ```
-If this happened, please restart R and follow the appropriate steps to initialize spaCy.
+If this happened, please **restart R** and follow the appropriate steps to initialize spaCy. You cannot retry `spacy_initialize()` to resolve the issue because in the first try, the backend Python is started by R (in our package, we use [`reticulate`](https://github.com/rstudio/reticulate) to connect to Python), and you cannot switch to other Python executables. 
 
 ### Step-by-step instructions for Windows users
 
