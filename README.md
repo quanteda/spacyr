@@ -191,9 +191,12 @@ head(results_detailed, 30)
 In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `lang` option when `spacy_initialize` is called.
 
 ``` r
+## first finalize the spacy if it's loaded
+spacy_finalize()
 spacy_initialize(lang = 'de')
-#> spacy is already initialized
-#> NULL
+#> Python space is already attached to R. You cannot switch Python.
+#> If you'd like to switch to other Python, please restart R
+#> spacy is successfully initialized
 
 txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
@@ -235,38 +238,38 @@ head(results_german, 30)
 #> 29:       R           3       29 Programmiersprache programmiersprache
 #> 30:       R           3       30                  S                  s
 #>     docname sentence_id token_id             tokens              lemma
-#>     tag_detailed tag_google head_token_id  dep_rel named_entity
-#>  1:           NN       NOUN             4 compound             
-#>  2:           NN       NOUN             3 compound             
-#>  3:           NN       NOUN             4 compound             
-#>  4:           NN       NOUN             8 compound             
-#>  5:          NNP      PROPN             7 compound     PERSON_B
-#>  6:          NNP      PROPN             7 compound     PERSON_I
-#>  7:           NN       NOUN             8 compound             
-#>  8:          NNP      PROPN            10 compound        ORG_B
-#>  9:          VBD       VERB            10 compound             
-#> 10:          NNP      PROPN            10     ROOT     PERSON_B
-#> 11:            .      PUNCT            10    punct             
-#> 12:          NNP      PROPN            13    nsubj     PERSON_B
-#> 13:          VBD       VERB            13     ROOT             
-#> 14:          NNP      PROPN            15 compound             
-#> 15:          NNP      PROPN            21 compound             
-#> 16:           IN        ADP            17 compound             
-#> 17:          NNP      PROPN            21 compound             
-#> 18:           NN       NOUN            19 compound             
-#> 19:           NN       NOUN            21 compound             
-#> 20:          NNP      PROPN            21 compound        ORG_B
-#> 21:           NN       NOUN            13     dobj             
-#> 22:            .      PUNCT            13    punct             
-#> 23:           VB       VERB            40    advcl             
-#> 24:          NNP      PROPN            25 compound             
-#> 25:           NN       NOUN            26 compound             
-#> 26:          VBZ       VERB            23     dobj             
-#> 27:           DT        DET            28      det             
-#> 28:           NN       NOUN            26    appos             
-#> 29:          NNP      PROPN            30 compound        GPE_B
-#> 30:          NNP      PROPN            28    appos        GPE_I
-#>     tag_detailed tag_google head_token_id  dep_rel named_entity
+#>     tag_detailed tag_google head_token_id dep_rel named_entity
+#>  1:           XY          X             2      sb             
+#>  2:        VAFIN        AUX             2    ROOT             
+#>  3:          ART        DET             5      nk             
+#>  4:         ADJA        ADJ             5      nk             
+#>  5:           NN       NOUN             2      pd             
+#>  6:           NE      PROPN             5      nk             
+#>  7:         ADJA        ADJ             8      nk             
+#>  8:           NN       NOUN             2      pd             
+#>  9:          KON       CONJ             8      cd             
+#> 10:           NN       NOUN             9      cj             
+#> 11:           $.      PUNCT             2   punct             
+#> 12:         PPER       PRON            13      sb             
+#> 13:        VAFIN        AUX            13    ROOT             
+#> 14:         APPR        ADP            17      pg             
+#> 15:           NN       NOUN            14      nk             
+#> 16:           NE      PROPN            17      nk             
+#> 17:           NN       NOUN            21      oa             
+#> 18:         APPR        ADP            21      mo             
+#> 19:         ADJA        ADJ            20      nk             
+#> 20:           NN       NOUN            18      nk             
+#> 21:         VVPP       VERB            13      oc             
+#> 22:           $.      PUNCT            13   punct             
+#> 23:          ART        DET            24      nk             
+#> 24:           NN       NOUN            25      sb             
+#> 25:        VVFIN       VERB            25    ROOT             
+#> 26:          PRF       PRON            25      oa             
+#> 27:         APPR        ADP            25      mo             
+#> 28:          ART        DET            29      nk             
+#> 29:           NN       NOUN            27      nk             
+#> 30:           NE      PROPN            29      nk             
+#>     tag_detailed tag_google head_token_id dep_rel named_entity
 ```
 
 The German language model has to be installed (`python -m spacy download de`) before you call `spacy_initialize`.
