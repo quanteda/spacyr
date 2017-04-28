@@ -10,7 +10,7 @@ Installing the package
 
 1.  Python (&gt; 2.7 or 3) must be installed on your system.
 
-    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. More detailed installation instructions for installing `spacy` and `spacyr` are found in [Windows Installation](vignettes/WINDOWS.md).
+    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. More detailed installation instructions for installing `spacy` and `spacyr` are found in [Windows Installation](inst/docs/WINDOWS.md).
 
     We recommend the latest 3.6.\* release (currently 3.6.1). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
 
@@ -94,7 +94,7 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 #> quanteda version 0.9.9.50
-#> Using 7 of 8 cores for parallel computing
+#> Using 3 of 4 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
