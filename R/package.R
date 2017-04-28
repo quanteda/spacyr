@@ -3,6 +3,7 @@
 #'
 #' @docType package
 #' @name spacyr
+#' @rdname spacyr-package
 NULL
 
 .onLoad <- function(libname, pkgname) {

@@ -8,5 +8,6 @@
 ^travis_install\.sh$
 ^testenv
 ^spacyr/testenv
+^env
 
 ^appveyor\.yml$
