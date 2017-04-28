@@ -8,9 +8,11 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 Installing the package
 ----------------------
 
+For the installation of `spaCy` and `spacyr` in Mac OS X (in homebrew and default Pythons) and Windows you can find more detailed instructions in [Mac OS X Installation](inst/docs/MAC.md) and [Windows Installation](inst/docs/WINDOWS.md).
+
 1.  Python (&gt; 2.7 or 3) must be installed on your system.
 
-    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. More detailed installation instructions for installing `spacy` and `spacyr` are found in [Windows Installation](inst/docs/WINDOWS.md).
+    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3.
 
     We recommend the latest 3.6.\* release (currently 3.6.1). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
 
