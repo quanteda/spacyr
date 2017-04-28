@@ -9,4 +9,7 @@
 ^testenv
 ^spacyr/testenv
 
+^env
+^vignettes
+
 ^appveyor\.yml$

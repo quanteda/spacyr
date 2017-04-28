@@ -8,9 +8,11 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 Installing the package
 ----------------------
 
+For the installation of `spaCy` and `spacyr` in Mac OS X (in homebrew and default Pythons) and Windows you can find more detailed instructions in [Mac OS X Installation](inst/docs/MAC.md) and [Windows Installation](inst/docs/WINDOWS.md).
+
 1.  Python (&gt; 2.7 or 3) must be installed on your system.
 
-    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). As installation of `spaCy` on Python 2.7.\* in Windows is not straightforward, we recommend to use Python 3, and the following instructions is based on the use of Python 3.
+    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3.
 
     We recommend the latest 3.6.\* release (currently 3.6.1). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
 
@@ -54,7 +56,7 @@ Installing the package
 Examples
 --------
 
-Before initializing spacy, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. A detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
+When initializing spaCy, you need to set the python path if in your system, spaCy is installed in a Python which is not the system default. A detailed discussion about it is found in [Multiple Pythons](#multiplepythons) below.
 
 ``` r
 require(spacyr)
@@ -62,8 +64,10 @@ require(spacyr)
 # start a python process and initialize spaCy in it.
 # it takes several seconds for initialization.
 # you may have to set the path to the python with spaCy 
-Sys.setenv(SPACY_PYTHON = "/usr/local/bin/python")
-spacy_initialize()
+# in this example spaCy is installed in the python 
+# in "/usr/local/bin/python"
+spacy_initialize(use_python = "/usr/local/bin/python")
+#> spacy is successfully initialized
 ```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
@@ -92,7 +96,7 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 #> quanteda version 0.9.9.50
-#> Using 7 of 8 cores for parallel computing
+#> Using 3 of 4 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -188,6 +192,8 @@ In default, `spacyr` load an English language model in spacy, but you also can l
 
 ``` r
 spacy_initialize(lang = 'de')
+#> spacy is already initialized
+#> NULL
 
 txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
@@ -229,38 +235,38 @@ head(results_german, 30)
 #> 29:       R           3       29 Programmiersprache programmiersprache
 #> 30:       R           3       30                  S                  s
 #>     docname sentence_id token_id             tokens              lemma
-#>     tag_detailed tag_google head_token_id dep_rel named_entity
-#>  1:           XY          X             2      sb             
-#>  2:        VAFIN        AUX             2    ROOT             
-#>  3:          ART        DET             5      nk             
-#>  4:         ADJA        ADJ             5      nk             
-#>  5:           NN       NOUN             2      pd             
-#>  6:           NE      PROPN             5      nk             
-#>  7:         ADJA        ADJ             8      nk             
-#>  8:           NN       NOUN             2      pd             
-#>  9:          KON       CONJ             8      cd             
-#> 10:           NN       NOUN             9      cj             
-#> 11:           $.      PUNCT             2   punct             
-#> 12:         PPER       PRON            13      sb             
-#> 13:        VAFIN        AUX            13    ROOT             
-#> 14:         APPR        ADP            17      pg             
-#> 15:           NN       NOUN            14      nk             
-#> 16:           NE      PROPN            17      nk             
-#> 17:           NN       NOUN            21      oa             
-#> 18:         APPR        ADP            21      mo             
-#> 19:         ADJA        ADJ            20      nk             
-#> 20:           NN       NOUN            18      nk             
-#> 21:         VVPP       VERB            13      oc             
-#> 22:           $.      PUNCT            13   punct             
-#> 23:          ART        DET            24      nk             
-#> 24:           NN       NOUN            25      sb             
-#> 25:        VVFIN       VERB            25    ROOT             
-#> 26:          PRF       PRON            25      oa             
-#> 27:         APPR        ADP            25      mo             
-#> 28:          ART        DET            29      nk             
-#> 29:           NN       NOUN            27      nk             
-#> 30:           NE      PROPN            29      nk             
-#>     tag_detailed tag_google head_token_id dep_rel named_entity
+#>     tag_detailed tag_google head_token_id  dep_rel named_entity
+#>  1:           NN       NOUN             4 compound             
+#>  2:           NN       NOUN             3 compound             
+#>  3:           NN       NOUN             4 compound             
+#>  4:           NN       NOUN             8 compound             
+#>  5:          NNP      PROPN             7 compound     PERSON_B
+#>  6:          NNP      PROPN             7 compound     PERSON_I
+#>  7:           NN       NOUN             8 compound             
+#>  8:          NNP      PROPN            10 compound        ORG_B
+#>  9:          VBD       VERB            10 compound             
+#> 10:          NNP      PROPN            10     ROOT     PERSON_B
+#> 11:            .      PUNCT            10    punct             
+#> 12:          NNP      PROPN            13    nsubj     PERSON_B
+#> 13:          VBD       VERB            13     ROOT             
+#> 14:          NNP      PROPN            15 compound             
+#> 15:          NNP      PROPN            21 compound             
+#> 16:           IN        ADP            17 compound             
+#> 17:          NNP      PROPN            21 compound             
+#> 18:           NN       NOUN            19 compound             
+#> 19:           NN       NOUN            21 compound             
+#> 20:          NNP      PROPN            21 compound        ORG_B
+#> 21:           NN       NOUN            13     dobj             
+#> 22:            .      PUNCT            13    punct             
+#> 23:           VB       VERB            40    advcl             
+#> 24:          NNP      PROPN            25 compound             
+#> 25:           NN       NOUN            26 compound             
+#> 26:          VBZ       VERB            23     dobj             
+#> 27:           DT        DET            28      det             
+#> 28:           NN       NOUN            26    appos             
+#> 29:          NNP      PROPN            30 compound        GPE_B
+#> 30:          NNP      PROPN            28    appos        GPE_I
+#>     tag_detailed tag_google head_token_id  dep_rel named_entity
 ```
 
 The German language model has to be installed (`python -m spacy download de`) before you call `spacy_initialize`.
@@ -292,15 +298,14 @@ system('python --version; which python')
 
 If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
 
-To resolve the issue, you can alter an environmental variable before initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
+To resolve the issue, you can alter an environmental variable when initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 
 ``` r
 library(spacyr)
-Sys.setenv(SPACY_PYTHON="/usr/local/bin/python")
-spacy_initialize()
+spacy_initialize(use_python = "/usr/local/bin/python")
 ```
 
-If you've failed to set the environmental path before loading `spacyr`, you will get an error message like this:
+If you've failed to set the python path when calling `spacy_initialize()`, you will get an error message like this:
 
     > library(spacyr)
     > spacy_initialize()
@@ -313,7 +318,7 @@ If you've failed to set the environmental path before loading `spacyr`, you will
     Detailed traceback: 
       File "<string>", line 9, in <module> 
 
-If this happened, please restart R and follow the appropriate steps to initialize spaCy.
+If this happened, please **restart R** and follow the appropriate steps to initialize spaCy. You cannot retry `spacy_initialize()` to resolve the issue because in the first try, the backend Python is started by R (in our package, we use [`reticulate`](https://github.com/rstudio/reticulate) to connect to Python), and you cannot switch to other Python executables.
 
 ### Step-by-step instructions for Windows users
 

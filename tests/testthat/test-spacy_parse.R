@@ -3,31 +3,31 @@ require(testthat)
 test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
     skip_on_appveyor()
-    expect_silent(spacy_initialize())
-
+    expect_message(spacy_initialize(), "successfully")
+    
     txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
               doc2 = "Sentence\tthree.")
     expect_equal(
         dim(spacy_parse(txt1, dependency = TRUE)),
-        c(11, 7)
+        c(11, 8)
     )
     txt2 <- c(doc1 = "Sentence one.\\nSentence two.", 
               doc2 = "Sentence\\tthree.")
     expect_equal(
         dim(spacy_parse(txt2, dependency = TRUE)),
-        c(11, 7)
+        c(11, 8)
     )
     
     ## multiple tagsets
     expect_equal(
-        names(tag1 <- spacy_parse(txt2, tagset = "google")),
-        c("docname", "id", "tokens", "google") 
+        names(tag1 <- spacy_parse(txt2, tagset_google = TRUE, tagset_detailed = FALSE)),
+        c("docname", "sentence_id" ,"token_id", "tokens", "tag_google") 
     )
     expect_equal(
-        names(tag2 <- spacy_parse(txt2, tagset = "penn")),
-        c("docname", "id", "tokens", "penn") 
+        names(tag2 <- spacy_parse(txt2, tagset_google = FALSE, tagset_detailed = TRUE)),
+        c("docname", "sentence_id" ,"token_id", "tokens", "tag_detailed") 
     )
-    expect_false(any(tag1$google == tag2$penn))
+    expect_false(any(tag1$tag_google == tag2$tag_detailed))
 
     expect_silent(spacy_finalize())
 })
@@ -35,7 +35,7 @@ test_that("spacy_parse handles newlines and tabs ok", {
 test_that("spacy_parse handles quotes ok", {
     skip_on_cran()
     skip_on_appveyor()
-    expect_silent(spacy_initialize())
+    expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "Sentence \"quoted\" one.", 
               doc2 = "Sentence \'quoted\' two.")
@@ -65,7 +65,7 @@ test_that("spacy_parse handles quotes ok", {
 test_that("getting named entities works", {
     skip_on_cran()
     skip_on_appveyor()
-    expect_silent(spacy_initialize())
+    expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
               doc2 = "New buildings on the New York skyline.")
