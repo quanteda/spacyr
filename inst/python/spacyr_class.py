@@ -64,6 +64,19 @@ class spacyr:
                 attrs.append(getattr(w, attrname))
             all_attrs.extend(attrs)
         return all_attrs
+        
+    def attributes_by_sent(self, timestamps, attrname):
+        all_attrs = []
+        if isinstance(timestamps, list) == False:
+            timestamps = [timestamps]
+        for ts in timestamps:
+            c_document = self.documents[ts]
+            attrs = []
+            for sent in c_document.sents:
+                for w in sent:
+                    attrs.append(getattr(w, attrname))
+                all_attrs.extend(attrs)
+        return all_attrs
     
     def tokens(self, timestamps):
         all_tokens = self.attributes(timestamps, 'orth_')
@@ -114,8 +127,9 @@ class spacyr:
         for ts in timestamps:
             c_document = self.documents[ts]
             head_ids = []
-            for w in c_document:
-                head_ids.append(w.head.i)
+            for sent in c_document.sents:
+                for w in sent:
+                    head_ids.append(w.head.i)
             all_head_ids.extend(head_ids)
         return all_head_ids
 

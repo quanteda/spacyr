@@ -82,10 +82,15 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
     ntokens_by_sent <- get_ntokens_by_sent(spacy_out)
-
+    #browser()
+    subtractor <- unlist(lapply(ntokens_by_sent, function(x) {
+        csumx <- cumsum(c(0, x[-length(x)]))
+        return(rep(csumx, x))
+    }))
     dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
                      sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(1:length(x), x))),
-                     token_id = get_attrs(spacy_out, "i") + 1, ## + 1 for shifting the first id = 1
+                     token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) 1:x)), 
+                     #get_attrs(spacy_out, "i") + 1, ## + 1 for shifting the first id = 1
                      tokens = tokens)
     
     if (lemma) {
@@ -104,7 +109,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     ## add dependency data fields
     if (dependency) {
         deps <- get_dependency(spacy_out)
-        dt[, c("head_token_id", "dep_rel") := list(deps$head_id,
+        dt[, c("head_token_id", "dep_rel") := list(deps$head_id - subtractor,
                                                    deps$dep_rel)]
     }
     
