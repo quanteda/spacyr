@@ -74,10 +74,7 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
             named_entity <- dependency <- TRUE
     }
     
-    tokenize_only <- ifelse(any(pos_tag, lemma, named_entity, dependency) | 
-                                full_parse, FALSE, TRUE)
-                             
-    spacy_out <- process_document(x, tokenize_only = tokenize_only)
+    spacy_out <- process_document(x)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
@@ -133,7 +130,6 @@ spacy_parse.corpus <- function(x, ...) {
 #' Tokenize text using spaCy. The results of tokenization is stored as a python object. To obtain the tokens results in R, use \code{get_tokens()}.
 #' \url{http://spacy.io}.
 #' @param x input text
-#' @param tokenize_only Logical. If TRUE, spaCy will run all parsing 
 #' functionalities including the tagging, named entity recognisiton, dependency 
 #' analysis. 
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
@@ -154,7 +150,7 @@ spacy_parse.corpus <- function(x, ...) {
 #' }
 #' @export
 #' @keywords internal
-process_document <- function(x, tokenize_only = FALSE,  ...) {
+process_document <- function(x,  ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
@@ -175,13 +171,11 @@ process_document <- function(x, tokenize_only = FALSE,  ...) {
     spacyr_pyassign("texts", x)
     spacyr_pyexec("spobj = spacyr()")
     
-    spacyr_pyassign("tokenize_only", as.numeric(tokenize_only))
-    spacyr_pyexec("timestamps = spobj.parse(texts, tokenize_only)")
+    spacyr_pyexec("timestamps = spobj.parse(texts)")
     
     timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
-                            timestamps = timestamps,
-                            tokenize_only = tokenize_only)
+                            timestamps = timestamps)
     return(output)
 }
 

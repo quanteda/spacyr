@@ -5,20 +5,15 @@ spacy_out <- setRefClass(
     fields = list(
         timestamps = 'character',
         docnames = 'character',
-        tokenize_only = 'logical',
         tagger = 'logical',
         entity = 'logical',
         parser = 'logical'
     ),
     methods = list(
-        initialize = function(tokenize_only = FALSE,
-                              timestamps = NULL, docnames = NULL) {
-            if (tokenize_only) {
-                tagger <<- entity <<- parser <<- FALSE
-            } else {
-                tagger <<- entity <<- parser <<- TRUE
-            }
-            tokenize_only <<- tokenize_only
+        initialize = function(timestamps = NULL, docnames = NULL) {
+            
+            tagger <<- entity <<- parser <<- TRUE
+            
             timestamps <<- timestamps
             docnames <<- docnames
         }

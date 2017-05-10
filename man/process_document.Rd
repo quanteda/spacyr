@@ -4,12 +4,10 @@
 \alias{process_document}
 \title{tokenize text using spaCy}
 \usage{
-process_document(x, tokenize_only = FALSE, ...)
+process_document(x, ...)
 }
 \arguments{
-\item{x}{input text}
-
-\item{tokenize_only}{Logical. If TRUE, spaCy will run all parsing 
+\item{x}{input text
 functionalities including the tagging, named entity recognisiton, dependency 
 analysis. 
 This slows down \code{spacy_parse()} but speeds up the later parsing. 
