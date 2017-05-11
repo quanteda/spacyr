@@ -71,13 +71,12 @@ spacy_initialize <- function(model = 'en',
 
 #' Finalize spaCy
 #' 
-#' Finalize spaCy.
+#' While running the spacy on python through R, a python process is 
+#' always running in the backgroud and rsession will take
+#' up a lot of memory (typically over 1.5GB). \code{spacy_finalize()} terminates the 
+#' Python process and frees up the memory it was using.
 #' @return NULL
 #' @export
-#' @details While running the spacy on python through R, a python process is 
-#' always running in the backgroud and rsession will take
-#' up a lot of memory (typically over 1.5GB). \code{spacy_finalize()} function will
-#' finalize (i.e. terminate) the python process and free up the memory.
 #' @author Akitaka Matsuo
 spacy_finalize <- function() {
     if(is.null(getOption("spacy_initialized"))) {
@@ -90,7 +89,7 @@ spacy_finalize <- function() {
 
 #' Find spaCy
 #' 
-#' Find spaCy.
+#' Locate the user's version of Python for which spaCy installed.
 #' @return spacy_python
 #' @export
 #' @param model name of the language model
@@ -102,10 +101,9 @@ find_spacy <- function(model = "en"){
     } else {
         system2('which', '-a python', stdout = TRUE)
     }
-    
-    
+
     df_python_check <- data.table::data.table(py_execs, spacy_found = 0)
-    for(i in 1:nrow(df_python_check)){
+    for(i in 1:nrow(df_python_check)) {
         py_exec <- df_python_check[i, py_execs]
         sys_message <- check_spacy_model(py_exec, model)
         if(sys_message == 'OK'){
@@ -113,9 +111,9 @@ find_spacy <- function(model = "en"){
         }
     }
 
-    if(df_python_check[, sum(spacy_found)] == 0){
+    if (df_python_check[, sum(spacy_found)] == 0) {
         1
-    } else if(df_python_check[, sum(spacy_found)] == 1){
+    } else if(df_python_check[, sum(spacy_found)] == 1) {
         spacy_python <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in ", spacy_python)
     } else {

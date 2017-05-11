@@ -13,6 +13,6 @@ find_spacy(model = "en")
 spacy_python
 }
 \description{
-Find spaCy.
+Locate the user's version of Python for which spaCy installed.
 }
 \keyword{internal}
