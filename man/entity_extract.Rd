@@ -2,12 +2,14 @@
 % Please edit documentation in R/entity_extract.R
 \name{entity_extract}
 \alias{entity_extract}
-\title{Get all named entities in parsed documents}
+\title{Extract all named entities from parsed documents}
 \usage{
-entity_extract(spacy_result)
+entity_extract(spacy_result, type = "all")
 }
 \arguments{
 \item{spacy_result}{a \code{data.frame} from \code{\link{spacy_parse}}.}
+
+\item{type}{type of named entities, either \code{named}, \code{extended}, or \code{all} (https://spacy.io/docs/usage/entity-recognition#entity-types)}
 }
 \value{
 A \code{data.table} of all named entities, containing the following fields: 
