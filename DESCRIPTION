@@ -10,9 +10,9 @@ Description: An R wrapper to the Python spaCy NLP library,
 License: GPL-3
 LazyData: TRUE
 Depends:
-    R (>= 3.3.0)
+    R (>= 3.3.0),
+    methods
 Imports:
-    methods,
     quanteda,
     data.table,
     utils,
