@@ -9,25 +9,25 @@ test_that("spacy_parse handles newlines and tabs ok", {
               doc2 = "Sentence\tthree.")
     expect_equal(
         dim(spacy_parse(txt1, dependency = TRUE)),
-        c(11, 8)
+        c(11, 9)
     )
     txt2 <- c(doc1 = "Sentence one.\\nSentence two.", 
               doc2 = "Sentence\\tthree.")
     expect_equal(
         dim(spacy_parse(txt2, dependency = TRUE)),
-        c(11, 8)
+        c(11, 9)
     )
     
     ## multiple tagsets
     expect_equal(
-        names(tag1 <- spacy_parse(txt2, tagset_google = TRUE, tagset_detailed = FALSE)),
-        c("docname", "sentence_id" ,"token_id", "tokens", "tag_google") 
+        names(tag1 <- spacy_parse(txt2, pos = TRUE, tag = FALSE, entity = FALSE)),
+        c("docname", "sentence_id" ,"token_id", "tokens", "lemma", "pos") 
     )
     expect_equal(
-        names(tag2 <- spacy_parse(txt2, tagset_google = FALSE, tagset_detailed = TRUE)),
-        c("docname", "sentence_id" ,"token_id", "tokens", "tag_detailed") 
+        names(tag2 <- spacy_parse(txt2, pos = FALSE, tag = TRUE, entity = FALSE)),
+        c("docname", "sentence_id" ,"token_id", "tokens", "lemma", "tag") 
     )
-    expect_false(any(tag1$tag_google == tag2$tag_detailed))
+    expect_false(any(tag1$pos == tag2$tag))
 
     expect_silent(spacy_finalize())
 })
@@ -44,20 +44,20 @@ test_that("spacy_parse handles quotes ok", {
     txt2 <- c(doc1 = "Sentence \\\"quoted\\\" one.")
     expect_equal(
         dim(spacy_parse(txt2, dependency = TRUE)),
-        c(6, 8)
+        c(6, 9)
     )
     
     txt3 <- c(doc1 = "Second sentence \\\'quoted\\\' example.")
     expect_equal(
         dim(spacy_parse(txt3, dependency = TRUE)),
-        c(7, 8)
+        c(7, 9)
     )
 
     txt4 <- c(doc1 = "Sentence \\\"quoted\\\" one.", 
               doc2 = "Sentence \\\'quoted\\\' two.")
     expect_equal(
         dim(spacy_parse(txt4, dependency = TRUE)), 
-        c(12, 8)
+        c(12, 9)
     )
     expect_silent(spacy_finalize())
 })
@@ -69,16 +69,16 @@ test_that("getting named entities works", {
     
     txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
               doc2 = "New buildings on the New York skyline.")
-    parsed <- spacy_parse(txt1, named_entity = TRUE)
+    parsed <- spacy_parse(txt1, entity = TRUE)
     
-    named_entities <- get_all_named_entities(parsed)
+    entities <- entity_extract(parsed)
     
     expect_equal(
-        named_entities$entity,
+        entities$entity,
         c("The United States", "Donald Trump", "New York", "the New York")
     )
     expect_equal(
-        named_entities$entity_type,
+        entities$entity_type,
         c("GPE", "PERSON", "GPE", "ORG")
     )
 
