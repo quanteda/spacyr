@@ -26,9 +26,7 @@ For the installation of `spaCy` and `spacyr` in Mac OS X (in homebrew and defaul
 
 1.  Python (> 2.7 or 3) must be installed on your system.  
 
-    **(Windows only)**  If you have not yet installed Python,  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. 
-
-    We recommend the latest 3.6.\* release (currently 3.6.1).  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x." 
+    **(Windows only)**  If you have not yet installed Python,  Download and install [Python for Windows](https://www.python.org/downloads/windows/).  We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. We recommend the latest 3.6.\* release (currently 3.6.1).  During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x." 
 
 2.  A C++ compiler must be installed on your system.  
 
@@ -75,10 +73,8 @@ When initializing spaCy, you need to set the python path if in your system, spaC
 require(spacyr)
 # start a python process and initialize spaCy in it.
 # it takes several seconds for initialization.
-# you may have to set the path to the python with spaCy 
-# in this example spaCy is installed in the python 
-# in "/usr/local/bin/python"
-spacy_initialize(use_python = "/usr/local/bin/python")
+# spacyr attempts to find python with spaCy
+spacy_initialize()
 ```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions.  The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
@@ -118,14 +114,14 @@ results_detailed <- spacy_parse(txt,
 head(results_detailed, 30)
 ```
 
-### Use German language model
+### Use other language models
 
-In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `lang` option when `spacy_initialize` is called. 
+In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `model` option when `spacy_initialize` is called. 
 
 ```{r}
 ## first finalize the spacy if it's loaded
 spacy_finalize()
-spacy_initialize(lang = 'de')
+spacy_initialize(model = 'de')
 
 txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
@@ -149,44 +145,12 @@ By calling `spacy_initialize()` again, you can restart the backend spaCy.
 
 ## <a name="multiplepythons"></a>Multiple Python executables in your system 
 
-If you have multiple Python executables in your systems (e.g. you, a Mac user, have brewed python2 or python3), then you will need to set the path to the Python executable with spaCy before you load spacy. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
-
-Open a Terminal window, and type
-```
-$ python --version; which python
-```
-and in R, enter following
-```{r}
-system('python --version; which python')
-```
-If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
-
-To resolve the issue, you can alter an environmental variable when initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
+If you have multiple Python executables in your systems (e.g. you, a Mac user, have brewed python2 or python3), `spacy_initialize` function will check whether each of them have spaCy installed or not.  To save the time for this checking, you can specify the particular python when initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 ```{r, eval = FALSE}
 library(spacyr)
 spacy_initialize(use_python = "/usr/local/bin/python")
 ```
 
-If you've failed to set the python path when calling `spacy_initialize()`, you will get an error message like this:
-```
-> library(spacyr)
-> spacy_initialize()
- Show Traceback
- 
- Rerun with Debug
- Error in py_run_file_impl(file, convert) : 
-  ImportError: No module named spacy
-
-Detailed traceback: 
-  File "<string>", line 9, in <module> 
-```
-If this happened, please **restart R** and follow the appropriate steps to initialize spaCy. You cannot retry `spacy_initialize()` to resolve the issue because in the first try, the backend Python is started by R (in our package, we use [`reticulate`](https://github.com/rstudio/reticulate) to connect to Python), and you cannot switch to other Python executables. 
-
-### Step-by-step instructions for Windows users
-
-Installation of `spaCy` and `spacyr` has not always been successful in our test environment (Windows 10 virtual machine on Parallels 10). Followings steps discribed in an issue comment are most likely to succeed in our experience:
-
-https://github.com/kbenoit/spacyr/issues/19#issuecomment-296362599
 
 
 ## Comments and feedback

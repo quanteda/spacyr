@@ -63,11 +63,11 @@ require(spacyr)
 #> Loading required package: spacyr
 # start a python process and initialize spaCy in it.
 # it takes several seconds for initialization.
-# you may have to set the path to the python with spaCy 
-# in this example spaCy is installed in the python 
-# in "/usr/local/bin/python"
-spacy_initialize(use_python = "/usr/local/bin/python")
-#> spacy is successfully initialized
+# spacyr attempts to find python with spaCy
+spacy_initialize()
+#> No python executable is specified, spacyr tries to find a python executable with spacy
+#> spaCy (language model "en") is installed in /usr/local/bin/python
+#> spaCy is successfully initialized
 ```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
@@ -96,7 +96,7 @@ Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quan
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 #> quanteda version 0.9.9.50
-#> Using 3 of 4 cores for parallel computing
+#> Using 7 of 8 cores for parallel computing
 docnames(parsedtxt)
 #> [1] "fastest" "getdone"
 ndoc(parsedtxt)
@@ -131,26 +131,26 @@ head(results_detailed, 30)
 #>  8: fastest           1        8  extraction  extraction           NN
 #>  9: fastest           1        9       tasks        task          NNS
 #> 10: fastest           1       10           .           .            .
-#> 11: fastest           2       11          It      -PRON-          PRP
-#> 12: fastest           2       12          is          be          VBZ
-#> 13: fastest           2       13     written       write          VBN
-#> 14: fastest           2       14        from        from           IN
-#> 15: fastest           2       15         the         the           DT
-#> 16: fastest           2       16      ground      ground           NN
-#> 17: fastest           2       17          up          up           RB
-#> 18: fastest           2       18          in          in           IN
-#> 19: fastest           2       19   carefully   carefully           RB
-#> 20: fastest           2       20      memory      memory           NN
-#> 21: fastest           2       21           -           -         HYPH
-#> 22: fastest           2       22     managed      manage          VBN
-#> 23: fastest           2       23      Cython      cython          NNP
-#> 24: fastest           2       24           .           .            .
-#> 25: fastest           3       25 Independent independent           JJ
-#> 26: fastest           3       26    research    research           NN
-#> 27: fastest           3       27         has        have          VBZ
-#> 28: fastest           3       28   confirmed     confirm          VBN
-#> 29: fastest           3       29        that        that           IN
-#> 30: fastest           3       30       spaCy       spacy          NNP
+#> 11: fastest           2        1          It      -PRON-          PRP
+#> 12: fastest           2        2          is          be          VBZ
+#> 13: fastest           2        3     written       write          VBN
+#> 14: fastest           2        4        from        from           IN
+#> 15: fastest           2        5         the         the           DT
+#> 16: fastest           2        6      ground      ground           NN
+#> 17: fastest           2        7          up          up           RB
+#> 18: fastest           2        8          in          in           IN
+#> 19: fastest           2        9   carefully   carefully           RB
+#> 20: fastest           2       10      memory      memory           NN
+#> 21: fastest           2       11           -           -         HYPH
+#> 22: fastest           2       12     managed      manage          VBN
+#> 23: fastest           2       13      Cython      cython          NNP
+#> 24: fastest           2       14           .           .            .
+#> 25: fastest           3        1 Independent independent           JJ
+#> 26: fastest           3        2    research    research           NN
+#> 27: fastest           3        3         has        have          VBZ
+#> 28: fastest           3        4   confirmed     confirm          VBN
+#> 29: fastest           3        5        that        that           IN
+#> 30: fastest           3        6       spaCy       spacy          NNP
 #>     docname sentence_id token_id      tokens       lemma tag_detailed
 #>     tag_google head_token_id   dep_rel named_entity
 #>  1:       NOUN             2  compound             
@@ -163,40 +163,40 @@ head(results_detailed, 30)
 #>  8:       NOUN             9  compound             
 #>  9:       NOUN             3      pobj             
 #> 10:      PUNCT             2     punct             
-#> 11:       PRON            13 nsubjpass             
-#> 12:       VERB            13   auxpass             
-#> 13:       VERB            13      ROOT             
-#> 14:        ADP            13      prep             
-#> 15:        DET            16       det             
-#> 16:       NOUN            14      pobj             
-#> 17:        ADV            13       prt             
-#> 18:        ADP            17      prep             
-#> 19:        ADV            22    advmod             
-#> 20:       NOUN            22  npadvmod             
-#> 21:      PUNCT            22     punct             
-#> 22:       VERB            13      prep             
-#> 23:      PROPN            22      dobj        ORG_B
-#> 24:      PUNCT            13     punct             
-#> 25:        ADJ            26      amod             
-#> 26:       NOUN            28     nsubj             
-#> 27:       VERB            28       aux             
-#> 28:       VERB            28      ROOT             
-#> 29:        ADP            31      mark             
-#> 30:      PROPN            31     nsubj             
+#> 11:       PRON             3 nsubjpass             
+#> 12:       VERB             3   auxpass             
+#> 13:       VERB             3      ROOT             
+#> 14:        ADP             3      prep             
+#> 15:        DET             6       det             
+#> 16:       NOUN             4      pobj             
+#> 17:        ADV             3       prt             
+#> 18:        ADP             7      prep             
+#> 19:        ADV            12    advmod             
+#> 20:       NOUN            12  npadvmod             
+#> 21:      PUNCT            12     punct             
+#> 22:       VERB             3      prep             
+#> 23:      PROPN            12      dobj        ORG_B
+#> 24:      PUNCT             3     punct             
+#> 25:        ADJ             2      amod             
+#> 26:       NOUN             4     nsubj             
+#> 27:       VERB             4       aux             
+#> 28:       VERB             4      ROOT             
+#> 29:        ADP             7      mark             
+#> 30:      PROPN             7     nsubj             
 #>     tag_google head_token_id   dep_rel named_entity
 ```
 
-### Use German language model
+### Use other language models
 
-In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `lang` option when `spacy_initialize` is called.
+In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `model` option when `spacy_initialize` is called.
 
 ``` r
 ## first finalize the spacy if it's loaded
 spacy_finalize()
-spacy_initialize(lang = 'de')
+spacy_initialize(model = 'de')
 #> Python space is already attached to R. You cannot switch Python.
 #> If you'd like to switch to other Python, please restart R
-#> spacy is successfully initialized
+#> spaCy is successfully initialized
 
 txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
@@ -218,25 +218,25 @@ head(results_german, 30)
 #>  9:       R           1        9                und                und
 #> 10:       R           1       10           Grafiken           grafiken
 #> 11:       R           1       11                  .                  .
-#> 12:       R           2       12                Sie                sie
-#> 13:       R           2       13              wurde              wurde
-#> 14:       R           2       14                von                von
-#> 15:       R           2       15       Statistikern       statistikern
-#> 16:       R           2       16                 fr                 fr
-#> 17:       R           2       17           Anwender           anwender
-#> 18:       R           2       18                mit                mit
-#> 19:       R           2       19      statistischen      statistischen
-#> 20:       R           2       20           Aufgaben           aufgaben
-#> 21:       R           2       21         entwickelt         entwickelt
-#> 22:       R           2       22                  .                  .
-#> 23:       R           3       23                Die                die
-#> 24:       R           3       24             Syntax             syntax
-#> 25:       R           3       25         orientiert         orientiert
-#> 26:       R           3       26               sich               sich
-#> 27:       R           3       27                 an                 an
-#> 28:       R           3       28                der                der
-#> 29:       R           3       29 Programmiersprache programmiersprache
-#> 30:       R           3       30                  S                  s
+#> 12:       R           2        1                Sie                sie
+#> 13:       R           2        2              wurde              wurde
+#> 14:       R           2        3                von                von
+#> 15:       R           2        4       Statistikern       statistikern
+#> 16:       R           2        5                 fr                 fr
+#> 17:       R           2        6           Anwender           anwender
+#> 18:       R           2        7                mit                mit
+#> 19:       R           2        8      statistischen      statistischen
+#> 20:       R           2        9           Aufgaben           aufgaben
+#> 21:       R           2       10         entwickelt         entwickelt
+#> 22:       R           2       11                  .                  .
+#> 23:       R           3        1                Die                die
+#> 24:       R           3        2             Syntax             syntax
+#> 25:       R           3        3         orientiert         orientiert
+#> 26:       R           3        4               sich               sich
+#> 27:       R           3        5                 an                 an
+#> 28:       R           3        6                der                der
+#> 29:       R           3        7 Programmiersprache programmiersprache
+#> 30:       R           3        8                  S                  s
 #>     docname sentence_id token_id             tokens              lemma
 #>     tag_detailed tag_google head_token_id dep_rel named_entity
 #>  1:           XY          X             2      sb             
@@ -250,25 +250,25 @@ head(results_german, 30)
 #>  9:          KON       CONJ             8      cd             
 #> 10:           NN       NOUN             9      cj             
 #> 11:           $.      PUNCT             2   punct             
-#> 12:         PPER       PRON            13      sb             
-#> 13:        VAFIN        AUX            13    ROOT             
-#> 14:         APPR        ADP            17      pg             
-#> 15:           NN       NOUN            14      nk             
-#> 16:           NE      PROPN            17      nk             
-#> 17:           NN       NOUN            21      oa             
-#> 18:         APPR        ADP            21      mo             
-#> 19:         ADJA        ADJ            20      nk             
-#> 20:           NN       NOUN            18      nk             
-#> 21:         VVPP       VERB            13      oc             
-#> 22:           $.      PUNCT            13   punct             
-#> 23:          ART        DET            24      nk             
-#> 24:           NN       NOUN            25      sb             
-#> 25:        VVFIN       VERB            25    ROOT             
-#> 26:          PRF       PRON            25      oa             
-#> 27:         APPR        ADP            25      mo             
-#> 28:          ART        DET            29      nk             
-#> 29:           NN       NOUN            27      nk             
-#> 30:           NE      PROPN            29      nk             
+#> 12:         PPER       PRON             2      sb             
+#> 13:        VAFIN        AUX             2    ROOT             
+#> 14:         APPR        ADP             6      pg             
+#> 15:           NN       NOUN             3      nk             
+#> 16:           NE      PROPN             6      nk             
+#> 17:           NN       NOUN            10      oa             
+#> 18:         APPR        ADP            10      mo             
+#> 19:         ADJA        ADJ             9      nk             
+#> 20:           NN       NOUN             7      nk             
+#> 21:         VVPP       VERB             2      oc             
+#> 22:           $.      PUNCT             2   punct             
+#> 23:          ART        DET             2      nk             
+#> 24:           NN       NOUN             3      sb             
+#> 25:        VVFIN       VERB             3    ROOT             
+#> 26:          PRF       PRON             3      oa             
+#> 27:         APPR        ADP             3      mo             
+#> 28:          ART        DET             7      nk             
+#> 29:           NN       NOUN             5      nk             
+#> 30:           NE      PROPN             7      nk             
 #>     tag_detailed tag_google head_token_id dep_rel named_entity
 ```
 
@@ -287,47 +287,12 @@ By calling `spacy_initialize()` again, you can restart the backend spaCy.
 <a name="multiplepythons"></a>Multiple Python executables in your system
 ------------------------------------------------------------------------
 
-If you have multiple Python executables in your systems (e.g. you, a Mac user, have brewed python2 or python3), then you will need to set the path to the Python executable with spaCy before you load spacy. In order to check whether this could be an issue, check the versions of Pythons in Terminal and R.
-
-Open a Terminal window, and type
-
-    $ python --version; which python
-
-and in R, enter following
-
-``` r
-system('python --version; which python')
-```
-
-If the outputs are different, loading spaCy is likely to fail as the python executable the `spacyr` calls is different from the version of python spaCy is intalled.
-
-To resolve the issue, you can alter an environmental variable when initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
+If you have multiple Python executables in your systems (e.g. you, a Mac user, have brewed python2 or python3), `spacy_initialize` function will check whether each of them have spaCy installed or not. To save the time for this checking, you can specify the particular python when initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
 
 ``` r
 library(spacyr)
 spacy_initialize(use_python = "/usr/local/bin/python")
 ```
-
-If you've failed to set the python path when calling `spacy_initialize()`, you will get an error message like this:
-
-    > library(spacyr)
-    > spacy_initialize()
-     Show Traceback
-     
-     Rerun with Debug
-     Error in py_run_file_impl(file, convert) : 
-      ImportError: No module named spacy
-
-    Detailed traceback: 
-      File "<string>", line 9, in <module> 
-
-If this happened, please **restart R** and follow the appropriate steps to initialize spaCy. You cannot retry `spacy_initialize()` to resolve the issue because in the first try, the backend Python is started by R (in our package, we use [`reticulate`](https://github.com/rstudio/reticulate) to connect to Python), and you cannot switch to other Python executables.
-
-### Step-by-step instructions for Windows users
-
-Installation of `spaCy` and `spacyr` has not always been successful in our test environment (Windows 10 virtual machine on Parallels 10). Followings steps discribed in an issue comment are most likely to succeed in our experience:
-
-<https://github.com/kbenoit/spacyr/issues/19#issuecomment-296362599>
 
 Comments and feedback
 ---------------------
