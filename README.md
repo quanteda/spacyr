@@ -12,9 +12,7 @@ For the installation of `spaCy` and `spacyr` in Mac OS X (in homebrew and defaul
 
 1.  Python (&gt; 2.7 or 3) must be installed on your system.
 
-    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3.
-
-    We recommend the latest 3.6.\* release (currently 3.6.1). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
+    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. We recommend the latest 3.6.\* release (currently 3.6.1). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
 
 2.  A C++ compiler must be installed on your system.
 
@@ -66,8 +64,8 @@ require(spacyr)
 # spacyr attempts to find python with spaCy
 spacy_initialize()
 #> No python executable is specified, spacyr tries to find a python executable with spacy
-#> spaCy (language model "en") is installed in /usr/local/bin/python
-#> spaCy is successfully initialized
+#> spaCy (language model: en) is installed in /usr/local/bin/python
+#> spaCy is successfully initialized (spaCy Version: 1.8.1, language model: en)
 ```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
@@ -196,7 +194,7 @@ spacy_finalize()
 spacy_initialize(model = 'de')
 #> Python space is already attached to R. You cannot switch Python.
 #> If you'd like to switch to other Python, please restart R
-#> spaCy is successfully initialized
+#> spaCy is successfully initialized (spaCy Version: 1.8.1, language model: de)
 
 txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")

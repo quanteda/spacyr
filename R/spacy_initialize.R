@@ -61,7 +61,11 @@ spacy_initialize <- function(model = 'en',
     spacyr_pyassign("model", model)
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                        package = 'spacyr'))
-    message("spaCy is successfully initialized with language model ", model)
+    spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
+    spacy_version <- grep("Version" ,spacy_version, value = TRUE)
+    
+    
+    message("spaCy is successfully initialized (spaCy ", spacy_version,', language model: ', model, ')')
     options("spacy_initialized" = TRUE)
 }
 
@@ -113,10 +117,10 @@ find_spacy <- function(model = "en"){
         1
     } else if(df_python_check[, sum(spacy_found)] == 1){
         spacy_python <- df_python_check[spacy_found == 1, py_execs]
-        message("spaCy (language model \"", model,"\") is installed in ", spacy_python)
+        message("spaCy (language model: ", model, ") is installed in ", spacy_python)
     } else {
         spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
-        message("spaCy (language model \"", model,"\") is installed in more than one python")
+        message("spaCy (language model: ", model, ") is installed in more than one python")
         message(paste(1:length(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
         number <- NA
         while(is.na(number)){
