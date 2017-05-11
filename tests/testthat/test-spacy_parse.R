@@ -74,12 +74,12 @@ test_that("getting named entities works", {
     entities <- entity_extract(parsed)
     
     expect_equal(
-        entities$entity,
-        c("The United States", "Donald Trump", "New York", "the New York")
+        named_entities$entity,
+        c("The United States", "Donald Trump", "New York", "New York")
     )
     expect_equal(
-        entities$entity_type,
-        c("GPE", "PERSON", "GPE", "ORG")
+        named_entities$entity_type,
+        c("GPE", "PERSON", "GPE", "GPE")
     )
 
     expect_silent(spacy_finalize())
