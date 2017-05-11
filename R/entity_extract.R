@@ -1,6 +1,6 @@
 #' Get all named entities in parsed documents
 #' 
-#' \code{get_all_named_entities} construct a table of all named entities from
+#' \code{entity_extract} construct a table of all named entities from
 #' the results of \code{spacy_parse}
 #' @param spacy_result a \code{data.frame} from \code{\link{spacy_parse}}.
 #' @return A \code{data.table} of all named entities, containing the following fields: 
@@ -14,28 +14,28 @@
 #' \donttest{
 #' spacy_initialize()
 #' 
-#' parsed_sentences <- spacy_parse(data_char_sentences, full_parse = TRUE, named_entity = TRUE)
-#' named_entities <- get_all_named_entities(parsed_sentences)
+#' parsed_sentences <- spacy_parse(data_char_sentences, entity = TRUE)
+#' named_entities <- entity_extract(parsed_sentences)
 #' head(named_entities, 30)
 #' }
 #' @export
-get_all_named_entities <- function(spacy_result) {
+entity_extract <- function(spacy_result) {
     
-    entity_type <- named_entity <- iob <- entity_id <- .N <- .SD <- `:=` <- docname <- NULL
+    entity_type <- entity <- iob <- entity_id <- .N <- .SD <- `:=` <- docname <- NULL
     
-    if(!"named_entity" %in% names(spacy_result)) {
-        stop("Named Entity Recognition is not conducted\nNeed to rerun spacy_parse() with named_entity = TRUE") 
+    if(!"entity" %in% names(spacy_result)) {
+        stop("Entity Recognition is not conducted\nNeed to rerun spacy_parse() with entity = TRUE") 
     }
-    spacy_result <- spacy_result[nchar(spacy_result$named_entity) > 0]
-    spacy_result[, entity_type := sub("_.+", "", named_entity)]
-    spacy_result[, iob := sub(".+_", "", named_entity)]
+    spacy_result <- spacy_result[nchar(spacy_result$entity) > 0]
+    spacy_result[, entity_type := sub("_.+", "", entity)]
+    spacy_result[, iob := sub(".+_", "", entity)]
     spacy_result[, entity_id := cumsum(iob=="B")]
     entities <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id, 
-                   .SDcols = c("docname", "token_id", "entity_type")]
+                   .SDcols = c("docname", "sentence_id", "entity_type")]
     entities[, entity := spacy_result[, lapply(.SD, function(x) paste(x, collapse = " ")), 
                             by = entity_id, 
                             .SDcols = c("tokens")]$tokens] 
-    as.data.frame(entities[, list(docname, entity, entity_type)])
+    return(entities[, list(docname, sentence_id, entity, entity_type)])
 }
 
 

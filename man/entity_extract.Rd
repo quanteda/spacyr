@@ -25,7 +25,7 @@ the results of \code{spacy_parse}
 \donttest{
 spacy_initialize()
 
-parsed_sentences <- spacy_parse(data_char_sentences, full_parse = TRUE, named_entity = TRUE)
+parsed_sentences <- spacy_parse(data_char_sentences, entity = TRUE)
 named_entities <- entity_extract(parsed_sentences)
 head(named_entities, 30)
 }
