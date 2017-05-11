@@ -4,32 +4,23 @@
 \alias{spacy_parse}
 \title{parse a text using spaCy}
 \usage{
-spacy_parse(x, pos_tag = TRUE, tagset_detailed = TRUE,
-  tagset_google = TRUE, lemma = FALSE, named_entity = FALSE,
-  dependency = FALSE, full_parse = FALSE, ...)
+spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE, entity = TRUE,
+  dependency = FALSE, ...)
 }
 \arguments{
 \item{x}{a character or \pkg{quanteda} corpus object}
 
-\item{pos_tag}{logical; if \code{TRUE}, tag parts of speech}
+\item{pos}{logical whether to return universal dependency POS tagset (http://universaldependencies.org/u/pos/all.html)}
 
-\item{tagset_detailed}{logical whether a detailed tagset outcome is included in the result.
-In the case of using \code{"en"} model, default tagset is scheme from the Penn Treebank. 
-In the case of using \code{"de"} model, default tagset is scheme from the German Text Archive (http://www.deutschestextarchiv.de/doku/pos).}
-
-\item{tagset_google}{logical whether a simplified \code{"google"} tagset will be 
-returned.}
+\item{tag}{logical whether to return detailed part-of-speech tags, 
+for the langage model \code{en}, it uses the OntoNotes 5 version of the Penn Treebank 
+tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)}
 
 \item{lemma}{logical; inlucde lemmatized tokens in the output}
 
-\item{named_entity}{logical; if \code{TRUE}, report named entities}
+\item{entity}{logical; if \code{TRUE}, report named entities}
 
 \item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
-
-\item{full_parse}{logical; if \code{TRUE}, conduct the one-shot parse 
-regardless of the value of other parameters. This  option exists because 
-the parsing outcomes of named entities are slightly different different 
-when named entities are run separately from the parsing.}
 
 \item{...}{not used directly}
 }
@@ -52,12 +43,12 @@ spacy_initialize()
 # See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html
 txt <- "And now for something completely different."
 spacy_parse(txt)
-spacy_parse(txt, pos_tag = FALSE)
+spacy_parse(txt, pos = TRUE, tag = TRUE)
 spacy_parse(txt, dependency = TRUE)
 
 txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.", 
           doc2 = "This is the second document.",
           doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
-spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
+spacy_parse(txt2, entity = TRUE, dependency = TRUE)
 }
 }
