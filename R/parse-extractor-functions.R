@@ -21,11 +21,13 @@ spacy_out <- setRefClass(
 )
 
 
-#' get tokens
+#' get functions for spacy
 #' 
-#' Extract tokens from a spacy reference object.
+#' A collection of get methods for spacyr return objects (of \code{spacy_out} class).
 #' @param spacy_out a spacy_out object
+#' @return \code{get_tokens} returns a data.frame of tokens from spaCy.
 #' @export
+#' @name get-functions
 #' @keywords internal
 get_tokens <- function(spacy_out) {
     spacyr_pyassign('timestamps', spacy_out$timestamps)
@@ -41,25 +43,23 @@ get_tokens <- function(spacy_out) {
     return(tokens)
 }
 
-#' tag parts of speech using spaCy via rPython
-#' 
-#' Tokenize a text using spaCy and tag the tokens with part-of-speech tags. 
+#' @rdname get-functions
+#' @return \code{get_tags} returns a tokenized text object with part-of-speech tags.
 #' Options exist for using either the Google or Detaled tagsets. See 
 #' \url{http://spacy.io}.
-#'
-#' @return a tokenized text object with tags
-#' @param spacy_out a spacy_out object
 #' @param tagset character label for the tagset to use, either \code{"google"} 
 #'   or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
 #'   scheme from the Penn Treebank (or the German Text Archive in case of German language model).  
 #' @export 
 #' @examples
 #' \donttest{
+#' # get_tags examples
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")
 #' results <- spacy_parse(txt)
 #' tokens <- tokens(results)
 #' tokens_with_tag <- tokens_tag(tokens)
+#' 
 #' }
 #' @keywords internal
 get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
@@ -76,12 +76,9 @@ get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
 }
 
 
-#' get arbitrary attributes from spacy output
-#'
-#' @param spacy_out a spacy_out object
+#' @rdname get-functions
 #' @param attr_name name of spacy token attributes to extract
-#'
-#' @return a list of attributes
+#' @return \code{get_attrs} returns a list of attributes from spaCy output
 #' @export
 #' @keywords internal
 get_attrs <- function(spacy_out, attr_name) {
@@ -93,11 +90,8 @@ get_attrs <- function(spacy_out, attr_name) {
     return(attrs)
 }
 
-#' Title
-#'
-#' @param spacy_out a spacy_out object
-#' 
-#' @return list of named entities in texts
+#' @rdname get-functions
+#' @return \code{get_named_entities} returns a list of named entities in texts
 #' @export
 #' @keywords internal
 get_named_entities <- function(spacy_out){
@@ -118,14 +112,11 @@ get_named_entities <- function(spacy_out){
 }
 
 
-#' Returns data of dependecy parsing outputs
-#'
-#' @param spacy_out a spacy_out object
-#'
-#' @return data.table of dependency relations
+#' @rdname get-functions
+#' @return \code{get_dependency} returns a data.table of dependency relations.
 #' @export
 #' @keywords internal
-get_dependency <- function(spacy_out){
+get_dependency <- function(spacy_out) {
     # get ids of head of each token
     spacyr_pyassign('timestamps', spacy_out$timestamps)
     if (spacy_out$parser == FALSE) {
@@ -139,11 +130,8 @@ get_dependency <- function(spacy_out){
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
 
-#' get the number of tokens from spacyr output
-#'
-#' @param spacy_out a spacy_out object
-#'
-#' @return data.frame of dependency relations
+#' @rdname get-functions
+#' @return \code{get_ntokens} returns a data.frame of dependency relations
 #' @export
 #' @keywords internal
 get_ntokens <- function(spacy_out){
@@ -154,11 +142,9 @@ get_ntokens <- function(spacy_out){
     return(ntokens)
 }
 
-#' get the number of tokens by sentence from spacyr output
-#'
-#' @param spacy_out a spacy_out object
-#'
-#' @return data.frame of dependency relations
+#' @rdname get-functions
+#' @return \code{get_ntokens_by_sent} returns a data.frame of dependency
+#'   relations, by sentence
 #' @export
 #' @keywords internal
 get_ntokens_by_sent <- function(spacy_out){
