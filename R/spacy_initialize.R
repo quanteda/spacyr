@@ -2,7 +2,7 @@
 #' 
 #' Initialize spaCy to call from R. 
 #' @return NULL
-#' @param lang Language package for loading spacy. Either \code{en} (English) or 
+#' @param model Language package for loading spacy. Example: \code{en} (English) and
 #' \code{de} (German). Default is \code{en}.
 #' @param use_python set a path to the python excutable with spaCy. 
 #' @param use_virtualenv set a path to the python virtual environment with spaCy. 
@@ -11,13 +11,13 @@
 #'   Example: \code{use_condalenv = "myenv"}
 #' @export
 #' @author Akitaka Matsuo
-spacy_initialize <- function(lang = 'en', 
+spacy_initialize <- function(model = 'en', 
                              use_python = NA,
                              use_virtualenv = NA,
                              use_condaenv = NA) {
     # here are a number of checkings
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
-        message("spacy is already initialized")
+        message("spaCy is already initialized")
         return(NULL)
     }
     # once python is initialized, you cannot change the python executables
@@ -31,27 +31,41 @@ spacy_initialize <- function(lang = 'en',
     }
     # give warning when nothing is specified
     else if (sum(!is.na(c(use_python, use_virtualenv, use_condaenv))) == 0){
-        def_python <- ifelse(Sys.info()['sysname'] == "Windows", 
-                             system("where python", intern = TRUE), 
-                             system("which python", intern = TRUE))
-        message(paste("No python executable is specified, spacyr will use system default python\n",
-                       sprintf("(system default python: %s).", def_python)))
+        # def_python <- ifelse(Sys.info()['sysname'] == "Windows", 
+        #                      system("where python", intern = TRUE), 
+        #                      system("which python", intern = TRUE))
+        message("No python executable is specified, spacyr tries to find a python executable with spacy")
+        spacy_python <- find_spacy(model)
+        if(!is.na(spacy_python)){
+            reticulate::use_python(spacy_python, required = TRUE)
+        } else {
+            stop("spaCy or language model ", model, " is not installed in any of python executables.")
+        }
     } 
     else {# set the path with reticulte
-        if(!is.na(use_python)) reticulate::use_python(use_python, required = TRUE)
+        if(!is.na(use_python)) {
+            if(check_spacy_model(use_python, model) != "OK"){
+                stop("spaCy or language model ", model, " is not installed in ", use_python)
+            }
+            reticulate::use_python(use_python, required = TRUE)
+        }
         else if(!is.na(use_virtualenv)) reticulate::use_virtualenv(use_virtualenv, required = TRUE)
         else if(!is.na(use_condaenv)) reticulate::use_condaenv(use_condaenv, required = TRUE)
     }
     options("python_initialized" = TRUE) # next line could cause non-recoverable error 
     spacyr_pyexec(pyfile = system.file("python", "spacyr_class.py",
                                        package = 'spacyr'))
-    if(! lang %in% c('en', 'de')) {
-        stop('value of lang option should be either "en" or "de"')
-    }
-    spacyr_pyassign("lang", lang)
+    # if(! lang %in% c('en', 'de')) {
+    #     stop('value of lang option should be either "en" or "de"')
+    # }
+    spacyr_pyassign("model", model)
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                        package = 'spacyr'))
-    message("spacy is successfully initialized")
+    spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
+    spacy_version <- grep("Version" ,spacy_version, value = TRUE)
+    
+    
+    message("spaCy is successfully initialized (spaCy ", spacy_version,', language model: ', model, ')')
     options("spacy_initialized" = TRUE)
 }
 
@@ -74,3 +88,62 @@ spacy_finalize <- function() {
     options("spacy_initialized" = NULL)
 }
 
+#' Find spaCy
+#' 
+#' Find spaCy.
+#' @return spacy_python
+#' @export
+#' @param model name of the language model
+#' @keywords internal
+find_spacy <- function(model = "en"){
+    spacy_python <- NA
+    py_execs <- if(Sys.info()['sysname'] == "Windows") {
+        system2("where", "python", stdout = TRUE)
+    } else {
+        system2('which', '-a python', stdout = TRUE)
+    }
+    
+    
+    df_python_check <- data.table::data.table(py_execs, spacy_found = 0)
+    for(i in 1:nrow(df_python_check)){
+        py_exec <- df_python_check[i, py_execs]
+        sys_message <- check_spacy_model(py_exec, model)
+        if(sys_message == 'OK'){
+            df_python_check[i, spacy_found := 1]
+        }
+    }
+
+    if(df_python_check[, sum(spacy_found)] == 0){
+        1
+    } else if(df_python_check[, sum(spacy_found)] == 1){
+        spacy_python <- df_python_check[spacy_found == 1, py_execs]
+        message("spaCy (language model: ", model, ") is installed in ", spacy_python)
+    } else {
+        spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
+        message("spaCy (language model: ", model, ") is installed in more than one python")
+        message(paste(1:length(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
+        number <- NA
+        while(is.na(number)){
+            number <- readline(prompt = "Please select python: ")
+            number <- as.integer(number)
+            if(is.na(number) | number < 1 | number > length(spacy_pythons)){
+                number <- NA
+            }
+        }
+        spacy_python <- spacy_pythons[number]
+        message("spacyr will use: ", spacy_python)
+    }
+    return(spacy_python)
+}    
+
+
+check_spacy_model <- function(py_exec, model) {
+    options(warn = -1)
+    tryCatch({
+        sys_message <- 
+            system2(py_exec, c(sprintf("-c \"import spacy; spacy.load('%s'); print('OK')\"", model)), 
+                    stderr = TRUE, stdout = TRUE)
+    })
+    options(warn = -1)
+    return(paste(sys_message, collapse = " "))
+}

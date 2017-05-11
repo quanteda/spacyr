@@ -4,11 +4,11 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy}
 \usage{
-spacy_initialize(lang = "en", use_python = NA, use_virtualenv = NA,
+spacy_initialize(model = "en", use_python = NA, use_virtualenv = NA,
   use_condaenv = NA)
 }
 \arguments{
-\item{lang}{Language package for loading spacy. Either \code{en} (English) or 
+\item{model}{Language package for loading spacy. Example: \code{en} (English) and
 \code{de} (German). Default is \code{en}.}
 
 \item{use_python}{set a path to the python excutable with spaCy.}

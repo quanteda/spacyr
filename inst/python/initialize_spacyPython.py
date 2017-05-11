@@ -1,3 +1,3 @@
 # from __future__ import unicode_literals 
 
-nlp = spacy.load(lang)
+nlp = spacy.load(model)
