@@ -22,7 +22,7 @@ spacy_initialize <- function(model = 'en',
     }
     # once python is initialized, you cannot change the python executables
     if(!is.null(options("python_initialized")$python_initialized)) {
-        message("Python space is already attached to R. You cannot switch Python.\nIf you'd like to switch to other Python, please restart R")
+        message("Python space is already attached to R. You cannot switch Python.\nIf you'd like to switch to a different Python, please restart R")
     } 
     # a user can specify only one
     else if(sum(!is.na(c(use_python, use_virtualenv, use_condaenv))) > 1) {
@@ -34,7 +34,7 @@ spacy_initialize <- function(model = 'en',
         # def_python <- ifelse(Sys.info()['sysname'] == "Windows", 
         #                      system("where python", intern = TRUE), 
         #                      system("which python", intern = TRUE))
-        message("No python executable is specified, spacyr tries to find a python executable with spacy")
+        message("Finding a python executable with spacy installed...")
         spacy_python <- find_spacy(model)
         if(!is.na(spacy_python)){
             reticulate::use_python(spacy_python, required = TRUE)
@@ -65,7 +65,7 @@ spacy_initialize <- function(model = 'en',
     spacy_version <- grep("Version" ,spacy_version, value = TRUE)
     
     
-    message("spaCy is successfully initialized (spaCy ", spacy_version,', language model: ', model, ')')
+    message("successfully initialized (spaCy ", spacy_version,', language model: ', model, ')')
     options("spacy_initialized" = TRUE)
 }
 
