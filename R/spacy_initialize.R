@@ -4,17 +4,19 @@
 #' @return NULL
 #' @param model Language package for loading spacy. Example: \code{en} (English) and
 #' \code{de} (German). Default is \code{en}.
-#' @param use_python set a path to the python excutable with spaCy. 
-#' @param use_virtualenv set a path to the python virtual environment with spaCy. 
-#'   Example: \code{use_virtualenv = "~/myenv"}
-#' @param use_condaenv set a path to the anaconda virtual environment with spaCy. 
-#'   Example: \code{use_condalenv = "myenv"}
+#' @param python_executable the full path to the python excutable, for which spaCy is installed
+#' @param virtualenv set a path to the python virtual environment with spaCy installed
+#'   Example: \code{virtualenv = "~/myenv"}
+#' @param condaenv set a path to the anaconda virtual environment with spaCy installed
+#'   Example: \code{condalenv = "myenv"}
 #' @export
 #' @author Akitaka Matsuo
-spacy_initialize <- function(model = 'en', 
-                             use_python = NA,
-                             use_virtualenv = NA,
-                             use_condaenv = NA) {
+spacy_initialize <- function(model = "en", 
+                             python_executable = NULL,
+                             virtualenv = NULL,
+                             condaenv = NULL) {
+    use_python <- match.arg(python_executable)
+    
     # here are a number of checkings
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
         message("spaCy is already initialized")
@@ -25,32 +27,32 @@ spacy_initialize <- function(model = 'en',
         message("Python space is already attached.  If you want to swtich to a different Python, please restart R.")
     } 
     # a user can specify only one
-    else if(sum(!is.na(c(use_python, use_virtualenv, use_condaenv))) > 1) {
+    else if(sum(!is.null(c(use_python, virtualenv, condaenv))) > 1) {
         stop(paste("Too many python environments are specified, please select only one",
-                   "from use_python, use_virtualenv, and use_condaenv"))
+                   "from use_python, virtualenv, and condaenv"))
     }
     # give warning when nothing is specified
-    else if (sum(!is.na(c(use_python, use_virtualenv, use_condaenv))) == 0){
+    else if (sum(!is.null(c(use_python, virtualenv, condaenv))) == 0){
         # def_python <- ifelse(Sys.info()['sysname'] == "Windows", 
         #                      system("where python", intern = TRUE), 
         #                      system("which python", intern = TRUE))
         message("Finding a python executable with spacy installed...")
         spacy_python <- find_spacy(model)
-        if(!is.na(spacy_python)){
+        if(!is.null(spacy_python)){
             reticulate::use_python(spacy_python, required = TRUE)
         } else {
             stop("spaCy or language model ", model, " is not installed in any of python executables.")
         }
     } 
     else {# set the path with reticulte
-        if(!is.na(use_python)) {
+        if(!is.null(use_python)) {
             if(check_spacy_model(use_python, model) != "OK"){
                 stop("spaCy or language model ", model, " is not installed in ", use_python)
             }
             reticulate::use_python(use_python, required = TRUE)
         }
-        else if(!is.na(use_virtualenv)) reticulate::use_virtualenv(use_virtualenv, required = TRUE)
-        else if(!is.na(use_condaenv)) reticulate::use_condaenv(use_condaenv, required = TRUE)
+        else if(!is.null(virtualenv)) reticulate::use_virtualenv(virtualenv, required = TRUE)
+        else if(!is.null(condaenv)) reticulate::use_condaenv(condaenv, required = TRUE)
     }
     options("python_initialized" = TRUE) # next line could cause non-recoverable error 
     spacyr_pyexec(pyfile = system.file("python", "spacyr_class.py",
