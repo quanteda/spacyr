@@ -1,15 +1,16 @@
 #' Extract all named entities from parsed documents
 #' 
-#' \code{entity_extract} construct a table of all named entities from
-#' the results of \code{spacy_parse}
+#' \code{entity_extract} construct a table of all named entities from the
+#' results of \code{spacy_parse}
 #' @param spacy_result a \code{data.frame} from \code{\link{spacy_parse}}.
-#' @param type type of named entities, either \code{named}, \code{extended}, or \code{all} (https://spacy.io/docs/usage/entity-recognition#entity-types)
-#' @return A \code{data.table} of all named entities, containing the following fields: 
-#' \itemize{
-#'   \item{docname}{name of the documument a named entity is found} 
-#'   \item{entity}{the named entity}
-#'   \item{entity_type}{type of named entities (e.g. PERSON, ORG, PERCENT, etc.)} 
-#'   }
+#' @param type type of named entities, either \code{named}, \code{extended}, or
+#'   \code{all}.  See 
+#'   \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for
+#'   details.
+#' @return A \code{data.table} of all named entities, containing the following
+#'   fields: \itemize{ \item{docname}{name of the documument a named entity is
+#'   found} \item{entity}{the named entity} \item{entity_type}{type of named
+#'   entities (e.g. PERSON, ORG, PERCENT, etc.)} }
 #' @importFrom data.table data.table
 #' @examples
 #' \donttest{
@@ -20,11 +21,11 @@
 #' head(named_entities, 30)
 #' }
 #' @export
-entity_extract <- function(spacy_result, type = "all") {
+entity_extract <- function(spacy_result, type = c("named", "extended", "all")) {
     
-    entity_type <- entity <- iob <- entity_id <- .N <- .SD <- `:=` <- docname <- NULL
+    entity_type <- entity <- iob <- entity_id <- .N <- .SD <- `:=` <- sentence_id <- docname <- NULL
     
-    match.arg(type, c("named", "extended", "all"))
+    type <- match.arg(type)
 
     if(!"entity" %in% names(spacy_result)) {
         stop("Entity Recognition is not conducted\nNeed to rerun spacy_parse() with entity = TRUE") 
