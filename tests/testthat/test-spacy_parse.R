@@ -74,11 +74,19 @@ test_that("getting named entities works", {
     entities <- entity_extract(parsed)
     
     expect_equal(
+<<<<<<< HEAD
         entities$entity,
         c("The United States", "Donald Trump", "New York", "the New York")
     )
     expect_equal(
         entities$entity_type,
+=======
+        named_entities$entity,
+        c("The United States", "Donald Trump", "New York", "the New York")
+    )
+    expect_equal(
+        named_entities$entity_type,
+>>>>>>> master
         c("GPE", "PERSON", "GPE", "ORG")
     )
 
