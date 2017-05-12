@@ -39,17 +39,20 @@ entity_consolidate <- function(spacy_result, type = c("named", "extended", "all"
                      c("entity_type", "iob") := ""]
     }
     spacy_result[, entity_count := ifelse(iob=="B"|iob == "", 1, 0)]
-    spacy_result[, entity_id := cumsum(entity_count)]
-    spacy_result_modified <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id, 
-                                          .SDcols = setdiff(names(spacy_result), "entity_id")]
+    spacy_result[, entity_id := cumsum(entity_count), by = c("docname", "sentence_id")]
+    spacy_result_modified <- spacy_result[, lapply(.SD, function(x) x[1]), 
+                                          by = c("docname", "sentence_id", "entity_id"), 
+                                          .SDcols = setdiff(names(spacy_result), 
+                                                            c("docname", "sentence_id", "entity_id"))]
+    
     spacy_result_modified[
         , tokens := spacy_result[, lapply(.SD, function(x) paste(x, collapse = "_")), 
-                                 by = entity_id, 
+                                 by = c("docname", "sentence_id", "entity_id"), 
                                  .SDcols = "tokens"]$tokens] 
     if("lemma" %in% colnames(spacy_result)) {
         spacy_result_modified[
             , lemma := spacy_result[, lapply(.SD, function(x) paste(x, collapse = "_")), 
-                                    by = entity_id, 
+                                    by = c("docname", "sentence_id", "entity_id"), 
                                     .SDcols = "lemma"]$lemma] 
         
     }
@@ -59,16 +62,17 @@ entity_consolidate <- function(spacy_result, type = c("named", "extended", "all"
     if("tag" %in% names(spacy_result_modified)){
         spacy_result_modified[nchar(entity_type) > 0, tag := "ENTITY"]
     }
-    spacy_result_modified[, new_token_id := 1:.N, by = .(docname, sentence_id)]
+    spacy_result_modified[, new_token_id := entity_id]
     
     if("dep_rel" %in% names(spacy_result)) {
-        message("Note: head_token_id for named entities and tokens dependent on named entities\n will be converted to NA")
-        dt_id_match <- spacy_result_modified[, .(docname, sentence_id, token_id, new_token_id)]
+        message("Note: head_token_id, dep_rel for named entities will be converted to NA")
+        dt_id_match <- spacy_result[, .(docname, sentence_id, token_id, entity_id)]
         data.table::setnames(dt_id_match, "token_id", "head_token_id")
-        data.table::setnames(dt_id_match, "new_token_id", "new_head_token_id")
+        data.table::setnames(dt_id_match, "entity_id", "new_head_token_id")
         #data.table::set2keyv(dt_id_match, "head_token_id")
         spacy_result_modified[, serialn := seq(nrow(spacy_result_modified))]
         #data.table::set2keyv(spacy_result_modified, "head_token_id")
+        browser()
         spacy_result_modified <- merge(spacy_result_modified, dt_id_match, 
                                        by = c("docname", "sentence_id", "head_token_id"), all.x = TRUE)
         spacy_result_modified <- spacy_result_modified[order(serialn)]
@@ -87,9 +91,3 @@ entity_consolidate <- function(spacy_result, type = c("named", "extended", "all"
                            names(spacy_result_modified))
     return(spacy_result_modified[, keep_cols, with = FALSE])
 }
-
-
-
-
-
-
