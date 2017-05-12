@@ -10,21 +10,13 @@
 #' the function returns the most extensive list of the parsing results from spaCy.
 #' 
 #' @param x a character or \pkg{quanteda} corpus object
-#' @param pos_tag logical; if \code{TRUE}, tag parts of speech
-#' @param named_entity logical; if \code{TRUE}, report named entities
+#' @param entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
-#' @param tagset_detailed logical whether a detailed tagset outcome is included in the result.
-#'   In the case of using \code{"en"} model, default tagset is scheme from the Penn Treebank. 
-#'   In the case of using \code{"de"} model, default tagset is scheme from the German Text Archive (http://www.deutschestextarchiv.de/doku/pos). 
-#' @param tagset_google logical whether a simplified \code{"google"} tagset will be 
-#'   returned.
+#' @param tag logical whether to return detailed part-of-speech tags, 
+#'  for the langage model \code{en}, it uses the OntoNotes 5 version of the Penn Treebank 
+#'  tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)
+#' @param pos logical whether to return universal dependency POS tagset (http://universaldependencies.org/u/pos/all.html)
 #' @param lemma logical; inlucde lemmatized tokens in the output
-#' @param full_parse  logical; if \code{TRUE}, conduct the one-shot parse 
-#'   regardless of the value of other parameters. This  option exists because 
-#'   the parsing outcomes of named entities are slightly different different 
-#'   when named entities are run separately from the parsing.
-# @param data.table logical; if \code{TRUE}, return a data.table, otherwise
-#   return a data.frame
 #' @param ... not used directly
 #' @import quanteda
 #' @return an tokenized text object
@@ -35,21 +27,20 @@
 #' # See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html
 #' txt <- "And now for something completely different."
 #' spacy_parse(txt)
-#' spacy_parse(txt, pos_tag = FALSE)
+#' spacy_parse(txt, pos = TRUE, tag = TRUE)
 #' spacy_parse(txt, dependency = TRUE)
 #' 
 #' txt2 <- c(doc1 = "The fast cat catches mice.\\nThe quick brown dog jumped.", 
 #'           doc2 = "This is the second document.",
 #'           doc3 = "This is a \\\"quoted\\\" text." )
-#' spacy_parse(txt2, full_parse = TRUE, named_entity = TRUE, dependency = TRUE)
+#' spacy_parse(txt2, entity = TRUE, dependency = TRUE)
 #' }
-spacy_parse <- function(x, pos_tag = TRUE,
-                        tagset_detailed = TRUE, 
-                        tagset_google = TRUE, 
-                        lemma = FALSE,
-                        named_entity = FALSE, 
+spacy_parse <- function(x, 
+                        pos = TRUE,
+                        tag = FALSE,
+                        lemma = TRUE,
+                        entity = TRUE, 
                         dependency = FALSE,
-                        full_parse = FALSE, 
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -58,21 +49,15 @@ spacy_parse <- function(x, pos_tag = TRUE,
 #' @export
 #' @importFrom data.table data.table
 #' @noRd
-spacy_parse.character <- function(x, pos_tag = TRUE, 
-                                  tagset_detailed = TRUE, 
-                                  tagset_google = TRUE, 
-                                  lemma = FALSE,
-                                  named_entity = FALSE, 
+spacy_parse.character <- function(x, 
+                                  pos = TRUE,
+                                  tag = FALSE,
+                                  lemma = TRUE,
+                                  entity = TRUE, 
                                   dependency = FALSE,
-                                  full_parse = FALSE, 
                                   ...) {
     
     `:=` <- NULL
-    
-    if(full_parse == TRUE) {
-        pos_tag <- tagset_detailed <- tagset_google <- lemma <-
-            named_entity <- dependency <- TRUE
-    }
     
     spacy_out <- process_document(x)
     if (is.null(spacy_out$timestamps)) {
@@ -90,20 +75,16 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
                      sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(1:length(x), x))),
                      token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) 1:x)), 
-                     #get_attrs(spacy_out, "i") + 1, ## + 1 for shifting the first id = 1
                      tokens = tokens)
     
     if (lemma) {
         dt[, "lemma" := get_attrs(spacy_out, "lemma_")]
     }
-    if (pos_tag) {
-        if(tagset_detailed){
-            dt[, "tag_detailed" := get_tags(spacy_out, "detailed")]
-        }
-        if(tagset_google){
-            dt[, "tag_google" := get_tags(spacy_out, "google")]
-            
-        }
+    if (pos) {
+        dt[, "pos" := get_tags(spacy_out, "google")]
+    }
+    if (tag) {
+        dt[, "tag" := get_tags(spacy_out, "detailed")]
     }
 
     ## add dependency data fields
@@ -114,8 +95,8 @@ spacy_parse.character <- function(x, pos_tag = TRUE,
     }
     
     ## named entity fields
-    if (named_entity) {
-        dt[, named_entity := get_named_entities(spacy_out)]
+    if (entity) {
+        dt[, entity := get_named_entities(spacy_out)]
     }
     
     class(dt) <- c("spacyr_parsed", class(dt))

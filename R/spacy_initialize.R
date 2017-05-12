@@ -94,8 +94,9 @@ spacy_finalize <- function() {
 #' @export
 #' @param model name of the language model
 #' @keywords internal
+#' @importFrom data.table data.table
 find_spacy <- function(model = "en"){
-    spacy_python <- NA
+    spacy_python <- spacy_found <- `:=` <- NA
     py_execs <- if(Sys.info()['sysname'] == "Windows") {
         system2("where", "python", stdout = TRUE)
     } else {
@@ -106,7 +107,7 @@ find_spacy <- function(model = "en"){
     for(i in 1:nrow(df_python_check)) {
         py_exec <- df_python_check[i, py_execs]
         sys_message <- check_spacy_model(py_exec, model)
-        if(sys_message == 'OK'){
+        if (sys_message == 'OK') {
             df_python_check[i, spacy_found := 1]
         }
     }
