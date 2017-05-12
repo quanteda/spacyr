@@ -4,24 +4,25 @@
 \alias{entity_extract}
 \title{Extract all named entities from parsed documents}
 \usage{
-entity_extract(spacy_result, type = "all")
+entity_extract(spacy_result, type = c("named", "extended", "all"))
 }
 \arguments{
 \item{spacy_result}{a \code{data.frame} from \code{\link{spacy_parse}}.}
 
-\item{type}{type of named entities, either \code{named}, \code{extended}, or \code{all} (https://spacy.io/docs/usage/entity-recognition#entity-types)}
+\item{type}{type of named entities, either \code{named}, \code{extended}, or
+\code{all}.  See 
+\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for
+details.}
 }
 \value{
-A \code{data.table} of all named entities, containing the following fields: 
-\itemize{
-  \item{docname}{name of the documument a named entity is found} 
-  \item{entity}{the named entity}
-  \item{entity_type}{type of named entities (e.g. PERSON, ORG, PERCENT, etc.)} 
-  }
+A \code{data.table} of all named entities, containing the following
+  fields: \itemize{ \item{docname}{name of the documument a named entity is
+  found} \item{entity}{the named entity} \item{entity_type}{type of named
+  entities (e.g. PERSON, ORG, PERCENT, etc.)} }
 }
 \description{
-\code{entity_extract} construct a table of all named entities from
-the results of \code{spacy_parse}
+\code{entity_extract} construct a table of all named entities from the
+results of \code{spacy_parse}
 }
 \examples{
 \donttest{
