@@ -73,7 +73,7 @@ spacy_parse.character <- function(x,
         csumx <- cumsum(c(0, x[-length(x)]))
         return(rep(csumx, x))
     }))
-    dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
+    dt <- data.table(doc_id = rep(spacy_out$docnames, ntokens), 
                      sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(1:length(x), x))),
                      token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) 1:x)), 
                      token = tokens)

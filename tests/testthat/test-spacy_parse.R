@@ -21,11 +21,11 @@ test_that("spacy_parse handles newlines and tabs ok", {
     ## multiple tagsets
     expect_equal(
         names(tag1 <- spacy_parse(txt2, pos = TRUE, tag = FALSE, entity = FALSE)),
-        c("docname", "sentence_id" ,"token_id", "token", "lemma", "pos") 
+        c("doc_id", "sentence_id" ,"token_id", "token", "lemma", "pos") 
     )
     expect_equal(
         names(tag2 <- spacy_parse(txt2, pos = FALSE, tag = TRUE, entity = FALSE)),
-        c("docname", "sentence_id" ,"token_id", "token", "lemma", "tag") 
+        c("doc_id", "sentence_id" ,"token_id", "token", "lemma", "tag") 
     )
     expect_false(any(tag1$pos == tag2$tag))
 

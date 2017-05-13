@@ -41,7 +41,7 @@ NULL
 #' @noRd
 #' @export
 docnames.spacyr_parsed <- function(x) {
-    unique(x$docname)
+    unique(x$doc_id)
 }
 
 
@@ -66,7 +66,7 @@ ndoc.spacyr_parsed <- function(x) {
 #' @noRd
 #' @export
 ntoken.spacyr_parsed <- function(x, ...) {
-    lengths(split(parsed$token, parsed$docname))
+    lengths(split(x$token, x$doc_id))
 }
 
 #' @rdname quanteda-methods
@@ -78,7 +78,7 @@ ntoken.spacyr_parsed <- function(x, ...) {
 #' @noRd
 #' @export
 ntype.spacyr_parsed <- function(x, ...) {
-    sapply(split(parsed$token, parsed$docname), function(y) length(unique(y)))
+    sapply(split(x$token, x$doc_id), function(y) length(unique(y)))
 }
 
 # print a tokenizedTexts objects
