@@ -1,27 +1,43 @@
-#' Extract all named entities from parsed documents
+#' extract or consolidate entities from parsed documents
 #' 
-#' \code{entity_extract} construct a table of all named entities from the
-#' results of \code{spacy_parse}
-#' @param spacy_result a \code{data.frame} from \code{\link{spacy_parse}}.
-#' @param type type of named entities, either \code{named}, \code{extended}, or
+#' From an object parsed by \code{\link{spacy_parse}}, extract the entities as a
+#' separate object, or convert the multi-word entities into single "tokens"
+#' consisting of the concatenated elements of the multi-word entities.
+#' @param x output from \code{\link{spacy_parse}}.
+#' @param type type of named entities, either \code{named}, \code{extended}, or 
 #'   \code{all}.  See 
-#'   \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for
+#'   \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
 #'   details.
-#' @return A \code{data.table} of all named entities, containing the following
-#'   fields: \itemize{ \item{docname}{name of the documument a named entity is
-#'   found} \item{entity}{the named entity} \item{entity_type}{type of named
-#'   entities (e.g. PERSON, ORG, PERCENT, etc.)} }
+#' @return \code{entity_extract} returns a \code{data.table} of all named
+#'   entities, containing the following fields: 
+#'   \itemize{
+#'   \item{\code{docname}}{ name of the documument containing the entity} 
+#'   \item{\code{sentence_id}}{ the sentence ID containing the entity, within the document}
+#'   \item{\code{entity}}{ the named entity}
+#'   \item{\code{entity_type}}{ type of named entities (e.g. PERSON, ORG, PERCENT,
+#'   etc.)} 
+#'   }
 #' @importFrom data.table data.table
 #' @examples
 #' \donttest{
 #' spacy_initialize()
 #' 
-#' parsed_sentences <- spacy_parse(data_char_sentences, entity = TRUE)
-#' named_entities <- entity_extract(parsed_sentences)
-#' head(named_entities, 30)
+#' # entity extraction
+#' txt <- "Mr. Smith of moved to San Francisco in December."
+#' parsed <- spacy_parse(txt, entity = TRUE)
+#' entity_extract(parsed)
+#' entity_extract(parsed, type = "all")
 #' }
 #' @export
-entity_extract <- function(spacy_result, type = c("named", "extended", "all")) {
+entity_extract <- function(x, type = c("named", "extended", "all")) {
+    UseMethod("entity_extract")
+}
+    
+#' @noRd
+#' @export
+entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")) {
+    
+    spacy_result <- x
     
     entity_type <- entity <- iob <- entity_id <- .N <- .SD <- `:=` <- sentence_id <- docname <- NULL
     
@@ -50,26 +66,31 @@ entity_extract <- function(spacy_result, type = c("named", "extended", "all")) {
 }
 
 
-#' Consolidate named entities in parsed output
-#' 
-#' \code{entity_consolidate} concatinate named entity in a table of
-#' results of \code{spacy_parse}
-#' @param spacy_result a \code{data.frame} from \code{\link{spacy_parse}}.
-#' @param concatenator the character used to concatenator elements of multi-word named entities 
-#' @return A modified \code{data.frame} of spacy outputs, where the named entities have been 
-#' combined into a single "token".
+#' @rdname entity_extract
+#' @param concatenator the character used to concatenator elements of multi-word
+#'   named entities
+#' @return \code{entity_consolidate} returns a modified \code{data.frame} of
+#'   parsed results, where the named entities have been combined into a single
+#'   "token".  Currently, dependency parsing is removed when this consolidation
+#'   occurs.
 #' @importFrom data.table data.table
 #' @examples
 #' \donttest{
-#' spacy_initialize()
-#' 
-#' parsed_sentences <- spacy_parse(data_char_sentences, entity = TRUE)
-#' parsed_sentences_consolidated <- entity_consolidate(parsed_sentences)
-#' head(parsed_sentences_consolidated, 30)
+#' # consolidating multi-word entities 
+#' txt <- "The House of Representatives voted to suspend aid to South Dakota."
+#' parsed <- spacy_parse(txt, entity = TRUE)
+#' entity_consolidate(parsed)
 #' }
 #' @export
-entity_consolidate <- function(spacy_result, concatenator = "_") {
+entity_consolidate <- function(x, concatenator = "_") {
+    UseMethod("entity_consolidate")
+}
     
+#' @noRd
+#' @export
+entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
+    
+    spacy_result <- x
     entity <- entity_type <- entity_count <- iob <- entity_id <- .N <- .SD <- `:=` <- 
         lemma <- pos <- tag <- new_token_id <- token_id <- sentence_id <- docname <- NULL
     
