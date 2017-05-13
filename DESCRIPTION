@@ -1,6 +1,6 @@
 Package: spacyr
 Type: Package
-Version: 0.2.0
+Version: 0.3.0
 Title: R Wrapper to the spaCy NLP Library
 Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
     c("aut", "cre", "cph")), 
@@ -13,10 +13,10 @@ Depends:
     R (>= 3.3.0),
     methods
 Imports:
-    quanteda,
     data.table,
     utils,
-    reticulate
+    reticulate,
+    quanteda
 Suggests:
     rmarkdown,
     testthat,

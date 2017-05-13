@@ -81,6 +81,14 @@ ntype.spacyr_parsed <- function(x, ...) {
     sapply(split(x$token, x$doc_id), function(y) length(unique(y)))
 }
 
+#' @noRd
+#' @importFrom quanteda texts
+#' @export
+spacy_parse.corpus <- function(x, ...) {
+    spacy_parse(texts(x), ...)
+}
+
+
 # print a tokenizedTexts objects
 # 
 # print method for a \link{tokenize}dText object

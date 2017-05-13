@@ -15,7 +15,7 @@ spacy_initialize <- function(model = "en",
                              python_executable = NULL,
                              virtualenv = NULL,
                              condaenv = NULL) {
-    
+
     # here are a number of checkings
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
         message("spaCy is already initialized")
@@ -139,6 +139,15 @@ find_spacy <- function(model = "en"){
 
 check_spacy_model <- function(py_exec, model) {
     options(warn = -1)
+    py_exist <- if(Sys.info()['sysname'] == "Windows") {
+        system2("where", py_exec, stdout = TRUE)
+    } else {
+        system2('which', py_exec, stdout = TRUE)
+    }
+    
+    if(length(py_exist) == 0) {
+        stop(py_exec, " is not a python executable")
+    }
     tryCatch({
         sys_message <- 
             system2(py_exec, c(sprintf("-c \"import spacy; spacy.load('%s'); print('OK')\"", model)), 
