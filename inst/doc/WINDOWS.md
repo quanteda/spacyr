@@ -52,7 +52,7 @@ Installing spaCy in Windows is a bit complicated, but followings are the steps w
     To install the package from source, you can simply run the following.
 
     ``` r
-    devtools::install_github("kbenoit/spacyr")
+    devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
     ```
 
 ### When you have more than one python in your system
