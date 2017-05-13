@@ -15,7 +15,6 @@ spacy_initialize <- function(model = "en",
                              python_executable = NULL,
                              virtualenv = NULL,
                              condaenv = NULL) {
-    use_python <- match.arg(python_executable)
     
     # here are a number of checkings
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
@@ -27,12 +26,12 @@ spacy_initialize <- function(model = "en",
         message("Python space is already attached.  If you want to swtich to a different Python, please restart R.")
     } 
     # a user can specify only one
-    else if(sum(!is.null(c(use_python, virtualenv, condaenv))) > 1) {
+    else if(sum(!is.null(c(python_executable, virtualenv, condaenv))) > 1) {
         stop(paste("Too many python environments are specified, please select only one",
-                   "from use_python, virtualenv, and condaenv"))
+                   "from python_executable, virtualenv, and condaenv"))
     }
     # give warning when nothing is specified
-    else if (sum(!is.null(c(use_python, virtualenv, condaenv))) == 0){
+    else if (sum(!is.null(c(python_executable, virtualenv, condaenv))) == 0){
         # def_python <- ifelse(Sys.info()['sysname'] == "Windows", 
         #                      system("where python", intern = TRUE), 
         #                      system("which python", intern = TRUE))
@@ -45,11 +44,11 @@ spacy_initialize <- function(model = "en",
         }
     } 
     else {# set the path with reticulte
-        if(!is.null(use_python)) {
-            if(check_spacy_model(use_python, model) != "OK"){
-                stop("spaCy or language model ", model, " is not installed in ", use_python)
+        if(!is.null(python_executable)) {
+            if(check_spacy_model(python_executable, model) != "OK"){
+                stop("spaCy or language model ", model, " is not installed in ", python_executable)
             }
-            reticulate::use_python(use_python, required = TRUE)
+            reticulate::use_python(python_executable, required = TRUE)
         }
         else if(!is.null(virtualenv)) reticulate::use_virtualenv(virtualenv, required = TRUE)
         else if(!is.null(condaenv)) reticulate::use_condaenv(condaenv, required = TRUE)
