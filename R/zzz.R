@@ -4,8 +4,3 @@
     options("spacy_initialized" = NULL)
     options("python_initialized" = NULL)
 }
-
-.onUnload <- function(libpath) {
-    spacy_finalize()
-}
-
