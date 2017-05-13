@@ -45,7 +45,7 @@ Options exist for using either the Google or Detaled tagsets. See
 
 \code{get_named_entities} returns a list of named entities in texts
 
-\code{get_dependency} returns a data.table of dependency relations.
+\code{get_dependency} returns a data.frame of dependency relations.
 
 \code{get_ntokens} returns a data.frame of dependency relations
 

@@ -21,7 +21,7 @@ details.}
 named entities}
 }
 \value{
-\code{entity_extract} returns a \code{data.table} of all named
+\code{entity_extract} returns a \code{data.frame} of all named
   entities, containing the following fields: 
   \itemize{
   \item{\code{docname}}{ name of the documument containing the entity} 
