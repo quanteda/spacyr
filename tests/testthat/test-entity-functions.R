@@ -52,11 +52,11 @@ test_that("entity consolidation works", {
 
     parsed <- spacy_parse(txt1, entity = TRUE)
     expect_equal(
-        entity_consolidate(parsed)$tokens[c(1, 4)],
+        entity_consolidate(parsed)$token[c(1, 4)],
         c("The_United_States", "Donald_Trump")
     )
     expect_equal(
-        entity_consolidate(parsed, concatenator = " ")$tokens[c(1, 4)],
+        entity_consolidate(parsed, concatenator = " ")$token[c(1, 4)],
         c("The United States", "Donald Trump")
     )
     expect_equal(
@@ -75,7 +75,7 @@ test_that("entity consolidation works", {
     )
     expect_equal(
         entity_consolidate(parsed)$lemma[c(1, 4, 16)],
-        tolower(entity_consolidate(parsed)$tokens[c(1, 4, 16)])
+        tolower(entity_consolidate(parsed)$token[c(1, 4, 16)])
     )
     
     parsed <- spacy_parse(txt1, entity = TRUE, dependency = TRUE)

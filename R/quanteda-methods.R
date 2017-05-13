@@ -84,8 +84,8 @@ ntoken.spacyr_parsed <- function(x, ...) {
 #' @noRd
 #' @export
 ntype.spacyr_parsed <- function(x, ...) {
-    docname <- tokens <- .N <- NULL
-    ntoken(x[, .N, by = list(docname, tokens)])
+    docname <- token <- .N <- NULL
+    ntoken(x[, .N, by = list(docname, token)])
 }
 
 # print a tokenizedTexts objects
@@ -100,7 +100,7 @@ ntype.spacyr_parsed <- function(x, ...) {
 # @method print tokenizedTexts_tagged
 print.tokenizedTexts_tagged <- function(x, sep = "_", ...) {
     ndocuments <- ifelse(is.list(x), length(x), 1)
-    if( "tokens" %in% class(x)) {
+    if( "token" %in% class(x)) {
         x <- as.tokenizedTexts(x)
         class(x) <- c("tokenizedTexts_tagged", class(x))   
     }

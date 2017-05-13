@@ -8,13 +8,15 @@ spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE, entity = TRUE,
   dependency = FALSE, ...)
 }
 \arguments{
-\item{x}{a character or \pkg{quanteda} corpus object}
+\item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
+corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
-\item{pos}{logical whether to return universal dependency POS tagset (http://universaldependencies.org/u/pos/all.html)}
+\item{pos}{logical whether to return universal dependency POS tagset
+(http://universaldependencies.org/u/pos/all.html)}
 
-\item{tag}{logical whether to return detailed part-of-speech tags, 
-for the langage model \code{en}, it uses the OntoNotes 5 version of the Penn Treebank 
-tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)}
+\item{tag}{logical whether to return detailed part-of-speech tags, for the
+langage model \code{en}, it uses the OntoNotes 5 version of the Penn
+Treebank tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)}
 
 \item{lemma}{logical; inlucde lemmatized tokens in the output}
 
@@ -25,17 +27,16 @@ tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)}
 \item{...}{not used directly}
 }
 \value{
-an tokenized text object
+a \code{data.frame} of tokenized, parsed, and annotated tokens
 }
 \description{
-The spacy_parse() function calls spaCy to both tokenize and tag the texts,
-and returns a data.table of the results. 
-The function provides options on the types of tagsets (\code{tagset_} options)
-either  \code{"google"} or \code{"detailed"}, as well
-as lemmatization (\code{lemma}).
-It provides a functionalities of dependency parsing and named entity 
-recognition as an option. If \code{"full_parse = TRUE"} is provided, 
-the function returns the most extensive list of the parsing results from spaCy.
+The spacy_parse() function calls spaCy to both tokenize and tag the texts, 
+and returns a data.table of the results. The function provides options on the
+types of tagsets (\code{tagset_} options) either  \code{"google"} or
+\code{"detailed"}, as well as lemmatization (\code{lemma}). It provides a
+functionalities of dependency parsing and named entity recognition as an
+option. If \code{"full_parse = TRUE"} is provided, the function returns the
+most extensive list of the parsing results from spaCy.
 }
 \examples{
 \donttest{

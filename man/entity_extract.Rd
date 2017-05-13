@@ -38,7 +38,7 @@ named entities}
 }
 \description{
 From an object parsed by \code{\link{spacy_parse}}, extract the entities as a
-separate object, or convert the multi-word entities into single "tokens"
+separate object, or convert the multi-word entities into single "token"
 consisting of the concatenated elements of the multi-word entities.
 }
 \examples{
