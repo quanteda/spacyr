@@ -64,7 +64,7 @@ Homebrew is a package manager for macOS, which you can use to install Python and
 8.  Install spacyr
 
     ``` r
-    devtools::install_github("kbenoit/spacyr")
+    devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
     ```
 
 #### Install spaCy using `homebrew` and Python &gt;= 3.6
@@ -116,7 +116,7 @@ Homebrew is a package manager for macOS, which you can use to install Python and
 8.  Install spacyr
 
     ``` r
-    devtools::install_github("kbenoit/spacyr")
+    devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
     ```
 
 If you are using a homebrew Python 2, the `spacy_initialize` is
@@ -158,7 +158,7 @@ Mac OS X comes with Python. In order to install spacy in that python, follow the
 5.  Install spacyr
 
     ``` r
-    devtools::install_github("kbenoit/spacyr")
+    devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
     ```
 
 If the default Python is used, the initialization is simply:
