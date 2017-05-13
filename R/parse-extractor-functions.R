@@ -113,7 +113,7 @@ get_named_entities <- function(spacy_out){
 
 
 #' @rdname get-functions
-#' @return \code{get_dependency} returns a data.table of dependency relations.
+#' @return \code{get_dependency} returns a data.frame of dependency relations.
 #' @export
 #' @keywords internal
 get_dependency <- function(spacy_out) {

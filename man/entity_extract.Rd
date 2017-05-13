@@ -21,10 +21,10 @@ details.}
 named entities}
 }
 \value{
-\code{entity_extract} returns a \code{data.table} of all named
+\code{entity_extract} returns a \code{data.frame} of all named
   entities, containing the following fields: 
   \itemize{
-  \item{\code{docname}}{ name of the documument containing the entity} 
+  \item{\code{doc_id}}{ name of the documument containing the entity} 
   \item{\code{sentence_id}}{ the sentence ID containing the entity, within the document}
   \item{\code{entity}}{ the named entity}
   \item{\code{entity_type}}{ type of named entities (e.g. PERSON, ORG, PERCENT,
@@ -38,7 +38,7 @@ named entities}
 }
 \description{
 From an object parsed by \code{\link{spacy_parse}}, extract the entities as a
-separate object, or convert the multi-word entities into single "tokens"
+separate object, or convert the multi-word entities into single "token"
 consisting of the concatenated elements of the multi-word entities.
 }
 \examples{

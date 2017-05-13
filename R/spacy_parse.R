@@ -1,25 +1,26 @@
 #' parse a text using spaCy
 #' 
-#' The spacy_parse() function calls spaCy to both tokenize and tag the texts,
-#' and returns a data.table of the results. 
-#' The function provides options on the types of tagsets (\code{tagset_} options)
-#' either  \code{"google"} or \code{"detailed"}, as well
-#' as lemmatization (\code{lemma}).
-#' It provides a functionalities of dependency parsing and named entity 
-#' recognition as an option. If \code{"full_parse = TRUE"} is provided, 
-#' the function returns the most extensive list of the parsing results from spaCy.
+#' The spacy_parse() function calls spaCy to both tokenize and tag the texts, 
+#' and returns a data.table of the results. The function provides options on the
+#' types of tagsets (\code{tagset_} options) either  \code{"google"} or
+#' \code{"detailed"}, as well as lemmatization (\code{lemma}). It provides a
+#' functionalities of dependency parsing and named entity recognition as an
+#' option. If \code{"full_parse = TRUE"} is provided, the function returns the
+#' most extensive list of the parsing results from spaCy.
 #' 
-#' @param x a character or \pkg{quanteda} corpus object
+#' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
+#'   corpus data.frame (see \url{https://github.com/ropensci/tif})
+#' @param pos logical whether to return universal dependency POS tagset
+#'   (http://universaldependencies.org/u/pos/all.html)
+#' @param tag logical whether to return detailed part-of-speech tags, for the
+#'   langage model \code{en}, it uses the OntoNotes 5 version of the Penn
+#'   Treebank tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)
+#' @param lemma logical; inlucde lemmatized tokens in the output
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
-#' @param tag logical whether to return detailed part-of-speech tags, 
-#'  for the langage model \code{en}, it uses the OntoNotes 5 version of the Penn Treebank 
-#'  tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)
-#' @param pos logical whether to return universal dependency POS tagset (http://universaldependencies.org/u/pos/all.html)
-#' @param lemma logical; inlucde lemmatized tokens in the output
 #' @param ... not used directly
 #' @import quanteda
-#' @return an tokenized text object
+#' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
 #' @examples
 #' \donttest{
@@ -72,10 +73,10 @@ spacy_parse.character <- function(x,
         csumx <- cumsum(c(0, x[-length(x)]))
         return(rep(csumx, x))
     }))
-    dt <- data.table(docname = rep(spacy_out$docnames, ntokens), 
+    dt <- data.table(doc_id = rep(spacy_out$docnames, ntokens), 
                      sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(1:length(x), x))),
                      token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) 1:x)), 
-                     tokens = tokens)
+                     token = tokens)
     
     if (lemma) {
         dt[, "lemma" := get_attrs(spacy_out, "lemma_")]
@@ -99,6 +100,7 @@ spacy_parse.character <- function(x,
         dt[, entity := get_named_entities(spacy_out)]
     }
     
+    dt <- as.data.frame(dt)
     class(dt) <- c("spacyr_parsed", class(dt))
     return(dt)
 }
@@ -108,6 +110,19 @@ spacy_parse.character <- function(x,
 #' @export
 spacy_parse.corpus <- function(x, ...) {
     spacy_parse(texts(x), ...)
+}
+
+#' @noRd
+#' @export
+spacy_parse.data.frame <- function(x, ...) {
+    
+    # insert compliance check here - replace with tif package
+    if (!all(c("doc_id", "text") %in% names(x)))
+        stop("input data.frame does not conform to the TIF standard")
+
+    txt <- x$text
+    names(txt) <- x$doc_id
+    spacy_parse(txt, ...)
 }
 
 
