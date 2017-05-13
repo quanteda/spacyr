@@ -81,15 +81,20 @@ The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In 
 
 ```{r}
 
-txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. It is written from the ground up in carefully memory-managed Cython. Independent research has confirmed that spaCy is the fastest in the world. If your application needs to process entire web dumps, spaCy is the library you want to be using.",
-         getdone = "spaCy is designed to help you do real work — to build real products, or gather real insights. The library respects your time, and tries to avoid wasting it. It is easy to install, and its API is simple and productive. I like to think of spaCy as the Ruby on Rails of Natural Language Processing.")
+txt <- c(d1 = "spaCy excels at large-scale information extraction tasks.",
+         d2 = "Mr. Smith goes to North Carolina.")
 
 # process documents and obtain a data.table
 parsedtxt <- spacy_parse(txt)
-head(parsedtxt)
+parsedtxt
 ```
 
-By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `tag_google` or `tag_detailed` field in the data.table corresponds to each of these tagsets.
+By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `tag` option provides finer-grained part-of-speech tags:
+```{r}
+spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
+```
+
+
 
 
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
@@ -101,36 +106,41 @@ ntoken(parsedtxt)
 ntype(parsedtxt)
 ```
 
-### Document processing with addiitonal features
+### Extracting entities
 
-The following codes conduct more detailed document processing, including dependency parsing and named entitiy recognition.
-
+**spacyr** can extract entities:
 ```{r}
-results_detailed <- spacy_parse(txt,
-                                pos_tag = TRUE,
-                                lemma = TRUE,
-                                named_entity = TRUE,
-                                dependency = TRUE)
+entity_extract(parsedtxt)
+```
+
+Or, convert multi-word named entities into single "tokens":
+```{r}
+entity_consolidate(parsedtxt)
+```
+
+
+### Dependency parsing
+
+It is possible to conduct more detailed parsing of syntactic dependencies:
+```{r}
+results_detailed <- spacy_parse(txt, dependency = TRUE)
 head(results_detailed, 30)
 ```
 
-### Use other language models
+
+### Using other language models
 
 In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `model` option when `spacy_initialize` is called. 
 
 ```{r}
 ## first finalize the spacy if it's loaded
 spacy_finalize()
-spacy_initialize(model = 'de')
+spacy_initialize(model = "de")
 
-txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
-               python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
-results_german <- spacy_parse(txt_german,
-                              pos_tag = TRUE,
-                              lemma = TRUE,
-                              named_entity = TRUE,
-                              dependency = TRUE)
-head(results_german, 30)
+txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
+               python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
+results_german <- spacy_parse(txt_german, dependency = TRUE, tag = TRUE)
+results_german
 ```
 The German language model has to be installed (`python -m spacy download de`) before you call `spacy_initialize`.
 
@@ -150,7 +160,6 @@ If you have multiple Python executables in your systems (e.g. you, a Mac user, h
 library(spacyr)
 spacy_initialize(use_python = "/usr/local/bin/python")
 ```
-
 
 
 ## Comments and feedback

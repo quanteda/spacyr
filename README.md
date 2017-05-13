@@ -63,211 +63,280 @@ require(spacyr)
 # it takes several seconds for initialization.
 # spacyr attempts to find python with spaCy
 spacy_initialize()
-#> No python executable is specified, spacyr tries to find a python executable with spacy
+#> Finding a python executable with spacy installed...
 #> spaCy (language model: en) is installed in /usr/local/bin/python
-#> spaCy is successfully initialized (spaCy Version: 1.8.1, language model: en)
+#> successfully initialized (spaCy Version: 1.8.2, language model: en)
 ```
 
 The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
 
 ``` r
 
-txt <- c(fastest = "spaCy excells at large-scale information extraction tasks. It is written from the ground up in carefully memory-managed Cython. Independent research has confirmed that spaCy is the fastest in the world. If your application needs to process entire web dumps, spaCy is the library you want to be using.",
-         getdone = "spaCy is designed to help you do real work — to build real products, or gather real insights. The library respects your time, and tries to avoid wasting it. It is easy to install, and its API is simple and productive. I like to think of spaCy as the Ruby on Rails of Natural Language Processing.")
+txt <- c(d1 = "spaCy excels at large-scale information extraction tasks.",
+         d2 = "Mr. Smith goes to North Carolina.")
 
 # process documents and obtain a data.table
 parsedtxt <- spacy_parse(txt)
-head(parsedtxt)
-#>    docname sentence_id token_id  tokens tag_detailed tag_google
-#> 1: fastest           1        1   spaCy           NN       NOUN
-#> 2: fastest           1        2 excells          NNS       NOUN
-#> 3: fastest           1        3      at           IN        ADP
-#> 4: fastest           1        4   large           JJ        ADJ
-#> 5: fastest           1        5       -         HYPH      PUNCT
-#> 6: fastest           1        6   scale           NN       NOUN
+parsedtxt
+#>    doc_id sentence_id token_id       token       lemma   pos   entity
+#> 1      d1           1        1       spaCy       spacy  NOUN         
+#> 2      d1           1        2      excels       excel  VERB         
+#> 3      d1           1        3          at          at   ADP         
+#> 4      d1           1        4       large       large   ADJ         
+#> 5      d1           1        5           -           - PUNCT         
+#> 6      d1           1        6       scale       scale  NOUN         
+#> 7      d1           1        7 information information  NOUN         
+#> 8      d1           1        8  extraction  extraction  NOUN         
+#> 9      d1           1        9       tasks        task  NOUN         
+#> 10     d1           1       10           .           . PUNCT         
+#> 11     d2           1        1         Mr.         mr. PROPN         
+#> 12     d2           1        2       Smith       smith PROPN PERSON_B
+#> 13     d2           1        3        goes          go  VERB         
+#> 14     d2           1        4          to          to   ADP         
+#> 15     d2           1        5       North       north PROPN    GPE_B
+#> 16     d2           1        6    Carolina    carolina PROPN    GPE_I
+#> 17     d2           1        7           .           . PUNCT
 ```
 
-By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `tag_google` or `tag_detailed` field in the data.table corresponds to each of these tagsets.
+By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `tag` option provides finer-grained part-of-speech tags:
+
+``` r
+spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
+#>    doc_id sentence_id token_id       token   pos  tag
+#> 1      d1           1        1       spaCy  NOUN   NN
+#> 2      d1           1        2      excels  VERB  VBZ
+#> 3      d1           1        3          at   ADP   IN
+#> 4      d1           1        4       large   ADJ   JJ
+#> 5      d1           1        5           - PUNCT HYPH
+#> 6      d1           1        6       scale  NOUN   NN
+#> 7      d1           1        7 information  NOUN   NN
+#> 8      d1           1        8  extraction  NOUN   NN
+#> 9      d1           1        9       tasks  NOUN  NNS
+#> 10     d1           1       10           . PUNCT    .
+#> 11     d2           1        1         Mr. PROPN  NNP
+#> 12     d2           1        2       Smith PROPN  NNP
+#> 13     d2           1        3        goes  VERB  VBZ
+#> 14     d2           1        4          to   ADP   IN
+#> 15     d2           1        5       North PROPN  NNP
+#> 16     d2           1        6    Carolina PROPN  NNP
+#> 17     d2           1        7           . PUNCT    .
+```
 
 Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-#> quanteda version 0.9.9.50
+#> quanteda version 0.9.9.58
 #> Using 7 of 8 cores for parallel computing
 docnames(parsedtxt)
-#> [1] "fastest" "getdone"
+#> [1] "d1" "d2"
 ndoc(parsedtxt)
 #> [1] 2
 ntoken(parsedtxt)
-#> fastest getdone 
-#>      57      63
+#> d1 d2 
+#> 10  7
 ntype(parsedtxt)
-#> fastest getdone 
-#>      44      46
+#> d1 d2 
+#> 10  7
 ```
 
-### Document processing with addiitonal features
+### Extracting entities
 
-The following codes conduct more detailed document processing, including dependency parsing and named entitiy recognition.
+**spacyr** can extract entities:
 
 ``` r
-results_detailed <- spacy_parse(txt,
-                                pos_tag = TRUE,
-                                lemma = TRUE,
-                                named_entity = TRUE,
-                                dependency = TRUE)
-head(results_detailed, 30)
-#>     docname sentence_id token_id      tokens       lemma tag_detailed
-#>  1: fastest           1        1       spaCy       spacy           NN
-#>  2: fastest           1        2     excells      excell          NNS
-#>  3: fastest           1        3          at          at           IN
-#>  4: fastest           1        4       large       large           JJ
-#>  5: fastest           1        5           -           -         HYPH
-#>  6: fastest           1        6       scale       scale           NN
-#>  7: fastest           1        7 information information           NN
-#>  8: fastest           1        8  extraction  extraction           NN
-#>  9: fastest           1        9       tasks        task          NNS
-#> 10: fastest           1       10           .           .            .
-#> 11: fastest           2        1          It      -PRON-          PRP
-#> 12: fastest           2        2          is          be          VBZ
-#> 13: fastest           2        3     written       write          VBN
-#> 14: fastest           2        4        from        from           IN
-#> 15: fastest           2        5         the         the           DT
-#> 16: fastest           2        6      ground      ground           NN
-#> 17: fastest           2        7          up          up           RB
-#> 18: fastest           2        8          in          in           IN
-#> 19: fastest           2        9   carefully   carefully           RB
-#> 20: fastest           2       10      memory      memory           NN
-#> 21: fastest           2       11           -           -         HYPH
-#> 22: fastest           2       12     managed      manage          VBN
-#> 23: fastest           2       13      Cython      cython          NNP
-#> 24: fastest           2       14           .           .            .
-#> 25: fastest           3        1 Independent independent           JJ
-#> 26: fastest           3        2    research    research           NN
-#> 27: fastest           3        3         has        have          VBZ
-#> 28: fastest           3        4   confirmed     confirm          VBN
-#> 29: fastest           3        5        that        that           IN
-#> 30: fastest           3        6       spaCy       spacy          NNP
-#>     docname sentence_id token_id      tokens       lemma tag_detailed
-#>     tag_google head_token_id   dep_rel named_entity
-#>  1:       NOUN             2  compound             
-#>  2:       NOUN             2      ROOT             
-#>  3:        ADP             2      prep             
-#>  4:        ADJ             6      amod             
-#>  5:      PUNCT             6     punct             
-#>  6:       NOUN             7  compound             
-#>  7:       NOUN             8  compound             
-#>  8:       NOUN             9  compound             
-#>  9:       NOUN             3      pobj             
-#> 10:      PUNCT             2     punct             
-#> 11:       PRON             3 nsubjpass             
-#> 12:       VERB             3   auxpass             
-#> 13:       VERB             3      ROOT             
-#> 14:        ADP             3      prep             
-#> 15:        DET             6       det             
-#> 16:       NOUN             4      pobj             
-#> 17:        ADV             3       prt             
-#> 18:        ADP             7      prep             
-#> 19:        ADV            12    advmod             
-#> 20:       NOUN            12  npadvmod             
-#> 21:      PUNCT            12     punct             
-#> 22:       VERB             3      prep             
-#> 23:      PROPN            12      dobj        ORG_B
-#> 24:      PUNCT             3     punct             
-#> 25:        ADJ             2      amod             
-#> 26:       NOUN             4     nsubj             
-#> 27:       VERB             4       aux             
-#> 28:       VERB             4      ROOT             
-#> 29:        ADP             7      mark             
-#> 30:      PROPN             7     nsubj             
-#>     tag_google head_token_id   dep_rel named_entity
+entity_extract(parsedtxt)
+#>   doc_id sentence_id         entity entity_type
+#> 1     d2           1          Smith      PERSON
+#> 2     d2           1 North Carolina         GPE
 ```
 
-### Use other language models
+Or, convert multi-word named entities into single "tokens":
+
+``` r
+entity_consolidate(parsedtxt)
+#>    doc_id sentence_id token_id          token          lemma    pos
+#> 1      d1           1        1          spaCy          spacy   NOUN
+#> 2      d1           1        2         excels          excel   VERB
+#> 3      d1           1        3             at             at    ADP
+#> 4      d1           1        4          large          large    ADJ
+#> 5      d1           1        5              -              -  PUNCT
+#> 6      d1           1        6          scale          scale   NOUN
+#> 7      d1           1        7    information    information   NOUN
+#> 8      d1           1        8     extraction     extraction   NOUN
+#> 9      d1           1        9          tasks           task   NOUN
+#> 10     d1           1       10              .              .  PUNCT
+#> 11     d2           1        1            Mr.            mr.  PROPN
+#> 12     d2           1        2          Smith          smith ENTITY
+#> 13     d2           1        3           goes             go   VERB
+#> 14     d2           1        4             to             to    ADP
+#> 15     d2           1        5 North_Carolina north_carolina ENTITY
+#> 16     d2           1        6              .              .  PUNCT
+#>    entity_type
+#> 1             
+#> 2             
+#> 3             
+#> 4             
+#> 5             
+#> 6             
+#> 7             
+#> 8             
+#> 9             
+#> 10            
+#> 11            
+#> 12      PERSON
+#> 13            
+#> 14            
+#> 15         GPE
+#> 16
+```
+
+### Dependency parsing
+
+It is possible to conduct more detailed parsing of syntactic dependencies:
+
+``` r
+results_detailed <- spacy_parse(txt, dependency = TRUE)
+head(results_detailed, 30)
+#>    doc_id sentence_id token_id       token       lemma   pos head_token_id
+#> 1      d1           1        1       spaCy       spacy  NOUN             2
+#> 2      d1           1        2      excels       excel  VERB             2
+#> 3      d1           1        3          at          at   ADP             2
+#> 4      d1           1        4       large       large   ADJ             6
+#> 5      d1           1        5           -           - PUNCT             6
+#> 6      d1           1        6       scale       scale  NOUN             7
+#> 7      d1           1        7 information information  NOUN             9
+#> 8      d1           1        8  extraction  extraction  NOUN             9
+#> 9      d1           1        9       tasks        task  NOUN             3
+#> 10     d1           1       10           .           . PUNCT             2
+#> 11     d2           1        1         Mr.         mr. PROPN             2
+#> 12     d2           1        2       Smith       smith PROPN             3
+#> 13     d2           1        3        goes          go  VERB             3
+#> 14     d2           1        4          to          to   ADP             3
+#> 15     d2           1        5       North       north PROPN             6
+#> 16     d2           1        6    Carolina    carolina PROPN             4
+#> 17     d2           1        7           .           . PUNCT             3
+#>     dep_rel   entity
+#> 1     nsubj         
+#> 2      ROOT         
+#> 3      prep         
+#> 4      amod         
+#> 5     punct         
+#> 6  compound         
+#> 7  compound         
+#> 8  compound         
+#> 9      pobj         
+#> 10    punct         
+#> 11 compound         
+#> 12    nsubj PERSON_B
+#> 13     ROOT         
+#> 14     prep         
+#> 15 compound    GPE_B
+#> 16     pobj    GPE_I
+#> 17    punct
+```
+
+### Using other language models
 
 In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `model` option when `spacy_initialize` is called.
 
 ``` r
 ## first finalize the spacy if it's loaded
 spacy_finalize()
-spacy_initialize(model = 'de')
-#> Python space is already attached to R. You cannot switch Python.
-#> If you'd like to switch to other Python, please restart R
-#> spaCy is successfully initialized (spaCy Version: 1.8.1, language model: de)
+spacy_initialize(model = "de")
+#> Python space is already attached.  If you want to swtich to a different Python, please restart R.
+#> successfully initialized (spaCy Version: 1.8.2, language model: de)
 
-txt_german = c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt. Die Syntax orientiert sich an der Programmiersprache S, mit der R weitgehend kompatibel ist, und die Semantik an Scheme. Als Standarddistribution kommt R mit einem Interpreter als Kommandozeilenumgebung mit rudimentären grafischen Schaltflächen. So ist R auf vielen Plattformen verfügbar; die Umgebung wird von den Entwicklern ausdrücklich ebenfalls als R bezeichnet. R ist Teil des GNU-Projekts.",
-               python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern. So wird beispielsweise der Code nicht durch geschweifte Klammern, sondern durch Einrückungen strukturiert.")
-results_german <- spacy_parse(txt_german,
-                              pos_tag = TRUE,
-                              lemma = TRUE,
-                              named_entity = TRUE,
-                              dependency = TRUE)
-head(results_german, 30)
-#>     docname sentence_id token_id             tokens              lemma
-#>  1:       R           1        1                  R                  r
-#>  2:       R           1        2                ist                ist
-#>  3:       R           1        3               eine               eine
-#>  4:       R           1        4              freie              freie
-#>  5:       R           1        5 Programmiersprache programmiersprache
-#>  6:       R           1        6                 fr                 fr
-#>  7:       R           1        7       statistische       statistische
-#>  8:       R           1        8       Berechnungen       berechnungen
-#>  9:       R           1        9                und                und
-#> 10:       R           1       10           Grafiken           grafiken
-#> 11:       R           1       11                  .                  .
-#> 12:       R           2        1                Sie                sie
-#> 13:       R           2        2              wurde              wurde
-#> 14:       R           2        3                von                von
-#> 15:       R           2        4       Statistikern       statistikern
-#> 16:       R           2        5                 fr                 fr
-#> 17:       R           2        6           Anwender           anwender
-#> 18:       R           2        7                mit                mit
-#> 19:       R           2        8      statistischen      statistischen
-#> 20:       R           2        9           Aufgaben           aufgaben
-#> 21:       R           2       10         entwickelt         entwickelt
-#> 22:       R           2       11                  .                  .
-#> 23:       R           3        1                Die                die
-#> 24:       R           3        2             Syntax             syntax
-#> 25:       R           3        3         orientiert         orientiert
-#> 26:       R           3        4               sich               sich
-#> 27:       R           3        5                 an                 an
-#> 28:       R           3        6                der                der
-#> 29:       R           3        7 Programmiersprache programmiersprache
-#> 30:       R           3        8                  S                  s
-#>     docname sentence_id token_id             tokens              lemma
-#>     tag_detailed tag_google head_token_id dep_rel named_entity
-#>  1:           XY          X             2      sb             
-#>  2:        VAFIN        AUX             2    ROOT             
-#>  3:          ART        DET             5      nk             
-#>  4:         ADJA        ADJ             5      nk             
-#>  5:           NN       NOUN             2      pd             
-#>  6:           NE      PROPN             5      nk             
-#>  7:         ADJA        ADJ             8      nk             
-#>  8:           NN       NOUN             2      pd             
-#>  9:          KON       CONJ             8      cd             
-#> 10:           NN       NOUN             9      cj             
-#> 11:           $.      PUNCT             2   punct             
-#> 12:         PPER       PRON             2      sb             
-#> 13:        VAFIN        AUX             2    ROOT             
-#> 14:         APPR        ADP             6      pg             
-#> 15:           NN       NOUN             3      nk             
-#> 16:           NE      PROPN             6      nk             
-#> 17:           NN       NOUN            10      oa             
-#> 18:         APPR        ADP            10      mo             
-#> 19:         ADJA        ADJ             9      nk             
-#> 20:           NN       NOUN             7      nk             
-#> 21:         VVPP       VERB             2      oc             
-#> 22:           $.      PUNCT             2   punct             
-#> 23:          ART        DET             2      nk             
-#> 24:           NN       NOUN             3      sb             
-#> 25:        VVFIN       VERB             3    ROOT             
-#> 26:          PRF       PRON             3      oa             
-#> 27:         APPR        ADP             3      mo             
-#> 28:          ART        DET             7      nk             
-#> 29:           NN       NOUN             5      nk             
-#> 30:           NE      PROPN             7      nk             
-#>     tag_detailed tag_google head_token_id dep_rel named_entity
+txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
+               python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
+results_german <- spacy_parse(txt_german, dependency = TRUE, tag = TRUE)
+results_german
+#>    doc_id sentence_id token_id              token              lemma   pos
+#> 1       R           1        1                  R                  r     X
+#> 2       R           1        2                ist                ist   AUX
+#> 3       R           1        3               eine               eine   DET
+#> 4       R           1        4              freie              freie   ADJ
+#> 5       R           1        5 Programmiersprache programmiersprache  NOUN
+#> 6       R           1        6                 fr                 fr PROPN
+#> 7       R           1        7       statistische       statistische   ADJ
+#> 8       R           1        8       Berechnungen       berechnungen  NOUN
+#> 9       R           1        9                und                und  CONJ
+#> 10      R           1       10           Grafiken           grafiken  NOUN
+#> 11      R           1       11                  .                  . PUNCT
+#> 12      R           2        1                Sie                sie  PRON
+#> 13      R           2        2              wurde              wurde   AUX
+#> 14      R           2        3                von                von   ADP
+#> 15      R           2        4       Statistikern       statistikern  NOUN
+#> 16      R           2        5                 fr                 fr PROPN
+#> 17      R           2        6           Anwender           anwender  NOUN
+#> 18      R           2        7                mit                mit   ADP
+#> 19      R           2        8      statistischen      statistischen   ADJ
+#> 20      R           2        9           Aufgaben           aufgaben  NOUN
+#> 21      R           2       10         entwickelt         entwickelt  VERB
+#> 22      R           2       11                  .                  . PUNCT
+#> 23 python           1        1             Python             python PROPN
+#> 24 python           1        2                ist                ist   AUX
+#> 25 python           1        3               eine               eine   DET
+#> 26 python           1        4        universelle        universelle   ADJ
+#> 27 python           1        5                  ,                  , PUNCT
+#> 28 python           1        6       blicherweise       blicherweise   ADV
+#> 29 python           1        7     interpretierte     interpretierte   ADJ
+#> 30 python           1        8              hhere              hhere   ADJ
+#> 31 python           1        9 Programmiersprache programmiersprache  NOUN
+#> 32 python           1       10                  .                  . PUNCT
+#> 33 python           2        1                Sie                sie  PRON
+#> 34 python           2        2               will               will  VERB
+#> 35 python           2        3              einen              einen   DET
+#> 36 python           2        4                gut                gut   ADJ
+#> 37 python           2        5           lesbaren           lesbaren   ADJ
+#> 38 python           2        6                  ,                  , PUNCT
+#> 39 python           2        7            knappen            knappen   ADJ
+#> 40 python           2        8    Programmierstil    programmierstil  NOUN
+#> 41 python           2        9             frdern             frdern  VERB
+#> 42 python           2       10                  .                  . PUNCT
+#>      tag head_token_id dep_rel   entity
+#> 1     XY             2      sb         
+#> 2  VAFIN             2    ROOT         
+#> 3    ART             5      nk         
+#> 4   ADJA             5      nk         
+#> 5     NN             2      pd         
+#> 6     NE             5      nk         
+#> 7   ADJA             8      nk         
+#> 8     NN             2      pd         
+#> 9    KON             8      cd         
+#> 10    NN             9      cj         
+#> 11    $.             2   punct         
+#> 12  PPER             2      sb         
+#> 13 VAFIN             2    ROOT         
+#> 14  APPR             6      pg         
+#> 15    NN             3      nk         
+#> 16    NE             6      nk         
+#> 17    NN            10      oa         
+#> 18  APPR            10      mo         
+#> 19  ADJA             9      nk         
+#> 20    NN             7      nk         
+#> 21  VVPP             2      oc         
+#> 22    $.             2   punct         
+#> 23    NE             2      sb PERSON_B
+#> 24 VAFIN             2    ROOT         
+#> 25   ART             9      nk         
+#> 26  ADJA             9      nk         
+#> 27    $,             4   punct         
+#> 28   ADV             7      mo         
+#> 29  ADJA             4      cj         
+#> 30  ADJA             4  cj||cj         
+#> 31    NN             2      pd         
+#> 32    $.             2   punct         
+#> 33  PPER             2      sb         
+#> 34 VMFIN             2    ROOT         
+#> 35   ART             8      nk         
+#> 36  ADJD             5      mo         
+#> 37  ADJA             8      nk         
+#> 38    $,             5   punct         
+#> 39  ADJA             5      cj         
+#> 40    NN             9      oa         
+#> 41 VVINF             2      oc         
+#> 42    $.             2   punct
 ```
 
 The German language model has to be installed (`python -m spacy download de`) before you call `spacy_initialize`.
