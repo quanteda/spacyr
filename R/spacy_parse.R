@@ -19,7 +19,6 @@
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
-#' @import quanteda
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
 #' @examples
@@ -105,12 +104,6 @@ spacy_parse.character <- function(x,
     return(dt)
 }
 
-
-#' @noRd
-#' @export
-spacy_parse.corpus <- function(x, ...) {
-    spacy_parse(texts(x), ...)
-}
 
 #' @noRd
 #' @export

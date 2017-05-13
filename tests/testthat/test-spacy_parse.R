@@ -1,4 +1,4 @@
-require(testthat)
+context("test spacy_parse")
 
 test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
