@@ -1,11 +1,15 @@
 #' An R wrapper to the spaCy NLP system
 #' 
-#' An R wrapper to the Python (Cython) spaCy NLP system, from http://spacy.io. 
-#' Nicely integrated with \pkg{quanteda}.
+#' An R wrapper to the Python (Cython) spaCy NLP system, from
+#' \url{http://spacy.io}. Nicely integrated with \pkg{quanteda}.  \pkg{spacyr}
+#' is designed to provide easy access to the powerful functionality of spaCy, in
+#' a simple format.
 #' 
-#' To use \pkg{spacyr}, you must first have Python and spaCy installed on your
-#' system.  See the installation instructions from the links below.
-#' @references \url{http://spacy.io}
+#' To use \pkg{spacyr}, you must first have Python and spaCy installed on your 
+#' system.  See the installation instructions from 
+#' \url{http://github.com/kbenoit/spacyr}.
+#' 
+#' @references \url{http://spacy.io}, \url{http://github.com/kbenoit/spacyr}.
 #' @author Ken Benoit and Akitaka Matsuo
 "_PACKAGE"
 
