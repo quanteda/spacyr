@@ -8,48 +8,62 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 Installing the package
 ----------------------
 
-For the installation of `spaCy` and `spacyr` in Mac OS X (in homebrew and default Pythons) and Windows you can find more detailed instructions in [Mac OS X Installation](inst/docs/MAC.md) and [Windows Installation](inst/docs/WINDOWS.md).
+1.  Install or update Python on your system.
 
-1.  Python (&gt; 2.7 or 3) must be installed on your system.
+    macOS and Linux typically come with Python installed, although you may wish to install a newer or different version from <https://www.python.org/downloads/>.
 
-    **(Windows only)** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We strongly recommend to use Python 3, and the following instructions is based on the use of Python 3. We recommend the latest 3.6.\* release (currently 3.6.1). During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
+    **Windows only:** If you have not yet installed Python, Download and install [Python for Windows](https://www.python.org/downloads/windows/). We recommend using Python 3, although the Python 2.7.x also works. During the installation process, be sure to scroll down in the installation option window and find the "Add Python.exe to Path", and click on the small red "x."
 
-2.  A C++ compiler must be installed on your system.
+    For the installation of `spaCy` and **spacyr** in macOS (in homebrew and for the default Python) and Windows you can find more detailed instructions for a [Mac OS X Installation](inst/docs/MAC.md) and [Windows Installation](inst/docs/WINDOWS.md).
 
-    -   **(Mac only)** Install XTools. Either get the full XTools from the App Store, or install the command-line XTools using this command from the Terminal:
+2.  Install additional command-line compiler tools.
 
-        ``` bash
-        xcode-select --install
-        ```
+    -   Windows:
+        -   Install \[Virtual Studio Express 2015\]([here](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
+        -   Install [RTools](https://cran.r-project.org/bin/windows/Rtools/).
+    -   macOS:
+        -   Either install XCode from the App Store, or an abbreviated version using the following from Terminal:
 
-    -   **(Windows only)** Install the [Rtools](https://CRAN.R-project.org/bin/windows/Rtools/) software available from CRAN
+        `bash    xcode-select --install`
 
-        You will also need to install the [Visual Studio Express 2015](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
+    -   Linux: no additional tools are required.
 
-3.  You will need to install spaCy.
+3.  Install spaCy.
 
-    Install spaCy and the English language model using these commands at the command line:
+    Installation instructions for spaCy are available [from spacy.io](https://spacy.io/docs/usage/). In short, once Python is installed on your system:
 
     ``` bash
     pip install -U spacy
     python -m spacy download en
     ```
 
-    Test your installation at the command line using:
+    You can test your installation at the command line using:
 
     ``` bash
     python -c "import spacy; spacy.load('en'); print('OK')"
     ```
 
-    There are alternative methods of installing spaCy, especially if you have installed a different Python (e.g. through Anaconda). Full installation instructions are available from the [spaCy page](http://spacy.io/docs/).
+    Additional instructions are available from the spaCy website for installing using a [`virtualenv`](https://spacy.io/docs/usage/#pip) or an [Anaconda](https://spacy.io/docs/usage/#conda) installation.
 
 4.  Installing the **spacyr** R package:
 
-    To install the package from source, you can simply run the following.
+    To install the latest package from source, you can simply run the following.
 
     ``` r
     devtools::install_github("kbenoit/spacyr")
     ```
+
+    **Coming soon**: Installation from CRAN will be possible using standard methods.
+
+<a name="multiplepythons"></a>Multiple Python executables in your system
+------------------------------------------------------------------------
+
+If you have multiple Python executables in your systems (for instance if you are a macOS user and have installed Python 3, you will also have the system-installed Python 2.7.x), then the `spacy_initialize()` function will check whether each of them have spaCy installed or not. To save the time for this checking, you can specify the particular python when initializing spaCy by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
+
+``` r
+library(spacyr)
+spacy_initialize(python_executable = "/usr/local/bin/python")
+```
 
 Examples
 --------
@@ -68,7 +82,7 @@ spacy_initialize()
 #> successfully initialized (spaCy Version: 1.8.2, language model: en)
 ```
 
-The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.table` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The default method for `tag()` is the [Google tagset for parts-of-speech](https://github.com/slavpetrov/universal-pos-tags).
+The `spacy_parse()` function calls spaCy to both tokenize and tag the texts. In addition, it provides a functionalities of dependency parsing and named entity recognition. The function returns a `data.frame` of the results. The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions. The `pos` field returned is the [Universal tagset for parts-of-speech](http://universaldependencies.org/u/pos/all.html).
 
 ``` r
 
@@ -98,7 +112,7 @@ parsedtxt
 #> 17     d2           1        7           .           . PUNCT
 ```
 
-By default, `spacy_parse()` conduct tokenization and part-of-speech (POS) tagging. spacyr provides two tagsets, coarse-grained [Google](https://github.com/slavpetrov/universal-pos-tags) tagsets and finer-grained [Penn Treebank](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html) tagsets. The `tag` option provides finer-grained part-of-speech tags:
+By default, `spacy_parse()` conducts tokenization and part-of-speech (POS) tagging, and returns lemmas and entities. **spacyr** provides two tagsets, the Universal tagset (`pos`) and the finer-grained tags defined for each language model. For English, this is the [OntoNotes 5 version of the Penn Treebank tag set](https://spacy.io/docs/usage/pos-tagging#pos-tagging-english).
 
 ``` r
 spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
@@ -122,7 +136,7 @@ spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
 #> 17     d2           1        7           . PUNCT    .
 ```
 
-Many of the standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) work on the new tagged token objects:
+Some of the token- and type-related standard methods from [**quanteda**](http://githiub.com/kbenoit/quanteda) also work on the new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
@@ -142,7 +156,7 @@ ntype(parsedtxt)
 
 ### Extracting entities
 
-**spacyr** can extract entities:
+**spacyr** can extract entities, either named or ["extended"](https://spacy.io/docs/usage/entity-recognition#entity-types).
 
 ``` r
 entity_extract(parsedtxt)
@@ -151,7 +165,14 @@ entity_extract(parsedtxt)
 #> 2     d2           1 North Carolina         GPE
 ```
 
-Or, convert multi-word named entities into single "tokens":
+``` r
+entity_extract(parsedtxt, type = "all")
+#>   doc_id sentence_id         entity entity_type
+#> 1     d2           1          Smith      PERSON
+#> 2     d2           1 North Carolina         GPE
+```
+
+Or, convert multi-word entities into single "tokens":
 
 ``` r
 entity_consolidate(parsedtxt)
@@ -193,52 +214,33 @@ entity_consolidate(parsedtxt)
 
 ### Dependency parsing
 
-It is possible to conduct more detailed parsing of syntactic dependencies:
+Detailed parsing of syntactic dependencies is possible with the `dependency = TRUE` option:
 
 ``` r
-results_detailed <- spacy_parse(txt, dependency = TRUE)
-head(results_detailed, 30)
-#>    doc_id sentence_id token_id       token       lemma   pos head_token_id
-#> 1      d1           1        1       spaCy       spacy  NOUN             2
-#> 2      d1           1        2      excels       excel  VERB             2
-#> 3      d1           1        3          at          at   ADP             2
-#> 4      d1           1        4       large       large   ADJ             6
-#> 5      d1           1        5           -           - PUNCT             6
-#> 6      d1           1        6       scale       scale  NOUN             7
-#> 7      d1           1        7 information information  NOUN             9
-#> 8      d1           1        8  extraction  extraction  NOUN             9
-#> 9      d1           1        9       tasks        task  NOUN             3
-#> 10     d1           1       10           .           . PUNCT             2
-#> 11     d2           1        1         Mr.         mr. PROPN             2
-#> 12     d2           1        2       Smith       smith PROPN             3
-#> 13     d2           1        3        goes          go  VERB             3
-#> 14     d2           1        4          to          to   ADP             3
-#> 15     d2           1        5       North       north PROPN             6
-#> 16     d2           1        6    Carolina    carolina PROPN             4
-#> 17     d2           1        7           .           . PUNCT             3
-#>     dep_rel   entity
-#> 1     nsubj         
-#> 2      ROOT         
-#> 3      prep         
-#> 4      amod         
-#> 5     punct         
-#> 6  compound         
-#> 7  compound         
-#> 8  compound         
-#> 9      pobj         
-#> 10    punct         
-#> 11 compound         
-#> 12    nsubj PERSON_B
-#> 13     ROOT         
-#> 14     prep         
-#> 15 compound    GPE_B
-#> 16     pobj    GPE_I
-#> 17    punct
+spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
+#>    doc_id sentence_id token_id       token head_token_id  dep_rel   entity
+#> 1      d1           1        1       spaCy             2    nsubj         
+#> 2      d1           1        2      excels             2     ROOT         
+#> 3      d1           1        3          at             2     prep         
+#> 4      d1           1        4       large             6     amod         
+#> 5      d1           1        5           -             6    punct         
+#> 6      d1           1        6       scale             7 compound         
+#> 7      d1           1        7 information             9 compound         
+#> 8      d1           1        8  extraction             9 compound         
+#> 9      d1           1        9       tasks             3     pobj         
+#> 10     d1           1       10           .             2    punct         
+#> 11     d2           1        1         Mr.             2 compound         
+#> 12     d2           1        2       Smith             3    nsubj PERSON_B
+#> 13     d2           1        3        goes             3     ROOT         
+#> 14     d2           1        4          to             3     prep         
+#> 15     d2           1        5       North             6 compound    GPE_B
+#> 16     d2           1        6    Carolina             4     pobj    GPE_I
+#> 17     d2           1        7           .             3    punct
 ```
 
 ### Using other language models
 
-In default, `spacyr` load an English language model in spacy, but you also can load a German language model instead by specifying `model` option when `spacy_initialize` is called.
+By default, **spacyr** loads an English language model in spacy, but you also can load a German language model (or others) instead by specifying `model` option when calling `spacy_initialize()`.
 
 ``` r
 ## first finalize the spacy if it's loaded
@@ -339,27 +341,17 @@ results_german
 #> 42    $.             2   punct
 ```
 
-The German language model has to be installed (`python -m spacy download de`) before you call `spacy_initialize`.
+Note that the additional language models must first be installed in spaCy. The German language model can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
 
 ### When you finish
 
-A background process of spaCy is initiated when you ran `spacy_initialize`. Because of the size of language models of `spaCy`, this takes up a lot of memory (typically 1.5GB). When you do not need the python connection any longer, you can finalize the python (and terminate terminate the process) by running `spacy_finalize()` function.
+A background process of spaCy is initiated when you ran `spacy_initialize()`. Because of the size of language models of spaCy, this takes up a lot of memory (typically 1.5GB). When you do not need the Python connection any longer, you can finalize the python connection (and terminate the process) by calling the `spacy_finalize()` function.
 
 ``` r
 spacy_finalize()
 ```
 
 By calling `spacy_initialize()` again, you can restart the backend spaCy.
-
-<a name="multiplepythons"></a>Multiple Python executables in your system
-------------------------------------------------------------------------
-
-If you have multiple Python executables in your systems (e.g. you, a Mac user, have brewed python2 or python3), `spacy_initialize` function will check whether each of them have spaCy installed or not. To save the time for this checking, you can specify the particular python when initializing `spaCy` by executing `spacy_initialize()`. Suppose that your python with spaCy is `/usr/local/bin/python`, run the following:
-
-``` r
-library(spacyr)
-spacy_initialize(use_python = "/usr/local/bin/python")
-```
 
 Comments and feedback
 ---------------------

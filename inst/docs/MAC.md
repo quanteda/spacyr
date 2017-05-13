@@ -1,5 +1,5 @@
-Tips for Mac OS X Users
------------------------
+Tips for macOS Users
+--------------------
 
 ### Before install spaCy
 
@@ -9,13 +9,13 @@ You need to have a C++ complier, Xtools. Either get the full Xcode from the App 
 xcode-select --install
 ```
 
-### Install spaCy and spacyr on Mac OSX
+### Installing spaCy and **spacyr** on macOS
 
-This document describes three methods to install spaCy and spacyr in the system. 1. use Python 2 from the homebrew package manager 2. use Python 3 from the homebrew package manager 3. use system default python.
+This document describes three methods for installing spaCy and **spacyr** on macOS. 1. Using Python 2 from the homebrew package manager. 2. Using Python 3 from the homebrew package manager. 3. Using the system default Python.
 
-#### Install spaCy using homebrew python 2
+#### Install spaCy using `homebrew` and Python 2.7.x
 
-Homebrew is a package manager for Mac OS X. You can install spaCy on it.
+Homebrew is a package manager for macOS, which you can use to install Python and spaCy.
 
 1.  Install homebrew
 
@@ -29,13 +29,13 @@ Homebrew is a package manager for Mac OS X. You can install spaCy on it.
     brew install python
     ```
 
-3.  Check if the default python is changed
+3.  Check that the default python has changed
 
     ``` bash
     which python
     ```
 
-    The output should be now `/usr/local/bin/python`
+    The output should now be `/usr/local/bin/python`.
 4.  Setup pip
 
     ``` bash
@@ -67,14 +67,7 @@ Homebrew is a package manager for Mac OS X. You can install spaCy on it.
     devtools::install_github("kbenoit/spacyr")
     ```
 
-If you are using a brew Python 2, the `spacy_initialize` is
-
-``` r
-library(spacyr)
-spacy_initialize(use_python = "/usr/local/bin/python")
-```
-
-#### Install spaCy using homebrew python 3
+#### Install spaCy using `homebrew` and Python &gt;= 3.6
 
 1.  Install homebrew
 
@@ -94,7 +87,7 @@ spacy_initialize(use_python = "/usr/local/bin/python")
     which python3
     ```
 
-    The output should be now `/usr/local/bin/python3`
+    The output should be `/usr/local/bin/python3`.
 4.  Setup pip3
 
     ``` bash
@@ -114,7 +107,7 @@ spacy_initialize(use_python = "/usr/local/bin/python")
     python3 -m spacy download en
     ```
 
-7.  Check if the installation succeeded
+7.  Check that the installation succeeded
 
     ``` bash
     python3 -c "import spacy; spacy.load('en'); print('OK')"
@@ -126,14 +119,14 @@ spacy_initialize(use_python = "/usr/local/bin/python")
     devtools::install_github("kbenoit/spacyr")
     ```
 
-If you are using a brew Python 2, the `spacy_initialize` is
+If you are using a homebrew Python 2, the `spacy_initialize` is
 
 ``` r
 library(spacyr)
-spacy_initialize(use_python = "/usr/local/bin/python3")
+spacy_initialize(python_executable = "/usr/local/bin/python3")
 ```
 
-#### Install spaCy on default Python (not really recommend)
+#### Install spaCy on the default Python (not really recommended)
 
 Mac OS X comes with Python. In order to install spacy in that python, follow the steps below:
 
@@ -149,6 +142,7 @@ Mac OS X comes with Python. In order to install spacy in that python, follow the
     sudo pip install spacy
     ```
 
+    You will need to enter a password for a user account with Administrator privileges.
 3.  Install the English language model
 
     ``` bash
@@ -167,7 +161,7 @@ Mac OS X comes with Python. In order to install spacy in that python, follow the
     devtools::install_github("kbenoit/spacyr")
     ```
 
-If the default Python is used the initializaiton is simply:
+If the default Python is used, the initialization is simply:
 
 ``` r
 library(spacyr)
