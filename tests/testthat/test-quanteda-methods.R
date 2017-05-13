@@ -1,6 +1,9 @@
 context("test quanteda functions")
 
 test_that("quanteda functions work", {
+    skip_on_cran()
+    skip_on_appveyor()
+    
     spacy_initialize()
     
     txt <- c(doc1 = "And now, now, now for something completely different.",
