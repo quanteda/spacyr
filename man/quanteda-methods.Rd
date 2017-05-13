@@ -28,7 +28,7 @@ to work.
 require(quanteda)
 spacy_initialize()
 txt <- c(doc1 = "And now, now, now for something completely different.",
-         doc2 = "Jack and Jill ran up the hill.")
+         doc2 = "Jack and Jill are children.")
 parsed <- spacy_parse(txt)
 ntype(parsed)
 ntoken(parsed)
