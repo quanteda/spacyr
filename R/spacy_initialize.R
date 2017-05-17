@@ -107,7 +107,7 @@ find_spacy <- function(model = "en"){
     }
     options(warn = 0)
     
-    if (length(py_execs) == 0){
+    if (length(py_execs) == 0 | grepl("not find", py_execs[1])[1]){
         stop("No python was found on system PATH")
     }
     df_python_check <- data.table::data.table(py_execs, spacy_found = 0)
