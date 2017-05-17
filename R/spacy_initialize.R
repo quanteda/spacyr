@@ -97,13 +97,19 @@ spacy_finalize <- function() {
 #' @keywords internal
 #' @importFrom data.table data.table
 find_spacy <- function(model = "en"){
-    spacy_python <- spacy_found <- `:=` <- NA
+    spacy_found <- `:=` <- NA
+    spacy_python <- NULL
+    options(warn = -1)
     py_execs <- if(Sys.info()['sysname'] == "Windows") {
         system2("where", "python", stdout = TRUE)
     } else {
         system2('which', '-a python', stdout = TRUE)
     }
-
+    options(warn = 0)
+    
+    if (length(py_execs) == 0 | grepl("not find", py_execs[1])[1]){
+        stop("No python was found on system PATH")
+    }
     df_python_check <- data.table::data.table(py_execs, spacy_found = 0)
     for(i in 1:nrow(df_python_check)) {
         py_exec <- df_python_check[i, py_execs]
@@ -112,9 +118,9 @@ find_spacy <- function(model = "en"){
             df_python_check[i, spacy_found := 1]
         }
     }
-
+    
     if (df_python_check[, sum(spacy_found)] == 0) {
-        1
+        return(NULL)
     } else if(df_python_check[, sum(spacy_found)] == 1) {
         spacy_python <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in ", spacy_python)
