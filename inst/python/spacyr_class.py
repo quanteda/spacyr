@@ -9,6 +9,12 @@ import sys
 import spacy
 import time
 import gc
+import string
+import random
+
+def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
 
 class spacyr:
     def __init__(self):
@@ -20,7 +26,7 @@ class spacyr:
         if isinstance(texts, list) == False:
             texts = [texts]
         for text in texts:
-            epoch_nano = str(int(time.time() * 1000000))
+            epoch_nano = str(int(time.time() * 1000000)) + id_generator()
             #text = text.decode('utf-8')
             try: 
                 if not isinstance(text, unicode):
