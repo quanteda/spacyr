@@ -1,9 +1,9 @@
-# Load definition of spacyr class
-
+# -*- coding: utf-8 -*-
 # Sources:
 #  Google universal: http://www.petrovi.de/data/universal.pdf
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
+from __future__ import unicode_literals 
 import os
 import sys
 import spacy
@@ -30,7 +30,7 @@ class spacyr:
             #text = text.decode('utf-8')
             try: 
                 if not isinstance(text, unicode):
-                    text = unicode(text, errors = 'ignore')
+                    text = unicode(text, "utf-8", errors = "ignore")
             except NameError:
                 pass
             doc = self.nlp(text)
@@ -59,7 +59,7 @@ class spacyr:
             ntok_by_sent.append(ntok_in_sent)
         return ntok_by_sent
         
-    def attributes(self, timestamps, attrname):
+    def attributes(self, timestamps, attrname, deal_utf8 = 0):
         all_attrs = []
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
@@ -69,6 +69,10 @@ class spacyr:
             for w in c_document:
                 attrs.append(getattr(w, attrname))
             all_attrs.extend(attrs)
+        if deal_utf8 == 1:
+            if sys.version_info.major == 2:
+                for i in range(len(all_attrs)):
+                    all_attrs[i] = all_attrs[i].encode('utf-8')
         return all_attrs
         
     def attributes_by_sent(self, timestamps, attrname):
@@ -85,8 +89,9 @@ class spacyr:
         return all_attrs
     
     def tokens(self, timestamps):
-        all_tokens = self.attributes(timestamps, 'orth_')
+        all_tokens = self.attributes(timestamps, 'orth_', 1)
         return all_tokens
+
         
     def tags(self, timestamps, tag_type):
         if isinstance(timestamps, list) == False:
