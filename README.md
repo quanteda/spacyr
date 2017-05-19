@@ -242,7 +242,7 @@ results_german
 ## 3       R           1        3               eine   DET   ART
 ## 4       R           1        4              freie   ADJ  ADJA
 ## 5       R           1        5 Programmiersprache  NOUN    NN
-## 6       R           1        6                 fr PROPN    NE
+## 6       R           1        6                für   ADP  APPR
 ## 7       R           1        7       statistische   ADJ  ADJA
 ## 8       R           1        8       Berechnungen  NOUN    NN
 ## 9       R           1        9                und  CONJ   KON
@@ -252,7 +252,7 @@ results_german
 ## 13      R           2        2              wurde   AUX VAFIN
 ## 14      R           2        3                von   ADP  APPR
 ## 15      R           2        4       Statistikern  NOUN    NN
-## 16      R           2        5                 fr PROPN    NE
+## 16      R           2        5                für   ADP  APPR
 ## 17      R           2        6           Anwender  NOUN    NN
 ## 18      R           2        7                mit   ADP  APPR
 ## 19      R           2        8      statistischen   ADJ  ADJA
@@ -264,9 +264,9 @@ results_german
 ## 25 python           1        3               eine   DET   ART
 ## 26 python           1        4        universelle   ADJ  ADJA
 ## 27 python           1        5                  , PUNCT    $,
-## 28 python           1        6       blicherweise   ADV   ADV
+## 28 python           1        6      üblicherweise   ADV   ADV
 ## 29 python           1        7     interpretierte   ADJ  ADJA
-## 30 python           1        8              hhere   ADJ  ADJA
+## 30 python           1        8             höhere   ADJ  ADJA
 ## 31 python           1        9 Programmiersprache  NOUN    NN
 ## 32 python           1       10                  . PUNCT    $.
 ## 33 python           2        1                Sie  PRON  PPER
@@ -277,7 +277,7 @@ results_german
 ## 38 python           2        6                  , PUNCT    $,
 ## 39 python           2        7            knappen   ADJ  ADJA
 ## 40 python           2        8    Programmierstil  NOUN    NN
-## 41 python           2        9             frdern  VERB VVINF
+## 41 python           2        9            fördern  VERB VVINF
 ## 42 python           2       10                  . PUNCT    $.
 ##    head_token_id dep_rel   entity
 ## 1              2      sb         
@@ -285,18 +285,18 @@ results_german
 ## 3              5      nk         
 ## 4              5      nk         
 ## 5              2      pd         
-## 6              5      nk         
+## 6              5     mnr         
 ## 7              8      nk         
-## 8              2      pd         
+## 8              6      nk         
 ## 9              8      cd         
 ## 10             9      cj         
 ## 11             2   punct         
 ## 12             2      sb         
 ## 13             2    ROOT         
-## 14             6      pg         
+## 14            10     sbp         
 ## 15             3      nk         
-## 16             6      nk         
-## 17            10      oa         
+## 16             4     mnr         
+## 17             5      nk         
 ## 18            10      mo         
 ## 19             9      nk         
 ## 20             7      nk         

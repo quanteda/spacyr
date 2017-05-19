@@ -81,11 +81,11 @@ get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
 #' @return \code{get_attrs} returns a list of attributes from spaCy output
 #' @export
 #' @keywords internal
-get_attrs <- function(spacy_out, attr_name) {
+get_attrs <- function(spacy_out, attr_name, deal_utf8 = FALSE) {
     spacyr_pyassign('timestamps', spacy_out$timestamps)
     spacyr_pyassign('attr_name', attr_name)
-    
-    spacyr_pyexec('attrs_list = spobj.attributes(timestamps, attr_name)')
+    spacyr_pyassign('deal_utf8', as.numeric(deal_utf8))
+    spacyr_pyexec('attrs_list = spobj.attributes(timestamps, attr_name, deal_utf8)')
     attrs <- spacyr_pyget("attrs_list")
     return(attrs)
 }
