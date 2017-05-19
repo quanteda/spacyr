@@ -1,7 +1,4 @@
-# 0.1.2
+# 0.9.0
 
-*  Added `check_spacy()` to check installation and set `PYTHON_PATH` correctly.
+*  Initial CRAN release.
 
-# 0.1.1 
-
-*  Working on macOS, once `PYTHON_PATH` is correctly set
