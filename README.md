@@ -345,8 +345,8 @@ Some of the token- and type-related standard methods from [**quanteda**](http://
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## quanteda version 0.9.9.58
-## Using 7 of 8 cores for parallel computing
+## quanteda version 0.9.9.61
+## Using 3 of 4 cores for parallel computing
 docnames(parsedtxt)
 ## [1] "d1" "d2"
 ndoc(parsedtxt)
