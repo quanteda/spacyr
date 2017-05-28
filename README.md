@@ -19,7 +19,7 @@ Installing the package
 2.  Install additional command-line compiler tools.
 
     -   Windows:
-        -   Install \[Virtual Studio Express 2015\]([here](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
+        -   Install [Virtual Studio Express 2015](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
         -   Install [RTools](https://cran.r-project.org/bin/windows/Rtools/).
     -   macOS:
 
@@ -50,13 +50,19 @@ Installing the package
 
 4.  Install the **spacyr** R package:
 
+    -   From GitHub:
+
     To install the latest package from source, you can simply run the following.
 
     ``` r
     devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
     ```
 
-    **Coming soon**: Installation from CRAN will be possible using standard methods.
+    -   From CRAN:
+
+    ``` r
+    install.packages("spacyr")
+    ```
 
 <a name="multiplepythons"></a>Multiple Python executables in your system
 ------------------------------------------------------------------------
@@ -223,7 +229,7 @@ spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
 
 ### Using other language models
 
-By default, **spacyr** loads an English language model in spacy, but you also can load a German language model (or others) instead by specifying `model` option when calling `spacy_initialize()`.
+By default, **spacyr** loads an English language model. You also can load SpaCy's German or French [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`.
 
 ``` r
 ## first finalize the spacy if it's loaded
@@ -324,7 +330,7 @@ results_german
 ## 42             2   punct
 ```
 
-Note that the additional language models must first be installed in spaCy. The German language model can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
+Note that the additional language models must first be installed in spaCy. The German language model, for example, can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
 
 ### When you finish
 
@@ -345,8 +351,8 @@ Some of the token- and type-related standard methods from [**quanteda**](http://
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## quanteda version 0.9.9.61
-## Using 3 of 4 cores for parallel computing
+## quanteda version 0.9.9.65
+## Using 7 of 8 cores for parallel computing
 docnames(parsedtxt)
 ## [1] "d1" "d2"
 ndoc(parsedtxt)
