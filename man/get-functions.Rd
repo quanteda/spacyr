@@ -15,7 +15,7 @@ get_tokens(spacy_out)
 
 get_tags(spacy_out, tagset = c("google", "detailed"))
 
-get_attrs(spacy_out, attr_name)
+get_attrs(spacy_out, attr_name, deal_utf8 = FALSE)
 
 get_named_entities(spacy_out)
 

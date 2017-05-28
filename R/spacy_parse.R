@@ -67,7 +67,7 @@ spacy_parse.character <- function(x,
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
     ntokens_by_sent <- get_ntokens_by_sent(spacy_out)
-    #browser()
+    
     subtractor <- unlist(lapply(ntokens_by_sent, function(x) {
         csumx <- cumsum(c(0, x[-length(x)]))
         return(rep(csumx, x))
@@ -78,7 +78,7 @@ spacy_parse.character <- function(x,
                      token = tokens)
     
     if (lemma) {
-        dt[, "lemma" := get_attrs(spacy_out, "lemma_")]
+        dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
     }
     if (pos) {
         dt[, "pos" := get_tags(spacy_out, "google")]

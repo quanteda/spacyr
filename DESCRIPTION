@@ -1,12 +1,12 @@
 Package: spacyr
 Type: Package
-Version: 0.9
+Version: 0.9.1
 Title: R Wrapper to the spaCy NLP Library
 Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
     c("aut", "cre", "cph")), 
     person("Akitaka", "Matsuo", email = "A.Matsuo@lse.ac.uk", role = "aut") )
-Description: An R wrapper to the Python spaCy NLP library,
-    from http://spacy.io.
+Description: An R wrapper to the 'Python' 'spaCy' 'NLP' library,
+    from <http://spacy.io>.
 License: GPL-3
 LazyData: TRUE
 Depends:
@@ -15,8 +15,7 @@ Depends:
 Imports:
     data.table,
     utils,
-    reticulate,
-    quanteda
+    reticulate
 Suggests:
     rmarkdown,
     testthat,
