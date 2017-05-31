@@ -103,7 +103,8 @@ find_spacy <- function(model = "en"){
     py_execs <- if(Sys.info()['sysname'] == "Windows") {
         system2("where", "python", stdout = TRUE)
     } else {
-        system2('which', '-a python', stdout = TRUE)
+        c(system2('which', '-a python', stdout = TRUE),
+          system2('which', '-a python3', stdout = TRUE))
     }
     options(warn = 0)
     
