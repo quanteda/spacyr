@@ -112,7 +112,7 @@ find_spacy <- function(model = "en"){
         stop("No python was found on system PATH")
     }
     df_python_check <- data.table::data.table(py_execs, spacy_found = 0)
-    for(i in 1:nrow(df_python_check)) {
+    for (i in 1:nrow(df_python_check)) {
         py_exec <- df_python_check[i, py_execs]
         sys_message <- check_spacy_model(py_exec, model)
         if (sys_message == 'OK') {
@@ -122,13 +122,13 @@ find_spacy <- function(model = "en"){
     
     if (df_python_check[, sum(spacy_found)] == 0) {
         return(NULL)
-    } else if(df_python_check[, sum(spacy_found)] == 1) {
+    } else if (df_python_check[, sum(spacy_found)] == 1) {
         spacy_python <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in ", spacy_python)
     } else {
         spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in more than one python")
-        message(paste(1:length(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
+        message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
         number <- NA
         while(is.na(number)){
             number <- readline(prompt = "Please select python: ")
