@@ -18,7 +18,8 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 langage model \code{en}, it uses the OntoNotes 5 version of the Penn
 Treebank tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)}
 
-\item{lemma}{logical; inlucde lemmatized tokens in the output}
+\item{lemma}{logical; inlucde lemmatized tokens in the output (lemmatization 
+is available only for English model)}
 
 \item{entity}{logical; if \code{TRUE}, report named entities}
 

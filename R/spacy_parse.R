@@ -15,7 +15,8 @@
 #' @param tag logical whether to return detailed part-of-speech tags, for the
 #'   langage model \code{en}, it uses the OntoNotes 5 version of the Penn
 #'   Treebank tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)
-#' @param lemma logical; inlucde lemmatized tokens in the output
+#' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
+#'   is available only for English model)
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
@@ -74,7 +75,12 @@ spacy_parse.character <- function(x,
                      token = tokens)
     
     if (lemma) {
-        dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
+        model <- spacyr_pyget("model")
+        if(model == 'en'){
+            dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
+        } else {
+            warning("lemmatization is not supported in model '", model, "'")
+        }
     }
     if (pos) {
         dt[, "pos" := get_tags(spacy_out, "google")]
