@@ -85,8 +85,8 @@ spacy_parse.character <- function(x,
 
     ## add dependency data fields
     if (dependency) {
-        #browser()
         subtractor <- unlist(lapply(ntokens_by_sent, function(x) {
+            if(length(x) == 0) return(NULL)
             csumx <- cumsum(c(0, x[-length(x)]))
             return(rep(csumx, x))
         }))
