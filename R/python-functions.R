@@ -9,10 +9,10 @@ spacyr_pyget <- function(pyvarname) {
 }
 
 spacyr_pyexec <- function(pystring = NULL, pyfile = NULL) {
-    if(!is.null(pystring)) {
+    if (!is.null(pystring)) {
         reticulate::py_run_string(pystring)
     }
-    if(!is.null(pyfile)) {
+    if (!is.null(pyfile)) {
         reticulate::py_run_file(pyfile)
     }
 }
