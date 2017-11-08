@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # create virtualenv
-deactivate
-virtualenv -p /usr/bin/python3 --system-site-packages testenv
-source testenv/bin/activate
+# deactivate
+# virtualenv -p /usr/bin/python3 --system-site-packages testenv
+# source testenv/bin/activate
 
 # Python dependencies
 pip install --upgrade pip

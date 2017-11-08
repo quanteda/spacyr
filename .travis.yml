@@ -6,7 +6,7 @@ addons:
   apt:
     packages:
       - python3
-      - python3-numpy
+      #- python3-numpy
 
 warnings_are_errors: true
 
