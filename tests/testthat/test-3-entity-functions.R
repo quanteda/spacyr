@@ -13,11 +13,11 @@ test_that("getting named entities works", {
     
     expect_equal(
         entities$entity,
-        c("The United States", "Donald Trump", "New York", "the New York")
+        c("The United States", "Donald Trump", "New York", "New York")
     )
     expect_equal(
         entities$entity_type,
-        c("GPE", "PERSON", "GPE", "ORG")
+        c("GPE", "PERSON", "GPE", "GPE")
     )
     
     txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
@@ -29,7 +29,7 @@ test_that("getting named entities works", {
     )
     expect_equal(
         entity_extract(parsed, type = "named")$entity_type,
-        c("GPE", "PERSON", "GPE", "ORG")
+        c("GPE", "PERSON", "GPE", "GPE")
     )
     
     parsed <- spacy_parse(txt1, entity = FALSE)
@@ -61,16 +61,16 @@ test_that("entity consolidation works", {
     )
     expect_equal(
         entity_consolidate(parsed)$token_id,
-        c(1:8, 1:9)
+        c(1:8, 1:10)
     )
 
     parsed <- spacy_parse(txt1, entity = TRUE, pos = TRUE, tag = TRUE)
     expect_equal(
-        entity_consolidate(parsed)$pos[c(1, 4, 16)],
+        entity_consolidate(parsed)$pos[c(1, 4, 17)],
         rep("ENTITY", 3)
     )
     expect_equal(
-        entity_consolidate(parsed)$tag[c(1, 4, 16)],
+        entity_consolidate(parsed)$tag[c(1, 4, 17)],
         rep("ENTITY", 3)
     )
     expect_equal(

@@ -12,27 +12,27 @@ test_that("quanteda functions work", {
     parsed <- spacy_parse(txt)
     
     expect_equal(
-        ntype(parsed),
+        quanteda::ntype(parsed),
         c(doc1 = 8, doc2 = 6)
     )
     
     expect_equal(
-        ntoken(parsed),
+        quanteda::ntoken(parsed),
         c(doc1 = 11, doc2 = 6)
     )
     
     expect_equal(
-        ntype(parsed),
+        quanteda::ntype(parsed),
         c(doc1 = 8, doc2 = 6)
     )
     
     expect_equal(
-        ndoc(parsed),
+        quanteda::ndoc(parsed),
         2
     )
     
     expect_equal(
-        docnames(parsed),
+        quanteda::docnames(parsed),
         c("doc1", "doc2")
     )
 
