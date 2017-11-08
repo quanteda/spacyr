@@ -5,7 +5,7 @@ dist: trusty
 addons:
   apt:
     packages:
-      - python2.7
+      - python3.6
       - python-numpy
 
 warnings_are_errors: true
