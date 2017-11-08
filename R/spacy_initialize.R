@@ -62,11 +62,12 @@ spacy_initialize <- function(model = "en",
     spacyr_pyassign("model", model)
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                        package = 'spacyr'))
-    spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
-    spacy_version <- grep("Version" ,spacy_version, value = TRUE)
-    
-    
-    message("successfully initialized (spaCy ", spacy_version,', language model: ', model, ')')
+    # spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
+    # spacy_version <- grep("Version" ,spacy_version, value = TRUE)
+    # 
+    spacy_version <- spacyr_pyget("versions")$spacy
+
+    message("successfully initialized (spaCy Version: ", spacy_version,', language model: ', model, ')')
     options("spacy_initialized" = TRUE)
 }
 
