@@ -6,17 +6,19 @@ addons:
   apt:
     packages:
       - python3
+      - python3-numpy
 
 warnings_are_errors: true
 
 r_binary_packages:
   - testthat
+  - quanteda
 
 r_packages:
   - covr
 
-r_github_packages:
-  - kbenoit/quanteda
+#r_github_packages:
+#  - kbenoit/quanteda
 
 before_install:
   - source travis_install.sh
