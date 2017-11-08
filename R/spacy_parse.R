@@ -16,7 +16,7 @@
 #'   langage model \code{en}, it uses the OntoNotes 5 version of the Penn
 #'   Treebank tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)
 #' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
-#'   is available only for English model)
+#'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
@@ -76,10 +76,9 @@ spacy_parse.character <- function(x,
     
     if (lemma) {
         model <- spacyr_pyget("model")
-        if(model == 'en'){
-            dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
-        } else {
-            warning("lemmatization is not supported in model '", model, "'")
+        dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
+        if(model != 'en'){
+            warning("lemmatization may not work properly in model '", model, "'")
         }
     }
     if (pos) {
