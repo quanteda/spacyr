@@ -155,8 +155,15 @@ spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
 
 ### Using other language models
 
-By default, **spacyr** loads an English language model. You also can load SpaCy's German or French [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. 
+By default, **spacyr** loads an English language model. You also can load SpaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have sucessfully tested following language models with spacy version 2.0.1.  
 
+```{r echo = FALSE}
+knitr::kable(data.frame(Language = c("German", "Spanish", "Portuguese",  "French", "Italian", "Dutch"),
+           ModelName = c("`de`", "`es_core_news_sm`", "`pt`", "`fr`", "`it`", "`nl`")) )
+```
+
+
+This is an example of parsing German texts.
 ```{r}
 ## first finalize the spacy if it's loaded
 spacy_finalize()
