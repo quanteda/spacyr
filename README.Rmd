@@ -52,7 +52,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     Installation instructions for spaCy are available [from spacy.io](https://spacy.io/docs/usage/).  In short, once Python is installed on your system:
     ```{bash, eval = FALSE}
     pip install -U spacy
-    python -m spacy download en
+    spacy download en
     ```
 
     You can test your installation at the command line using:  
@@ -82,7 +82,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 If you have multiple Python executables in your systems (for instance if you are a macOS user and have installed Python 3, you will also have the system-installed Python 2.7.x), then the `spacy_initialize()` function will check whether each of them have spaCy installed or not.  
 You can also specify the python executable directly, when calling `spacy_initialize()`.  For instance, if your installation of spaCy uses `/usr/local/bin/python`, then you could use:
 ```{r, eval = FALSE}
-library(spacyr)
+library("spacyr")
 spacy_initialize(python_executable = "/usr/local/bin/python")
 ```
 
@@ -96,11 +96,11 @@ We welcome your comments and feedback.  Please file issues on the [issues](https
 
 To allow R to access the underlying Python functionality, it must open a connection by being initialized within your R session.  
 
-We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible by searching your system for Python executables, and testing which have spaCy installed.  For power users (such as those with multiple installations of Python), it is possible to specify the path manually through the `python_executable` argument, which also makes initialization faster.
+We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible by searching your system for Python executables, and testing which have spaCy installed.  For power users (such as those with multiple installations of Python), it is possible to specify the path manually through the `python_executable` argument, which also makes initialization faster.  (You will need to change the value on your system of the Python executable.)
 
 ```{r}
-require(spacyr)
-spacy_initialize()
+library("spacyr")
+spacy_initialize(python_executable = "/anaconda/bin/python3")
 ```
 
 ### Tokenizing and tagging texts
