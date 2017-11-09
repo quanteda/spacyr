@@ -2,11 +2,12 @@
 
 # create virtualenv
 # deactivate
-virtualenv -p /usr/bin/python2.7 --system-site-packages testenv
-source testenv/bin/activate
+# virtualenv -p /usr/bin/python3 --system-site-packages testenv
+# source testenv/bin/activate
 
 # Python dependencies
-pip install --upgrade pip
-pip install --upgrade html5lib 
-pip install spacy
-python -m spacy download en
+sudo pip install --upgrade pip
+sudo pip install --upgrade html5lib 
+sudo pip install -U spacy
+sudo spacy download en
+#python -m spacy download en

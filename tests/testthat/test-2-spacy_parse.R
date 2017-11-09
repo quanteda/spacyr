@@ -36,7 +36,7 @@ test_that("spacy_parse handles quotes ok", {
     skip_on_cran()
     skip_on_appveyor()
     expect_message(spacy_initialize(), "successfully")
-    
+
     txt1 <- c(doc1 = "Sentence \"quoted\" one.", 
               doc2 = "Sentence \'quoted\' two.")
     expect_true("dep_rel" %in% names(spacy_parse(txt1, dependency = TRUE)))
