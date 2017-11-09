@@ -3,12 +3,7 @@ context("test spacy_parse")
 test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
     skip_on_appveyor()
-    if (identical(Sys.getenv("TRAVIS"), "true")) {
-        expect_message(spacy_initialize(virtualenv = "testenv"), "successfully")
-    } else {
-        expect_message(spacy_initialize(), "successfully")
-    }
-    
+    expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
               doc2 = "Sentence\tthree.")
@@ -40,12 +35,8 @@ test_that("spacy_parse handles newlines and tabs ok", {
 test_that("spacy_parse handles quotes ok", {
     skip_on_cran()
     skip_on_appveyor()
-    if (identical(Sys.getenv("TRAVIS"), "true")) {
-        expect_message(spacy_initialize(virtualenv = "testenv"), "successfully")
-    } else {
-        expect_message(spacy_initialize(), "successfully")
-    }
-    
+    expect_message(spacy_initialize(), "successfully")
+
     txt1 <- c(doc1 = "Sentence \"quoted\" one.", 
               doc2 = "Sentence \'quoted\' two.")
     expect_true("dep_rel" %in% names(spacy_parse(txt1, dependency = TRUE)))
