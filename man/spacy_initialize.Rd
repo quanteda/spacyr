@@ -4,7 +4,7 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy}
 \usage{
-spacy_initialize(model = "en", python_executable = NULL,
+spacy_initialize(model = "en", python_executable = NULL, ask = FALSE,
   virtualenv = NULL, condaenv = NULL)
 }
 \arguments{
@@ -12,6 +12,11 @@ spacy_initialize(model = "en", python_executable = NULL,
 \code{de} (German). Default is \code{en}.}
 
 \item{python_executable}{the full path to the python excutable, for which spaCy is installed}
+
+\item{ask}{logical; if \code{FALSE}, use the first spaCy installation found; 
+if \code{TRUE}, list available spaCy installations and prompt the user 
+for which to use. If another (e.g. \code{python_executable}) is set, then 
+this value will always be treated as \code{FALSE}.}
 
 \item{virtualenv}{set a path to the python virtual environment with spaCy installed
 Example: \code{virtualenv = "~/myenv"}}

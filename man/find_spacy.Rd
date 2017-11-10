@@ -4,10 +4,15 @@
 \alias{find_spacy}
 \title{Find spaCy}
 \usage{
-find_spacy(model = "en")
+find_spacy(model = "en", ask)
 }
 \arguments{
 \item{model}{name of the language model}
+
+\item{ask}{logical; if \code{FALSE}, use the first spaCy installation found; 
+if \code{TRUE}, list available spaCy installations and prompt the user 
+for which to use. If another (e.g. \code{python_executable}) is set, then 
+this value will always be treated as \code{FALSE}.}
 }
 \value{
 spacy_python
