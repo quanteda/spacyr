@@ -1,3 +1,7 @@
+# v0.9.3
+
+* Updated for the newer spaCy 2.0 release and new language models.
+
 # v0.9.2
 
 *  Fixed a bug caused by zero-token "sentences" in `spacy_parse()`, by changing `1:length()` to `seq_along()`.
