@@ -83,7 +83,7 @@ If you have multiple Python executables in your systems (for instance if you are
 You can also specify the python executable directly, when calling `spacy_initialize()`.  For instance, if your installation of spaCy uses `/usr/local/bin/python`, then you could use:
 ```{r, eval = FALSE}
 library("spacyr")
-spacy_initialize(python_executable = "/usr/local/bin/python")
+spacy_initialize()
 ```
 
 ## Comments and feedback
@@ -100,7 +100,7 @@ We provide a function for this, `spacy_initialize()`, which attempts to make thi
 
 ```{r}
 library("spacyr")
-spacy_initialize(python_executable = "/anaconda/bin/python3")
+spacy_initialize()
 ```
 
 ### Tokenizing and tagging texts
