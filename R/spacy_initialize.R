@@ -5,6 +5,10 @@
 #' @param model Language package for loading spacy. Example: \code{en} (English) and
 #' \code{de} (German). Default is \code{en}.
 #' @param python_executable the full path to the python excutable, for which spaCy is installed
+#' @param ask logical; if \code{FALSE}, use the first spaCy installation found; 
+#'   if \code{TRUE}, list available spaCy installations and prompt the user 
+#'   for which to use. If another (e.g. \code{python_executable}) is set, then 
+#'   this value will always be treated as \code{FALSE}.
 #' @param virtualenv set a path to the python virtual environment with spaCy installed
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
@@ -13,6 +17,7 @@
 #' @author Akitaka Matsuo
 spacy_initialize <- function(model = "en", 
                              python_executable = NULL,
+                             ask = FALSE,
                              virtualenv = NULL,
                              condaenv = NULL) {
 
@@ -36,7 +41,7 @@ spacy_initialize <- function(model = "en",
         #                      system("where python", intern = TRUE), 
         #                      system("which python", intern = TRUE))
         message("Finding a python executable with spacy installed...")
-        spacy_python <- find_spacy(model)
+        spacy_python <- find_spacy(model, ask = ask)
         if(!is.null(spacy_python)){
             reticulate::use_python(spacy_python, required = TRUE)
         } else {
@@ -95,9 +100,13 @@ spacy_finalize <- function() {
 #' @return spacy_python
 #' @export
 #' @param model name of the language model
+#' @param ask logical; if \code{FALSE}, use the first spaCy installation found; 
+#'   if \code{TRUE}, list available spaCy installations and prompt the user 
+#'   for which to use. If another (e.g. \code{python_executable}) is set, then 
+#'   this value will always be treated as \code{FALSE}.
 #' @keywords internal
 #' @importFrom data.table data.table
-find_spacy <- function(model = "en"){
+find_spacy <- function(model = "en", ask){
     spacy_found <- `:=` <- NA
     spacy_python <- NULL
     options(warn = -1)
@@ -126,6 +135,10 @@ find_spacy <- function(model = "en"){
     } else if (df_python_check[, sum(spacy_found)] == 1) {
         spacy_python <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in ", spacy_python)
+    } else if (ask == FALSE) {
+        spacy_python <- df_python_check[spacy_found == 1, py_execs][1]
+        message("spaCy (language model: ", model, ") is installed in more than one python")
+        message("spacyr will use ", spacy_python, " (because ask = FALSE)")
     } else {
         spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in more than one python")
