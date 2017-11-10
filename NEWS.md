@@ -1,6 +1,7 @@
 # v0.9.3
 
 * Updated for the newer spaCy 2.0 release and new language models.
+* Add`ask = FAlSE` to `spacy_initialize()`.
 
 # v0.9.2
 
