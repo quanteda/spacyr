@@ -1,7 +1,7 @@
 Package: spacyr
 Type: Package
 Version: 0.9.3
-Title: R Wrapper to the spaCy NLP Library
+Title: Wrapper to the 'spaCy 'NLP' Library
 Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
     c("aut", "cre", "cph")), 
     person("Akitaka", "Matsuo", email = "A.Matsuo@lse.ac.uk", role = "aut") )
