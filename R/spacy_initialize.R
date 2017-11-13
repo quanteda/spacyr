@@ -9,6 +9,9 @@
 #'   if \code{TRUE}, list available spaCy installations and prompt the user 
 #'   for which to use. If another (e.g. \code{python_executable}) is set, then 
 #'   this value will always be treated as \code{FALSE}.
+#' @param source_bash_profile logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
+#'   to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
+#'   if using anaconda python in Mac or Linux. 
 #' @param virtualenv set a path to the python virtual environment with spaCy installed
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
@@ -18,6 +21,7 @@
 spacy_initialize <- function(model = "en", 
                              python_executable = NULL,
                              ask = FALSE,
+                             source_bash_profile = FALSE,
                              virtualenv = NULL,
                              condaenv = NULL) {
 
@@ -41,7 +45,7 @@ spacy_initialize <- function(model = "en",
         #                      system("where python", intern = TRUE), 
         #                      system("which python", intern = TRUE))
         message("Finding a python executable with spacy installed...")
-        spacy_python <- find_spacy(model, ask = ask)
+        spacy_python <- find_spacy(model, ask = ask, source_bash_profile = source_bash_profile)
         if(!is.null(spacy_python)){
             reticulate::use_python(spacy_python, required = TRUE)
         } else {
@@ -104,14 +108,23 @@ spacy_finalize <- function() {
 #'   if \code{TRUE}, list available spaCy installations and prompt the user 
 #'   for which to use. If another (e.g. \code{python_executable}) is set, then 
 #'   this value will always be treated as \code{FALSE}.
+#' @param source_bash_profile logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
+#'   to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
+#'   if using anaconda python in Mac or Linux. 
 #' @keywords internal
 #' @importFrom data.table data.table
-find_spacy <- function(model = "en", ask){
+find_spacy <- function(model = "en", ask, source_bash_profile){
     spacy_found <- `:=` <- NA
     spacy_python <- NULL
     options(warn = -1)
+    if(source_bash_profile == TRUE & Sys.info()['sysname'] == "Windows"){
+        message("the option, source_bash_profile == TRUE, will be ignored for windows system")
+    }
     py_execs <- if(Sys.info()['sysname'] == "Windows") {
         system2("where", "python", stdout = TRUE)
+    } else if(source_bash_profile == TRUE) {
+        c(system2('source', '~/.bash_profile; which -a python', stdout = TRUE),
+          system2('source', '~/.bash_profile; which -a python3', stdout = TRUE))
     } else {
         c(system2('which', '-a python', stdout = TRUE),
           system2('which', '-a python3', stdout = TRUE))
