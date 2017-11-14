@@ -11,7 +11,9 @@
 #'   this value will always be treated as \code{FALSE}.
 #' @param source_bash_profile logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
 #'   to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
-#'   if using anaconda python in Mac or Linux. 
+#'   if using anaconda python in Mac or Linux. Default is \code{NULL} 
+#'   which functions as \code{TRUE} for non-Windows system (e.g. Mac/Linux) and 
+#'   \code{FALSE} for Windows system.
 #' @param virtualenv set a path to the python virtual environment with spaCy installed
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
@@ -21,7 +23,7 @@
 spacy_initialize <- function(model = "en", 
                              python_executable = NULL,
                              ask = FALSE,
-                             source_bash_profile = FALSE,
+                             source_bash_profile = NULL,
                              virtualenv = NULL,
                              condaenv = NULL) {
 
@@ -29,6 +31,13 @@ spacy_initialize <- function(model = "en",
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
         message("spaCy is already initialized")
         return(NULL)
+    }
+    if(is.null(source_bash_profile)) {
+        if(Sys.info()['sysname'] == "Windows"){
+            source_bash_profile <- FALSE
+        } else {
+            source_bash_profile <- TRUE
+        }
     }
     # once python is initialized, you cannot change the python executables
     if(!is.null(options("python_initialized")$python_initialized)) {
