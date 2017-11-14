@@ -32,6 +32,7 @@ spacy_initialize <- function(model = "en",
         message("spaCy is already initialized")
         return(NULL)
     }
+    # set an option for source_bash_profile
     if(is.null(source_bash_profile)) {
         if(Sys.info()['sysname'] == "Windows"){
             source_bash_profile <- FALSE
@@ -43,33 +44,27 @@ spacy_initialize <- function(model = "en",
     if(!is.null(options("python_initialized")$python_initialized)) {
         message("Python space is already attached.  If you want to swtich to a different Python, please restart R.")
     } 
-    # a user can specify only one
-    else if(sum(!is.null(c(python_executable, virtualenv, condaenv))) > 1) {
-        stop(paste("Too many python environments are specified, please select only one",
-                   "from python_executable, virtualenv, and condaenv"))
+    else {
+        set_spacy_python_option(python_executable, 
+                                virtualenv, 
+                                condaenv, 
+                                ask, 
+                                source_bash_profile, 
+                                model)
     }
-    # give warning when nothing is specified
-    else if (sum(!is.null(c(python_executable, virtualenv, condaenv))) == 0){
-        # def_python <- ifelse(Sys.info()['sysname'] == "Windows", 
-        #                      system("where python", intern = TRUE), 
-        #                      system("which python", intern = TRUE))
-        message("Finding a python executable with spacy installed...")
-        spacy_python <- find_spacy(model, ask = ask, source_bash_profile = source_bash_profile)
-        if(!is.null(spacy_python)){
-            reticulate::use_python(spacy_python, required = TRUE)
-        } else {
-            stop("spaCy or language model ", model, " is not installed in any of python executables.")
-        }
-    } 
-    else {# set the path with reticulte
-        if(!is.null(python_executable)) {
-            if(check_spacy_model(python_executable, model) != "OK"){
-                stop("spaCy or language model ", model, " is not installed in ", python_executable)
+    
+    if (!is.null(options("spacy_python_setting")$spacy_python_setting)) {
+        ####
+        type <- options("spacy_python_setting")$spacy_python_setting$type
+        py_path <- options("spacy_python_setting")$spacy_python_setting$py_path
+        if(type == "python_executable") {
+            if(check_spacy_model(py_path, model) != "OK"){
+                stop("spaCy or language model ", model, " is not installed in ", py_path)
             }
-            reticulate::use_python(python_executable, required = TRUE)
+            reticulate::use_python(py_path, required = TRUE)
         }
-        else if(!is.null(virtualenv)) reticulate::use_virtualenv(virtualenv, required = TRUE)
-        else if(!is.null(condaenv)) reticulate::use_condaenv(condaenv, required = TRUE)
+        else if(type == "virtualenv") reticulate::use_virtualenv(py_path, required = TRUE)
+        else if(type == "condaenv") reticulate::use_condaenv(py_path, required = TRUE)
     }
     options("python_initialized" = TRUE) # next line could cause non-recoverable error 
     spacyr_pyexec(pyfile = system.file("python", "spacyr_class.py",
@@ -138,6 +133,7 @@ find_spacy <- function(model = "en", ask, source_bash_profile){
         c(system2('which', '-a python', stdout = TRUE),
           system2('which', '-a python3', stdout = TRUE))
     }
+    py_execs <- unique(py_execs)
     options(warn = 0)
     
     if (length(py_execs) == 0 | grepl("not find", py_execs[1])[1]){
@@ -198,4 +194,53 @@ check_spacy_model <- function(py_exec, model) {
     })
     options(warn = 0)
     return(paste(sys_message, collapse = " "))
+}
+
+
+set_spacy_python_option <- function(python_executable = NULL, 
+                                    virtualenv = NULL, 
+                                    condaenv = NULL, 
+                                    ask = NULL, 
+                                    source_bash_profile = NULL,
+                                    model = NULL) {
+    # a user can specify only one
+    if(sum(!is.null(c(python_executable, virtualenv, condaenv))) > 1) {
+        stop(paste("Too many python environments are specified, please select only one",
+                   "from python_executable, virtualenv, and condaenv"))
+    }
+    # give warning when nothing is specified
+    else if (sum(!is.null(c(python_executable, virtualenv, condaenv))) == 1){
+        if(!is.null(python_executable)) {
+            if(check_spacy_model(python_executable, model) != "OK"){
+                stop("spaCy or language model ", model, " is not installed in ", python_executable)
+            }
+            options(spacy_python_setting = list(type = "python_executable",
+                                                py_path = python_executable))
+        }
+        else if(!is.null(virtualenv)) {
+            options(spacy_python_setting = list(type = "virtualenv",
+                                                py_path = virtualenv))
+            
+        }
+        else if(!is.null(condaenv)) {
+            options(spacy_python_setting = list(type = "condaenv",
+                                                py_path = condaenv))
+        }
+    }
+    else if (!is.null(options("spacy_python_setting")$spacy_python_setting)) {
+        message("python path is already set\nspacyr will use: ", 
+                options("spacy_python_setting")$spacy_python_setting$type, " = ",
+                options("spacy_python_setting")$spacy_python_setting$py_path)
+    }
+    else {
+        message("Finding a python executable with spacy installed...")
+        spacy_python <- find_spacy(model, ask = ask, source_bash_profile = source_bash_profile)
+        if(!is.null(spacy_python)){
+            options(spacy_python_setting = list(type = "python_executable",
+                                                py_path = spacy_python))
+        } else {
+            stop("spaCy or language model ", model, " is not installed in any of python executables.")
+        }
+    }
+    return(NULL)
 }
