@@ -94,8 +94,8 @@ library("spacyr")
 spacy_initialize()
 ## Finding a python executable with spacy installed...
 ## spaCy (language model: en) is installed in more than one python
-## spacyr will use /usr/local/bin/python (because ask = FALSE)
-## successfully initialized (spaCy Version: 2.0.1, language model: en)
+## spacyr will use /anaconda/bin/python (because ask = FALSE)
+## successfully initialized (spaCy Version: 2.0.2, language model: en)
 ```
 
 ### Tokenizing and tagging texts
@@ -247,7 +247,7 @@ This is an example of parsing German texts.
 spacy_finalize()
 spacy_initialize(model = "de")
 ## Python space is already attached.  If you want to swtich to a different Python, please restart R.
-## successfully initialized (spaCy Version: 2.0.1, language model: de)
+## successfully initialized (spaCy Version: 2.0.2, language model: de)
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
@@ -353,9 +353,9 @@ spacy_finalize()
 
 By calling `spacy_initialize()` again, you can restart the backend spaCy.
 
-### Permanently set the default python
+### Permanently seting the default Python
 
-If you want to skip `spacyr` to search for python with spacy, you can do so by permanently set the path to the spacy python by spacifying it in an R-startup file, which is read every time a new `R` is launched. For Mac/Linux, the file is `~/.Rprofile` and for
+If you want to skip **spacyr** searching for Python intallation with spaCy, you can do so by permanently setting the path to the spaCy-enabled Python by specifying it in an R-startup file, which is read every time a new `R` is launched. For Mac/Linux, the file is `~/.Rprofile` and for
 
 The syntax is:
 
@@ -364,7 +364,7 @@ options(spacy_python_setting = list(type = "python_executable",
                                     py_path = "/the/path/to/python")) # e.g. "/usr/local/bin/python"
 ```
 
-These lines can be directly inserted by a text-editor. Or from `R`, enter the following (for Mac/Linux):
+These lines can be directly inserted by a text editor. Or from R, enter the following (for Mac/Linux):
 
 ``` r
 option_string <- 'options(spacy_python_setting = list(type = "python_executable",
@@ -387,8 +387,8 @@ Some of the token- and type-related standard methods from [**quanteda**](http://
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## quanteda version 0.99.9003
-## Using 7 of 8 threads for parallel computing
+## quanteda version 0.99.22
+## Using 3 of 4 threads for parallel computing
 docnames(parsedtxt)
 ## [1] "d1" "d2"
 ndoc(parsedtxt)

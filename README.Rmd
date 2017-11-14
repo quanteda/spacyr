@@ -185,16 +185,16 @@ spacy_finalize()
 ```
 By calling `spacy_initialize()` again, you can restart the backend spaCy.
 
-### Permanently set the default python
+### Permanently seting the default Python
 
-If you want to skip `spacyr` to search for python with spacy, you can do so by permanently set the path to the spacy python by spacifying it in an R-startup file, which is read every time a new `R` is launched. For Mac/Linux, the file is `~/.Rprofile` and for 
+If you want to skip **spacyr** searching for Python intallation with spaCy, you can do so by permanently setting the path to the spaCy-enabled Python by specifying it in an R-startup file, which is read every time a new `R` is launched. For Mac/Linux, the file is `~/.Rprofile` and for 
 
 The syntax is:
 ```{R eval = FALSE}
 options(spacy_python_setting = list(type = "python_executable",
                                     py_path = "/the/path/to/python")) # e.g. "/usr/local/bin/python"
 ```
-These lines can be directly inserted by a text-editor. Or from `R`, enter the following (for Mac/Linux):
+These lines can be directly inserted by a text editor.  Or from R, enter the following (for Mac/Linux):
 ```{R eval = FALSE}
 option_string <- 'options(spacy_python_setting = list(type = "python_executable",
                                     py_path = "/the/path/to/python")) '
