@@ -95,7 +95,7 @@ spacy_initialize()
 ## Finding a python executable with spacy installed...
 ## spaCy (language model: en) is installed in more than one python
 ## spacyr will use /usr/local/bin/python (because ask = FALSE)
-## successfully initialized (spaCy Version: 1.8.2, language model: en)
+## successfully initialized (spaCy Version: 2.0.1, language model: en)
 ```
 
 ### Tokenizing and tagging texts
@@ -114,8 +114,8 @@ txt <- c(d1 = "spaCy excels at large-scale information extraction tasks.",
 parsedtxt <- spacy_parse(txt)
 parsedtxt
 ##    doc_id sentence_id token_id       token       lemma   pos   entity
-## 1      d1           1        1       spaCy       spacy  NOUN         
-## 2      d1           1        2      excels       excel  VERB         
+## 1      d1           1        1       spaCy       spacy   ADJ         
+## 2      d1           1        2      excels       excel  NOUN         
 ## 3      d1           1        3          at          at   ADP         
 ## 4      d1           1        4       large       large   ADJ         
 ## 5      d1           1        5           -           - PUNCT         
@@ -138,8 +138,8 @@ Two fields are available for part-of-speech tags. The `pos` field returned is th
 ``` r
 spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
 ##    doc_id sentence_id token_id       token   pos  tag
-## 1      d1           1        1       spaCy  NOUN   NN
-## 2      d1           1        2      excels  VERB  VBZ
+## 1      d1           1        1       spaCy   ADJ   JJ
+## 2      d1           1        2      excels  NOUN  NNS
 ## 3      d1           1        3          at   ADP   IN
 ## 4      d1           1        4       large   ADJ   JJ
 ## 5      d1           1        5           - PUNCT HYPH
@@ -183,8 +183,8 @@ Or, convert multi-word entities into single "tokens":
 ``` r
 entity_consolidate(parsedtxt)
 ##    doc_id sentence_id token_id          token    pos entity_type
-## 1      d1           1        1          spaCy   NOUN            
-## 2      d1           1        2         excels   VERB            
+## 1      d1           1        1          spaCy    ADJ            
+## 2      d1           1        2         excels   NOUN            
 ## 3      d1           1        3             at    ADP            
 ## 4      d1           1        4          large    ADJ            
 ## 5      d1           1        5              -  PUNCT            
@@ -213,8 +213,8 @@ spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
 ## 3      d1           1        3          at             2     prep         
 ## 4      d1           1        4       large             6     amod         
 ## 5      d1           1        5           -             6    punct         
-## 6      d1           1        6       scale             7 compound         
-## 7      d1           1        7 information             9 compound         
+## 6      d1           1        6       scale             9 compound         
+## 7      d1           1        7 information             8 compound         
 ## 8      d1           1        8  extraction             9 compound         
 ## 9      d1           1        9       tasks             3     pobj         
 ## 10     d1           1       10           .             2    punct         
@@ -247,14 +247,14 @@ This is an example of parsing German texts.
 spacy_finalize()
 spacy_initialize(model = "de")
 ## Python space is already attached.  If you want to swtich to a different Python, please restart R.
-## successfully initialized (spaCy Version: 1.8.2, language model: de)
+## successfully initialized (spaCy Version: 2.0.1, language model: de)
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
 results_german <- spacy_parse(txt_german, dependency = TRUE, lemma = FALSE, tag = TRUE)
 results_german
 ##    doc_id sentence_id token_id              token   pos   tag
-## 1       R           1        1                  R     X    XY
+## 1       R           1        1                  R PROPN    NE
 ## 2       R           1        2                ist   AUX VAFIN
 ## 3       R           1        3               eine   DET   ART
 ## 4       R           1        4              freie   ADJ  ADJA
@@ -276,7 +276,7 @@ results_german
 ## 20      R           2        9           Aufgaben  NOUN    NN
 ## 21      R           2       10         entwickelt  VERB  VVPP
 ## 22      R           2       11                  . PUNCT    $.
-## 23 python           1        1             Python PROPN    NE
+## 23 python           1        1             Python  NOUN    NN
 ## 24 python           1        2                ist   AUX VAFIN
 ## 25 python           1        3               eine   DET   ART
 ## 26 python           1        4        universelle   ADJ  ADJA
@@ -294,50 +294,50 @@ results_german
 ## 38 python           2        6                  , PUNCT    $,
 ## 39 python           2        7            knappen   ADJ  ADJA
 ## 40 python           2        8    Programmierstil  NOUN    NN
-## 41 python           2        9            fördern  VERB VVINF
+## 41 python           2        9            fördern  VERB VVFIN
 ## 42 python           2       10                  . PUNCT    $.
-##    head_token_id dep_rel   entity
-## 1              2      sb         
-## 2              2    ROOT         
-## 3              5      nk         
-## 4              5      nk         
-## 5              2      pd         
-## 6              5     mnr         
-## 7              8      nk         
-## 8              6      nk         
-## 9              8      cd         
-## 10             9      cj         
-## 11             2   punct         
-## 12             2      sb         
-## 13             2    ROOT         
-## 14            10     sbp         
-## 15             3      nk         
-## 16             4     mnr         
-## 17             5      nk         
-## 18            10      mo         
-## 19             9      nk         
-## 20             7      nk         
-## 21             2      oc         
-## 22             2   punct         
-## 23             2      sb PERSON_B
-## 24             2    ROOT         
-## 25             9      nk         
-## 26             9      nk         
-## 27             4   punct         
-## 28             7      mo         
-## 29             4      cj         
-## 30             4  cj||cj         
-## 31             2      pd         
-## 32             2   punct         
-## 33             2      sb         
-## 34             2    ROOT         
-## 35             8      nk         
-## 36             5      mo         
-## 37             8      nk         
-## 38             5   punct         
-## 39             5      cj         
-## 40             9      oa         
-## 41             2      oc         
+##    head_token_id dep_rel entity
+## 1              2      sb       
+## 2              2    ROOT       
+## 3              5      nk       
+## 4              5      nk       
+## 5              2      pd       
+## 6              5     mnr       
+## 7              8      nk       
+## 8              6      nk       
+## 9              8      cd       
+## 10             9      cj       
+## 11             2   punct       
+## 12             2      sb       
+## 13             2    ROOT       
+## 14            10     sbp       
+## 15             3      nk  LOC_B
+## 16             4     mnr       
+## 17             5      nk       
+## 18            10      mo       
+## 19             9      nk       
+## 20             7      nk       
+## 21             2      oc       
+## 22             2   punct       
+## 23             2      sb MISC_B
+## 24             2    ROOT       
+## 25             9      nk       
+## 26             9      nk       
+## 27             4   punct       
+## 28             7      mo       
+## 29             4      cj       
+## 30             9      nk       
+## 31             2      pd       
+## 32             2   punct       
+## 33             2      sb       
+## 34             2    ROOT       
+## 35             8      nk       
+## 36             5      mo       
+## 37             8      nk       
+## 38             5   punct       
+## 39             5      cj       
+## 40             9      oa       
+## 41             2      oc       
 ## 42             2   punct
 ```
 
@@ -353,6 +353,31 @@ spacy_finalize()
 
 By calling `spacy_initialize()` again, you can restart the backend spaCy.
 
+### Permanetly set the default spacy
+
+If you want to skip `spacyr` to search for python with spacy, you can do so by permanently set the path to spacy by spacifying it in an R-startup file, which will be read every time a new `R` is launched. For Mac/Linux, the file is `~/.Rprofile` and for
+
+The syntax is:
+
+``` r
+options(spacy_python_setting = list(type = "python_executable",
+                                    py_path = "/the/path/to/python")) # e.g. "/usr/local/bin/python"
+```
+
+These line can be put directly by a text-editor or from `R`, enter the following (for Mac/Linux)
+
+``` r
+option_string <- 'options(spacy_python_setting = list(type = "python_executable",
+                                    py_path = "/the/path/to/python")) '
+write(option_string, file = "~/.Rprofile", append = TRUE)
+```
+
+Once it is appropriately set up the message from `spacy_initialize()` changes to something like:
+
+    ## The python path is already set
+    ## spacyr will use: python_executable = /usr/local/bin/python
+    ## successfully initialized (spaCy Version: 2.0.1, language model: en)
+
 Using **spacyr** with other packages
 ------------------------------------
 
@@ -362,8 +387,8 @@ Some of the token- and type-related standard methods from [**quanteda**](http://
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## quanteda version 0.99.9004
-## Using 3 of 4 threads for parallel computing
+## quanteda version 0.99.9003
+## Using 7 of 8 threads for parallel computing
 docnames(parsedtxt)
 ## [1] "d1" "d2"
 ndoc(parsedtxt)
