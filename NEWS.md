@@ -1,7 +1,11 @@
+# v0.9.4
+
+* Now looks for Python settings from `.bash_profile`.
+
 # v0.9.3
 
 * Updated for the newer spaCy 2.0 release and new language models.
-* Add`ask = FAlSE` to `spacy_initialize()`.
+* Add `ask = FALSE` to `spacy_initialize()`, to find spaCy installations automatically.
 
 # v0.9.2
 

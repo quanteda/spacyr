@@ -5,7 +5,7 @@
 \title{Initialize spaCy}
 \usage{
 spacy_initialize(model = "en", python_executable = NULL, ask = FALSE,
-  virtualenv = NULL, condaenv = NULL)
+  source_bash_profile = NULL, virtualenv = NULL, condaenv = NULL)
 }
 \arguments{
 \item{model}{Language package for loading spacy. Example: \code{en} (English) and
@@ -17,6 +17,12 @@ spacy_initialize(model = "en", python_executable = NULL, ask = FALSE,
 if \code{TRUE}, list available spaCy installations and prompt the user 
 for which to use. If another (e.g. \code{python_executable}) is set, then 
 this value will always be treated as \code{FALSE}.}
+
+\item{source_bash_profile}{logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
+to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
+if using anaconda python in Mac or Linux. Default is \code{NULL} 
+which functions as \code{TRUE} for non-Windows system (e.g. Mac/Linux) and 
+\code{FALSE} for Windows system.}
 
 \item{virtualenv}{set a path to the python virtual environment with spaCy installed
 Example: \code{virtualenv = "~/myenv"}}

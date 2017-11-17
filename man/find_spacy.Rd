@@ -4,7 +4,7 @@
 \alias{find_spacy}
 \title{Find spaCy}
 \usage{
-find_spacy(model = "en", ask)
+find_spacy(model = "en", ask, source_bash_profile)
 }
 \arguments{
 \item{model}{name of the language model}
@@ -13,6 +13,10 @@ find_spacy(model = "en", ask)
 if \code{TRUE}, list available spaCy installations and prompt the user 
 for which to use. If another (e.g. \code{python_executable}) is set, then 
 this value will always be treated as \code{FALSE}.}
+
+\item{source_bash_profile}{logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
+to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
+if using anaconda python in Mac or Linux.}
 }
 \value{
 spacy_python
