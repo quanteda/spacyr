@@ -3,7 +3,9 @@ Tips for macOS Users
 
 ### Before install spaCy
 
-You need to have a C++ complier, Xtools. Either get the full Xcode from the App Store, or install the command-line Xtools using this command from the Terminal:
+You need to have a C++ complier, Xtools. Either get the full Xcode from
+the App Store, or install the command-line Xtools using this command
+from the Terminal:
 
 ``` bash
 xcode-select --install
@@ -11,11 +13,15 @@ xcode-select --install
 
 ### Installing spaCy and **spacyr** on macOS
 
-This document describes three methods for installing spaCy and **spacyr** on macOS. 1. Using Python 2 from the homebrew package manager. 2. Using Python 3 from the homebrew package manager. 3. Using the system default Python.
+This document describes three methods for installing spaCy and
+**spacyr** on macOS. 1. Using Python 2 from the homebrew package
+manager. 2. Using Python 3 from the homebrew package manager. 3. Using
+the system default Python.
 
 #### Install spaCy using `homebrew` and Python 2.7.x
 
-Homebrew is a package manager for macOS, which you can use to install Python and spaCy.
+Homebrew is a package manager for macOS, which you can use to install
+Python and spaCy.
 
 1.  Install homebrew
 
@@ -64,7 +70,7 @@ Homebrew is a package manager for macOS, which you can use to install Python and
 8.  Install spacyr
 
     ``` r
-    devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
+    devtools::install_github("quanteda/spacyr", build_vignettes = FALSE)
     ```
 
 #### Install spaCy using `homebrew` and Python &gt;= 3.6
@@ -116,7 +122,7 @@ Homebrew is a package manager for macOS, which you can use to install Python and
 8.  Install spacyr
 
     ``` r
-    devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
+    devtools::install_github("quanteda/spacyr", build_vignettes = FALSE)
     ```
 
 If you are using a homebrew Python 2, the `spacy_initialize` is
@@ -128,7 +134,8 @@ spacy_initialize(python_executable = "/usr/local/bin/python3")
 
 #### Install spaCy on the default Python (not really recommended)
 
-Mac OS X comes with Python. In order to install spacy in that python, follow the steps below:
+Mac OS X comes with Python. In order to install spacy in that python,
+follow the steps below:
 
 1.  Install `pip`
 
@@ -142,7 +149,8 @@ Mac OS X comes with Python. In order to install spacy in that python, follow the
     sudo pip install spacy
     ```
 
-    You will need to enter a password for a user account with Administrator privileges.
+    You will need to enter a password for a user account with
+    Administrator privileges.
 3.  Install the English language model
 
     ``` bash
@@ -158,7 +166,7 @@ Mac OS X comes with Python. In order to install spacy in that python, follow the
 5.  Install spacyr
 
     ``` r
-    devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
+    devtools::install_github("quanteda/spacyr", build_vignettes = FALSE)
     ```
 
 If the default Python is used, the initialization is simply:
