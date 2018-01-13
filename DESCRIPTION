@@ -1,6 +1,6 @@
 Package: spacyr
 Type: Package
-Version: 0.9.4
+Version: 0.9.5
 Title: Wrapper to the 'spaCy 'NLP' Library
 Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
     c("aut", "cre", "cph")), 
@@ -20,7 +20,7 @@ Suggests:
     rmarkdown,
     testthat,
     knitr
-URL: http://github.com/kbenoit/spacyr
+URL: http://github.com/quanteda/spacyr
 Encoding: UTF-8
-BugReports: https://github.com/kbenoit/spacyr/issues
+BugReports: https://github.com/quanteda/spacyr/issues
 RoxygenNote: 6.0.1
