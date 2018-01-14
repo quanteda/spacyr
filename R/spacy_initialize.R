@@ -42,7 +42,7 @@ spacy_initialize <- function(model = "en",
     }
     # once python is initialized, you cannot change the python executables
     if(!is.null(options("python_initialized")$python_initialized)) {
-        message("Python space is already attached.  If you want to swtich to a different Python, please restart R.")
+        message("Python space is already attached.  If you want to switch to a different Python, please restart R.")
     } 
     else {
         set_spacy_python_option(python_executable, 

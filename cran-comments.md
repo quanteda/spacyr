@@ -1,5 +1,8 @@
 ## Submission notes
 
+### Resubmission
+
+We submitted a version that failed on Solaris (the only environment for which we ahd no testing platform) because Python was unavailable on that system.  We wish to retain the 1.0 version if possible.
 
 ### Purpose
 
