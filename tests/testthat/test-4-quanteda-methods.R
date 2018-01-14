@@ -3,6 +3,7 @@ context("test quanteda functions")
 test_that("quanteda functions work", {
     skip_on_cran()
     skip_on_appveyor()
+    skip_on_solaris()
     skip_if_not_installed("quanteda")
     
     spacy_initialize()

@@ -3,6 +3,7 @@ context("testing entity functions")
 test_that("getting named entities works", {
     skip_on_cran()
     skip_on_appveyor()
+    skip_on_solaris()
     expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
@@ -45,6 +46,7 @@ test_that("getting named entities works", {
 test_that("entity consolidation works", {
     skip_on_cran()
     skip_on_appveyor()
+    skip_on_solaris()
     expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
