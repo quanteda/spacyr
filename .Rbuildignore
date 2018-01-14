@@ -12,3 +12,5 @@
 ^vignettes
 ^appveyor\.yml$
 ^tests/misc$
+^cran-comments\.md$
+
