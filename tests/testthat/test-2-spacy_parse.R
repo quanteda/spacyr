@@ -3,7 +3,7 @@ context("test spacy_parse")
 test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
     skip_on_appveyor()
-    skip_on_solaris()
+    skip_on_os("solaris")
     expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
@@ -36,7 +36,7 @@ test_that("spacy_parse handles newlines and tabs ok", {
 test_that("spacy_parse handles quotes ok", {
     skip_on_cran()
     skip_on_appveyor()
-    skip_on_solaris()
+    skip_on_os("solaris")
     expect_message(spacy_initialize(), "successfully")
 
     txt1 <- c(doc1 = "Sentence \"quoted\" one.", 
