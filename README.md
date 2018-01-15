@@ -246,7 +246,7 @@ This is an example of parsing German texts.
 ## first finalize the spacy if it's loaded
 spacy_finalize()
 spacy_initialize(model = "de")
-## Python space is already attached.  If you want to swtich to a different Python, please restart R.
+## Python space is already attached.  If you want to switch to a different Python, please restart R.
 ## successfully initialized (spaCy Version: 2.0.2, language model: de)
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
