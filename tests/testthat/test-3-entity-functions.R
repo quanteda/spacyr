@@ -1,9 +1,11 @@
 context("testing entity functions")
+source("utils.R")
 
 test_that("getting named entities works", {
     skip_on_cran()
     skip_on_appveyor()
     skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
     
     expect_message(spacy_initialize(), "successfully")
     

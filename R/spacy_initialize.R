@@ -137,7 +137,7 @@ find_spacy <- function(model = "en", ask, source_bash_profile){
     options(warn = 0)
     
     if (length(py_execs) == 0 | grepl("not find", py_execs[1])[1]){
-        stop("No python was found on system PATH")
+        return(NA)
     }
     df_python_check <- data.table::data.table(py_execs, spacy_found = 0)
     for (i in 1:nrow(df_python_check)) {
@@ -234,12 +234,15 @@ set_spacy_python_option <- function(python_executable = NULL,
     }
     else {
         message("Finding a python executable with spacy installed...")
-        spacy_python <- find_spacy(model, ask = ask, source_bash_profile = source_bash_profile)
-        if(!is.null(spacy_python)){
+        spacy_python <- find_spacy(model, ask = ask, 
+                                   source_bash_profile = source_bash_profile)
+        if (is.null(spacy_python)) {
+            stop("spaCy or language model ", model, " is not installed in any of python executables.")
+        } else if(is.na(spacy_python)) {
+            stop("No python was found on system PATH")
+        } else {
             options(spacy_python_setting = list(type = "python_executable",
                                                 py_path = spacy_python))
-        } else {
-            stop("spaCy or language model ", model, " is not installed in any of python executables.")
         }
     }
     return(NULL)

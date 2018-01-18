@@ -1,9 +1,11 @@
 context("test spacy_parse")
+source("utils.R")
 
 test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
     skip_on_appveyor()
     skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
     expect_message(spacy_initialize(), "successfully")
     
     txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
