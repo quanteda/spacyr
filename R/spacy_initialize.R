@@ -179,7 +179,11 @@ find_spacy <- function(model = "en", ask, source_bash_profile){
 check_spacy_model <- function(py_exec, model) {
     options(warn = -1)
     py_exist <- if(Sys.info()['sysname'] == "Windows") {
-        system2("where", py_exec, stdout = TRUE)
+        if(py_exec %in% system2("where", "python", stdout = TRUE)) {
+            py_exec
+        } else {
+            NULL
+        }
     } else {
         system2('which', py_exec, stdout = TRUE)
     }
