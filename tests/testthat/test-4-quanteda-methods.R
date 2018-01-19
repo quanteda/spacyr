@@ -3,7 +3,7 @@ source("utils.R")
 
 test_that("quanteda functions work", {
     skip_on_cran()
-    skip_on_appveyor()
+    # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_not_installed("quanteda")
     skip_if_no_python_or_no_spacy()

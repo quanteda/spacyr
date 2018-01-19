@@ -3,7 +3,7 @@ source("utils.R")
 
 test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
-    skip_on_appveyor()
+    # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     expect_message(spacy_initialize(), "successfully")
@@ -37,7 +37,7 @@ test_that("spacy_parse handles newlines and tabs ok", {
 
 test_that("spacy_parse handles quotes ok", {
     skip_on_cran()
-    skip_on_appveyor()
+    # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     expect_message(spacy_initialize(), "successfully")
