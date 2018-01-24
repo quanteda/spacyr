@@ -12,11 +12,13 @@ spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE, entity = TRUE,
 corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{pos}{logical whether to return universal dependency POS tagset
-(http://universaldependencies.org/u/pos/all.html)}
+\url{http://universaldependencies.org/u/pos/})}
 
 \item{tag}{logical whether to return detailed part-of-speech tags, for the
-langage model \code{en}, it uses the OntoNotes 5 version of the Penn
-Treebank tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)}
+  langage model \code{en}, it uses the OntoNotes 5 version of the Penn
+  Treebank tag set (\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). 
+Annotation specifications for other available languages are available on the 
+spaCy website (\url{https://spacy.io/api/annotation}).}
 
 \item{lemma}{logical; inlucde lemmatized tokens in the output (lemmatization 
 may not work properly for non-English models)}

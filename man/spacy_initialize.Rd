@@ -5,7 +5,8 @@
 \title{Initialize spaCy}
 \usage{
 spacy_initialize(model = "en", python_executable = NULL, ask = FALSE,
-  source_bash_profile = NULL, virtualenv = NULL, condaenv = NULL)
+  source_bash_profile = NULL, virtualenv = NULL, condaenv = NULL,
+  omit_entity = FALSE)
 }
 \arguments{
 \item{model}{Language package for loading spacy. Example: \code{en} (English) and
@@ -29,6 +30,10 @@ Example: \code{virtualenv = "~/myenv"}}
 
 \item{condaenv}{set a path to the anaconda virtual environment with spaCy installed
 Example: \code{condalenv = "myenv"}}
+
+\item{omit_entity}{this option omit the named entity recognition from the spaCy 
+parsing pipeline. This will speed up the parsing. For more details of spaCy pipeline, 
+see \url{https://spacy.io/usage/processing-pipelines}.}
 }
 \description{
 Initialize spaCy to call from R.

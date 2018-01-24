@@ -22,8 +22,8 @@ system.  See the installation instructions from
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://github.com/kbenoit/spacyr}
-  \item Report bugs at \url{https://github.com/kbenoit/spacyr/issues}
+  \item \url{http://github.com/quanteda/spacyr}
+  \item Report bugs at \url{https://github.com/quanteda/spacyr/issues}
 }
 
 }
