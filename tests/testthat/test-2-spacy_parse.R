@@ -67,3 +67,25 @@ test_that("spacy_parse handles quotes ok", {
     expect_silent(spacy_finalize())
 })
 
+test_that("spacy_parse returns the same regardless of omit_entity value", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
+              doc2 = "Sentence\tthree.")
+    expect_message(spacy_initialize(omit_entity = FALSE), "successfully")
+    data_not_omit_entity <- spacy_parse(txt1, entity = FALSE)
+    expect_silent(spacy_finalize())
+
+    expect_message(spacy_initialize(omit_entity = TRUE), "successfully")
+    data_omit_entity <- spacy_parse(txt1, entity = FALSE)
+    
+    expect_equal(
+        data_omit_entity,
+        data_not_omit_entity
+    )
+    
+    expect_silent(spacy_finalize())
+})
