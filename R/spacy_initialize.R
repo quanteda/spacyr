@@ -18,6 +18,9 @@
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
 #'   Example: \code{condalenv = "myenv"}
+#' @param omit_entity this option omit the named entity recognition from the spaCy 
+#'   parsing pipeline. This will speed up the parsing. For more details of spaCy pipeline, 
+#'   see \url{https://spacy.io/usage/processing-pipelines}.
 #' @export
 #' @author Akitaka Matsuo
 spacy_initialize <- function(model = "en", 
@@ -25,7 +28,8 @@ spacy_initialize <- function(model = "en",
                              ask = FALSE,
                              source_bash_profile = NULL,
                              virtualenv = NULL,
-                             condaenv = NULL) {
+                             condaenv = NULL, 
+                             omit_entity = FALSE) {
 
     # here are a number of checkings
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
@@ -73,13 +77,18 @@ spacy_initialize <- function(model = "en",
     #     stop('value of lang option should be either "en" or "de"')
     # }
     spacyr_pyassign("model", model)
+    spacyr_pyassign("omit_entity", omit_entity)
+    options("omit_entity" = omit_entity)
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                        package = 'spacyr'))
     # spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
     # spacy_version <- grep("Version" ,spacy_version, value = TRUE)
     # 
     spacy_version <- spacyr_pyget("versions")$spacy
-
+    if(omit_entity == TRUE & substr(spacy_version, 1, 1) != "2"){
+        message("omit_entity == TRUE is only available for spaCy version 2")
+        options("omit_entity" = FALSE)
+    }
     message("successfully initialized (spaCy Version: ", spacy_version,', language model: ', model, ')')
     options("spacy_initialized" = TRUE)
 }
