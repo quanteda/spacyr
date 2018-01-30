@@ -6,7 +6,7 @@
 \usage{
 spacy_initialize(model = "en", python_executable = NULL, ask = FALSE,
   source_bash_profile = NULL, virtualenv = NULL, condaenv = NULL,
-  omit_entity = FALSE)
+  entity = TRUE)
 }
 \arguments{
 \item{model}{Language package for loading spacy. Example: \code{en} (English) and
@@ -31,9 +31,11 @@ Example: \code{virtualenv = "~/myenv"}}
 \item{condaenv}{set a path to the anaconda virtual environment with spaCy installed
 Example: \code{condalenv = "myenv"}}
 
-\item{omit_entity}{this option omit the named entity recognition from the spaCy 
-parsing pipeline. This will speed up the parsing. For more details of spaCy pipeline, 
-see \url{https://spacy.io/usage/processing-pipelines}.}
+\item{entity}{logical; if \code{FALSE} is selected, named entity recognition is turned off 
+in the spaCy. This will speed up the parsing as it will exclude \code{ner} from the pipeline. 
+For details of spaCy pipeline, 
+see \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE} is available only 
+for spaCy version 2.0.0 or higher.}
 }
 \description{
 Initialize spaCy to call from R.

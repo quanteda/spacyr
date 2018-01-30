@@ -18,9 +18,11 @@
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
 #'   Example: \code{condalenv = "myenv"}
-#' @param omit_entity this option omit the named entity recognition from the spaCy 
-#'   parsing pipeline. This will speed up the parsing. For more details of spaCy pipeline, 
-#'   see \url{https://spacy.io/usage/processing-pipelines}.
+#' @param entity logical; if \code{FALSE} is selected, named entity recognition is turned off 
+#'   in the spaCy. This will speed up the parsing as it will exclude \code{ner} from the pipeline. 
+#'   For details of spaCy pipeline, 
+#'   see \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE} is available only 
+#'   for spaCy version 2.0.0 or higher.
 #' @export
 #' @author Akitaka Matsuo
 spacy_initialize <- function(model = "en", 
@@ -29,7 +31,7 @@ spacy_initialize <- function(model = "en",
                              source_bash_profile = NULL,
                              virtualenv = NULL,
                              condaenv = NULL, 
-                             omit_entity = FALSE) {
+                             entity = TRUE) {
 
     # here are a number of checkings
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
@@ -76,6 +78,7 @@ spacy_initialize <- function(model = "en",
     # if(! lang %in% c('en', 'de')) {
     #     stop('value of lang option should be either "en" or "de"')
     # }
+    omit_entity <- !entity
     spacyr_pyassign("model", model)
     spacyr_pyassign("omit_entity", omit_entity)
     options("omit_entity" = omit_entity)
@@ -86,7 +89,7 @@ spacy_initialize <- function(model = "en",
     # 
     spacy_version <- spacyr_pyget("versions")$spacy
     if(omit_entity == TRUE & substr(spacy_version, 1, 1) != "2"){
-        message("omit_entity == TRUE is only available for spaCy version 2")
+        message("entity == FALSE is only available for spaCy version 2.0.0 or higher")
         options("omit_entity" = FALSE)
     }
     message("successfully initialized (spaCy Version: ", spacy_version,', language model: ', model, ')')
