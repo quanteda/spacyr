@@ -107,3 +107,27 @@ test_that("spacy_parse returns the message if 'entity' option is not consistent 
     
     expect_silent(spacy_finalize())
 })
+
+test_that("spacy_parse can handle data.frame properly", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    expect_message(spacy_initialize(), "successfully")
+    
+    df <- data.frame(doc_id = paste0("doc", seq(2)), 
+                     text = c("Sentence one.\nSentence two.", 
+                              "Sentence\tthree."),
+                     stringsAsFactors = FALSE)
+    expect_equal(dim(spacy_parse(df)), c(11,7))
+    
+    df_impropoer <- data.frame(id = paste0("doc", seq(2)), 
+                               text = c("Sentence one.\nSentence two.", 
+                                        "Sentence\tthree."),
+                               stringsAsFactors = FALSE)
+    expect_error(spacy_parse(df_impropoer), 
+                 "input data.frame does not conform to the TIF standard")
+    
+    expect_silent(spacy_finalize())
+})
