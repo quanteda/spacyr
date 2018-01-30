@@ -89,3 +89,21 @@ test_that("spacy_parse returns the same regardless of the value of 'entity' opti
     
     expect_silent(spacy_finalize())
 })
+
+test_that("spacy_parse returns the message if 'entity' option is not consistent with the initialization options", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
+              doc2 = "Sentence\tthree.")
+    expect_message(spacy_initialize(entity = FALSE), "successfully")
+    expect_message(spacy_parse(txt1, entity = TRUE), "entity == TRUE is ignored")
+    
+    expect_silent(spacy_finalize())
+    expect_message(spacy_initialize(entity = TRUE), "successfully")
+    expect_silent(tmp <- spacy_parse(txt1, entity = TRUE))
+    
+    expect_silent(spacy_finalize())
+})
