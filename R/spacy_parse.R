@@ -21,7 +21,6 @@
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
-#' @param batch_size place holder (will be written later)
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
@@ -45,7 +44,6 @@ spacy_parse <- function(x,
                         lemma = TRUE,
                         entity = TRUE, 
                         dependency = FALSE,
-                        batch_size = 1,
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -60,35 +58,9 @@ spacy_parse.character <- function(x,
                                   lemma = TRUE,
                                   entity = TRUE, 
                                   dependency = FALSE,
-                                  batch_size = 1,
                                   ...) {
     
     `:=` <- NULL
-    
-    ## Create Batch
-    if (!(is.numeric(batch_size)) | !(batch_size > 0)){
-        stop("batch_size should be a positive integer")
-    }
-    if (batch_size > 1) {
-        if (is.null(names(x))) names(x) <- paste0("text", 1:length(x))
-        
-        marker <- paste(sample(LETTERS, size = 15), collapse = "")
-        while(length(grep(marker, x)) > 0){
-            marker <- paste(sample(LETTERS, size = 15), collapse = "")
-            counter <- counter + 1
-            if(counter  > 10) {
-                message("Batch processing does not work, revert to single text processing")
-                batch_size <- 1
-                break
-            }
-        }
-        x <- split(x, ceiling(seq_along(x)/batch_size))
-        x <- lapply(x, function(y) {
-            paste(paste0(marker, names(y), "."), y, collapse = " ")
-        }) 
-        x <- unlist(x)
-    }
-    
     
     spacy_out <- process_document(x)
     if (is.null(spacy_out$timestamps)) {
@@ -101,7 +73,6 @@ spacy_parse.character <- function(x,
         message("entity == TRUE will be ignored")
         entity <- FALSE
     }
-    
     
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
@@ -142,22 +113,6 @@ spacy_parse.character <- function(x,
     if (entity) {
         dt[, entity := get_named_entities(spacy_out)]
     }
-    
-    ## (batch_procesing) remove batch markers and renumber ids
-    reassign_sentenceid <- function(x){
-        sent_rle <- rle(x)
-        sent_rle$values <- seq_along(sent_rle$values)
-        return(inverse.rle(sent_rle))
-    }
-    
-    if(batch_size > 1) {
-        dt[, sub_id := cumsum(grepl(marker, token)), by = doc_id]
-        dt[, doc_id := sub(marker, "", token[1]), by = list(doc_id, sub_id)]
-        dt <- dt[- apply(expand.grid(grep(marker, token), 0:1), 1, sum)][
-                         , sentence_id := reassign_sentenceid(sentence_id), by = doc_id]
-        dt[, sub_id := NULL]
-    }
-    ##
     
     dt <- as.data.frame(dt)
     class(dt) <- c("spacyr_parsed", class(dt))
