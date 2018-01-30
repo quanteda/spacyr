@@ -68,7 +68,7 @@ spacy_parse.character <- function(x,
     }
     
     ## check the omit_entity status
-    if (entity == TRUE & options()$omit_entity == TRUE) {
+    if (entity == TRUE & getOption("spacy_entity") == FALSE) {
         message("entity == TRUE is ignored because spaCy model is initialized without Entity Recognizer")
         message("In order to turn on entity recognition, run spacy_finalize(); spacy_initialize(entity = TURE)")
         entity <- FALSE
