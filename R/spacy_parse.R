@@ -64,7 +64,6 @@ spacy_parse.character <- function(x,
                                   ...) {
     
     `:=` <- NULL
-    sub_id <- token <- doc_id <- sentence_id <- NULL
     
     ## Create Batch
     if (!(is.numeric(batch_size)) | !(batch_size > 0)){
