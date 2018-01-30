@@ -1,3 +1,8 @@
+# v0.9.5
+
+* Create an option to permanently set the default Python through `.Rprofile`
+* Performance enhancement through `spacy_initialize(entity = FALSE)` (#91)
+
 # v0.9.4
 
 * Now looks for Python settings from `.bash_profile`.

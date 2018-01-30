@@ -67,6 +67,13 @@ spacy_parse.character <- function(x,
         stop("Document parsing failed")
     }
     
+    ## check the omit_entity status
+    if (entity == TRUE & getOption("spacy_entity") == FALSE) {
+        message("entity == TRUE is ignored because spaCy model is initialized without Entity Recognizer")
+        message("In order to turn on entity recognition, run spacy_finalize(); spacy_initialize(entity = TURE)")
+        entity <- FALSE
+    }
+    
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
     ntokens_by_sent <- get_ntokens_by_sent(spacy_out)

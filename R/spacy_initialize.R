@@ -18,6 +18,11 @@
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
 #'   Example: \code{condalenv = "myenv"}
+#' @param entity logical; if \code{FALSE} is selected, named entity recognition is turned off 
+#'   in spaCy. This will speed up the parsing as it will exclude \code{ner} from the pipeline. 
+#'   For details of spaCy pipeline, 
+#'   see \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE} is available only 
+#'   for spaCy version 2.0.0 or higher.
 #' @export
 #' @author Akitaka Matsuo
 spacy_initialize <- function(model = "en", 
@@ -25,7 +30,8 @@ spacy_initialize <- function(model = "en",
                              ask = FALSE,
                              source_bash_profile = NULL,
                              virtualenv = NULL,
-                             condaenv = NULL) {
+                             condaenv = NULL, 
+                             entity = TRUE) {
 
     # here are a number of checkings
     if(!is.null(options("spacy_initialized")$spacy_initialized)){
@@ -73,13 +79,18 @@ spacy_initialize <- function(model = "en",
     #     stop('value of lang option should be either "en" or "de"')
     # }
     spacyr_pyassign("model", model)
+    spacyr_pyassign("spacy_entity", entity)
+    options("spacy_entity" = entity)
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                        package = 'spacyr'))
     # spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
     # spacy_version <- grep("Version" ,spacy_version, value = TRUE)
     # 
     spacy_version <- spacyr_pyget("versions")$spacy
-
+    if(entity == FALSE & as.integer(substr(spacy_version, 1, 1)) < 2){
+        message("entity == FALSE is only available for spaCy version 2.0.0 or higher")
+        options("spacy_entity" = TRUE)
+    }
     message("successfully initialized (spaCy Version: ", spacy_version,', language model: ', model, ')')
     options("spacy_initialized" = TRUE)
 }

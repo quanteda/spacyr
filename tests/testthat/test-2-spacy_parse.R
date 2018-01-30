@@ -67,3 +67,67 @@ test_that("spacy_parse handles quotes ok", {
     expect_silent(spacy_finalize())
 })
 
+test_that("spacy_parse returns the same regardless of the value of 'entity' option at the initialization", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
+              doc2 = "Sentence\tthree.")
+    expect_message(spacy_initialize(entity = TRUE), "successfully")
+    data_not_omit_entity <- spacy_parse(txt1, entity = FALSE)
+    expect_silent(spacy_finalize())
+
+    expect_message(spacy_initialize(entity = FALSE), "successfully")
+    data_omit_entity <- spacy_parse(txt1, entity = FALSE)
+    
+    expect_equal(
+        data_omit_entity,
+        data_not_omit_entity
+    )
+    
+    expect_silent(spacy_finalize())
+})
+
+test_that("spacy_parse returns the message if 'entity' option is not consistent with the initialization options", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    txt1 <- c(doc1 = "Sentence one.\nSentence two.", 
+              doc2 = "Sentence\tthree.")
+    expect_message(spacy_initialize(entity = FALSE), "successfully")
+    expect_message(spacy_parse(txt1, entity = TRUE), "entity == TRUE is ignored")
+    
+    expect_silent(spacy_finalize())
+    expect_message(spacy_initialize(entity = TRUE), "successfully")
+    expect_silent(tmp <- spacy_parse(txt1, entity = TRUE))
+    
+    expect_silent(spacy_finalize())
+})
+
+test_that("spacy_parse can handle data.frame properly", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    expect_message(spacy_initialize(), "successfully")
+    
+    df <- data.frame(doc_id = paste0("doc", seq(2)), 
+                     text = c("Sentence one.\nSentence two.", 
+                              "Sentence\tthree."),
+                     stringsAsFactors = FALSE)
+    expect_equal(dim(spacy_parse(df)), c(11,7))
+    
+    df_impropoer <- data.frame(id = paste0("doc", seq(2)), 
+                               text = c("Sentence one.\nSentence two.", 
+                                        "Sentence\tthree."),
+                               stringsAsFactors = FALSE)
+    expect_error(spacy_parse(df_impropoer), 
+                 "input data.frame does not conform to the TIF standard")
+    
+    expect_silent(spacy_finalize())
+})
