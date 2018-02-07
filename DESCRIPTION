@@ -1,7 +1,7 @@
 Package: spacyr
 Type: Package
 Title: Wrapper to the 'spaCy 'NLP' Library
-Version: 0.9.5
+Version: 0.9.6
 Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
     c("aut", "cre", "cph")), 
     person("Akitaka", "Matsuo", email = "A.Matsuo@lse.ac.uk", role = "aut") )
@@ -10,7 +10,7 @@ Description: An R wrapper to the 'Python' 'spaCy' 'NLP' library,
 License: GPL-3
 LazyData: TRUE
 Depends:
-    R (>= 3.3.0),
+    R (>= 3.0.0),
     methods
 Imports:
     data.table,
