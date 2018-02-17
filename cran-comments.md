@@ -1,12 +1,8 @@
 ## Submission notes
 
-### Resubmission
-
-We submitted a version that failed on Solaris (the only environment for which we ahd no testing platform) because Python was unavailable on that system.  We wish to retain the 1.0 version if possible.
-
 ### Purpose
 
-Improvements to usability and robustness.
+Bug fixes and improvements to usability; decreases R version dependency to an earlier version (our newer version dependency was unnecessary).
 
 ## Test environments
 
