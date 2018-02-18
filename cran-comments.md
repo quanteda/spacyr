@@ -1,5 +1,9 @@
 ## Submission notes
 
+### Resubmission
+
+Fixed the imbalanced single quotes in the title.
+
 ### Purpose
 
 Bug fixes and improvements to usability; decreases R version dependency to an earlier version (our newer version dependency was unnecessary).
@@ -25,7 +29,4 @@ None.
 ## Downstream dependencies
 
 No errors were caused in other packages, using `devtools::revdep_check()` to confirm.
-
-We saw one warning in the **preText** package, because of an incorrect call to a **quanteda** function.  I notified the package maintainer of this in early December.
-
 
