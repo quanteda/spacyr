@@ -37,7 +37,10 @@ spacy_condaenv_setup <- function(models = c("en"),
         system2("source", paste("~/.bash_profile; source activate spacy_condaenv; python -m spacy download", model))
     }
     
-    write('spacy_condaenv = TRUE', file = "~/.Rprofile", append = TRUE)
+    rprofile <- readLines("~/.Rprofile")
+    write(c(grep("spacy_condaenv = TRUE", rprofile, value = TRUE, invert = TRUE),
+            "options(spacy_condaenv = TRUE)"),
+          file = "~/.Rprofile")
     message("spacy_condaenv is successfully created. Please restart R in order to reflect the changes")
 }
 
