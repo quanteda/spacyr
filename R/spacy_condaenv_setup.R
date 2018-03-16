@@ -41,6 +41,7 @@ spacy_condaenv_setup <- function(models = c("en"),
     write(c(grep("spacy_condaenv = TRUE", rprofile, value = TRUE, invert = TRUE),
             "options(spacy_condaenv = TRUE)"),
           file = "~/.Rprofile")
+    options(spacy_condaenv = TRUE)
     message("spacy_condaenv is successfully created. Please restart R in order to reflect the changes")
 }
 
