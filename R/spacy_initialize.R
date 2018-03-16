@@ -50,6 +50,11 @@ spacy_initialize <- function(model = "en",
     if(!is.null(options("python_initialized")$python_initialized)) {
         message("Python space is already attached.  If you want to switch to a different Python, please restart R.")
     } 
+    # NEW: if spacy_condaenv exists use it
+    else if (!is.null(options("spacy_condaenv")$spacy_condaenv)) {
+        message("a conda enviroment 'spacy_condaenv' has been set up. spacyr uses this environment")
+        set_spacy_python_option(condaenv = "spacy_condaenv")
+    }
     else {
         set_spacy_python_option(python_executable, 
                                 virtualenv, 
