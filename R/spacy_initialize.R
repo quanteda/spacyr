@@ -46,14 +46,21 @@ spacy_initialize <- function(model = "en",
             source_bash_profile <- TRUE
         }
     }
+    
+
+    
     # once python is initialized, you cannot change the python executables
     if(!is.null(options("python_initialized")$python_initialized)) {
         message("Python space is already attached.  If you want to switch to a different Python, please restart R.")
     } 
     # NEW: if spacy_condaenv exists use it
-    else if (!is.null(options("spacy_condaenv")$spacy_condaenv)) {
-        message("a conda enviroment 'spacy_condaenv' has been set up. spacyr uses this environment")
+    else if("spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
+        message("Found 'spacy_condaenv'. Spacyr will uses this environment")
         set_spacy_python_option(condaenv = "spacy_condaenv")
+    }
+    else if(file.exists(file.path( "~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
+        message("Found 'spacy_virtualenv'. Spacyr will uses this environment")
+        set_spacy_python_option(virtualenv = "~/.virtualenvs/spacy_virtualenv")
     }
     else {
         set_spacy_python_option(python_executable, 
