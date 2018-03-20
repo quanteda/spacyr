@@ -10,7 +10,8 @@
 #' 
 #' @param conda the version of conda to be used
 #' 
-#' @param lang_model Language model to be installed. Default \code{en} (English model)
+#' @param lang_models Language models to be installed. Default \code{en} (English model). 
+#' A vector of multiple model names can be used (e.g. \code{c('en', 'de')})
 #'
 #' @param version Spacy version to install. Specify "latest" to install
 #'   the latest release. 
@@ -22,12 +23,15 @@
 #' 
 #' @param python_version determine python version for condaenv installation. 3.5 and 3.6 are available
 #'
+#' @param python_path supply path to python in virtualenv installation
+#' 
 #' @export
 install_spacy <- function(method = c("virtualenv", "conda", "system"),
                           conda = "auto",
                           version = "latest",
-                          lang_model = "en",
+                          lang_models = "en",
                           python_version = "3.6",
+                          python_path = NULL,
                           restart_session = TRUE) {
     # verify os
     if (!is_windows() && !is_osx() && !is_linux()) {
@@ -84,12 +88,12 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
                 stop("Conda installation failed (no conda binary found)\n", call. = FALSE)
             
             # do install
-            install_spacy_conda(conda, version, lang_model, python_version)
+            install_spacy_conda(conda, version, lang_models, python_version)
             
         } else {
             
             # find system python binary
-            python <- python_unix_binary("python")
+            python <- if(!is.null(python_path)) python_path else python_unix_binary("python")
             if (is.null(python))
                 stop("Unable to locate Python on this system.", call. = FALSE)
             
@@ -141,12 +145,11 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
                         )
                     }
                     
-                    stop("Prerequisites for installing TensorFlow not available.\n\n",
+                    stop("Prerequisites for installing spaCy not available.\n\n",
                          install_commands, "\n\n", call. = FALSE)
                 }
-                
             }
-            install_tensorflow_virtualenv(python, virtualenv, version, lang_model)
+            install_spacy_virtualenv(python, virtualenv, version, lang_models)       
         }
         
         # windows installation
@@ -188,7 +191,7 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
             }
             
             # do the install
-            install_spacy_conda(conda, version, lang_model, python_version)
+            install_spacy_conda(conda, version, lang_models, python_version)
             
         } else if (identical(method, "system")) {
             
@@ -219,7 +222,7 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
     invisible(NULL)
 }
 
-install_spacy_conda <- function(conda, version, lang_model, python_version) {
+install_spacy_conda <- function(conda, version, lang_models, python_version) {
     
     # create conda environment if we need to
     envname <- "spacy_condaenv"
@@ -271,7 +274,8 @@ install_spacy_conda <- function(conda, version, lang_model, python_version) {
     cat("Installing Spacy...\n")
     packages <- spacy_pkgs(version)
     conda_install(envname, packages, pip = TRUE, conda = conda)
-    spacy_download_lang_model_conda(model = model, condal = conda)
+    
+    for(model in lang_models) spacy_download_lang_model_conda(model = model, condal = conda)
     
 }
 
@@ -295,10 +299,13 @@ install_spacy_conda <- function(conda, version, lang_model, python_version) {
 
 
 
-install_tensorflow_virtualenv <- function(python, virtualenv, version, gpu, packages) {
+install_spacy_virtualenv <- function(python, virtualenv, version, lang_models) {
     
     # determine python version to use
     is_python3 <- python_version(python) >= "3.0"
+    if(!is_python3) {
+        stop("spacyr does not support virtual environment installation for python 2.*", call. = FALSE)
+    }
     pip_version <- ifelse(is_python3, "pip3", "pip")
     
     # create virtualenv
@@ -310,11 +317,11 @@ install_tensorflow_virtualenv <- function(python, virtualenv, version, gpu, pack
     virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
     
     # create virtualenv if necessary
-    virtualenv_path <- file.path(virtualenv_root, "r-tensorflow")
+    virtualenv_path <- file.path(virtualenv_root, "spacy_virtualenv")
     if (!file.exists(virtualenv_path) || !file.exists(virtualenv_bin("activate"))) {
-        cat("Creating virtualenv for TensorFlow at ", virtualenv_path, "\n")
+        cat("Creating virtualenv for spaCy at ", virtualenv_path, "\n")
         result <- system2(virtualenv, shQuote(c(
-            "--system-site-packages",
+            #"--system-site-packages",
             "--python", python,
             path.expand(virtualenv_path)))
         )
@@ -336,10 +343,10 @@ install_tensorflow_virtualenv <- function(python, virtualenv, version, gpu, pack
         cat(message, "...\n")
         result <- system(cmd)
         if (result != 0L)
-            stop("Error ", result, " occurred installing TensorFlow", call. = FALSE)
+            stop("Error ", result, " occurred installing spaCy", call. = FALSE)
     }
     
-    # upgrade pip so it can find tensorflow
+    # upgrade pip so it can find spaCy
     pip_install("pip", "Upgrading pip")
     
     # install updated version of the wheel package
@@ -349,8 +356,12 @@ install_tensorflow_virtualenv <- function(python, virtualenv, version, gpu, pack
     pip_install("setuptools", "Upgrading setuptools")
     
     # install tensorflow and related dependencies
-    pkgs <- spacy_kgs(version)
-    pip_install(pkgs, "Installing TensorFlow")
+    pkgs <- spacy_pkgs(version)
+    pip_install(pkgs, "Installing spaCy")
+    
+    for(model in lang_models) {
+        spacy_download_lang_model_virtualenv(model = model)
+    }
 }
 
 
@@ -424,131 +435,53 @@ spacy_pkgs <- function(version, packages = NULL) {
 # }
 
 
-#' Install additional Python packages alongside TensorFlow
-#'
-#' @param packages Python packages to install
-#' @param conda Path to conda executable (or "auto" to find conda using the PATH
-#'   and other conventional install locations). Only used when TensorFlow is
-#'   installed within a conda environment.
-#'
-#' @details
-#'
-#' This function requires a version of TensorFlow previously installed
-#' via the [install_tensorflow()] function.
-#'
-#' For virtualenv and conda installations, the specified packages will be
-#' installed into the "r-tensorflow" environment. For system installations
-#' on Windows the specified packages will be installed into the system
-#' package library.
-#'
-#' @export
-install_tensorflow_extras <- function(packages, conda = "auto") {
-    
-    # ensure we call this in a fresh session on windows (avoid DLL
-    # in use errors)
-    if (is_windows() && py_available()) {
-        stop("You should call install_tensorflow_extras() only in a fresh ",
-             "R session that has not yet initialized TensorFlow (this is ",
-             "to avoid DLL in use errors during installation)")
-    }
-    
-    # examime config (this does not yet initialize python, important to avoid
-    # DLL in use errors on Windows)
-    config <- py_discover_config("tensorflow")
-    
-    # if we don't have tensorflow then automatically install it and then
-    # rediscover the config
-    if (is.null(config$required_module_path)) {
-        install_tensorflow(conda = conda)
-        config <- py_discover_config("tensorflow")
-    }
-    
-    # determine which type of tensorflow installation we have
-    if (is_windows()) {
-        if (config$anaconda)
-            type <- "conda"
-        else
-            type <- "system"
-    } else {
-        if (nzchar(config$virtualenv_activate))
-            type <- "virtualenv"
-        else
-            type <- "conda"
-    }
-    
-    # if this is a virtualenv or conda based installation then confirm we are within
-    # an "r-tensorflow" environment (i.e. installed via install_tensorflow())
-    if (type %in% c("virtualenv", "conda")) {
-        python_binary <- ifelse(is_windows(), "r-tensorflow\\python.exe", "r-tensorflow/bin/python")
-        if (!grepl(paste0(python_binary, "$"), config$python)) {
-            stop("You must be using a version of TensorFlow installed with the ",
-                 "install_tensorflow() function in order\n",
-                 "to install packages with the install_tensorflow_extras() function. ",
-                 "The version of TensorFlow\ncurrently in use is installed at ",
-                 aliased(tf_config()$location))
-        }
-    }
-    
-    # perform the installation
-    if (identical(type, "conda")) {
-        if (is_windows())
-            conda_forge_install("r-tensorflow", packages, conda = conda)
-        else
-            conda_install("r-tensorflow", packages, pip = TRUE, conda = conda)
-    }
-    else if (identical(type, "virtualenv"))
-        virtualenv_install("r-tensorflow", packages)
-    else if (identical(type, "system"))
-        windows_system_install(config$python, packages)
-}
 
-
-
-virtualenv_install <- function(envname, packages) {
-    
-    # TODO: refactor to share code between this and install_tensorflow_virtualenv
-    # (we added this code late in the v1.0 cycle so didn't want to do the
-    # refactor then)
-    
-    # determine path to virtualenv
-    virtualenv_root <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
-    virtualenv_path <- file.path(virtualenv_root, envname)
-    
-    # helper to construct paths to virtualenv binaries
-    virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
-    
-    # determine pip version to use
-    python <- virtualenv_bin("python")
-    is_python3 <- python_version(python) >= "3.0"
-    pip_version <- ifelse(is_python3, "pip3", "pip")
-    
-    # build and execute install command
-    cmd <- sprintf("%ssource %s && %s install --ignore-installed --upgrade %s%s",
-                   ifelse(is_osx(), "", "/bin/bash -c \""),
-                   shQuote(path.expand(virtualenv_bin("activate"))),
-                   shQuote(path.expand(virtualenv_bin(pip_version))),
-                   paste(shQuote(packages), collapse = " "),
-                   ifelse(is_osx(), "", "\""))
-    result <- system(cmd)
-    if (result != 0L)
-        stop("Error ", result, " occurred installing packages", call. = FALSE)
-}
-
-
-windows_system_install <- function(python, packages) {
-    
-    # TODO: refactor to share code with install_tensorflow_windows_system
-    
-    # determine pip location from python binary location
-    pip <- file.path(dirname(python), "Scripts", "pip.exe")
-    
-    # execute the installation
-    result <- system2(pip, c("install", "--upgrade --ignore-installed",
-                             paste(shQuote(packages), collapse = " ")))
-    if (result != 0L)
-        stop("Error ", result, " occurred installing tensorflow package", call. = FALSE)
-}
-
+# 
+# virtualenv_install <- function(envname, packages) {
+#     
+#     # TODO: refactor to share code between this and install_tensorflow_virtualenv
+#     # (we added this code late in the v1.0 cycle so didn't want to do the
+#     # refactor then)
+#     
+#     # determine path to virtualenv
+#     virtualenv_root <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+#     virtualenv_path <- file.path(virtualenv_root, envname)
+#     
+#     # helper to construct paths to virtualenv binaries
+#     virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
+#     
+#     # determine pip version to use
+#     python <- virtualenv_bin("python")
+#     is_python3 <- python_version(python) >= "3.0"
+#     pip_version <- ifelse(is_python3, "pip3", "pip")
+#     
+#     # build and execute install command
+#     cmd <- sprintf("%ssource %s && %s install --ignore-installed --upgrade %s%s",
+#                    ifelse(is_osx(), "", "/bin/bash -c \""),
+#                    shQuote(path.expand(virtualenv_bin("activate"))),
+#                    shQuote(path.expand(virtualenv_bin(pip_version))),
+#                    paste(shQuote(packages), collapse = " "),
+#                    ifelse(is_osx(), "", "\""))
+#     result <- system(cmd)
+#     if (result != 0L)
+#         stop("Error ", result, " occurred installing packages", call. = FALSE)
+# }
+# 
+# 
+# windows_system_install <- function(python, packages) {
+#     
+#     # TODO: refactor to share code with install_tensorflow_windows_system
+#     
+#     # determine pip location from python binary location
+#     pip <- file.path(dirname(python), "Scripts", "pip.exe")
+#     
+#     # execute the installation
+#     result <- system2(pip, c("install", "--upgrade --ignore-installed",
+#                              paste(shQuote(packages), collapse = " ")))
+#     if (result != 0L)
+#         stop("Error ", result, " occurred installing tensorflow package", call. = FALSE)
+# }
+# 
 
 ## checking os
 
