@@ -12,7 +12,7 @@ spacy_download_lang_model_conda <- function(envname = "spacy_condaenv",
                                             conda = "auto") {
     message(sprintf("installing model \"%s\"\n", model))
     # resolve conda binary
-    conda <- conda_binary(conda)
+    conda <- reticulate::conda_binary(conda)
     
     # 
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))

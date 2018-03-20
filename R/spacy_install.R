@@ -26,7 +26,7 @@
 #' @param python_path supply path to python in virtualenv installation
 #' 
 #' @export
-install_spacy <- function(method = c("virtualenv", "conda", "system"),
+spacy_install <- function(method = c("virtualenv", "conda", "system"),
                           conda = "auto",
                           version = "latest",
                           lang_models = "en",
@@ -74,7 +74,7 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
     system_available <- is_windows() && method_available("system")
     
     # resolve and look for conda
-    conda <- tryCatch(conda_binary(conda), error = function(e) NULL)
+    conda <- tryCatch(reticulate::conda_binary(conda), error = function(e) NULL)
     have_conda <- conda_available && !is.null(conda)
     
     # mac and linux
@@ -194,7 +194,7 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
             install_spacy_conda(conda, version, lang_models, python_version)
             
         } else if (identical(method, "system")) {
-            
+            stop("Windows system installation hasn't been implemented yet.")
             # if we don't have it then error
             if (!have_system) {
                 stop("spacyr only supports the installtion on a 64-bit version of Python 3.5 or 3.6\n\n",
@@ -226,7 +226,7 @@ install_spacy_conda <- function(conda, version, lang_models, python_version) {
     
     # create conda environment if we need to
     envname <- "spacy_condaenv"
-    conda_envs <- conda_list(conda = conda)
+    conda_envs <- reticulate::conda_list(conda = conda)
     conda_env <- subset(conda_envs, conda_envs$name == envname)
     if (nrow(conda_env) == 1) {
         cat("Using", envname, "conda environment for spaCy installation\n")
@@ -235,8 +235,8 @@ install_spacy_conda <- function(conda, version, lang_models, python_version) {
     else {
         cat("Creating", envname, "conda environment for spaCy installation...\n")
         python_packages <- ifelse(is.null(python_version), "python=3.6", 
-                                  sprintf("python=", python_version))
-        python <- conda_create(envname, packages = python_packages, conda = conda)
+                                  sprintf("python=%s", python_version))
+        python <- reticulate::conda_create(envname, packages = python_packages, conda = conda)
     }
     
     # Short circuit to install everything with conda when no custom packages
@@ -273,9 +273,9 @@ install_spacy_conda <- function(conda, version, lang_models, python_version) {
     # install base spaCy using pip
     cat("Installing Spacy...\n")
     packages <- spacy_pkgs(version)
-    conda_install(envname, packages, pip = TRUE, conda = conda)
+    reticulate::conda_install(envname, packages, pip = TRUE, conda = conda)
     
-    for(model in lang_models) spacy_download_lang_model_conda(model = model, condal = conda)
+    for(model in lang_models) spacy_download_lang_model_conda(model = model, conda = conda)
     
 }
 
@@ -387,7 +387,7 @@ install_tensorflow_windows_system <- function(python, pip, version, gpu, package
 
 
 python_unix_binary <- function(bin) {
-    locations <- file.path(c("/usr/bin", "/usr/local/bin"), bin)
+    locations <- file.path(c( "/usr/local/bin", "/usr/bin"), bin)
     locations <- locations[file.exists(locations)]
     if (length(locations) > 0)
         locations[[1]]
