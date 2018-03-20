@@ -19,15 +19,15 @@
 #'   
 #' @param restart_session Restart R session after installing (note this will
 #'   only occur within RStudio).
-#'
-#   #' @importFrom jsonlite fromJSON
+#' 
+#' @param python_version determine python version for condaenv installation. 3.5 and 3.6 are available
 #'
 #' @export
 install_spacy <- function(method = c("virtualenv", "conda", "system"),
                           conda = "auto",
                           version = "latest",
                           lang_model = "en",
-                          python_version = NULL,
+                          python_version = "3.6",
                           restart_session = TRUE) {
     # verify os
     if (!is_windows() && !is_osx() && !is_linux()) {
@@ -84,7 +84,7 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
                 stop("Conda installation failed (no conda binary found)\n", call. = FALSE)
             
             # do install
-            install_spacy_conda(conda, version, lang_model)
+            install_spacy_conda(conda, version, lang_model, python_version)
             
         } else {
             
@@ -188,7 +188,7 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
             }
             
             # do the install
-            install_spacy_conda(conda, version, lang_model)
+            install_spacy_conda(conda, version, lang_model, python_version)
             
         } else if (identical(method, "system")) {
             
@@ -219,7 +219,7 @@ install_spacy <- function(method = c("virtualenv", "conda", "system"),
     invisible(NULL)
 }
 
-install_spacy_conda <- function(conda, version, lang_model) {
+install_spacy_conda <- function(conda, version, lang_model, python_version) {
     
     # create conda environment if we need to
     envname <- "spacy_condaenv"
@@ -231,7 +231,8 @@ install_spacy_conda <- function(conda, version, lang_model) {
     }
     else {
         cat("Creating", envname, "conda environment for spaCy installation...\n")
-        python_packages <- ifelse(is_windows(), "python=3.6", "python")
+        python_packages <- ifelse(is.null(python_version), "python=3.6", 
+                                  sprintf("python=", python_version))
         python <- conda_create(envname, packages = python_packages, conda = conda)
     }
     
@@ -256,58 +257,17 @@ install_spacy_conda <- function(conda, version, lang_model) {
     # Hopefully these two issues will be addressed and we can return to using
     # pip in all scenarios (as that is the officially supported version)
     #
-    if (is_windows() && is.null(packages) && gpu == FALSE) {
-        conda_forge_install(
-            envname,
-            spacy_pkgs(version),
-            conda = conda
-        )
-        return(invisible(NULL))
-    }
-    
-    # determine tf version
-    # if (version == "latest") {
-    #     cat("Determining latest release of spaCy...")
-    #     releases <- fromJSON("https://api.github.com/repos/explosion/spacy/releases")
-    #     latest <- subset(releases, grepl("^v\\d+\\.\\d+\\.\\d+$", releases$tag_name))$tag_name[[1]]
-    #     version <- sub("v", "", latest)
-    #     cat("done\n")
+    # if (is_windows() && is.null(packages)) {
+    #     conda_forge_install(
+    #         envname,
+    #         spacy_pkgs(version),
+    #         conda = conda
+    #     )
+    #     return(invisible(NULL))
     # }
     # 
-    # determine python version
-    py_version <- python_version(python)
-    py_version_str <- if (is_osx()) {
-        if (py_version >= "3.0")
-            "py3-none"
-        else
-            "py2-none"
-    } else {
-        if (py_version >= "3.0") {
-            ver <- gsub(".", "", as.character(py_version), fixed = TRUE)
-            sprintf("cp%s-cp%sm", ver, ver)
-        } else {
-            "cp27-none"
-        }
-    }
-    
-    # determine arch
-    arch <- ifelse(is_windows(), "win_amd64", ifelse(is_osx(), "any", "linux_x86_64"))
-    
-    # determine packages url if necessary
-    # if (is.null(packages)) {
-    #     platform <- ifelse(is_windows(), "windows", ifelse(is_osx(), "mac", "linux"))
-    #     packages <- sprintf(
-    #         "https://storage.googleapis.com/tensorflow/%s/%s/tensorflow%s-%s-%s-%s.whl",
-    #         platform,
-    #         ifelse(gpu, "gpu", "cpu"),
-    #         ifelse(gpu, "_gpu", ""),
-    #         version,
-    #         py_version_str,
-    #         arch
-    #     )
-    # }
-    
-    # install base tensorflow using pip
+
+    # install base spaCy using pip
     cat("Installing Spacy...\n")
     packages <- spacy_pkgs(version)
     conda_install(envname, packages, pip = TRUE, conda = conda)
@@ -316,22 +276,22 @@ install_spacy_conda <- function(conda, version, lang_model) {
 }
 
 
-conda_forge_install <- function(envname, packages, conda = "auto") {
-    
-    # resolve conda binary
-    conda <- conda_binary(conda)
-    
-    # use native conda package manager with conda forge enabled
-    result <- system2(conda, shQuote(c("install", "-c", "conda-forge", "--yes", "--name", envname, packages)))
-    
-    # check for errors
-    if (result != 0L) {
-        stop("Error ", result, " occurred installing packages into conda environment ",
-             envname, call. = FALSE)
-    }
-    
-    invisible(NULL)
-}
+# conda_forge_install <- function(envname, packages, conda = "auto") {
+#     
+#     # resolve conda binary
+#     conda <- conda_binary(conda)
+#     
+#     # use native conda package manager with conda forge enabled
+#     result <- system2(conda, shQuote(c("install", "-c", "conda-forge", "--yes", "--name", envname, packages)))
+#     
+#     # check for errors
+#     if (result != 0L) {
+#         stop("Error ", result, " occurred installing packages into conda environment ",
+#              envname, call. = FALSE)
+#     }
+#     
+#     invisible(NULL)
+# }
 
 
 
