@@ -5,8 +5,8 @@
 \title{Initialize spaCy}
 \usage{
 spacy_initialize(model = "en", python_executable = NULL, ask = FALSE,
-  source_bash_profile = NULL, virtualenv = NULL, condaenv = NULL,
-  entity = TRUE)
+  check_env = TRUE, source_bash_profile = NULL, virtualenv = NULL,
+  condaenv = NULL, entity = TRUE)
 }
 \arguments{
 \item{model}{Language package for loading spacy. Example: \code{en} (English) and
@@ -18,6 +18,8 @@ spacy_initialize(model = "en", python_executable = NULL, ask = FALSE,
 if \code{TRUE}, list available spaCy installations and prompt the user 
 for which to use. If another (e.g. \code{python_executable}) is set, then 
 this value will always be treated as \code{FALSE}.}
+
+\item{check_env}{logical; check whether conda/virtual environment for spaCy exists}
 
 \item{source_bash_profile}{logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
 to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 

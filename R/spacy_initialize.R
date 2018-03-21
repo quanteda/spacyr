@@ -23,11 +23,13 @@
 #'   For details of spaCy pipeline, 
 #'   see \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE} is available only 
 #'   for spaCy version 2.0.0 or higher.
+#' @param check_env logical; check whether conda/virtual environment for spaCy exists
 #' @export
 #' @author Akitaka Matsuo
 spacy_initialize <- function(model = "en", 
                              python_executable = NULL,
                              ask = FALSE,
+                             check_env = TRUE, 
                              source_bash_profile = NULL,
                              virtualenv = NULL,
                              condaenv = NULL, 
@@ -54,11 +56,11 @@ spacy_initialize <- function(model = "en",
         message("Python space is already attached.  If you want to switch to a different Python, please restart R.")
     } 
     # NEW: if spacy_condaenv exists use it
-    else if("spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
+    else if(check_env & "spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
         message("Found 'spacy_condaenv'. Spacyr will uses this environment")
         set_spacy_python_option(condaenv = "spacy_condaenv")
     }
-    else if(file.exists(file.path( "~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
+    else if(check_env & file.exists(file.path( "~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
         message("Found 'spacy_virtualenv'. Spacyr will uses this environment")
         set_spacy_python_option(virtualenv = "~/.virtualenvs/spacy_virtualenv")
     }
@@ -138,6 +140,7 @@ spacy_finalize <- function() {
 #' @param source_bash_profile logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
 #'   to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
 #'   if using anaconda python in Mac or Linux. 
+#'  
 #' @keywords internal
 #' @importFrom data.table data.table
 find_spacy <- function(model = "en", ask, source_bash_profile){
@@ -149,7 +152,7 @@ find_spacy <- function(model = "en", ask, source_bash_profile){
     }
     py_execs <- if(Sys.info()['sysname'] == "Windows") {
         system2("where", "python", stdout = TRUE)
-    } else if(source_bash_profile == TRUE) {
+    } else if(source_bash_profile == TRUE & file.exists("~/.bash_profile")) {
         c(system2('source', '~/.bash_profile; which -a python', stdout = TRUE),
           system2('source', '~/.bash_profile; which -a python3', stdout = TRUE))
     } else {
@@ -198,6 +201,24 @@ find_spacy <- function(model = "en", ask, source_bash_profile){
     return(spacy_python)
 }    
 
+
+#' Find spaCy env
+#' 
+#' check whether conda/virtual environment for spaCy exists
+#' @export
+#'  
+#' @keywords internal
+find_spacy_env <- function(){
+    found <- if("spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
+        TRUE
+    } else if(file.exists(file.path( "~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
+        TRUE
+    } else {
+        FALSE
+    }
+    return(found)
+}
+    
 
 check_spacy_model <- function(py_exec, model) {
     options(warn = -1)
