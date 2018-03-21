@@ -2,7 +2,7 @@
 #' 
 #' @param envname Name of conda environment. Default "spacy_condaenv" (the name used by spacyr)
 #' 
-#' @param conda
+#' @param conda Path to conda executable. Default "auto" which automatically find the path
 #' 
 #' @param model name of the laguage model to be installed
 #'

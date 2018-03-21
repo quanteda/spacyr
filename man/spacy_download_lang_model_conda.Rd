@@ -12,7 +12,7 @@ spacy_download_lang_model_conda(envname = "spacy_condaenv", model = "en",
 
 \item{model}{name of the laguage model to be installed}
 
-\item{conda}{}
+\item{conda}{Path to conda executable. Default "auto" which automatically find the path}
 }
 \description{
 install language moden in conda virtual environment

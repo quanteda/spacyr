@@ -6,9 +6,13 @@
 #'
 #' @inheritParams reticulate::conda_list
 #'
-#' @param method 
+#' @param method method to install spaCy. Three options are available. 
+#' \code{conda} will create a new conda environment (named "spacy_condaenv") and 
+#' install spaCy and its language models. \code{virtualenv} create a virtual environment 
+#' (named "spacy_virtualenv") under "~/.virtualenv". \code{system} install spaCy 
+#' directly to the system python. 
 #' 
-#' @param conda the version of conda to be used
+#' @param conda Path to conda executable. Default "auto" which automatically find the path
 #' 
 #' @param lang_models Language models to be installed. Default \code{en} (English model). 
 #' A vector of multiple model names can be used (e.g. \code{c('en', 'de')})
@@ -18,9 +22,6 @@
 #'
 #'   You can also provide a full major.minor.patch specification (e.g. "1.1.0")
 #'   
-#' @param restart_session Restart R session after installing (note this will
-#'   only occur within RStudio).
-#' 
 #' @param python_version determine python version for condaenv installation. 3.5 and 3.6 are available
 #'
 #' @param python_path supply path to python in virtualenv installation
@@ -31,8 +32,7 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
                           version = "latest",
                           lang_models = "en",
                           python_version = "3.6",
-                          python_path = NULL,
-                          restart_session = TRUE) {
+                          python_path = NULL) {
     # verify os
     if (!is_windows() && !is_osx() && !is_linux()) {
         stop("This function is available only for Windows, Mac, and Linux")
@@ -156,7 +156,7 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
     } else {
         
         # determine whether we have system python
-        python_versions <- py_versions_windows()
+        python_versions <- reticulate::py_versions_windows()
         python_versions <- python_versions[python_versions$type == "PythonCore",]
         python_versions <- python_versions[python_versions$version %in% c("3.5","3.6"),]
         python_versions <- python_versions[python_versions$arch == "x64",]
@@ -216,8 +216,8 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
     
     cat("\nInstallation complete.\n\n")
     
-    if (restart_session && rstudioapi::hasFun("restartSession"))
-        rstudioapi::restartSession()
+    # if (restart_session && rstudioapi::hasFun("restartSession"))
+    #     rstudioapi::restartSession()
     
     invisible(NULL)
 }
@@ -502,3 +502,12 @@ is_linux <- function() {
     identical(tolower(Sys.info()[["sysname"]]), "linux")
 }
 
+is_ubuntu <- function() {
+    # check /etc/lsb-release
+    if (is_unix() && file.exists("/etc/lsb-release")) {
+        lsbRelease <- readLines("/etc/lsb-release")
+        any(grepl("Ubuntu", lsbRelease))
+    } else {
+        FALSE
+    }
+}

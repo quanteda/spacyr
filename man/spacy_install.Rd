@@ -6,12 +6,16 @@
 \usage{
 spacy_install(method = c("virtualenv", "conda", "system"), conda = "auto",
   version = "latest", lang_models = "en", python_version = "3.6",
-  python_path = NULL, restart_session = TRUE)
+  python_path = NULL)
 }
 \arguments{
-\item{method}{}
+\item{method}{method to install spaCy. Three options are available. 
+\code{conda} will create a new conda environment (named "spacy_condaenv") and 
+install spaCy and its language models. \code{virtualenv} create a virtual environment 
+(named "spacy_virtualenv") under "~/.virtualenv". \code{system} install spaCy 
+directly to the system python.}
 
-\item{conda}{the version of conda to be used}
+\item{conda}{Path to conda executable. Default "auto" which automatically find the path}
 
 \item{version}{Spacy version to install. Specify "latest" to install
   the latest release. 
@@ -24,9 +28,6 @@ A vector of multiple model names can be used (e.g. \code{c('en', 'de')})}
 \item{python_version}{determine python version for condaenv installation. 3.5 and 3.6 are available}
 
 \item{python_path}{supply path to python in virtualenv installation}
-
-\item{restart_session}{Restart R session after installing (note this will
-only occur within RStudio).}
 }
 \description{
 Install spacy
