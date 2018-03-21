@@ -14,5 +14,5 @@
 pip install --user --upgrade pip
 pip install --user --upgrade html5lib
 pip install --user spacy
-python3 -m spacy download en
+python -m spacy download en
 
