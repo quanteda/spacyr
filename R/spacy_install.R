@@ -206,7 +206,7 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
             # do system installation
             python <- python_system_version$executable_path
             pip <- file.path(python_system_version$install_path, "Scripts", "pip.exe")
-            install_tensorflow_windows_system(python, pip, version, gpu, packages)
+            #install_tensorflow_windows_system(python, pip, version, gpu, packages)
             
         } else {
             stop("Invalid/unexpected installation method '", method, "'",
