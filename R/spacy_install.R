@@ -6,11 +6,11 @@
 #'
 #' @inheritParams reticulate::conda_list
 #'
-#' @param method method to install spaCy. Three options are available. 
+#' @param method method to install spaCy. Two options are available. 
 #' \code{conda} will create a new conda environment (named "spacy_condaenv") and 
 #' install spaCy and its language models. \code{virtualenv} create a virtual environment 
-#' (named "spacy_virtualenv") under "~/.virtualenv". \code{system} install spaCy 
-#' directly to the system python. 
+#' (named "spacy_virtualenv") under "~/.virtualenv". The "virtualenv" option is not available for 
+#' Windows.
 #' 
 #' @param conda Path to conda executable. Default "auto" which automatically find the path
 #' 
@@ -26,13 +26,16 @@
 #'
 #' @param python_path supply path to python in virtualenv installation
 #' 
+#' @param prompt logical; ask whether proceed during the installation
+#' 
 #' @export
-spacy_install <- function(method = c("virtualenv", "conda", "system"),
+spacy_install <- function(method = c("virtualenv", "conda"),
                           conda = "auto",
                           version = "latest",
                           lang_models = "en",
                           python_version = "3.6",
-                          python_path = NULL) {
+                          python_path = NULL, 
+                          prompt = TRUE) {
     # verify os
     if (!is_windows() && !is_osx() && !is_linux()) {
         stop("This function is available only for Windows, Mac, and Linux")
@@ -47,10 +50,10 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
     
     # resolve and validate method
     # method <- match.arg(method)
-    if (identical(method, "system") && !is_windows()) {
-        stop("Installing spaCy into the system library is only supported on Windows",
-             call. = FALSE)
-    }
+    # if (identical(method, "system") && !is_windows()) {
+    #     stop("Installing spaCy into the system library is only supported on Windows",
+    #          call. = FALSE)
+    # }
     if (identical(method, "virtualenv") && is_windows()) {
         stop("Installing spaCy into a virtualenv is not supported on Windows",
              call. = FALSE)
@@ -88,7 +91,7 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
                 stop("Conda installation failed (no conda binary found)\n", call. = FALSE)
             
             # do install
-            install_spacy_conda(conda, version, lang_models, python_version)
+            install_spacy_conda(conda, version, lang_models, python_version, prompt)
             
         } else {
             
@@ -149,7 +152,7 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
                          install_commands, "\n\n", call. = FALSE)
                 }
             }
-            install_spacy_virtualenv(python, virtualenv, version, lang_models)       
+            install_spacy_virtualenv(python, virtualenv, version, lang_models, prompt)       
         }
         
         # windows installation
@@ -191,23 +194,23 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
             }
             
             # do the install
-            install_spacy_conda(conda, version, lang_models, python_version)
+            install_spacy_conda(conda, version, lang_models, python_version, prompt)
             
-        } else if (identical(method, "system")) {
-            stop("Windows system installation hasn't been implemented yet.")
-            # if we don't have it then error
-            if (!have_system) {
-                stop("spacyr only supports the installtion on a 64-bit version of Python 3.5 or 3.6\n\n",
-                     "Please install 64-bit Python 3.5 or 3.6 this location to continue:\n\n",
-                     " - https://www.python.org/downloads/\n\n",
-                     call. = FALSE)
-            }
-            
-            # do system installation
-            python <- python_system_version$executable_path
-            pip <- file.path(python_system_version$install_path, "Scripts", "pip.exe")
-            #install_tensorflow_windows_system(python, pip, version, gpu, packages)
-            
+        # } else if (identical(method, "system")) {
+        #     stop("Windows system installation hasn't been implemented yet.")
+        #     # if we don't have it then error
+        #     if (!have_system) {
+        #         stop("spacyr only supports the installtion on a 64-bit version of Python 3.5 or 3.6\n\n",
+        #              "Please install 64-bit Python 3.5 or 3.6 this location to continue:\n\n",
+        #              " - https://www.python.org/downloads/\n\n",
+        #              call. = FALSE)
+        #     }
+        #     
+        #     # do system installation
+        #     python <- python_system_version$executable_path
+        #     pip <- file.path(python_system_version$install_path, "Scripts", "pip.exe")
+        #     #install_tensorflow_windows_system(python, pip, version, gpu, packages)
+        #     
         } else {
             stop("Invalid/unexpected installation method '", method, "'",
                  call. = FALSE)
@@ -222,11 +225,20 @@ spacy_install <- function(method = c("virtualenv", "conda", "system"),
     invisible(NULL)
 }
 
-install_spacy_conda <- function(conda, version, lang_models, python_version) {
+install_spacy_conda <- function(conda, version, lang_models, python_version, 
+                                prompt = TRUE) {
     
     # create conda environment if we need to
     envname <- "spacy_condaenv"
     conda_envs <- reticulate::conda_list(conda = conda)
+    if(prompt == TRUE){
+        ans <- readline(prompt = 
+          sprintf('A new conda environment "spacy_condaenv" will be created and, \nspaCy and language model(s), "%s", will be installed.\n\n  Proceed (y|[n])? ', 
+                  paste(lang_models, collapse = ", ")))
+        if(!grepl("^y", ans, ignore.case = TRUE)) {
+            stop("Condaenv setup is cancelled by user", call. = FALSE)
+        }
+    }  
     conda_env <- subset(conda_envs, conda_envs$name == envname)
     if (nrow(conda_env) == 1) {
         cat("Using", envname, "conda environment for spaCy installation\n")
@@ -299,7 +311,7 @@ install_spacy_conda <- function(conda, version, lang_models, python_version) {
 
 
 
-install_spacy_virtualenv <- function(python, virtualenv, version, lang_models) {
+install_spacy_virtualenv <- function(python, virtualenv, version, lang_models, prompt = TRUE) {
     
     # determine python version to use
     is_python3 <- python_version(python) >= "3.0"
@@ -308,8 +320,22 @@ install_spacy_virtualenv <- function(python, virtualenv, version, lang_models) {
     }
     pip_version <- ifelse(is_python3, "pip3", "pip")
     
-    # create virtualenv
+
+    
     virtualenv_root <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+    virtualenv_path <- file.path(virtualenv_root, "spacy_virtualenv")
+
+    if(prompt == TRUE){
+        ans <- readline(prompt = 
+                            sprintf('A new virtual environment "%s" will be created and, \nspaCy and language model(s), "%s", will be installed.\n\n  Proceed (y|[n])? ', 
+                                    virtualenv_path, 
+                                    paste(lang_models, collapse = ", ")))
+        if(!grepl("^y", ans, ignore.case = TRUE)) {
+            stop("Virtualenv setup is cancelled by user", call. = FALSE)
+        }
+    }
+
+    # create virtualenv
     if (!file.exists(virtualenv_root))
         dir.create(virtualenv_root, recursive = TRUE)
     
@@ -317,7 +343,6 @@ install_spacy_virtualenv <- function(python, virtualenv, version, lang_models) {
     virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
     
     # create virtualenv if necessary
-    virtualenv_path <- file.path(virtualenv_root, "spacy_virtualenv")
     if (!file.exists(virtualenv_path) || !file.exists(virtualenv_bin("activate"))) {
         cat("Creating virtualenv for spaCy at ", virtualenv_path, "\n")
         result <- system2(virtualenv, shQuote(c(

@@ -4,16 +4,16 @@
 \alias{spacy_install}
 \title{Install spacy}
 \usage{
-spacy_install(method = c("virtualenv", "conda", "system"), conda = "auto",
+spacy_install(method = c("virtualenv", "conda"), conda = "auto",
   version = "latest", lang_models = "en", python_version = "3.6",
-  python_path = NULL)
+  python_path = NULL, prompt = TRUE)
 }
 \arguments{
-\item{method}{method to install spaCy. Three options are available. 
+\item{method}{method to install spaCy. Two options are available. 
 \code{conda} will create a new conda environment (named "spacy_condaenv") and 
 install spaCy and its language models. \code{virtualenv} create a virtual environment 
-(named "spacy_virtualenv") under "~/.virtualenv". \code{system} install spaCy 
-directly to the system python.}
+(named "spacy_virtualenv") under "~/.virtualenv". The "virtualenv" option is not available for 
+Windows.}
 
 \item{conda}{Path to conda executable. Default "auto" which automatically find the path}
 
@@ -28,6 +28,8 @@ A vector of multiple model names can be used (e.g. \code{c('en', 'de')})}
 \item{python_version}{determine python version for condaenv installation. 3.5 and 3.6 are available}
 
 \item{python_path}{supply path to python in virtualenv installation}
+
+\item{prompt}{logical; ask whether proceed during the installation}
 }
 \description{
 Install spacy
