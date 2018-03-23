@@ -9,11 +9,6 @@
 #'   if \code{TRUE}, list available spaCy installations and prompt the user 
 #'   for which to use. If another (e.g. \code{python_executable}) is set, then 
 #'   this value will always be treated as \code{FALSE}.
-#' @param source_bash_profile logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
-#'   to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
-#'   if using anaconda python in Mac or Linux. Default is \code{NULL} 
-#'   which functions as \code{TRUE} for non-Windows system (e.g. Mac/Linux) and 
-#'   \code{FALSE} for Windows system.
 #' @param virtualenv set a path to the python virtual environment with spaCy installed
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
@@ -30,7 +25,6 @@ spacy_initialize <- function(model = "en",
                              python_executable = NULL,
                              ask = FALSE,
                              check_env = TRUE, 
-                             source_bash_profile = NULL,
                              virtualenv = NULL,
                              condaenv = NULL, 
                              entity = TRUE) {
@@ -41,13 +35,14 @@ spacy_initialize <- function(model = "en",
         return(NULL)
     }
     # set an option for source_bash_profile
-    if(is.null(source_bash_profile)) {
-        if(Sys.info()['sysname'] == "Windows"){
-            source_bash_profile <- FALSE
-        } else {
-            source_bash_profile <- TRUE
-        }
-    }
+    # source_bash_profile is retired
+    # if(is.null(source_bash_profile)) {
+    #     if(is_windows()){
+    #         source_bash_profile <- FALSE
+    #     } else {
+    #         source_bash_profile <- TRUE
+    #     }
+    # }
     
 
     
@@ -69,7 +64,6 @@ spacy_initialize <- function(model = "en",
                                 virtualenv, 
                                 condaenv, 
                                 ask, 
-                                source_bash_profile, 
                                 model)
     }
     
@@ -137,22 +131,19 @@ spacy_finalize <- function() {
 #'   if \code{TRUE}, list available spaCy installations and prompt the user 
 #'   for which to use. If another (e.g. \code{python_executable}) is set, then 
 #'   this value will always be treated as \code{FALSE}.
-#' @param source_bash_profile logical; if \code{TRUE}, source \code{~/.bash_profile} before trying
-#'   to find python executables with spaCy installed. Most likely necessary to set \code{TRUE}, 
-#'   if using anaconda python in Mac or Linux. 
 #'  
 #' @keywords internal
 #' @importFrom data.table data.table
-find_spacy <- function(model = "en", ask, source_bash_profile){
+find_spacy <- function(model = "en", ask){
     spacy_found <- `:=` <- NA
     spacy_python <- NULL
     options(warn = -1)
-    if(source_bash_profile == TRUE & Sys.info()['sysname'] == "Windows"){
-        message("the option, source_bash_profile == TRUE, will be ignored for windows system")
-    }
-    py_execs <- if(Sys.info()['sysname'] == "Windows") {
+    # if(source_bash_profile == TRUE & is_windows()){
+    #     message("the option, source_bash_profile == TRUE, will be ignored for windows system")
+    # }
+    py_execs <- if(is_windows()) {
         system2("where", "python", stdout = TRUE)
-    } else if(source_bash_profile == TRUE & file.exists("~/.bash_profile")) {
+    } else if(is_osx() & file.exists("~/.bash_profile")) {
         c(system2('source', '~/.bash_profile; which -a python', stdout = TRUE),
           system2('source', '~/.bash_profile; which -a python3', stdout = TRUE))
     } else {
@@ -222,7 +213,7 @@ find_spacy_env <- function(){
 
 check_spacy_model <- function(py_exec, model) {
     options(warn = -1)
-    py_exist <- if(Sys.info()['sysname'] == "Windows") {
+    py_exist <- if(is_windows()) {
         if(py_exec %in% system2("where", "python", stdout = TRUE)) {
             py_exec
         } else {
@@ -249,7 +240,6 @@ set_spacy_python_option <- function(python_executable = NULL,
                                     virtualenv = NULL, 
                                     condaenv = NULL, 
                                     ask = NULL, 
-                                    source_bash_profile = NULL,
                                     model = NULL) {
     # a user can specify only one
     if(sum(!is.null(c(python_executable, virtualenv, condaenv))) > 1) {
@@ -282,8 +272,7 @@ set_spacy_python_option <- function(python_executable = NULL,
     }
     else {
         message("Finding a python executable with spacy installed...")
-        spacy_python <- find_spacy(model, ask = ask, 
-                                   source_bash_profile = source_bash_profile)
+        spacy_python <- find_spacy(model, ask = ask)
         if (is.null(spacy_python)) {
             stop("spaCy or language model ", model, " is not installed in any of python executables.")
         } else if(is.na(spacy_python)) {
