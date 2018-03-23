@@ -39,7 +39,7 @@ before_script:
   # Useful for debugging any issues with conda
   - conda info -a
   - R CMD INSTALL .
-  - R -e 'spacyr::spacy_install("conda")'
+  - R -e 'spacyr::spacy_install("conda", prompt=FALSE)'
 
 
 env:
