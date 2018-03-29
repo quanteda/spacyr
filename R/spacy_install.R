@@ -143,7 +143,7 @@ spacy_install <- function(method = c("virtualenv", "conda"),
                     # if these are terminal commands then add special preface
                     if (grepl("^\\$ ", install_commands)) {
                         install_commands <- paste0(
-                            "Execute the following at a terminal to install the prerequisites:\n\n",
+                            "Execute the following at a terminal to install the prerequisites:\n",
                             install_commands
                         )
                     }
@@ -231,13 +231,11 @@ install_spacy_conda <- function(conda, version, lang_models, python_version,
     # create conda environment if we need to
     envname <- "spacy_condaenv"
     conda_envs <- reticulate::conda_list(conda = conda)
-    if(prompt == TRUE){
-        ans <- readline(prompt = 
-          sprintf('A new conda environment "spacy_condaenv" will be created and, \nspaCy and language model(s), "%s", will be installed.\n\n  Proceed (y|[n])? ', 
-                  paste(lang_models, collapse = ", ")))
-        if(!grepl("^y", ans, ignore.case = TRUE)) {
-            stop("Condaenv setup is cancelled by user", call. = FALSE)
-        }
+    if (prompt) {
+        cat("A new conda environment \"spacy_condaenv\" will be created and \nspaCy and language model(s):", 
+                paste(lang_models, collapse = ", "), "will be installed.  ")
+        ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
+        if (ans == 1) stop("condaenv setup is cancelled by user", call. = FALSE)
     }  
     conda_env <- subset(conda_envs, conda_envs$name == envname)
     if (nrow(conda_env) == 1) {

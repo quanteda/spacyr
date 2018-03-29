@@ -182,10 +182,10 @@ find_spacy <- function(model = "en", ask){
         message("spaCy (language model: ", model, ") is installed in more than one python")
         message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
         number <- NA
-        while(is.na(number)){
+        while (is.na(number)) {
             number <- readline(prompt = "Please select python: ")
             number <- as.integer(number)
-            if(is.na(number) | number < 1 | number > length(spacy_pythons)){
+            if (is.na(number) | number < 1 | number > length(spacy_pythons)) {
                 number <- NA
             }
         }
