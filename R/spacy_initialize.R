@@ -37,7 +37,7 @@ spacy_initialize <- function(model = "en",
                              entity = TRUE) {
 
     # here are a number of checkings
-    if(!is.null(options("spacy_initialized")$spacy_initialized)){
+    if (!is.null(options("spacy_initialized")$spacy_initialized)) {
         message("spaCy is already initialized")
         return(NULL)
     }
@@ -54,51 +54,51 @@ spacy_initialize <- function(model = "en",
 
     
     # once python is initialized, you cannot change the python executables
-    if(!is.null(options("python_initialized")$python_initialized)) {
+    if (!is.null(options("python_initialized")$python_initialized)) {
         message("Python space is already attached.  If you want to switch to a different Python, please restart R.")
-    } 
+    }
     # NEW: if spacy_condaenv exists use it
     else {
-        set_spacy_python_option(python_executable, 
-                                virtualenv, 
-                                condaenv, 
-                                check_env, 
+        set_spacy_python_option(python_executable,
+                                virtualenv,
+                                condaenv,
+                                check_env,
                                 refresh_settings,
-                                ask, 
+                                ask,
                                 model)
     }
-    
+
     ## check settings and start reticulate python
     settings <- check_spacy_python_options()
     if (!is.null(settings)) {
         ####
-        if(settings$key == "spacy_python_executable") {
-            if(check_spacy_model(settings$val, model) != "OK"){
+        if (settings$key == "spacy_python_executable") {
+            if(check_spacy_model(settings$val, model) != "OK") {
                 stop("spaCy or language model ", model, " is not installed in ", settings$val)
             }
             reticulate::use_python(settings$val, required = TRUE)
         }
-        else if(settings$key == "spacy_virtualenv") reticulate::use_virtualenv(settings$val, required = TRUE)
-        else if(settings$key == "spacy_condaenv") reticulate::use_condaenv(settings$val, required = TRUE)
+        else if (settings$key == "spacy_virtualenv") reticulate::use_virtualenv(settings$val, required = TRUE)
+        else if (settings$key == "spacy_condaenv") reticulate::use_condaenv(settings$val, required = TRUE)
     }
     options("python_initialized" = TRUE) # next line could cause non-recoverable error 
     spacyr_pyexec(pyfile = system.file("python", "spacyr_class.py",
-                                       package = 'spacyr'))
+                                       package = "spacyr"))
     
     spacyr_pyassign("model", model)
     spacyr_pyassign("spacy_entity", entity)
     options("spacy_entity" = entity)
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
-                                       package = 'spacyr'))
+                                       package = "spacyr"))
 
     spacy_version <- spacyr_pyget("versions")$spacy
     if(entity == FALSE & as.integer(substr(spacy_version, 1, 1)) < 2){
         message("entity == FALSE is only available for spaCy version 2.0.0 or higher")
         options("spacy_entity" = TRUE)
     }
-    message("successfully initialized (spaCy Version: ", spacy_version,', language model: ', model, ')')
+    message("successfully initialized (spaCy Version: ", spacy_version, ", language model: ", model, ")")
     settings <- check_spacy_python_options()
-    message('(python options: type="', sub("spacy_", "", settings$key), '", value="', settings$val, '")')
+    message('(python options: type = "', sub("spacy_", "", settings$key), '", value = "', settings$val, '")')
     options("spacy_initialized" = TRUE)
     
     if(save_profile == TRUE){
@@ -120,7 +120,7 @@ spacy_finalize <- function() {
         stop("Nothing to finalize. Spacy is not initialized")
     }
     spacyr_pyexec(pyfile = system.file("python", "finalize_spacyPython.py",
-                                       package = 'spacyr'))
+                                       package = "spacyr"))
     options("spacy_initialized" = NULL)
 }
 
@@ -147,11 +147,11 @@ find_spacy <- function(model = "en", ask){
     py_execs <- if(is_windows()) {
         system2("where", "python", stdout = TRUE)
     } else if(is_osx() & file.exists("~/.bash_profile")) {
-        c(system2('source', '~/.bash_profile; which -a python', stdout = TRUE),
-          system2('source', '~/.bash_profile; which -a python3', stdout = TRUE))
+        c(system2("source", "~/.bash_profile; which -a python", stdout = TRUE),
+          system2("source", "~/.bash_profile; which -a python3", stdout = TRUE))
     } else {
-        c(system2('which', '-a python', stdout = TRUE),
-          system2('which', '-a python3', stdout = TRUE))
+        c(system2("which", "-a python", stdout = TRUE),
+          system2("which", "-a python3", stdout = TRUE))
     }
     py_execs <- unique(py_execs)
     options(warn = 0)
@@ -163,7 +163,7 @@ find_spacy <- function(model = "en", ask){
     for (i in 1:nrow(df_python_check)) {
         py_exec <- df_python_check[i, py_execs]
         sys_message <- check_spacy_model(py_exec, model)
-        if (sys_message == 'OK') {
+        if (sys_message == "OK") {
             df_python_check[i, spacy_found := 1]
         }
     }
@@ -180,7 +180,7 @@ find_spacy <- function(model = "en", ask){
     } else {
         spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in more than one python")
-        message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
+        message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ": ", collapse = "\n"))
         number <- NA
         while (is.na(number)) {
             number <- readline(prompt = "Please select python: ")
@@ -223,7 +223,7 @@ check_spacy_model <- function(py_exec, model) {
             NULL
         }
     } else {
-        system2('which', py_exec, stdout = TRUE)
+        system2("which", py_exec, stdout = TRUE)
     }
     
     if(length(py_exist) == 0) {
@@ -253,12 +253,12 @@ set_spacy_python_option <- function(python_executable = NULL,
         message("spacy python option is already set, spacyr will use:\n\t",
                 sub("spacy_", "", settings$key), ' = "', settings$val, '"')
     } else if(check_env & "spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
-        message("Found 'spacy_condaenv'. Spacyr will uses this environment")
+        message("Found 'spacy_condaenv'. spacyr will uses this environment")
         clear_spacy_options()
         options(spacy_condaenv = "spacy_condaenv")
     }
     else if(check_env & file.exists(file.path( "~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
-        message("Found 'spacy_virtualenv'. Spacyr will uses this environment")
+        message("Found 'spacy_virtualenv'. spacyr will uses this environment")
         clear_spacy_options()
         options(spacy_virtualenv = "~/.virtualenvs/spacy_virtualenv")
     }
@@ -324,7 +324,7 @@ save_conda_options <- function(key, val) {
     ans <- readline(prompt= sprintf('Do you want to set the option, \'%s = "%s"\' , as a default (y|[n])? ', 
                                     key, val))
     if(grepl("^y", ans, ignore.case = TRUE)) {
-        rprofile <- if(file.exists(prof_file)) readLines(prof_file) else NULL
+        rprofile <- if (file.exists(prof_file)) readLines(prof_file) else NULL
         rprofile <- grep("options\\(\\s*spacy_.+\\)", rprofile, value = TRUE, invert = TRUE)
         rprofile <- c(rprofile, sprintf('options(%s = "%s")', key, val))
         write(rprofile, file = prof_file)
