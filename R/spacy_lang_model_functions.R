@@ -1,11 +1,11 @@
-#' install language moden in conda virtual environment
+#' Install a language model in a virtual environment
 #' 
-#' @param envname Name of conda environment. Default "spacy_condaenv" (the name used by spacyr)
-#' 
-#' @param conda Path to conda executable. Default "auto" which automatically find the path
-#' 
-#' @param model name of the laguage model to be installed
-#'
+#' Installs one or more language models in a conda or virtualenv Python virtual
+#' environment as installed by \code{\link{spacy_install}}.
+#' @param envname name of the virtual environment
+#' @param conda Path to conda executable.  Default \code{"auto"} which
+#'   automatically finds the path.
+#' @param model name of the language model to be installed
 #' @export
 spacy_download_lang_model_conda <- function(envname = "spacy_condaenv", 
                                             model = "en",
@@ -34,21 +34,16 @@ spacy_download_lang_model_conda <- function(envname = "spacy_condaenv",
 }
 
 
-#' install language moden in python virtual environment
-#' 
-#' @param envname Name of virtual environment. Default "spacy_virtualenv" (the name used by spacyr)
-#' 
-#' @param model name of the laguage model to be installed
-#' 
-#' @param virtualenv_root path to the virtualenv environment to install spacy language model
-#' if \code{NULL}, spacyr will use the default path ("~/.virtualenvs").
-#'
+#' @rdname spacy_download_lang_model_conda
+#' @param virtualenv_root path to the virtualenv environment to install spaCy
+#'   language model. If \code{NULL}, the default path \code{"~/.virtualenvs"}
+#'   will be used.
 #' @export
 spacy_download_lang_model_virtualenv <- function(envname = "spacy_virtualenv", 
                                                  model = "en",
                                                  virtualenv_root = NULL) {
     message(sprintf("installing model \"%s\"\n", model))
-    if(is.null(virtualenv_root)){
+    if (is.null(virtualenv_root)) {
         virtualenv_root <- "~/.virtualenvs"
     }
     virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
@@ -56,12 +51,10 @@ spacy_download_lang_model_virtualenv <- function(envname = "spacy_virtualenv",
     # create virtualenv if necessary
     virtualenv_path <- file.path(virtualenv_root, "spacy_virtualenv")
 
-    
     if (!file.exists(virtualenv_path) || !file.exists(virtualenv_bin("activate"))) {
         stop("The virtual environemnt ", virtualenv_path, " does not exist\n")
     } 
     
-    # 
     cmd <- sprintf("%s%s && python -m spacy download %s%s",
                    ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
                    shQuote(path.expand(virtualenv_bin("activate"))),

@@ -2,32 +2,27 @@
 ## https://github.com/rstudio/tensorflow/blob/master/R/install.R
 
 
-#' Install spacy
+#' Install spaCy
 #'
 #' @inheritParams reticulate::conda_list
-#'
-#' @param method method to install spaCy. Two options are available. 
-#' \code{conda} will create a new conda environment (named "spacy_condaenv") and 
-#' install spaCy and its language models. \code{virtualenv} create a virtual environment 
-#' (named "spacy_virtualenv") under "~/.virtualenv". The "virtualenv" option is not available for 
-#' Windows.
-#' 
-#' @param conda Path to conda executable. Default "auto" which automatically find the path
-#' 
-#' @param lang_models Language models to be installed. Default \code{en} (English model). 
-#' A vector of multiple model names can be used (e.g. \code{c('en', 'de')})
-#'
-#' @param version Spacy version to install. Specify "latest" to install
-#'   the latest release. 
+#' @param method method to install spaCy. Two options are available.
+#'   \code{conda} will create a new conda environment (named "spacy_condaenv")
+#'   and install spaCy and its language models. \code{virtualenv} create a
+#'   virtual environment (named "spacy_virtualenv") under "~/.virtualenv". The
+#'   "virtualenv" option is not available for Windows.
+#' @param conda Path to conda executable. Default "auto" which automatically
+#'   find the path
+#' @param lang_models Language models to be installed. Default \code{en}
+#'   (English model). A vector of multiple model names can be used (e.g.
+#'   \code{c("en", "de")})
+#' @param version spaCy version to install. Specify \code{"latest"} to install
+#'   the latest release.
 #'
 #'   You can also provide a full major.minor.patch specification (e.g. "1.1.0")
-#'   
-#' @param python_version determine python version for condaenv installation. 3.5 and 3.6 are available
-#'
-#' @param python_path supply path to python in virtualenv installation
-#' 
+#' @param python_version determine Python version for condaenv installation. 3.5
+#'   and 3.6 are available
+#' @param python_path character; path to Python in virtualenv installation
 #' @param prompt logical; ask whether proceed during the installation
-#' 
 #' @export
 spacy_install <- function(method = c("virtualenv", "conda"),
                           conda = "auto",

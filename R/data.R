@@ -13,13 +13,13 @@
 #' @author Ken Benoit and Akitaka Matsuo
 "_PACKAGE"
 
-#' sample short documents for testing
+#' Sample short documents for testing
 #' 
 #' A character object consisting of 30 short documents in plain text format for
 #' testing.  Each document is one or two brief sentences.
 "data_char_sentences"
 
-#' a short paragraph of text for testing
+#' A short paragraph of text for testing
 #' 
 #' A sample of text from the Irish budget debate of 2010 (531 tokens long).
 "data_char_paragraph"

@@ -3,7 +3,7 @@
 \name{entity_extract}
 \alias{entity_extract}
 \alias{entity_consolidate}
-\title{extract or consolidate entities from parsed documents}
+\title{Extract or consolidate entities from parsed documents}
 \usage{
 entity_extract(x, type = c("named", "extended", "all"))
 

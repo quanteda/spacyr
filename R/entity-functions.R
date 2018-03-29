@@ -1,4 +1,4 @@
-#' extract or consolidate entities from parsed documents
+#' Extract or consolidate entities from parsed documents
 #' 
 #' From an object parsed by \code{\link{spacy_parse}}, extract the entities as a
 #' separate object, or convert the multi-word entities into single "token"

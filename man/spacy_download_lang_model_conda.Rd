@@ -2,18 +2,28 @@
 % Please edit documentation in R/spacy_lang_model_functions.R
 \name{spacy_download_lang_model_conda}
 \alias{spacy_download_lang_model_conda}
-\title{install language moden in conda virtual environment}
+\alias{spacy_download_lang_model_virtualenv}
+\title{Install a language model in a virtual environment}
 \usage{
 spacy_download_lang_model_conda(envname = "spacy_condaenv", model = "en",
   conda = "auto")
+
+spacy_download_lang_model_virtualenv(envname = "spacy_virtualenv",
+  model = "en", virtualenv_root = NULL)
 }
 \arguments{
-\item{envname}{Name of conda environment. Default "spacy_condaenv" (the name used by spacyr)}
+\item{envname}{name of the virtual environment}
 
-\item{model}{name of the laguage model to be installed}
+\item{model}{name of the language model to be installed}
 
-\item{conda}{Path to conda executable. Default "auto" which automatically find the path}
+\item{conda}{Path to conda executable.  Default \code{"auto"} which
+automatically finds the path.}
+
+\item{virtualenv_root}{path to the virtualenv environment to install spaCy
+language model. If \code{NULL}, the default path \code{"~/.virtualenvs"}
+will be used.}
 }
 \description{
-install language moden in conda virtual environment
+Installs one or more language models in a conda or virtualenv Python virtual
+environment as installed by \code{\link{spacy_install}}.
 }

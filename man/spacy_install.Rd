@@ -2,35 +2,38 @@
 % Please edit documentation in R/spacy_install.R
 \name{spacy_install}
 \alias{spacy_install}
-\title{Install spacy}
+\title{Install spaCy}
 \usage{
 spacy_install(method = c("virtualenv", "conda"), conda = "auto",
   version = "latest", lang_models = "en", python_version = "3.6",
   python_path = NULL, prompt = TRUE)
 }
 \arguments{
-\item{method}{method to install spaCy. Two options are available. 
-\code{conda} will create a new conda environment (named "spacy_condaenv") and 
-install spaCy and its language models. \code{virtualenv} create a virtual environment 
-(named "spacy_virtualenv") under "~/.virtualenv". The "virtualenv" option is not available for 
-Windows.}
+\item{method}{method to install spaCy. Two options are available.
+\code{conda} will create a new conda environment (named "spacy_condaenv")
+and install spaCy and its language models. \code{virtualenv} create a
+virtual environment (named "spacy_virtualenv") under "~/.virtualenv". The
+"virtualenv" option is not available for Windows.}
 
-\item{conda}{Path to conda executable. Default "auto" which automatically find the path}
+\item{conda}{Path to conda executable. Default "auto" which automatically
+find the path}
 
-\item{version}{Spacy version to install. Specify "latest" to install
-  the latest release. 
+\item{version}{spaCy version to install. Specify \code{"latest"} to install
+  the latest release.
 
   You can also provide a full major.minor.patch specification (e.g. "1.1.0")}
 
-\item{lang_models}{Language models to be installed. Default \code{en} (English model). 
-A vector of multiple model names can be used (e.g. \code{c('en', 'de')})}
+\item{lang_models}{Language models to be installed. Default \code{en}
+(English model). A vector of multiple model names can be used (e.g.
+\code{c("en", "de")})}
 
-\item{python_version}{determine python version for condaenv installation. 3.5 and 3.6 are available}
+\item{python_version}{determine Python version for condaenv installation. 3.5
+and 3.6 are available}
 
-\item{python_path}{supply path to python in virtualenv installation}
+\item{python_path}{character; path to Python in virtualenv installation}
 
 \item{prompt}{logical; ask whether proceed during the installation}
 }
 \description{
-Install spacy
+Install spaCy
 }

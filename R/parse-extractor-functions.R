@@ -21,7 +21,7 @@ spacy_out <- setRefClass(
 )
 
 
-#' get functions for spacy
+#' get functions for spaCy
 #' 
 #' A collection of get methods for spacyr return objects (of \code{spacy_out} class).
 #' @param spacy_out a spacy_out object
@@ -30,16 +30,9 @@ spacy_out <- setRefClass(
 #' @name get-functions
 #' @keywords internal
 get_tokens <- function(spacy_out) {
-    spacyr_pyassign('timestamps', spacy_out$timestamps)
-    spacyr_pyexec('tokens_list = spobj.tokens(timestamps)')
+    spacyr_pyassign("timestamps", spacy_out$timestamps)
+    spacyr_pyexec("tokens_list = spobj.tokens(timestamps)")
     tokens <- spacyr_pyget("tokens_list")
-    # tokens <- tokens[spacy_out$timestamps]
-    # names(tokens) <- spacy_out$docnames
-    # #output <- list(tokens = tokens)
-    # class(tokens) <- c("tokenizedText", class(tokens))
-    # attr(tokens, "what") <- "word"
-    # attr(tokens, "ngrams") <- 1
-    # attr(tokens, "concatenator") <- ""
     return(tokens)
 }
 
@@ -77,7 +70,7 @@ get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
 
 
 #' @rdname get-functions
-#' @param attr_name name of spacy token attributes to extract
+#' @param attr_name name of spaCy token attributes to extract
 #' @return \code{get_attrs} returns a list of attributes from spaCy output
 #' @export
 #' @keywords internal

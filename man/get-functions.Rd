@@ -9,7 +9,7 @@
 \alias{get_dependency}
 \alias{get_ntokens}
 \alias{get_ntokens_by_sent}
-\title{get functions for spacy}
+\title{get functions for spaCy}
 \usage{
 get_tokens(spacy_out)
 
@@ -32,7 +32,7 @@ get_ntokens_by_sent(spacy_out)
 or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
 scheme from the Penn Treebank (or the German Text Archive in case of German language model).}
 
-\item{attr_name}{name of spacy token attributes to extract}
+\item{attr_name}{name of spaCy token attributes to extract}
 }
 \value{
 \code{get_tokens} returns a data.frame of tokens from spaCy.
