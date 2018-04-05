@@ -7,8 +7,8 @@
 #'   automatically finds the path.
 #' @param model name of the language model to be installed
 #' @export
-spacy_download_langmodel <- function(envname = "spacy_condaenv", 
-                                     model = "en",
+spacy_download_langmodel <- function(model = "en",
+                                     envname = "spacy_condaenv", 
                                      conda = "auto") {
     message(sprintf("installing model \"%s\"\n", model))
     # resolve conda binary
@@ -39,9 +39,9 @@ spacy_download_langmodel <- function(envname = "spacy_condaenv",
 #'   language model. If \code{NULL}, the default path \code{"~/.virtualenvs"}
 #'   will be used.
 #' @export
-spacy_download_langmodel_virtualenv <- function(envname = "spacy_virtualenv", 
-                                                 model = "en",
-                                                 virtualenv_root = NULL) {
+spacy_download_langmodel_virtualenv <- function(model = "en",
+                                                envname = "spacy_virtualenv", 
+                                                virtualenv_root = NULL) {
     message(sprintf("installing model \"%s\"\n", model))
     if (is.null(virtualenv_root)) {
         virtualenv_root <- "~/.virtualenvs"

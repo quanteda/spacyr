@@ -258,12 +258,12 @@ set_spacy_python_option <- function(python_executable = NULL,
         message("spacy python option is already set, spacyr will use:\n\t",
                 sub("spacy_", "", settings$key), ' = "', settings$val, '"')
     } else if(check_env & "spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
-        message("Found 'spacy_condaenv'. spacyr will uses this environment")
+        message("Found 'spacy_condaenv'. spacyr will use this environment")
         clear_spacy_options()
         options(spacy_condaenv = "spacy_condaenv")
     }
     else if(check_env & file.exists(file.path( "~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
-        message("Found 'spacy_virtualenv'. spacyr will uses this environment")
+        message("Found 'spacy_virtualenv'. spacyr will use this environment")
         clear_spacy_options()
         options(spacy_virtualenv = "~/.virtualenvs/spacy_virtualenv")
     }
