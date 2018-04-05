@@ -1,4 +1,4 @@
-#' Install a language model in a virtual environment
+#' Install a language model in a conda or virtual environment
 #' 
 #' Installs one or more language models in a conda or virtualenv Python virtual
 #' environment as installed by \code{\link{spacy_install}}.
@@ -7,9 +7,9 @@
 #'   automatically finds the path.
 #' @param model name of the language model to be installed
 #' @export
-spacy_download_lang_model_conda <- function(envname = "spacy_condaenv", 
-                                            model = "en",
-                                            conda = "auto") {
+spacy_download_langmodel <- function(envname = "spacy_condaenv", 
+                                     model = "en",
+                                     conda = "auto") {
     message(sprintf("installing model \"%s\"\n", model))
     # resolve conda binary
     conda <- reticulate::conda_binary(conda)
@@ -34,12 +34,12 @@ spacy_download_lang_model_conda <- function(envname = "spacy_condaenv",
 }
 
 
-#' @rdname spacy_download_lang_model_conda
+#' @rdname spacy_download_langmodel
 #' @param virtualenv_root path to the virtualenv environment to install spaCy
 #'   language model. If \code{NULL}, the default path \code{"~/.virtualenvs"}
 #'   will be used.
 #' @export
-spacy_download_lang_model_virtualenv <- function(envname = "spacy_virtualenv", 
+spacy_download_langmodel_virtualenv <- function(envname = "spacy_virtualenv", 
                                                  model = "en",
                                                  virtualenv_root = NULL) {
     message(sprintf("installing model \"%s\"\n", model))
