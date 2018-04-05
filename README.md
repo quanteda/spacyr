@@ -34,7 +34,7 @@ Installing the package
 
     -   For Windows, you need to run R as an administrator to make installation work properly. To do so, right click Rstudio (or R desktop icon) and select "Run as administrator" when launching R.
 
-    -   Instalattion, you can simply run
+    -   To install spaCy, you can simply run
 
     ``` r
     library(spacy)
@@ -57,7 +57,7 @@ Installing the package
 
 4.  (optional) Add more language models
 
-    For spaCy installed by `spacy_install()`, **spacyr** provides a useful helper function to install additional language models. For instance, to install the Gernman language model
+    For spaCy installed by `spacy_install()`, **spacyr** provides a useful helper function to install additional language models. For instance, to install Gernman language model
 
     ``` r
     spacy_download_langmodel("de")
@@ -82,7 +82,8 @@ We provide a function for this, `spacy_initialize()`, which attempts to make thi
 ``` r
 library("spacyr")
 spacy_initialize()
-## Found 'spacy_condaenv'. spacyr will use this environment
+## spacy python option is already set, spacyr will use:
+##  condaenv = "spacy_condaenv"
 ## successfully initialized (spaCy Version: 2.0.11, language model: en)
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 ```
@@ -220,14 +221,14 @@ spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
 
 By default, **spacyr** loads an English language model. You also can load SpaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have sucessfully tested following language models with spacy version 2.0.1.
 
-| Language   | ModelName         |
-|:-----------|:------------------|
-| German     | `de`              |
-| Spanish    | `es_core_news_sm` |
-| Portuguese | `pt`              |
-| French     | `fr`              |
-| Italian    | `it`              |
-| Dutch      | `nl`              |
+| Language   | ModelName |
+|:-----------|:----------|
+| German     | `de`      |
+| Spanish    | `es`      |
+| Portuguese | `pt`      |
+| French     | `fr`      |
+| Italian    | `it`      |
+| Dutch      | `nl`      |
 
 This is an example of parsing German texts.
 
@@ -345,28 +346,20 @@ By calling `spacy_initialize()` again, you can restart the backend spaCy.
 
 ### Permanently seting the default Python
 
-If you want to skip **spacyr** searching for Python intallation with spaCy, you can do so by permanently setting the path to the spaCy-enabled Python by specifying it in an R-startup file, which is read every time a new `R` is launched. For Mac/Linux, the file is `~/.Rprofile` and for
-
-The syntax is:
+If you want to skip **spacyr** searching for Python intallation with spaCy, you can do so by permanently setting the path to the spaCy-enabled Python by specifying it in an R-startup file (For Mac/Linux, the file is `~/.Rprofile`), which is read every time a new `R` is launched. You can set the option permanently when you call `spacy_initialize`:
 
 ``` r
-options(spacy_python_setting = list(type = "python_executable",
-                                    py_path = "/the/path/to/python")) # e.g. "/usr/local/bin/python"
+spacy_initialize(save_profile = TRUE)
 ```
 
-These lines can be directly inserted by a text editor. Or from R, enter the following (for Mac/Linux):
+Once this is appropriately set up, the message from `spacy_initialize()` changes to something like:
 
-``` r
-option_string <- 'options(spacy_python_setting = list(type = "python_executable",
-                                    py_path = "/the/path/to/python")) '
-write(option_string, file = "~/.Rprofile", append = TRUE)
-```
+    ## spacy python option is already set, spacyr will use:
+    ##  condaenv = "spacy_condaenv"
+    ## successfully initialized (spaCy Version: 2.0.11, language model: en)
+    ## (python options: type = "condaenv", value = "spacy_condaenv")
 
-Once the file is appropriately set up, the message from `spacy_initialize()` changes to something like:
-
-    ## The python path is already set
-    ## spacyr will use: python_executable = /usr/local/bin/python
-    ## successfully initialized (spaCy Version: 2.0.1, language model: en)
+To ignore the permanently set options, you can initialize spacy with `refresh_settings = TRUE`.
 
 Using **spacyr** with other packages
 ------------------------------------
