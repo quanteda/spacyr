@@ -103,7 +103,7 @@ spacy_initialize <- function(model = "en",
     options("spacy_initialized" = TRUE)
     
     if(save_profile == TRUE){
-        save_conda_options(settings$key, settings$val)    
+        save_spacy_options(settings$key, settings$val)    
     }
 }
 
@@ -181,14 +181,18 @@ find_spacy <- function(model = "en", ask){
     } else {
         spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in more than one python")
-        message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ": ", collapse = "\n"))
-        number <- NA
-        while (is.na(number)) {
-            number <- readline(prompt = "Please select python: ")
-            number <- as.integer(number)
-            if (is.na(number) | number < 1 | number > length(spacy_pythons)) {
-                number <- NA
-            }
+        # message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ": ", collapse = "\n"))
+        # number <- NA
+        # while (is.na(number)) {
+        #     number <- readline(prompt = "Please select python: ")
+        #     number <- as.integer(number)
+        #     if (is.na(number) | number < 1 | number > length(spacy_pythons)) {
+        #         number <- NA
+        #     }
+        # }
+        number <- utils::menu(spacy_pythons, title = "Please select python:")
+        if(number == 0) {
+            stop("Initialization was canceled by user", call. = FALSE)
         }
         spacy_python <- spacy_pythons[number]
         message("spacyr will use: ", spacy_python)
@@ -318,13 +322,15 @@ check_spacy_python_options <- function() {
     return(settings)
 }
 
-save_conda_options <- function(key, val) {
+save_spacy_options <- function(key, val) {
     prof_file <- "~/.Rprofile"
     # prof_file_bak <- sprintf("%s_bak%s", prof_file, as.numeric(Sys.time()))
     # file.copy(prof_file, prof_file_bak)
-    ans <- readline(prompt= sprintf('Do you want to set the option, \'%s = "%s"\' , as a default (y|[n])? ', 
+    # ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
+    
+    ans <- utils::menu(c("No", "Yes"), title = sprintf('Do you want to set the option, \'%s = "%s"\' , as a default (y|[n])? ', 
                                     key, val))
-    if(grepl("^y", ans, ignore.case = TRUE)) {
+    if(ans == 2) {
         rprofile <- if (file.exists(prof_file)) readLines(prof_file) else NULL
         rprofile <- grep("options\\(\\s*spacy_.+\\)", rprofile, value = TRUE, invert = TRUE)
         rprofile <- c(rprofile, sprintf('options(%s = "%s")', key, val))
