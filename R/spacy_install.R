@@ -55,8 +55,12 @@ spacy_install <- function(conda = "auto",
         # check for explicit conda method
 
             # validate that we have conda
-            if (!have_conda)
-                stop("Conda installation failed (no conda binary found)\n", call. = FALSE)
+            if (!have_conda) {
+                cat("No conda was found in the system. ")
+                ans <- utils::menu(c("No", "Yes"), title = "Do you want spacy to download miniconda in ~/miniconda?")
+                if (ans == 2) install_miniconda()
+                else stop("Conda environment installation failed (no conda binary found)\n", call. = FALSE)
+            }
             
             # do install
             process_spacy_installation_conda(conda, version, lang_models, python_version, prompt)
@@ -499,6 +503,28 @@ spacy_upgrade  <- function(conda = "auto",
     }
     
     invisible(NULL)
+}
+
+install_miniconda <- function() {
+    if(is_osx()) {
+        message("Downloading installation script")
+        system(paste(
+            'curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o ~/miniconda.sh;',
+            'echo "Running installation script";', 
+            'bash ~/miniconda.sh -b -p $HOME/miniconda'))
+        system('echo \'export PATH="$PATH:$HOME/miniconda/bin"\' >> $HOME/.bash_profile; rm ~/miniconda.sh')
+        message("Installation of miniconda complete")
+    } else if(is_linux()) {
+        message("Downloading installation script")
+        system(paste(
+            'wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh;',
+            'echo "Running installation script";', 
+            'bash ~/miniconda.sh -b -p $HOME/miniconda'))
+        system('echo \'export PATH="$PATH:$HOME/miniconda/bin"\' >> $HOME/.bashrc; rm ~/miniconda.sh')
+        message("Installation of miniconda complete")
+    } else {
+        stop("miniconda installation is available only for Mac or Linux")
+    }
 }
 
 
