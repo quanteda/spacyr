@@ -404,6 +404,43 @@ spacy_pkgs <- function(version, packages = NULL) {
     return(packages)
 }
 
+#' Unnstall spaCy conda environment
+#'
+#' Removes the conda environemnt craeted by spacy_install()
+#' @inheritParams reticulate::conda_list
+#' @param conda Path to conda executable. Default "auto" which automatically
+#'   find the path
+#' @param prompt logical; ask whether proceed during the installation
+#' @export
+spacy_uninstall <- function(conda = "auto",
+                          prompt = TRUE) {
+    conda <- tryCatch(reticulate::conda_binary(conda), error = function(e) NULL)
+    have_conda <- !is.null(conda)
+    
+    if (!have_conda)
+        stop("Conda installation failed (no conda binary found)\n", call. = FALSE)
+
+    envname <- "spacy_condaenv"
+    conda_envs <- reticulate::conda_list(conda = conda)
+    conda_env <- subset(conda_envs, conda_envs$name == envname)
+    if (nrow(conda_env) != 1) {
+        stop("conda environment \"spacy_condaenv\" is not found", call. = FALSE)
+    }
+    if (prompt) {
+        cat("A conda environment \"spacy_condaenv\" will be removed\n")
+        ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
+        if (ans == 1) stop("condaenv removal is cancelled by user", call. = FALSE)
+    }  
+    python <- reticulate::conda_remove(envname = envname)
+
+    
+    cat("\nUninstallation complete.\n\n")
+    
+    invisible(NULL)
+
+}
+
+
 # # additional dependencies to install (required by some features of keras)
 # tf_extra_pkgs <- function(scipy = TRUE, extra_packages = NULL) {
 #     pkgs <- c("h5py", "pyyaml",  "requests",  "Pillow")
