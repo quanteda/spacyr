@@ -57,11 +57,10 @@ spacy_install <- function(conda = "auto",
             # validate that we have conda
             if (!have_conda) {
                 cat("No conda was found in the system. ")
-                ans <- utils::menu(c("No", "Yes"), title = "Do you want spacy to download miniconda in ~/miniconda?")
+                ans <- utils::menu(c("No", "Yes"), title = "Do you want spacyr to download miniconda in ~/miniconda?")
                 if (ans == 2) {
                   install_miniconda()
                   conda <- tryCatch(reticulate::conda_binary('auto'), error = function(e) NULL)
-                  browser()
                 } else stop("Conda environment installation failed (no conda binary found)\n", call. = FALSE)
             }
             
