@@ -58,8 +58,10 @@ spacy_install <- function(conda = "auto",
             if (!have_conda) {
                 cat("No conda was found in the system. ")
                 ans <- utils::menu(c("No", "Yes"), title = "Do you want spacy to download miniconda in ~/miniconda?")
-                if (ans == 2) install_miniconda()
-                else stop("Conda environment installation failed (no conda binary found)\n", call. = FALSE)
+                if (ans == 2) {
+                  install_miniconda()
+                  conda <- tryCatch(reticulate::conda_binary(conda), error = function(e) NULL)
+                } else stop("Conda environment installation failed (no conda binary found)\n", call. = FALSE)
             }
             
             # do install
@@ -517,7 +519,7 @@ install_miniconda <- function() {
     } else if(is_linux()) {
         message("Downloading installation script")
         system(paste(
-            'wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh;',
+            'wget -nv https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh;',
             'echo "Running installation script";', 
             'bash ~/miniconda.sh -b -p $HOME/miniconda'))
         system('echo \'export PATH="$PATH:$HOME/miniconda/bin"\' >> $HOME/.bashrc; rm ~/miniconda.sh')
