@@ -81,7 +81,7 @@ spacy_initialize <- function(model = "en",
         }
         else if (settings$key == "spacy_virtualenv") reticulate::use_virtualenv(settings$val, required = TRUE)
         else if (settings$key == "spacy_condaenv") {
-            spacy_upgrade(lang_models = model)
+            #spacy_upgrade(lang_models = model)
             reticulate::use_condaenv(settings$val, required = TRUE)
         }
     }
