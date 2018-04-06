@@ -441,6 +441,67 @@ spacy_uninstall <- function(conda = "auto",
 }
 
 
+#' Install spaCy in conda environment
+#'
+#' @inheritParams reticulate::conda_list
+#' @param conda Path to conda executable. Default "auto" which automatically
+#'   find the path
+#' @param lang_models Language models to be upgraded. Default NULL (No upgrade). 
+#'   A vector of multiple model names can be used (e.g. \code{c("en", "de")})
+#' @export
+spacy_upgrade  <- function(conda = "auto",
+                           lang_models = NULL) {
+    #message(sprintf("installing model \"%s\"\n", model))
+    # resolve conda binary
+    
+    message("checking spaCy version")
+    conda <- reticulate::conda_binary(conda)
+    if(!("spacy_condaenv" %in% reticulate::conda_list(conda = conda)$name)) {
+        message("Conda evnronment 'spacy_condaenv' does not exist")
+        
+    }
+
+    # 
+    envname <- "spacy_condaenv"
+    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
+    cmd <- sprintf("%s%s %s && pip search spacy",
+                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
+                   shQuote(path.expand(condaenv_bin("activate"))),
+                   envname,
+                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
+    result <- system(cmd, intern = TRUE, ignore.stderr = TRUE)
+    spacy_index <- grep("spacy \\(" , result)
+    latest_spacy <- sub("spacy \\((.+?)\\).+", "\\1", result[spacy_index])
+    installed_spacy <- sub(".+?(\\d.+\\d).*", "\\1", result[spacy_index + 1])
+    if(latest_spacy == installed_spacy) {
+        message("your spaCy is up-to-date")
+        return(invisible(NULL))
+    } else {
+        cat(sprintf("A new version of spacy (%s) was found (installed version: %s)\n", 
+                    latest_spacy, installed_spacy))
+        ans <- utils::menu(c("No", "Yes"), title = sprintf('Do you want to upgrade?'))
+        if(ans == 2) {
+            cat('"Yes" was chosen. Spacy will be upgraded.\n\n')
+            if(!is.null(lang_models)){
+                ans <- utils::menu(c("No", "Yes"), title = sprintf("Do you also want to re-download language model %s?", 
+                                                                   paste(lang_models, collapse = ", ")))
+                if(ans == 1) model <- NULL
+            }
+            process_spacy_installation_conda(conda = conda, 
+                                             version = "latest", 
+                                             lang_models = model, 
+                                             python_version = "3.6", 
+                                             prompt = FALSE)
+        } else {
+            message("No upgrade is chosen")
+        }
+        
+    }
+    
+    invisible(NULL)
+}
+
+
 # # additional dependencies to install (required by some features of keras)
 # tf_extra_pkgs <- function(scipy = TRUE, extra_packages = NULL) {
 #     pkgs <- c("h5py", "pyyaml",  "requests",  "Pillow")

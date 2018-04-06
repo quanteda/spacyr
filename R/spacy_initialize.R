@@ -81,7 +81,7 @@ spacy_initialize <- function(model = "en",
         }
         else if (settings$key == "spacy_virtualenv") reticulate::use_virtualenv(settings$val, required = TRUE)
         else if (settings$key == "spacy_condaenv") {
-            spacy_upgrade(model = model)
+            spacy_upgrade(lang_models = model)
             reticulate::use_condaenv(settings$val, required = TRUE)
         }
     }
@@ -345,46 +345,3 @@ save_spacy_options <- function(key, val) {
 
 }
 
-spacy_upgrade  <- function(envname = "spacy_condaenv", 
-                           conda = "auto",
-                           model = "en") {
-    #message(sprintf("installing model \"%s\"\n", model))
-    # resolve conda binary
-    message("checking spaCy version")
-    conda <- reticulate::conda_binary(conda)
-    
-    # 
-    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && pip search spacy",
-                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                   shQuote(path.expand(condaenv_bin("activate"))),
-                   envname,
-                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-    result <- system(cmd, intern = TRUE, ignore.stderr = TRUE)
-    spacy_index <- grep("spacy \\(" , result)
-    latest_spacy <- sub("spacy \\((.+?)\\).+", "\\1", result[spacy_index])
-    installed_spacy <- sub(".+?(\\d.+\\d).*", "\\1", result[spacy_index + 1])
-    if(latest_spacy == installed_spacy) {
-        message("your spaCy is up-to-date")
-        return(invisible(NULL))
-    } else {
-        cat(sprintf("A newer version of spacy (%s) was found (installed version: %s)\n", 
-            latest_spacy, installed_spacy))
-        ans <- utils::menu(c("No", "Yes"), title = sprintf('Do you want to upgrade?'))
-        if(ans == 2) {
-            cat('"Yes" was chosen. Spacy will be upgraded.\n\n')
-            ans <- utils::menu(c("No", "Yes"), title = sprintf("Do you also want to re-download language model %s?", model))
-            if(ans == 1) model <- NULL
-            process_spacy_installation_conda(conda = conda, 
-                                             version = "latest", 
-                                             lang_models = model, 
-                                             python_version = "3.6", 
-                                             prompt = FALSE)
-        } else {
-            message("No upgrade is chosen")
-        }
-        
-    }
-    
-    invisible(NULL)
-}
