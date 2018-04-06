@@ -14,7 +14,7 @@ Depends:
     methods
 Imports:
     data.table,
-    reticulate
+    reticulate (>= 1.6)
 Suggests:
     rmarkdown,
     testthat,
