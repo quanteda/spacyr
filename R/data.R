@@ -5,9 +5,6 @@
 #' is designed to provide easy access to the powerful functionality of spaCy, in
 #' a simple format.
 #' 
-#' To use \pkg{spacyr}, you must first have Python and spaCy installed on your 
-#' system.  See the installation instructions from 
-#' \url{http://github.com/kbenoit/spacyr}.
 #' 
 #' @references \url{http://spacy.io}, \url{http://github.com/kbenoit/spacyr}.
 #' @author Ken Benoit and Akitaka Matsuo
