@@ -2,22 +2,40 @@
 ## https://github.com/rstudio/tensorflow/blob/master/R/install.R
 
 
-#' Install spaCy in conda environment
+#' Install spaCy in conda or virtualenv environment
+#'
+#' @description Install spaCy in a self-contained environment, including
+#'   specified language models.  For macOS and Linux-based systems, this will
+#'   also install Python itself via a "miniconda" environment, for
+#'   \code{spacy_install}.  Alternatively, an existing conda installation may be
+#'   used, by specifying its path.  The default setting of \code{"auto"} will
+#'   locate and use an existing installation automatically, or download and
+#'   install one if none exists.  The miniconda installation is not currently
+#'   available on Windows.
 #'
 #' @inheritParams reticulate::conda_list
-#' @param conda Path to conda executable. Default "auto" which automatically
-#'   find the path
-#' @param lang_models Language models to be installed. Default \code{en}
-#'   (English model). A vector of multiple model names can be used (e.g.
-#'   \code{c("en", "de")})
-#' @param version spaCy version to install. Specify \code{"latest"} to install
-#'   the latest release.
+#' @param conda character; path to conda executable. Default "auto" which
+#'   automatically find the path
+#' @param lang_models character; language models to be installed. Default
+#'   \code{en} (English model). A vector of multiple model names can be used
+#'   (e.g. \code{c("en", "de")})
+#' @param version character; spaCy version to install. Specify \code{"latest"}
+#'   to install the latest release.
 #'
 #'   You can also provide a full major.minor.patch specification (e.g. "1.1.0")
-#' @param python_version determine Python version for condaenv installation. 3.5
-#'   and 3.6 are available
+#' @param python_version character; determine Python version for condaenv
+#'   installation. 3.5 and 3.6 are available.
 #' @param python_path character; path to Python in virtualenv installation
-#' @param prompt logical; ask whether proceed during the installation
+#' @param prompt logical; ask whether to proceed during the installation
+#' @examples 
+#' \dontrun{
+#' # install spaCy in a miniconda environment (macOS and Linux)
+#' spacy_install(lang_models = c("en", "de"), prompt = FALSE)
+#' 
+#' # install spaCy to an existing conda environment
+#' spacy_install(conda = "~/anaconda/bin/")
+#' }
+#' 
 #' @export
 spacy_install <- function(conda = "auto",
                           version = "latest",
@@ -97,20 +115,14 @@ spacy_install <- function(conda = "auto",
     invisible(NULL)
 }
 
-#' Install spaCy in virtualenv
-#'
-#' @inheritParams reticulate::conda_list
-#' @param lang_models Language models to be installed. Default \code{en}
-#'   (English model). A vector of multiple model names can be used (e.g.
-#'   \code{c("en", "de")})
-#' @param version spaCy version to install. Specify \code{"latest"} to install
-#'   the latest release.
-#'
-#'   You can also provide a full major.minor.patch specification (e.g. "1.1.0")
-#' @param python_version determine Python version for condaenv installation. 3.5
-#'   and 3.6 are available
-#' @param python_path character; path to Python in virtualenv installation
-#' @param prompt logical; ask whether proceed during the installation
+#' @rdname spacy_install
+#' @description If you wish to install Python ion a "virtualenv", use the
+#'   \code{spacy_install_virtualenv} function.
+#' @examples
+#' \dontrun{
+#' # install spaCy in a virtualenv environment
+#' spacy_install_virtualenv(lang_models = c("en"))
+#' }
 #' @export
 spacy_install_virtualenv <- function(version = "latest",
                                      lang_models = "en",
