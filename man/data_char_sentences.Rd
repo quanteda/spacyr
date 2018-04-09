@@ -3,7 +3,7 @@
 \docType{data}
 \name{data_char_sentences}
 \alias{data_char_sentences}
-\title{sample short documents for testing}
+\title{Sample short documents for testing}
 \format{An object of class \code{character} of length 30.}
 \usage{
 data_char_sentences

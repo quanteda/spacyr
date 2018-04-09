@@ -1,4 +1,4 @@
-#' extract or consolidate entities from parsed documents
+#' Extract or consolidate entities from parsed documents
 #' 
 #' From an object parsed by \code{\link{spacy_parse}}, extract the entities as a
 #' separate object, or convert the multi-word entities into single "token"
@@ -36,30 +36,30 @@ entity_extract <- function(x, type = c("named", "extended", "all")) {
 #' @noRd
 #' @export
 entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")) {
-    
+
     spacy_result <- as.data.table(x)
-    
-    entity_type <- entity <- iob <- entity_id <- .N <- .SD <- `:=` <- sentence_id <- doc_id <- NULL
-    
+
+    entity_type <- entity <- iob <- entity_id <- .SD <- `:=` <- sentence_id <- doc_id <- NULL
+
     type <- match.arg(type)
-    
+
     if (!"entity" %in% names(spacy_result)) {
         stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE") 
     }
     spacy_result <- spacy_result[nchar(spacy_result$entity) > 0]
     spacy_result[, entity_type := sub("_.+", "", entity)]
     spacy_result[, iob := sub(".+_", "", entity)]
-    spacy_result[, entity_id := cumsum(iob=="B")]
+    spacy_result[, entity_id := cumsum(iob == "B")]
     entities <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id, 
                              .SDcols = c("doc_id", "sentence_id", "entity_type")]
-    entities[, entity := spacy_result[, lapply(.SD, function(x) paste(x, collapse = " ")), 
-                                      by = entity_id, 
-                                      .SDcols = c("token")]$token] 
+    entities[, entity := spacy_result[, lapply(.SD, function(x) paste(x, collapse = " ")),
+                                      by = entity_id,
+                                      .SDcols = c("token")]$token]
     extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", 
                        "CARDINAL")
-    if (type == 'extended'){
+    if (type == "extended"){
         entities <- entities[entity_type %in% extended_list]
-    } else if (type == 'named') {
+    } else if (type == "named") {
         entities <- entities[!entity_type %in% extended_list]
     }
 
@@ -90,19 +90,19 @@ entity_consolidate <- function(x, concatenator = "_") {
 #' @noRd
 #' @export
 entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
-    
+
     spacy_result <- as.data.table(x)
-    entity <- entity_type <- entity_count <- iob <- entity_id <- .N <- .SD <- `:=` <-
-        token <- lemma <- pos <- tag <- new_token_id <- token_id <- sentence_id <- 
-        doc_id <- NULL
+    entity <- entity_type <- entity_count <- iob <- entity_id <- .N <- .SD <-
+        `:=` <- token <- lemma <- pos <- tag <- new_token_id <- token_id <-
+        sentence_id <- doc_id <- NULL
     
     if (!"entity" %in% names(spacy_result)) {
-        stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE") 
+        stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE")
     }
     spacy_result[, entity_type := sub("_.+", "", entity)]
     spacy_result[, iob := sub(".+_", "", entity)]
-    extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL",
-                       "CARDINAL")
+    extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", 
+                       "ORDINAL", "CARDINAL")
     # if (type == 'extended'){
     #     spacy_result[entity_type != ""  & !(entity_type %in% extended_list),
     #                  c("entity_type", "iob") := ""]
@@ -110,13 +110,13 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     #     spacy_result[entity_type != ""  & (entity_type %in% extended_list),
     #                  c("entity_type", "iob") := ""]
     # }
-    spacy_result[, entity_count := ifelse(iob=="B"|iob == "", 1, 0)]
+    spacy_result[, entity_count := ifelse(iob == "B"|iob == "", 1, 0)]
     spacy_result[, entity_id := cumsum(entity_count), by = c("doc_id", "sentence_id")]
-    spacy_result_modified <- spacy_result[, lapply(.SD, function(x) x[1]), 
-                                          by = c("doc_id", "sentence_id", "entity_id"), 
-                                          .SDcols = setdiff(names(spacy_result), 
+    spacy_result_modified <- spacy_result[, lapply(.SD, function(x) x[1]),
+                                          by = c("doc_id", "sentence_id", "entity_id"),
+                                          .SDcols = setdiff(names(spacy_result),
                                                             c("doc_id", "sentence_id", "entity_id"))]
-    
+
     spacy_result_modified[
         , token := spacy_result[, lapply(.SD, function(x) paste(x, collapse = concatenator)), 
                                  by = c("doc_id", "sentence_id", "entity_id"), 

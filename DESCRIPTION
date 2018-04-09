@@ -1,7 +1,7 @@
 Package: spacyr
 Type: Package
 Title: Wrapper to the 'spaCy' 'NLP' Library
-Version: 0.9.6
+Version: 0.9.9000
 Authors@R: c( person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role =
     c("aut", "cre", "cph")), 
     person("Akitaka", "Matsuo", email = "A.Matsuo@lse.ac.uk", role = "aut") )
@@ -14,7 +14,7 @@ Depends:
     methods
 Imports:
     data.table,
-    reticulate
+    reticulate (>= 1.6)
 Suggests:
     rmarkdown,
     testthat,

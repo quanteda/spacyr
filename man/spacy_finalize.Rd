@@ -7,10 +7,10 @@
 spacy_finalize()
 }
 \description{
-While running the spacy on python through R, a python process is 
-always running in the backgroud and rsession will take
-up a lot of memory (typically over 1.5GB). \code{spacy_finalize()} terminates the 
-Python process and frees up the memory it was using.
+While running spaCy on Python through R, a Python process is always running
+in the backgroud and rsession will take up a lot of memory (typically over
+1.5GB). \code{spacy_finalize()} terminates the Python process and frees up
+the memory it was using.
 }
 \author{
 Akitaka Matsuo

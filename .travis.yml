@@ -20,8 +20,27 @@ r_packages:
 #r_github_packages:
 #  - kbenoit/quanteda
 
-before_install:
-  - source travis_install.sh
+#before_install:
+  #  - source travis_install.sh
+  # install 
+
+
+## in this section, we attempt to install conda, and then install conda spacy in virtual environment
+before_script:
+  ## the conda installation instruction comes from 
+  ## https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - R CMD INSTALL .
+  - R -e 'spacyr::spacy_install(prompt=FALSE)'
+
 
 env:
   global:

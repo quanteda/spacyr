@@ -16,4 +16,3 @@ spacyr_pyexec <- function(pystring = NULL, pyfile = NULL) {
         reticulate::py_run_file(pyfile)
     }
 }
-

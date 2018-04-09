@@ -1,8 +1,8 @@
-#' parse a text using spaCy
+#' Parse a text using spaCy
 #' 
-#' The spacy_parse() function calls spaCy to both tokenize and tag the texts, 
-#' and returns a data.table of the results. The function provides options on the
-#' types of tagsets (\code{tagset_} options) either  \code{"google"} or
+#' The \code{spacy_parse()} function calls spaCy to both tokenize and tag the
+#' texts, and returns a data.table of the results. The function provides options
+#' on the types of tagsets (\code{tagset_} options) either  \code{"google"} or
 #' \code{"detailed"}, as well as lemmatization (\code{lemma}). It provides a
 #' functionalities of dependency parsing and named entity recognition as an
 #' option. If \code{"full_parse = TRUE"} is provided, the function returns the
@@ -134,9 +134,10 @@ spacy_parse.data.frame <- function(x, ...) {
 }
 
 
-#' tokenize text using spaCy
+#' Tokenize text using spaCy
 #' 
-#' Tokenize text using spaCy. The results of tokenization is stored as a python object. To obtain the tokens results in R, use \code{get_tokens()}.
+#' Tokenize text using spaCy. The results of tokenization is stored as a Python
+#' object. To obtain the tokens results in R, use \code{get_tokens()}.
 #' \url{http://spacy.io}.
 #' @param x input text
 #' functionalities including the tagging, named entity recognisiton, dependency 
