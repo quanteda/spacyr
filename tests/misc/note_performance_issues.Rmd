@@ -1,0 +1,28 @@
+---
+title: "Notes on Performance Issue in spacy v2.*"
+author: "Akitaka Matsuo"
+date: "4/9/2018"
+output: html_document
+---
+
+
+It's a known issue
+
+## https://github.com/explosion/spaCy/issues/1508
+
+- OpenBLAS version
+    - (Linux) ldd `python -c "import numpy.core; print(numpy.core.multiarray.__file__)"`
+    - (Mac) otool -L `python -c "import numpy.core; print(numpy.core.multiarray.__file__)"`
+
+
+- https://github.com/explosion/spaCy/issues/2032
+    - (https://github.com/explosion/spaCy/issues/2038)
+- https://github.com/explosion/spaCy/issues/2098
+
+
+## Parallel processing
+- [Advice for parallel processing](https://github.com/explosion/spaCy/issues/1839)
+- https://medium.com/@vishnups/speeding-up-spacy-f766e3dd033c
+
+
+
