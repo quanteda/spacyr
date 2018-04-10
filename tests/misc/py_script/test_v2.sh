@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source activate spacy_condaenv
+source activate spacy_condaenv_latest
 python benchmark_small_docs.py 
 python benchmark_small_docs.py -p
 python benchmark_small_docs.py tagger   
