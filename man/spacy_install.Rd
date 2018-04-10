@@ -6,7 +6,8 @@
 \title{Install spaCy in conda or virtualenv environment}
 \usage{
 spacy_install(conda = "auto", version = "latest", lang_models = "en",
-  python_version = "3.6", python_path = NULL, prompt = TRUE)
+  python_version = "3.6", envname = "spacy_condaenv", python_path = NULL,
+  prompt = TRUE)
 
 spacy_install_virtualenv(version = "latest", lang_models = "en",
   python_version = "3.6", python_path = NULL, prompt = TRUE)
@@ -26,6 +27,9 @@ automatically find the path}
 
 \item{python_version}{character; determine Python version for condaenv
 installation. 3.5 and 3.6 are available.}
+
+\item{envname}{character; name of the conda-environment to install spacy. 
+Default is "spacy_condaenv".}
 
 \item{python_path}{character; path to Python in virtualenv installation}
 

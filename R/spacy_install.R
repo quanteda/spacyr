@@ -26,6 +26,8 @@
 #' @param python_version character; determine Python version for condaenv
 #'   installation. 3.5 and 3.6 are available.
 #' @param python_path character; path to Python in virtualenv installation
+#' @param envname character; name of the conda-environment to install spacy. 
+#'   Default is "spacy_condaenv".
 #' @param prompt logical; ask whether to proceed during the installation
 #' @examples 
 #' \dontrun{
@@ -41,6 +43,7 @@ spacy_install <- function(conda = "auto",
                           version = "latest",
                           lang_models = "en",
                           python_version = "3.6",
+                          envname = "spacy_condaenv",
                           python_path = NULL, 
                           prompt = TRUE) {
     # verify os
@@ -83,7 +86,8 @@ spacy_install <- function(conda = "auto",
             }
             
             # do install
-            process_spacy_installation_conda(conda, version, lang_models, python_version, prompt)
+            process_spacy_installation_conda(conda, version, lang_models, python_version, prompt, 
+                                             envname = envname)
 
     # windows installation
     } else {
@@ -107,7 +111,8 @@ spacy_install <- function(conda = "auto",
         }
         
         # do the install
-        process_spacy_installation_conda(conda, version, lang_models, python_version, prompt)
+        process_spacy_installation_conda(conda, version, lang_models, python_version, prompt,
+                                         envname = envname)
              
     }
     cat("\nInstallation complete.\n\n")
@@ -224,13 +229,13 @@ spacy_install_virtualenv <- function(version = "latest",
 
 
 process_spacy_installation_conda <- function(conda, version, lang_models, python_version, 
-                                             prompt = TRUE) {
+                                             prompt = TRUE,
+                                             envname = "spacy_condaenv") {
     
-    # create conda environment if we need to
-    envname <- "spacy_condaenv"
+    
     conda_envs <- reticulate::conda_list(conda = conda)
     if (prompt) {
-        cat("A new conda environment \"spacy_condaenv\" will be created and \nspaCy and language model(s):", 
+        cat("A new conda environment", paste0('"', envname ,'"'), "will be created and \nspaCy and language model(s):", 
                 paste(lang_models, collapse = ", "), "will be installed.  ")
         ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
         if (ans == 1) stop("condaenv setup is cancelled by user", call. = FALSE)
@@ -283,7 +288,8 @@ process_spacy_installation_conda <- function(conda, version, lang_models, python
     packages <- spacy_pkgs(version)
     reticulate::conda_install(envname, packages, pip = TRUE, conda = conda)
     
-    for(model in lang_models) spacy_download_langmodel(model = model, conda = conda)
+    for(model in lang_models) spacy_download_langmodel(model = model, conda = conda,
+                                                       envname = envname)
     
 }
 
