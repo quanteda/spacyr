@@ -47,8 +47,8 @@ Install spaCy in a self-contained environment, including
   available on Windows.
   
   Regarding the installation option, \code{version="latest_v1"}. At the moment, 
-  there is a performance issue for spaCy pipeline for spacy v2.*. And that affect
-  the performance of \code{spacy_parse()} especially when a large number of 
+  there is a performance issue for spaCy pipeline for spacy v2.*. This can  enormously 
+  affect the performance of \code{spacy_parse()}, especially when a large number of 
   small texts are parseed. For this reason, the package \code{spacyr}
   provides an option to automatically install the latest version of spacy v1.*.
   
