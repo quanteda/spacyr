@@ -12,6 +12,14 @@
 #'   locate and use an existing installation automatically, or download and
 #'   install one if none exists.  The miniconda installation is not currently
 #'   available on Windows.
+#'   
+#'   Regarding the installation option, \code{version="latest_v1"}. At the moment, 
+#'   there is a performance issue for spaCy pipeline for spacy v2.*. This can  enormously 
+#'   affect the performance of \code{spacy_parse()}, especially when a large number of 
+#'   small texts are parseed. For this reason, the package \code{spacyr}
+#'   provides an option to automatically install the latest version of spacy v1.*.
+#'   
+#'   The details of this performance issue are available at spaCy issue \href{https://github.com/explosion/spaCy/issues/1508}{#1508: v2 standard pipeline running 10x slower}
 #'
 #' @inheritParams reticulate::conda_list
 #' @param conda character; path to conda executable. Default "auto" which
