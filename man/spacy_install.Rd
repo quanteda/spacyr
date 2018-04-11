@@ -17,7 +17,8 @@ spacy_install_virtualenv(version = "latest", lang_models = "en",
 automatically find the path}
 
 \item{version}{character; spaCy version to install. Specify \code{"latest"}
-  to install the latest release.
+  to install the latest release, or \code{"latest_v1"} to install the latest 
+  release of spacy v1.*
 
   You can also provide a full major.minor.patch specification (e.g. "1.1.0")}
 

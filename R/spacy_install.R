@@ -20,7 +20,8 @@
 #'   \code{en} (English model). A vector of multiple model names can be used
 #'   (e.g. \code{c("en", "de")})
 #' @param version character; spaCy version to install. Specify \code{"latest"}
-#'   to install the latest release.
+#'   to install the latest release, or \code{"latest_v1"} to install the latest 
+#'   release of spacy v1.*
 #'
 #'   You can also provide a full major.minor.patch specification (e.g. "1.1.0")
 #' @param python_version character; determine Python version for condaenv
@@ -58,7 +59,7 @@ spacy_install <- function(conda = "auto",
     # }
     # 
     
-    if(!identical(version, "latest")) {
+    if(!(identical(version, "latest") || identical(version, "latest_v1"))) {
         if(!(grepl("(\\d+\\.){1,2}(\\d+)?", version))){
             stop("spacy version specification error\n",
                  "Please provide a full major.minor.patch specification",
@@ -147,7 +148,8 @@ spacy_install_virtualenv <- function(version = "latest",
     # unroll version
     # ver <- parse_spacy_version(version)
     # version <- ver$version
-    if(!identical(version, "latest")) {
+
+    if(!(identical(version, "latest") || identical(version, "latest_v1"))) {
         if(!(grepl("(\\d+\\.){1,2}(\\d+)?", version))){
             stop("spacy version specification error\n",
                  "Please provide a full major.minor.patch specification",
@@ -282,8 +284,26 @@ process_spacy_installation_conda <- function(conda, version, lang_models, python
     #     return(invisible(NULL))
     # }
     # 
-
+    
+    # this function generates a forced pip error to get a version spacy highest within a major version 
+    # e.g. if major_version == 1, it will return 1.10.1
+    pip_get_version_conda <- function(major_version) {
+        condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
+        cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
+                       ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
+                       shQuote(path.expand(condaenv_bin("activate"))),
+                       envname,
+                       "--ignore-installed", 
+                       paste(shQuote("spacy==random"), collapse = " "),
+                       ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
+        pip_get_version(cmd)
+    }
+    
     # install base spaCy using pip
+    if(version == "latest_v1") {
+        version <- pip_get_version_conda(1)
+        cat('Option "version = version_v1" is supplied, spacy', version, 'will be isntalled\n')
+    }
     cat("Installing Spacy...\n")
     packages <- spacy_pkgs(version)
     reticulate::conda_install(envname, packages, pip = TRUE, conda = conda)
@@ -372,6 +392,18 @@ process_spacy_installation_virtualenv <- function(python, virtualenv, version, l
             stop("Error ", result, " occurred installing spaCy", call. = FALSE)
     }
     
+    # this function generates a forced pip error to get a version spacy highest within a major version 
+    # e.g. if major_version == 1, it will return 1.10.1
+    pip_get_version_virtualenv <- function(major_version) {
+        cmd <- sprintf("%ssource %s && %s install --ignore-installed --upgrade %s%s",
+                       ifelse(is_osx(), "", "/bin/bash -c \""),
+                       shQuote(path.expand(virtualenv_bin("activate"))),
+                       shQuote(path.expand(virtualenv_bin(pip_version))),
+                       paste(shQuote("spacy==random"), collapse = " "),
+                       ifelse(is_osx(), "", "\""))
+        pip_get_version(cmd)
+    }
+    
     # upgrade pip so it can find spaCy
     pip_install("pip", "Upgrading pip")
     
@@ -381,9 +413,13 @@ process_spacy_installation_virtualenv <- function(python, virtualenv, version, l
     # upgrade setuptools so it can use wheels
     pip_install("setuptools", "Upgrading setuptools")
     
-    # install tensorflow and related dependencies
+    
+    if(version == "latest_v1") {
+        version <- pip_get_version_virtualenv(1)
+        cat('Option "version = version_v1" is supplied, spacy', version, 'will be isntalled\n')
+    }
     pkgs <- spacy_pkgs(version)
-    pip_install(pkgs, "Installing spaCy")
+    pip_install(pkgs, "Installing spaCy...")
     
     for(model in lang_models) {
         spacy_download_langmodel_virtualenv(model = model)
@@ -547,6 +583,18 @@ install_miniconda <- function() {
     }
 }
 
+pip_get_version <- function(cmd) {
+    regex <- "^(\\w+)\\s?(.*)$"
+    cmd1 <- sub(regex, "\\1", cmd)
+    cmd2 <- sub(regex, "\\1", cmd)
+    oldw <- getOption("warn")
+    options(warn = -1)
+    result <- paste(system2(cmd1, cmd2, stdout = TRUE, stderr = TRUE), 
+                    collapse = " ")
+    options(warn = oldw)
+    version_check_regex <- sprintf(".+(%s.\\d+\\.\\d+).+", major_version)
+    return(sub(version_check_regex, "\\1", tmp))
+}
 
 # # additional dependencies to install (required by some features of keras)
 # tf_extra_pkgs <- function(scipy = TRUE, extra_packages = NULL) {
