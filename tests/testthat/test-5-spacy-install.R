@@ -17,7 +17,8 @@ test_that("spacy_install works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     
-    expect_message(spacy_install(envname = "test_latest"), "Installation complete")
+    expect_message(spacy_install(envname = "test_latest", prompt = FALSE), 
+                   "Installation complete")
 })
 
 test_that("spacy_install spacy version 1 works", {
@@ -26,16 +27,8 @@ test_that("spacy_install spacy version 1 works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     
-    expect_message(spacy_install(envname = "test_v1", version = "latest_v1"), 
+    expect_message(spacy_install(envname = "test_v1", version = "latest_v1", 
+                                 prompt = FALSE), 
                    "Installation complete")
 })
 
-test_that("spacy_uninstall works", {
-    skip_on_cran()
-    # skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-    
-    expect_message(spacy_uninstall(envname = "test_latest"), 
-                   "Uninstallation complete")
-})
