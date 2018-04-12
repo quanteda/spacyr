@@ -21,14 +21,23 @@ test_that("spacy_install works", {
                    "Installation complete")
 })
 
-test_that("spacy_install spacy version 1 works", {
+test_that("spacy_install specific version of spacy works", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     
-    expect_message(spacy_install(envname = "test_v1", version = "latest_v1", 
+    expect_message(spacy_install(envname = "test_specific_version", version = "1.10.1", 
                                  prompt = FALSE), 
                    "Installation complete")
 })
 
+test_that("spacy_install_virtualenv works", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    expect_message(spacy_install_virtualenv(prompt = FALSE), 
+                   "Installation complete")
+})
