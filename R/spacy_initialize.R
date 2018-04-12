@@ -121,7 +121,7 @@ spacy_initialize <- function(model = "en",
 #' @author Akitaka Matsuo
 spacy_finalize <- function() {
     if (is.null(getOption("spacy_initialized"))) {
-        stop("Nothing to finalize. Spacy is not initialized")
+        stop("Nothing to finalize. spaCy is not initialized")
     }
     spacyr_pyexec(pyfile = system.file("python", "finalize_spacyPython.py",
                                        package = "spacyr"))
@@ -298,7 +298,7 @@ set_spacy_python_option <- function(python_executable = NULL,
             options(spacy_condaenv = condaenv)
         }
     } else {
-        message("Finding a python executable with spacy installed...")
+        message("Finding a python executable with spaCy installed...")
         spacy_python <- find_spacy(model, ask = ask)
         if (is.null(spacy_python)) {
             stop("spaCy or language model ", model, " is not installed in any of python executables.")
