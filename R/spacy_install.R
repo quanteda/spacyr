@@ -10,17 +10,23 @@
 #'   \code{spacy_install}.  Alternatively, an existing conda installation may be
 #'   used, by specifying its path.  The default setting of \code{"auto"} will
 #'   locate and use an existing installation automatically, or download and
-#'   install one if none exists.  The miniconda installation is not currently
-#'   available on Windows.
+#'   install one if none exists.  
 #'   
-#'   Regarding the installation option, \code{version="latest_v1"}. At the moment, 
-#'   there is a performance issue for spaCy pipeline for spacy v2.*. This can  enormously 
-#'   affect the performance of \code{spacy_parse()}, especially when a large number of 
-#'   small texts are parseed. For this reason, the package \code{spacyr}
-#'   provides an option to automatically install the latest version of spacy v1.*.
-#'   
-#'   The details of this performance issue are available at spaCy issue \href{https://github.com/explosion/spaCy/issues/1508}{#1508: v2 standard pipeline running 10x slower}
+#'   For Windows, automatic installation of miniconda installation is not currently
+#'   available, so the user will need to \href{https://conda.io/docs/user-guide/install/windows.html}{miniconda (or Anaconda) manually}.
 #'
+#' @section spaCy Version Issues:
+#' 
+#'   The version options currently default to the latest spaCy v2 (\code{version
+#'   = "latest"}). As of 2018-04, however,
+#'   \href{https://github.com/explosion/spaCy/issues/1508}{some performance
+#'   issues} affect the speed of the spaCy pipeline for spacy v2.x relative to
+#'   v1.x.   This can  enormously affect the performance of
+#'   \code{spacy_parse()}, especially when a large number of small texts are
+#'   parseed. For this reason, the \pkg{spacyr} provides an option to
+#'   automatically install the latest version of spacy v1.*, using \code{version
+#'   = "latest_v1"}.
+#'   
 #' @inheritParams reticulate::conda_list
 #' @param conda character; path to conda executable. Default "auto" which
 #'   automatically find the path
@@ -29,7 +35,7 @@
 #'   (e.g. \code{c("en", "de")})
 #' @param version character; spaCy version to install. Specify \code{"latest"}
 #'   to install the latest release, or \code{"latest_v1"} to install the latest 
-#'   release of spacy v1.*
+#'   release of spacy v1.*.  See spaCy Version Issues.
 #'
 #'   You can also provide a full major.minor.patch specification (e.g. "1.1.0")
 #' @param python_version character; determine Python version for condaenv
