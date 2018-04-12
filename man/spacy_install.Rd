@@ -24,7 +24,9 @@ automatically find the path}
 
 \item{lang_models}{character; language models to be installed. Default
 \code{en} (English model). A vector of multiple model names can be used
-(e.g. \code{c("en", "de")})}
+(e.g. \code{c("en", "de")}).  A list of available language models and their
+names is available from the \href{https://spacy.io/usage/models}{spaCy
+language models} page.}
 
 \item{python_version}{character; determine Python version for condaenv
 installation. 3.5 and 3.6 are available.}

@@ -12,7 +12,9 @@ spacy_download_langmodel_virtualenv(model = "en",
   envname = "spacy_virtualenv", virtualenv_root = NULL)
 }
 \arguments{
-\item{model}{name of the language model to be installed}
+\item{model}{name of the language model to be installed.  A list of available
+language models and their names is available from the
+\href{https://spacy.io/usage/models}{spaCy language models} page.}
 
 \item{envname}{name of the virtual environment}
 
