@@ -36,8 +36,11 @@ test_that("spacy_install_virtualenv works", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
+    skip_on_os("mac") # this test is travis only
     skip_if_no_python_or_no_spacy()
-    
-    expect_message(spacy_install_virtualenv(prompt = FALSE), 
+
+    expect_message(spacy_install_virtualenv(prompt = FALSE, 
+                                            python = paste0(path.expand("~"), 
+                                                            "/miniconda/bin/python")),
                    "Installation complete")
 })
