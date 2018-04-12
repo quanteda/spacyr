@@ -10,7 +10,7 @@
 spacy_download_langmodel <- function(model = "en",
                                      envname = "spacy_condaenv", 
                                      conda = "auto") {
-    message(sprintf("installing model \"%s\"\n", model))
+    message(sprintf("Installing model \"%s\"\n", model))
     # resolve conda binary
     conda <- reticulate::conda_binary(conda)
     
@@ -29,7 +29,7 @@ spacy_download_langmodel <- function(model = "en",
         stop("Error ", result, " occurred installing packages into conda environment ", 
              envname, call. = FALSE)
     }
-    
+    message(sprintf("Language model \"%s\" is successfully installed\n", model))
     invisible(NULL)
 }
 
