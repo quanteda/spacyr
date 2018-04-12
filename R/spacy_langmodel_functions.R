@@ -67,6 +67,7 @@ spacy_download_langmodel_virtualenv <- function(model = "en",
         stop("Error ", result, " occurred installing packages into virtual environment ", 
              envname, call. = FALSE)
     }
+    message(sprintf("Language model \"%s\" is successfully installed\n", model))
     
     invisible(NULL)
 }

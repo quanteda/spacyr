@@ -124,7 +124,8 @@ spacy_install <- function(conda = "auto",
                                          envname = envname)
              
     }
-    cat("\nInstallation complete.\n\n")
+    message("\nInstallation complete.\n",
+            sprintf("Condaenv: %s; Langage model(s):", envname), lang_models, "\n")
     
     invisible(NULL)
 }
