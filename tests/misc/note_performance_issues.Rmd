@@ -1,0 +1,70 @@
+---
+title: "Notes on Performance Issue in spacy v2.*"
+author: "Akitaka Matsuo"
+date: "4/9/2018"
+output: html_document
+---
+
+
+## It's a known issue
+
+### https://github.com/explosion/spaCy/issues/1508
+
+
+### Some performance testing
+
+
+#### preparation in R
+- the latest of `performance-issue-explore` has the functionality of install different version of spacy under different envname 
+
+```{r eval = FALSE}
+library(spacyr)
+spacy_install(envname = "spacy_condaenv_latest")
+spacy_install(envname = "spacy_condaenv_v1.10.0", version = "1.10.0")
+```
+
+#### run a test in `tests/misc/py_scripts`
+
+##### with the latest spaCy (v2.0.11)
+```
+(spacy_condaenv_latest) KBsiMacHome:py_script akitaka$ python benchmark_small_docs.py
+version= 2.0 components= ['tagger', 'parser', 'ner'] disabled= [] use_pipe= 0 wps= 1107.689528844235 words= 58685 seconds= 52.979646797990426
+version= 2.0 components= ['tagger', 'parser', 'ner'] disabled= [] use_pipe= 1 wps= 4454.833333644159 words= 58032 seconds= 13.026749971031677
+version= 2.0 components= ['tagger'] disabled= ['parser', 'ner'] use_pipe= 0 wps= 3575.6897783679424 words= 65120 seconds= 18.211870726023335
+version= 2.0 components= ['tagger'] disabled= ['parser', 'ner'] use_pipe= 1 wps= 15920.57125097865 words= 57842 seconds= 3.63316109002335
+version= 2.0 components= ['tagger', 'ner'] disabled= ['parser'] use_pipe= 0 wps= 1712.7799061057126 words= 56324 seconds= 32.88455206603976
+version= 2.0 components= ['tagger', 'ner'] disabled= ['parser'] use_pipe= 1 wps= 7446.164664864156 words= 63919 seconds= 8.584150751004927
+```
+
+##### with spacy v1.10.0 (testscript: `test_v1.10.sh`)
+```
+version= 1.10 components= ['tagger', 'parser', 'ner'] disabled= [] use_pipe= 1 wps= 23226.304570550397 words= 63005 seconds= 2.712657099997159
+version= 1.10 components= ['tagger'] disabled= ['ner', 'parser'] use_pipe= 0 wps= 61613.47611414316 words= 57083 seconds= 0.9264693959848955
+version= 1.10 components= ['tagger'] disabled= ['ner', 'parser'] use_pipe= 1 wps= 66882.46893803598 words= 59783 seconds= 0.8938515720074065
+version= 1.10 components= ['tagger', 'ner'] disabled= ['parser'] use_pipe= 0 wps= 42365.39600838973 words= 55532 seconds= 1.3107867559883744
+version= 1.10 components= ['tagger', 'ner'] disabled= ['parser'] use_pipe= 1 wps= 41980.147682750954 words= 54079 seconds= 1.2882041389821097
+```
+
+#### Verdict
+
+- v2 is quite slow especially without parallel (using `pipe`)
+- parallelazation makes both v2 and v2 faster
+
+## Plan of Attack?
+
+- For the short time period, we chould add note on spaCy v2
+- Also, we should work on the implementation of proper pipe for spacy v2, and hopefully get it done by textworkshop18
+
+
+## other issues to refer
+- https://github.com/explosion/spaCy/issues/2032
+    - (https://github.com/explosion/spaCy/issues/2038)
+- https://github.com/explosion/spaCy/issues/2098
+
+
+## Parallel processing references
+- [Advice for parallel processing](https://github.com/explosion/spaCy/issues/1839)
+- https://medium.com/@vishnups/speeding-up-spacy-f766e3dd033c
+
+
+

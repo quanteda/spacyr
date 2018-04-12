@@ -5,12 +5,14 @@
 #' @param envname name of the virtual environment
 #' @param conda Path to conda executable.  Default \code{"auto"} which
 #'   automatically finds the path.
-#' @param model name of the language model to be installed
+#' @param model name of the language model to be installed.  A list of available
+#'   language models and their names is available from the
+#'   \href{https://spacy.io/usage/models}{spaCy language models} page.
 #' @export
 spacy_download_langmodel <- function(model = "en",
                                      envname = "spacy_condaenv", 
                                      conda = "auto") {
-    message(sprintf("installing model \"%s\"\n", model))
+    message(sprintf("Installing model \"%s\"\n", model))
     # resolve conda binary
     conda <- reticulate::conda_binary(conda)
     
@@ -29,7 +31,7 @@ spacy_download_langmodel <- function(model = "en",
         stop("Error ", result, " occurred installing packages into conda environment ", 
              envname, call. = FALSE)
     }
-    
+    message(sprintf("Language model \"%s\" is successfully installed\n", model))
     invisible(NULL)
 }
 
@@ -67,6 +69,7 @@ spacy_download_langmodel_virtualenv <- function(model = "en",
         stop("Error ", result, " occurred installing packages into virtual environment ", 
              envname, call. = FALSE)
     }
+    message(sprintf("Language model \"%s\" is successfully installed\n", model))
     
     invisible(NULL)
 }
