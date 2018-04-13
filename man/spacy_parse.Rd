@@ -5,7 +5,7 @@
 \title{Parse a text using spaCy}
 \usage{
 spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE, entity = TRUE,
-  dependency = FALSE, ...)
+  dependency = FALSE, use_pipe = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -26,6 +26,8 @@ may not work properly for non-English models)}
 \item{entity}{logical; if \code{TRUE}, report named entities}
 
 \item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
+
+\item{use_pipe}{logical;}
 
 \item{...}{not used directly}
 }

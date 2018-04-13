@@ -20,6 +20,7 @@
 #' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
+#' @param use_pipe logical;
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
@@ -44,6 +45,7 @@ spacy_parse <- function(x,
                         lemma = TRUE,
                         entity = TRUE, 
                         dependency = FALSE,
+                        use_pipe = TRUE,
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -58,11 +60,12 @@ spacy_parse.character <- function(x,
                                   lemma = TRUE,
                                   entity = TRUE, 
                                   dependency = FALSE,
+                                  use_pipe = TRUE,
                                   ...) {
     
     `:=` <- NULL
     
-    spacy_out <- process_document(x)
+    spacy_out <- process_document(x, use_pipe)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
@@ -145,8 +148,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
 #' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 #' relevant functions are called.
-#' @param python_exec character; select connection type to spaCy, either 
-#' "rPython" or "Rcpp". 
+#' @param use_pipe logica;
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @importFrom methods new
@@ -160,7 +162,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' }
 #' @export
 #' @keywords internal
-process_document <- function(x,  ...) {
+process_document <- function(x, use_pipe, ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
@@ -179,9 +181,10 @@ process_document <- function(x,  ...) {
     x <- unname(x)
     
     spacyr_pyassign("texts", x)
+    spacyr_pyassign("use_pipe", use_pipe)
     spacyr_pyexec("spobj = spacyr()")
     
-    spacyr_pyexec("timestamps = spobj.parse(texts)")
+    spacyr_pyexec("timestamps = spobj.parse(texts, use_pipe = use_pipe)")
     
     timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
