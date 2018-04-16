@@ -20,7 +20,8 @@
 #' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
-#' @param use_pipe logical;
+#' @param multithread logical; If true, the processing is parallelized using pipe 
+#'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
@@ -45,7 +46,7 @@ spacy_parse <- function(x,
                         lemma = TRUE,
                         entity = TRUE, 
                         dependency = FALSE,
-                        use_pipe = TRUE,
+                        multithread = TRUE,
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -60,12 +61,12 @@ spacy_parse.character <- function(x,
                                   lemma = TRUE,
                                   entity = TRUE, 
                                   dependency = FALSE,
-                                  use_pipe = TRUE,
+                                  multithread = TRUE,
                                   ...) {
     
     `:=` <- NULL
     
-    spacy_out <- process_document(x, use_pipe)
+    spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
@@ -148,7 +149,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
 #' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 #' relevant functions are called.
-#' @param use_pipe logica;
+#' @param multithread logical;
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @importFrom methods new
@@ -162,7 +163,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' }
 #' @export
 #' @keywords internal
-process_document <- function(x, use_pipe, ...) {
+process_document <- function(x, multithread, ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
@@ -181,10 +182,10 @@ process_document <- function(x, use_pipe, ...) {
     x <- unname(x)
     
     spacyr_pyassign("texts", x)
-    spacyr_pyassign("use_pipe", use_pipe)
+    spacyr_pyassign("multithread", multithread)
     spacyr_pyexec("spobj = spacyr()")
     
-    spacyr_pyexec("timestamps = spobj.parse(texts, use_pipe = use_pipe)")
+    spacyr_pyexec("timestamps = spobj.parse(texts, multithread = multithread)")
     
     timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 

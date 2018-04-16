@@ -4,7 +4,7 @@
 \alias{process_document}
 \title{Tokenize text using spaCy}
 \usage{
-process_document(x, use_pipe, ...)
+process_document(x, multithread, ...)
 }
 \arguments{
 \item{x}{input text
@@ -14,7 +14,7 @@ This slows down \code{spacy_parse()} but speeds up the later parsing.
 If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 relevant functions are called.}
 
-\item{use_pipe}{logica;}
+\item{multithread}{logical;}
 
 \item{...}{arguments passed to specific methods}
 }

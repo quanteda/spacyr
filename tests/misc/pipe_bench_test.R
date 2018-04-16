@@ -8,8 +8,8 @@ corpus_reshape(data_corpus_inaugural, to = "sentences") %>% texts %>% .[1:10000]
 spacy_initialize(check_env = F, condaenv = "spacy_condaenv_latest")
 #spacy_initialize(check_env = F, condaenv = "spacy_condaenv_v1.10.0")
 
-microbenchmark(use_pipe = spacy_parse(texts),
-               no_pipe = spacy_parse(texts, use_pipe = FALSE), 
+microbenchmark(multithread = spacy_parse(texts),
+               multithread = spacy_parse(texts, multithread = FALSE), 
                times = 10L)
 
 

@@ -21,7 +21,7 @@ class spacyr:
         self.nlp = nlp
         self.documents = {}
     
-    def parse(self, texts, use_pipe = True):
+    def parse(self, texts, multithread = True):
         epoch_nanos = []
         if isinstance(texts, list) == False:
             texts = [texts]
@@ -31,7 +31,7 @@ class spacyr:
                     texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
             except NameError:
                 pass
-        if use_pipe == True:
+        if multithread == True:
             for doc in nlp.pipe(texts):
                 epoch_nano = str(int(time.time() * 1000000)) + id_generator()
                 self.documents[epoch_nano] = doc
