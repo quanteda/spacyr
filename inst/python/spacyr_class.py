@@ -21,21 +21,32 @@ class spacyr:
         self.nlp = nlp
         self.documents = {}
     
-    def parse(self, texts):
+    def parse(self, texts, multithread = True):
         epoch_nanos = []
         if isinstance(texts, list) == False:
             texts = [texts]
-        for text in texts:
-            epoch_nano = str(int(time.time() * 1000000)) + id_generator()
-            #text = text.decode('utf-8')
-            try: 
-                if not isinstance(text, unicode):
-                    text = unicode(text, "utf-8", errors = "ignore")
+        for i in range(len(texts)):
+            try:
+                if not isinstance(texts[i], unicode):
+                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
             except NameError:
                 pass
-            doc = self.nlp(text)
-            self.documents[epoch_nano] = doc
-            epoch_nanos.append(epoch_nano)
+        if multithread == True:
+            for doc in nlp.pipe(texts):
+                epoch_nano = str(int(time.time() * 1000000)) + id_generator()
+                self.documents[epoch_nano] = doc
+                epoch_nanos.append(epoch_nano)
+        else:
+            for text in texts:
+                epoch_nano = str(int(time.time() * 1000000)) + id_generator()
+                # try:
+                #     if not isinstance(text, unicode):
+                #         text = unicode(text, "utf-8", errors = "ignore")
+                # except NameError:
+                #     pass
+                doc = self.nlp(text)
+                self.documents[epoch_nano] = doc
+                epoch_nanos.append(epoch_nano)
         return epoch_nanos 
         
     def ntokens(self, timestamps):
