@@ -1,19 +1,15 @@
 ## Submission notes
 
-### Resubmission
-
-Fixed the imbalanced single quotes in the title.
-
 ### Purpose
 
-Bug fixes and improvements to usability; decreases R version dependency to an earlier version (our newer version dependency was unnecessary).
+Improvements to usability through automating the installation process.
 
 ## Test environments
 
-* local OS X install, R 3.4.3
-* ubuntu Ubuntu 14.04.5 LTS (on travis-ci), R 3.4.2
-* Windows Server 2012 R2 x64 (build 9600), R 3.4.2 (on Appveyor)
-* local Windows 10, R 3.4.2
+* local OS X install, R 3.4.4
+* ubuntu Ubuntu 16.04 LTS (on travis-ci), R 3.4.4
+* Windows Server 2012 R2 x64 (build 9600), R 3.4.4 (on Appveyor)
+* local Windows 10, R 3.4.4
 * win-builder (devel and release)
 
 ## R CMD check results
@@ -29,4 +25,3 @@ None.
 ## Downstream dependencies
 
 No errors were caused in other packages, using `devtools::revdep_check()` to confirm.
-
