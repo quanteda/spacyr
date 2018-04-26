@@ -1,8 +1,9 @@
 ---
 output:
-  md_document:
-    variant: gfm
+  github_document:
+    html_preview: false
 ---
+
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
@@ -50,7 +51,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     * To install spaCy, you can simply run
 
     ```{r, eval = FALSE}
-    library(spacy)
+    library("spacyr")
     spacy_install()
     ```
       
