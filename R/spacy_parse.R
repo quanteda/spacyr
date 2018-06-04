@@ -171,6 +171,9 @@ process_document <- function(x, multithread, ...) {
     } else {
         docnames <- paste0("text", 1:length(x))
     }
+    if(all(!duplicated(docnames)) == FALSE) {
+        stop("Docmanes are duplicated.")
+    }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
