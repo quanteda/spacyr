@@ -32,7 +32,7 @@ class spacyr:
             except NameError:
                 pass
         if multithread == True:
-            for doc in nlp.pipe(texts):
+            for doc in self.nlp.pipe(texts):
                 epoch_nano = str(int(time.time() * 1000000)) + id_generator()
                 self.documents[epoch_nano] = doc
                 epoch_nanos.append(epoch_nano)
@@ -48,7 +48,38 @@ class spacyr:
                 self.documents[epoch_nano] = doc
                 epoch_nanos.append(epoch_nano)
         return epoch_nanos 
-        
+
+    def tokenize(self, texts, docnames, multithread = True):
+        pipes = self.nlp.pipe_names
+        disabled_pipes = self.nlp.disable_pipes(*pipes)
+        if isinstance(texts, list) == False:
+            texts = [texts]
+        for i in range(len(texts)):
+            try:
+                if not isinstance(texts[i], unicode):
+                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
+            except NameError:
+                pass
+        tokens_out = {}
+        # if multithread == True:
+        #     docs = nlp.pipe(texts)
+        #     for i in range(len(docs)):
+        #         doc = docs[i]
+        #         toks = []
+        #         for w in doc:
+        #             toks.append(w.text)
+        #         tokens_out[docnames[i]] = toks
+        # else:
+        for i in range(len(texts)):
+            text = texts[i]
+            doc = self.nlp(text)
+            toks = []
+            for w in doc:
+                toks.append(w.text)
+            tokens_out[docnames[i]] = toks
+        disabled_pipes.restore()
+        return tokens_out
+
     def ntokens(self, timestamps):
         ntok = []
         if isinstance(timestamps, list) == False:
@@ -100,10 +131,9 @@ class spacyr:
         return all_attrs
     
     def tokens(self, timestamps):
-        all_tokens = self.attributes(timestamps, 'orth_', 1)
+        all_tokens = self.attributes(timestamps, 'text', 1)
         return all_tokens
-
-        
+    
     def tags(self, timestamps, tag_type):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
