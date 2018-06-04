@@ -8,10 +8,12 @@ try:
     from pip._internal import get_installed_distributions
 except ImportError:
     from pip import get_installed_distributions
+
 installed_packages = get_installed_distributions()
 versions = {package.key: package.version for package in installed_packages}
+spacy_version = int(versions['spacy'][:1])
 
-if 'spacy_entity' in locals() and spacy_entity == False and int(versions['spacy'][:1]) >= 2:
+if 'spacy_entity' in locals() and spacy_entity == False and spacy_version >= 2:
     nlp = spacy.load(model, disable=['ner'])
 else:
     nlp = spacy.load(model)

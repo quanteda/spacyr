@@ -4,6 +4,7 @@
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
+#' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
 #' @examples
@@ -37,9 +38,6 @@ spacy_tokenize.character <- function(x,
         docnames <- names(x) 
     } else {
         docnames <- paste0("text", 1:length(x))
-    }
-    if(multithread) {
-        message("multithread is not implemented yet.")
     }
     if(all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")

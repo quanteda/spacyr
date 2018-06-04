@@ -11,10 +11,15 @@ import time
 import gc
 import string
 import random
+import itertools
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+## generator function for itertools
+def gen_items(doc_id, texts):
+    for i in range(len(doc_id)):
+        yield (doc_id[i], texts[i])
 
 class spacyr:
     def __init__(self):
@@ -50,8 +55,9 @@ class spacyr:
         return epoch_nanos 
 
     def tokenize(self, texts, docnames, multithread = True):
-        pipes = self.nlp.pipe_names
-        disabled_pipes = self.nlp.disable_pipes(*pipes)
+        if spacy_version >= 2:
+            pipes = self.nlp.pipe_names
+            disabled_pipes = self.nlp.disable_pipes(*pipes)
         if isinstance(texts, list) == False:
             texts = [texts]
         for i in range(len(texts)):
@@ -61,23 +67,28 @@ class spacyr:
             except NameError:
                 pass
         tokens_out = {}
-        # if multithread == True:
-        #     docs = nlp.pipe(texts)
-        #     for i in range(len(docs)):
-        #         doc = docs[i]
-        #         toks = []
-        #         for w in doc:
-        #             toks.append(w.text)
-        #         tokens_out[docnames[i]] = toks
-        # else:
-        for i in range(len(texts)):
-            text = texts[i]
-            doc = self.nlp(text)
-            toks = []
-            for w in doc:
-                toks.append(w.text)
-            tokens_out[docnames[i]] = toks
-        disabled_pipes.restore()
+        # this multithread solution is suggested by @honnibal
+        # https://github.com/explosion/spaCy/issues/172
+        if multithread == True:
+            gen1, gen2 = itertools.tee(gen_items(docnames, texts))
+            ids = (id_ for (id_, text) in gen1)
+            texts = (text for (id_, text) in gen2)
+            docs = nlp.pipe(texts)
+            for id_, doc in zip(ids, docs):
+                toks = []
+                for w in doc:
+                    toks.append(w.text)
+                tokens_out[id_] = toks
+        else:
+            for i in range(len(texts)):
+                text = texts[i]
+                doc = self.nlp(text)
+                toks = []
+                for w in doc:
+                    toks.append(w.text)
+                tokens_out[docnames[i]] = toks
+        if spacy_version >= 2:
+            disabled_pipes.restore()
         return tokens_out
 
     def ntokens(self, timestamps):

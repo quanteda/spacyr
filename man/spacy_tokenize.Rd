@@ -12,6 +12,8 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
+
+\item{...}{not used directly}
 }
 \value{
 a \code{data.frame} of tokenized, parsed, and annotated tokens
