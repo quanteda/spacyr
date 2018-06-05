@@ -2,6 +2,7 @@
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
+#' @param remove_punct remove puctuation tokens.
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
 #' @param ... not used directly
@@ -19,8 +20,9 @@
 #' spacy_tokenize(txt2)
 #' }
 spacy_tokenize <- function(x, 
-                        multithread = TRUE,
-                        ...) {
+                           remove_punct = FALSE,
+                           multithread = TRUE,
+                           ...) {
     UseMethod("spacy_tokenize")
 }
 
@@ -29,8 +31,9 @@ spacy_tokenize <- function(x,
 #' @importFrom data.table data.table
 #' @noRd
 spacy_tokenize.character <- function(x, 
-                                  multithread = TRUE,
-                                  ...) {
+                                     remove_punct = FALSE,
+                                     multithread = TRUE,
+                                     ...) {
     
     `:=` <- NULL
     
@@ -39,6 +42,9 @@ spacy_tokenize.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
+    turn_off_pipes <- if(all(!c(remove_punct))) {TRUE} else {FALSE}
+    spacyr_pyassign("turn_off_pipes", turn_off_pipes)
+    
     if(all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")
     }
@@ -56,9 +62,14 @@ spacy_tokenize.character <- function(x,
     spacyr_pyassign("docnames", docnames)
     
     spacyr_pyassign("multithread", multithread)
-    spacyr_pyexec("spobj = spacyr()")
+    spacyr_pyassign("remove_punct", remove_punct)
     
-    spacyr_pyexec("tokens = spobj.tokenize(texts, docnames, multithread = multithread)")
+    spacyr_pyexec("spobj = spacyr()")
+    command_str <- paste("tokens = spobj.tokenize(texts, docnames,",
+                         "remove_punct = remove_punct,",
+                         "turn_off_pipes = turn_off_pipes,",
+                         "multithread = multithread)")
+    spacyr_pyexec(command_str)
     
     tokens <- spacyr_pyget("tokens")
     

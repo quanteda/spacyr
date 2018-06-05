@@ -54,8 +54,9 @@ class spacyr:
                 epoch_nanos.append(epoch_nano)
         return epoch_nanos 
 
-    def tokenize(self, texts, docnames, multithread = True):
-        if spacy_version >= 2:
+    def tokenize(self, texts, docnames, turn_off_pipes = True, 
+                 remove_punct = False, multithread = True):
+        if spacy_version >= 2 & turn_off_pipes:
             pipes = self.nlp.pipe_names
             disabled_pipes = self.nlp.disable_pipes(*pipes)
         if isinstance(texts, list) == False:
@@ -77,6 +78,8 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for w in doc:
+                    if remove_punct & w.is_punct:
+                        continue
                     toks.append(w.text)
                 tokens_out[id_] = toks
         else:
@@ -85,9 +88,11 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for w in doc:
+                    if remove_punct & w.is_punct:
+                        continue
                     toks.append(w.text)
                 tokens_out[docnames[i]] = toks
-        if spacy_version >= 2:
+        if spacy_version >= 2 & turn_off_pipes:
             disabled_pipes.restore()
         return tokens_out
 
