@@ -55,7 +55,10 @@ class spacyr:
         return epoch_nanos 
 
     def tokenize(self, texts, docnames, turn_off_pipes = True, 
-                 remove_punct = False, multithread = True):
+                 remove_punct = False,
+                 remove_numbers = False,
+                 remove_url = False, 
+                 multithread = True):
         if spacy_version >= 2 & turn_off_pipes:
             pipes = self.nlp.pipe_names
             disabled_pipes = self.nlp.disable_pipes(*pipes)
@@ -80,6 +83,10 @@ class spacyr:
                 for w in doc:
                     if remove_punct & w.is_punct:
                         continue
+                    if remove_url & (w.like_url | w.like_email):
+                        continue
+                    if remove_numbers & w.like_num:
+                        continue
                     toks.append(w.text)
                 tokens_out[id_] = toks
         else:
@@ -89,6 +96,10 @@ class spacyr:
                 toks = []
                 for w in doc:
                     if remove_punct & w.is_punct:
+                        continue
+                    if remove_url & (w.like_url | w.like_email):
+                        continue
+                    if remove_numbers & w.like_num:
                         continue
                     toks.append(w.text)
                 tokens_out[docnames[i]] = toks

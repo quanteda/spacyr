@@ -3,6 +3,8 @@
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
 #' @param remove_punct remove puctuation tokens.
+#' @param remove_numbers remove tokens that look like a number (e.g. "334", "3.1415", "fifty").
+#' @param remove_url remove tokens that look like a url or email address.
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
 #' @param ... not used directly
@@ -21,6 +23,8 @@
 #' }
 spacy_tokenize <- function(x, 
                            remove_punct = FALSE,
+                           remove_url = FALSE,
+                           remove_numbers = FALSE,
                            multithread = TRUE,
                            ...) {
     UseMethod("spacy_tokenize")
@@ -32,6 +36,8 @@ spacy_tokenize <- function(x,
 #' @noRd
 spacy_tokenize.character <- function(x, 
                                      remove_punct = FALSE,
+                                     remove_url = FALSE,
+                                     remove_numbers = FALSE,
                                      multithread = TRUE,
                                      ...) {
     
@@ -42,7 +48,7 @@ spacy_tokenize.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
-    turn_off_pipes <- if(all(!c(remove_punct))) {TRUE} else {FALSE}
+    turn_off_pipes <- if(all(!c(remove_punct, remove_url, remove_numbers))) {TRUE} else {FALSE}
     spacyr_pyassign("turn_off_pipes", turn_off_pipes)
     
     if(all(!duplicated(docnames)) == FALSE) {
@@ -63,10 +69,14 @@ spacy_tokenize.character <- function(x,
     
     spacyr_pyassign("multithread", multithread)
     spacyr_pyassign("remove_punct", remove_punct)
+    spacyr_pyassign("remove_url", remove_url)
+    spacyr_pyassign("remove_numbers", remove_numbers)
     
     spacyr_pyexec("spobj = spacyr()")
     command_str <- paste("tokens = spobj.tokenize(texts, docnames,",
                          "remove_punct = remove_punct,",
+                         "remove_url = remove_url,",
+                         "remove_numbers = remove_numbers,",
                          "turn_off_pipes = turn_off_pipes,",
                          "multithread = multithread)")
     spacyr_pyexec(command_str)

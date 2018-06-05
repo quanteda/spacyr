@@ -4,13 +4,18 @@
 \alias{spacy_tokenize}
 \title{Just tokenize text with spaCy}
 \usage{
-spacy_tokenize(x, remove_punct = FALSE, multithread = TRUE, ...)
+spacy_tokenize(x, remove_punct = FALSE, remove_url = FALSE,
+  remove_numbers = FALSE, multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{remove_punct}{remove puctuation tokens.}
+
+\item{remove_url}{remove tokens that look like a url or email address.}
+
+\item{remove_numbers}{remove tokens that look like a number (e.g. "334", "3.1415", "fifty").}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
