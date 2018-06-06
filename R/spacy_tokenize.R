@@ -10,7 +10,8 @@
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
 #'   needs to be computed.
 #' @param multithread logical; If true, the processing is parallelized using pipe 
-#'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
+#'   functionality of spacy (\url{https://spacy.io/api/pipe}).
+#' @param value type of returning object. Either \code{list} or \code{data.frame}. 
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
@@ -31,6 +32,7 @@ spacy_tokenize <- function(x,
                            remove_numbers = FALSE,
                            padding = FALSE,
                            multithread = TRUE,
+                           value = c('list', 'data.frame'),
                            ...) {
     UseMethod("spacy_tokenize")
 }
@@ -45,9 +47,12 @@ spacy_tokenize.character <- function(x,
                                      remove_numbers = FALSE,
                                      padding = FALSE,
                                      multithread = TRUE,
+                                     value = c('list', 'data.frame'),
                                      ...) {
     
     `:=` <- NULL
+    
+    value <- match.arg(value)
     
     if (!is.null(names(x))) {
         docnames <- names(x) 
@@ -98,7 +103,12 @@ spacy_tokenize.character <- function(x,
     
     tokens <- spacyr_pyget("tokens")
     
-    return(tokens)
+    if (identical(value, 'list')) return(tokens)
+    else {
+        list_length <- sapply(tokens, length)
+        docnames_vec <- rep(names(list_length), list_length)
+        return(data.frame(doc_id = docnames_vec, token = unlist(tokens, use.names = FALSE)))
+    }
 }
 
 
