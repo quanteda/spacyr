@@ -4,14 +4,18 @@
 \alias{spacy_tokenize}
 \title{Just tokenize text with spaCy}
 \usage{
-spacy_tokenize(x, remove_punct = FALSE, remove_url = FALSE,
-  remove_numbers = FALSE, padding = FALSE,
+spacy_tokenize(x, what = c("word", "sentence"), remove_punct = FALSE,
+  remove_url = FALSE, remove_numbers = FALSE, padding = FALSE,
   remove_whitespace_separators = TRUE, multithread = TRUE,
   value = c("list", "data.frame"), ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 corpus data.frame (see \url{https://github.com/ropensci/tif})}
+
+\item{what}{the unit for splitting the text, available alternatives are: 
+\describe{ \item{\code{"word"}}{word segmenter} 
+\item{\code{"sentence"}}{sentence segmenter }}}
 
 \item{remove_punct}{remove puctuation tokens.}
 

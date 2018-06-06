@@ -127,6 +127,39 @@ class spacyr:
             disabled_pipes.restore()
         return tokens_out
 
+
+    def tokenize_sentence(self, texts, docnames, multithread = True):
+        if isinstance(texts, list) == False:
+            texts = [texts]
+        for i in range(len(texts)):
+            try:
+                if not isinstance(texts[i], unicode):
+                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
+            except NameError:
+                pass
+        tokens_out = {}
+        # this multithread solution is suggested by @honnibal
+        # https://github.com/explosion/spaCy/issues/172
+        if multithread == True:
+            gen1, gen2 = itertools.tee(gen_items(docnames, texts))
+            ids = (id_ for (id_, text) in gen1)
+            texts = (text for (id_, text) in gen2)
+            docs = nlp.pipe(texts)
+            for id_, doc in zip(ids, docs):
+                toks = []
+                for sent in doc.sents:
+                    toks.append(sent.text)
+                tokens_out[id_] = toks
+        else:
+            for i in range(len(texts)):
+                text = texts[i]
+                doc = self.nlp(text)
+                toks = []
+                for sent in doc.sents:
+                    toks.append(sent.text)
+                tokens_out[docnames[i]] = toks
+        return tokens_out
+
     def ntokens(self, timestamps):
         ntok = []
         if isinstance(timestamps, list) == False:

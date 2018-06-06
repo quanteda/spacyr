@@ -2,6 +2,9 @@
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
+#' @param what the unit for splitting the text, available alternatives are: 
+#'   \describe{ \item{\code{"word"}}{word segmenter} 
+#'   \item{\code{"sentence"}}{sentence segmenter }}
 #' @param remove_punct remove puctuation tokens.
 #' @param remove_numbers remove tokens that look like a number (e.g. "334", "3.1415", "fifty").
 #' @param remove_url remove tokens that look like a url or email address.
@@ -29,6 +32,7 @@
 #' spacy_tokenize(txt2)
 #' }
 spacy_tokenize <- function(x, 
+                           what = c("word", "sentence"),
                            remove_punct = FALSE,
                            remove_url = FALSE,
                            remove_numbers = FALSE,
@@ -45,6 +49,7 @@ spacy_tokenize <- function(x,
 #' @importFrom data.table data.table
 #' @noRd
 spacy_tokenize.character <- function(x, 
+                                     what = c("word", "sentence"),
                                      remove_punct = FALSE,
                                      remove_url = FALSE,
                                      remove_numbers = FALSE,
@@ -57,6 +62,7 @@ spacy_tokenize.character <- function(x,
     `:=` <- NULL
     
     value <- match.arg(value)
+    what <- match.arg(what)
     
     if (!is.null(names(x))) {
         docnames <- names(x) 
@@ -85,41 +91,51 @@ spacy_tokenize.character <- function(x,
     ## send documents to python
     spacyr_pyassign("texts", x)
     spacyr_pyassign("docnames", docnames)
-    
-    ## assign general settings for tokenizer in python
     spacyr_pyassign("multithread", multithread)
-    spacyr_pyassign("padding", padding)
-    turn_off_pipes <- if(all(!c(remove_punct, remove_url, remove_numbers))) {TRUE} else {FALSE}
-    spacyr_pyassign("turn_off_pipes", turn_off_pipes)
-    if(remove_whitespace_separators == FALSE & turn_off_pipes == FALSE) {
-        stop("remove_whitespace_separators = FALSE and remove_* = TURE are not compatible", call. = FALSE)
+    
+    if(identical(what, "sentence")){
+        spacyr_pyexec("spobj = spacyr()")
+        command_str <- paste("tokens = spobj.tokenize_sentence(texts, docnames,",
+                             "multithread = multithread)")
+        spacyr_pyexec(command_str)
+    } else {
+    
+        ## assign general settings for tokenizer in python
+        spacyr_pyassign("padding", padding)
+        turn_off_pipes <- if(all(!c(remove_punct, remove_url, remove_numbers))) {TRUE} else {FALSE}
+        spacyr_pyassign("turn_off_pipes", turn_off_pipes)
+        if(remove_whitespace_separators == FALSE & turn_off_pipes == FALSE) {
+            stop("remove_whitespace_separators = FALSE and remove_* = TURE are not compatible", call. = FALSE)
+        }
+        spacyr_pyassign("remove_whitespace_separators", remove_whitespace_separators)
+        
+        ## assign removal settings for tokenizer in python
+        spacyr_pyassign("remove_punct", remove_punct)
+        spacyr_pyassign("remove_url", remove_url)
+        spacyr_pyassign("remove_numbers", remove_numbers)
+        
+        ## run tokenizer
+        spacyr_pyexec("spobj = spacyr()")
+        command_str <- paste("tokens = spobj.tokenize(texts, docnames,",
+                             "remove_punct = remove_punct,",
+                             "remove_url = remove_url,",
+                             "remove_numbers = remove_numbers,",
+                             "remove_whitespace_separators = remove_whitespace_separators,",
+                             "turn_off_pipes = turn_off_pipes,",
+                             "padding = padding,",
+                             "multithread = multithread)")
+        spacyr_pyexec(command_str)
     }
-    spacyr_pyassign("remove_whitespace_separators", remove_whitespace_separators)
-       
-    ## assign removal settings for tokenizer in python
-    spacyr_pyassign("remove_punct", remove_punct)
-    spacyr_pyassign("remove_url", remove_url)
-    spacyr_pyassign("remove_numbers", remove_numbers)
-    
-    ## run tokenizer
-    spacyr_pyexec("spobj = spacyr()")
-    command_str <- paste("tokens = spobj.tokenize(texts, docnames,",
-                         "remove_punct = remove_punct,",
-                         "remove_url = remove_url,",
-                         "remove_numbers = remove_numbers,",
-                         "remove_whitespace_separators = remove_whitespace_separators,",
-                         "turn_off_pipes = turn_off_pipes,",
-                         "padding = padding,",
-                         "multithread = multithread)")
-    spacyr_pyexec(command_str)
-    
+
     tokens <- spacyr_pyget("tokens")
     
     if (identical(value, 'list')) return(tokens)
     else {
         list_length <- sapply(tokens, length)
         docnames_vec <- rep(names(list_length), list_length)
-        return(data.frame(doc_id = docnames_vec, token = unlist(tokens, use.names = FALSE)))
+        return(data.frame(doc_id = docnames_vec, 
+                          token = unlist(tokens, use.names = FALSE), 
+                          stringsAsFactors = FALSE))
     }
 }
 
