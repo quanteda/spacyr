@@ -63,6 +63,9 @@ spacy_tokenize.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
+    if(length(x) == 1) {
+        multithread <- FALSE
+    }
     
     if(all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")
