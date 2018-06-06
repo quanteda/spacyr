@@ -5,6 +5,10 @@
 #' @param remove_punct remove puctuation tokens.
 #' @param remove_numbers remove tokens that look like a number (e.g. "334", "3.1415", "fifty").
 #' @param remove_url remove tokens that look like a url or email address.
+#' @param padding if \code{TRUE}, leave an empty string where the removed tokens 
+#'   previously existed. This is useful if a positional match is needed between 
+#'   the pre- and post-selected tokens, for instance if a window of adjacency 
+#'   needs to be computed.
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
 #' @param ... not used directly
@@ -25,6 +29,7 @@ spacy_tokenize <- function(x,
                            remove_punct = FALSE,
                            remove_url = FALSE,
                            remove_numbers = FALSE,
+                           padding = FALSE,
                            multithread = TRUE,
                            ...) {
     UseMethod("spacy_tokenize")
@@ -38,6 +43,7 @@ spacy_tokenize.character <- function(x,
                                      remove_punct = FALSE,
                                      remove_url = FALSE,
                                      remove_numbers = FALSE,
+                                     padding = FALSE,
                                      multithread = TRUE,
                                      ...) {
     
@@ -48,11 +54,11 @@ spacy_tokenize.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
-    turn_off_pipes <- if(all(!c(remove_punct, remove_url, remove_numbers))) {TRUE} else {FALSE}
-    spacyr_pyassign("turn_off_pipes", turn_off_pipes)
     
     if(all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")
+    } else if (all(nchar(docnames) > 0L) == FALSE) {
+        stop("Some docnames are missing.")
     }
     
     if (is.null(options()$spacy_initialized)) spacy_initialize()
@@ -64,20 +70,29 @@ spacy_tokenize.character <- function(x,
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
     x <- unname(x)
 
+    ## send documents to python
     spacyr_pyassign("texts", x)
     spacyr_pyassign("docnames", docnames)
     
+    ## assign general settings for tokenizer in python
     spacyr_pyassign("multithread", multithread)
+    spacyr_pyassign("padding", padding)
+    turn_off_pipes <- if(all(!c(remove_punct, remove_url, remove_numbers))) {TRUE} else {FALSE}
+    spacyr_pyassign("turn_off_pipes", turn_off_pipes)
+    
+    ## assign removal settings for tokenizer in python
     spacyr_pyassign("remove_punct", remove_punct)
     spacyr_pyassign("remove_url", remove_url)
     spacyr_pyassign("remove_numbers", remove_numbers)
     
+    ## run tokenizer
     spacyr_pyexec("spobj = spacyr()")
     command_str <- paste("tokens = spobj.tokenize(texts, docnames,",
                          "remove_punct = remove_punct,",
                          "remove_url = remove_url,",
                          "remove_numbers = remove_numbers,",
                          "turn_off_pipes = turn_off_pipes,",
+                         "padding = padding,",
                          "multithread = multithread)")
     spacyr_pyexec(command_str)
     

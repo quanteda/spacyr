@@ -58,6 +58,7 @@ class spacyr:
                  remove_punct = False,
                  remove_numbers = False,
                  remove_url = False, 
+                 padding = False,
                  multithread = True):
         if spacy_version >= 2 & turn_off_pipes:
             pipes = self.nlp.pipe_names
@@ -81,13 +82,20 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for w in doc:
+                    rem = False
+                    text = w.text
                     if remove_punct & w.is_punct:
-                        continue
+                        rem = True
                     if remove_url & (w.like_url | w.like_email):
-                        continue
+                        rem = True
                     if remove_numbers & w.like_num:
-                        continue
-                    toks.append(w.text)
+                        rem = True
+                    if rem:
+                        if padding:
+                            text = ""
+                        else:
+                            continue
+                    toks.append(text)
                 tokens_out[id_] = toks
         else:
             for i in range(len(texts)):
@@ -95,13 +103,20 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for w in doc:
+                    rem = False
+                    text = w.text
                     if remove_punct & w.is_punct:
-                        continue
+                        rem = True
                     if remove_url & (w.like_url | w.like_email):
-                        continue
+                        rem = True
                     if remove_numbers & w.like_num:
-                        continue
-                    toks.append(w.text)
+                        rem = True
+                    if rem:
+                        if padding:
+                            continue
+                        else:
+                            text = ""
+                    toks.append(text)
                 tokens_out[docnames[i]] = toks
         if spacy_version >= 2 & turn_off_pipes:
             disabled_pipes.restore()

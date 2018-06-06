@@ -173,6 +173,8 @@ process_document <- function(x, multithread, ...) {
     }
     if(all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")
+    } else if (all(nchar(docnames) > 0L) == FALSE) {
+        stop("Some docnames are missing.")
     }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()

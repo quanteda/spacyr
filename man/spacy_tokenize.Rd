@@ -5,7 +5,7 @@
 \title{Just tokenize text with spaCy}
 \usage{
 spacy_tokenize(x, remove_punct = FALSE, remove_url = FALSE,
-  remove_numbers = FALSE, multithread = TRUE, ...)
+  remove_numbers = FALSE, padding = FALSE, multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -16,6 +16,11 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 \item{remove_url}{remove tokens that look like a url or email address.}
 
 \item{remove_numbers}{remove tokens that look like a number (e.g. "334", "3.1415", "fifty").}
+
+\item{padding}{if \code{TRUE}, leave an empty string where the removed tokens 
+previously existed. This is useful if a positional match is needed between 
+the pre- and post-selected tokens, for instance if a window of adjacency 
+needs to be computed.}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
