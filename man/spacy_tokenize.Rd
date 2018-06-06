@@ -5,7 +5,8 @@
 \title{Just tokenize text with spaCy}
 \usage{
 spacy_tokenize(x, remove_punct = FALSE, remove_url = FALSE,
-  remove_numbers = FALSE, padding = FALSE, multithread = TRUE,
+  remove_numbers = FALSE, padding = FALSE,
+  remove_whitespace_separators = TRUE, multithread = TRUE,
   value = c("list", "data.frame"), ...)
 }
 \arguments{
@@ -22,6 +23,9 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 previously existed. This is useful if a positional match is needed between 
 the pre- and post-selected tokens, for instance if a window of adjacency 
 needs to be computed.}
+
+\item{remove_whitespace_separators}{remove whitespaces as separators when
+all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}.}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}

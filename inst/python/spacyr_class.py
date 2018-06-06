@@ -58,6 +58,7 @@ class spacyr:
                  remove_punct = False,
                  remove_numbers = False,
                  remove_url = False, 
+                 remove_whitespace_separators = True,
                  padding = False,
                  multithread = True):
         if spacy_version >= 2 & turn_off_pipes:
@@ -96,6 +97,8 @@ class spacyr:
                         else:
                             continue
                     toks.append(text)
+                    if remove_whitespace_separators == False and w.whitespace_:
+                        toks.append(w.whitespace_)
                 tokens_out[id_] = toks
         else:
             for i in range(len(texts)):
@@ -117,6 +120,8 @@ class spacyr:
                         else:
                             text = ""
                     toks.append(text)
+                    if remove_whitespace_separators == False and w.whitespace_:
+                        toks.append(w.whitespace_)
                 tokens_out[docnames[i]] = toks
         if spacy_version >= 2 & turn_off_pipes:
             disabled_pipes.restore()
