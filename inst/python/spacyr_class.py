@@ -144,7 +144,7 @@ class spacyr:
             gen1, gen2 = itertools.tee(gen_items(docnames, texts))
             ids = (id_ for (id_, text) in gen1)
             texts = (text for (id_, text) in gen2)
-            docs = nlp.pipe(texts)
+            docs = self.nlp.pipe(texts)
             for id_, doc in zip(ids, docs):
                 toks = []
                 for sent in doc.sents:
@@ -159,6 +159,38 @@ class spacyr:
                     toks.append(sent.text)
                 tokens_out[docnames[i]] = toks
         return tokens_out
+        
+    def extract_nounphrases_list(self, texts, docnames, multithread = True):
+        if isinstance(texts, list) == False:
+            texts = [texts]
+        for i in range(len(texts)):
+            try:
+                if not isinstance(texts[i], unicode):
+                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
+            except NameError:
+                pass
+        # this multithread solution is suggested by @honnibal
+        # https://github.com/explosion/spaCy/issues/172
+        noun_phrases = {}
+        if multithread == True:
+            gen1, gen2 = itertools.tee(gen_items(docnames, texts))
+            ids = (id_ for (id_, text) in gen1)
+            texts = (text for (id_, text) in gen2)
+            docs = self.nlp.pipe(texts)
+            for id_, doc in zip(ids, docs):
+                noun_phrases_doc = []
+                for chunk in doc.noun_chunks:
+                    noun_phrases_doc.append(chunk.text)
+                noun_phrases[id_] = noun_phrases_doc
+        else:
+            for i in range(len(texts)):
+                text = texts[i]
+                doc = self.nlp(text)
+                toks = []
+                for chunk in doc.noun_chunks:
+                    noun_phrases_doc.append(chunk.text)
+                noun_phrases[docnames[i]] = noun_phrases_doc
+        return noun_phrases
 
     def ntokens(self, timestamps):
         ntok = []
