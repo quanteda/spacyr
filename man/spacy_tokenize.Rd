@@ -39,7 +39,7 @@ functionality of spacy (\url{https://spacy.io/api/pipe}).}
 \item{...}{not used directly}
 }
 \value{
-a \code{data.frame} of tokenized, parsed, and annotated tokens
+either \code{list} or \code{data.frame} of tokens
 }
 \description{
 Just tokenize text with spaCy
