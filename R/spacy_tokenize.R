@@ -18,7 +18,7 @@
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}).
 #' @param value type of returning object. Either \code{list} or \code{data.frame}. 
 #' @param ... not used directly
-#' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
+#' @return either \code{list} or \code{data.frame} of tokens
 #' @export
 #' @examples
 #' \donttest{
