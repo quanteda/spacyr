@@ -4,8 +4,8 @@
 \alias{spacy_extract_nounphrases}
 \title{Extract noun phrases}
 \usage{
-spacy_extract_nounphrases(x, multithread = TRUE, value = c("list",
-  "data.frame"), ...)
+spacy_extract_nounphrases(x, multithread = TRUE, value = c("data.frame",
+  "list"), ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -22,7 +22,19 @@ functionality of spacy (\url{https://spacy.io/api/pipe}).}
 either \code{list} or \code{data.frame} of tokens
 }
 \description{
-Extract noun phrases
+This function extracts noun-phrases from documents, utilizing \code{noun_chunks} 
+attributes of documents objects parsed by spaCy (see \url{https://spacy.io/usage/linguistic-features#noun-chunks}).
+}
+\details{
+When the option 
+\code{value = "data.frame"} is selected, the function returns a \code{data.frame}
+with following fields.
+\describe{\item{\code{text}}{contents of noun-phrase}
+\item{\code{root_text}}{contents of root token}
+\item{\code{start_id}}{serial number ID of starting token. This number corresponds with the number of
+\code{data.frame} returned from \code{spacy_tokenize(x)} with default options.}
+\item{\code{root_id}}{serial number ID of root token}
+\item{\code{length}}{number of tokens included in a noun-phrase (e.g. for a noun-phrase, "individual car owners", \code{length = 3})}}
 }
 \examples{
 \donttest{

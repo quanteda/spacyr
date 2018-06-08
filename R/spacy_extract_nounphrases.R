@@ -1,4 +1,17 @@
-#' Extract noun phrases
+#' Extract noun-phrases
+#' 
+#' @description This function extracts noun-phrases from documents, utilizing \code{noun_chunks} 
+#' attributes of documents objects parsed by spaCy (see \url{https://spacy.io/usage/linguistic-features#noun-chunks}). 
+#' 
+#' @details When the option 
+#' \code{value = "data.frame"} is selected, the function returns a \code{data.frame}
+#' with following fields.
+#' \describe{\item{\code{text}}{contents of noun-phrase}
+#' \item{\code{root_text}}{contents of root token}
+#' \item{\code{start_id}}{serial number ID of starting token. This number corresponds with the number of
+#' \code{data.frame} returned from \code{spacy_tokenize(x)} with default options.}
+#' \item{\code{root_id}}{serial number ID of root token}
+#' \item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g. for a noun-phrase, "individual car owners", \code{length = 3})}}
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
@@ -21,7 +34,7 @@
 #' }
 spacy_extract_nounphrases <- function(x, 
                                       multithread = TRUE,
-                                      value = c('list', 'data.frame'),
+                                      value = c('data.frame', 'list'),
                                       ...) {
     UseMethod("spacy_extract_nounphrases")
 }
