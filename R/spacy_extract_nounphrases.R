@@ -59,6 +59,12 @@ spacy_extract_nounphrases.character <- function(x,
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
     spacyr_pyexec("texts = []")
     
+    if(spacyr_pyget("py_version") != 3) {
+        message("multithreading for python 2 is not supported by spacyr::spacy_tokenize()")
+        multithread <- FALSE
+    }
+    
+    
     x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
     x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
@@ -78,7 +84,22 @@ spacy_extract_nounphrases.character <- function(x,
         spacyr_pyexec(command_str)
         return(spacyr_pyget("noun_phrases"))
     } else {
-        return(NULL)
+        command_str <- paste("noun_phrases = spobj.extract_nounphrases_dataframe(texts, docnames,",
+                             "multithread = multithread)")
+        spacyr_pyexec(command_str)
+        noun_phrases <- spacyr_pyget("noun_phrases")
+        
+        doc_id <- names(noun_phrases)
+        data_out <- 
+            data.table::rbindlist(lapply(doc_id, function(x) {
+                df <- as.data.frame(noun_phrases[[x]], stringsAsFactors = FALSE)
+                df$doc_id <- x
+                return(df)
+            }))
+        data_out[, start_id := start_id + 1][, root_id := root_id + 1]
+        data.table::setDF(data_out)
+        data_out <- data_out[, c(6, 1:5)]
+        return(data_out)
     }
 }
 
