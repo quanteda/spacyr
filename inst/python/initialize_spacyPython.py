@@ -1,5 +1,10 @@
 # from __future__ import unicode_literals 
 
+## set py_version here
+## 
+import sys
+py_version = sys.version_info.major
+
 ## following lines are necessary for showing the version of spacy
 ## Dealing with pip 10.* api chagnes
 ## The solution is from:

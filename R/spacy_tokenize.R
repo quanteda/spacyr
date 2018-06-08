@@ -73,6 +73,7 @@ spacy_tokenize.character <- function(x,
         multithread <- FALSE
     }
     
+    
     if(all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")
     } else if (all(nchar(docnames) > 0L) == FALSE) {
@@ -82,6 +83,12 @@ spacy_tokenize.character <- function(x,
     if (is.null(options()$spacy_initialized)) spacy_initialize()
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
     spacyr_pyexec("texts = []")
+    
+    if(spacyr_pyget("py_version") != 3) {
+        message("multithreading for python 2 is not supported by spacyr::spacy_tokenize()")
+        multithread <- FALSE
+    }
+    
     
     x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
     x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
