@@ -44,7 +44,6 @@ spacy_extract_nounphrases <- function(x,
 #' @importFrom data.table data.table
 #' @noRd
 spacy_extract_nounphrases.character <- function(x, 
-                                                remove_whitespace_separators = TRUE,
                                                 multithread = TRUE,
                                                 value = c('list', 'data.frame'),
                                                 ...) {

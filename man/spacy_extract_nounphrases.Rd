@@ -2,7 +2,7 @@
 % Please edit documentation in R/spacy_extract_nounphrases.R
 \name{spacy_extract_nounphrases}
 \alias{spacy_extract_nounphrases}
-\title{Extract noun phrases}
+\title{Extract noun-phrases}
 \usage{
 spacy_extract_nounphrases(x, multithread = TRUE, value = c("data.frame",
   "list"), ...)
@@ -34,7 +34,7 @@ with following fields.
 \item{\code{start_id}}{serial number ID of starting token. This number corresponds with the number of
 \code{data.frame} returned from \code{spacy_tokenize(x)} with default options.}
 \item{\code{root_id}}{serial number ID of root token}
-\item{\code{length}}{number of tokens included in a noun-phrase (e.g. for a noun-phrase, "individual car owners", \code{length = 3})}}
+\item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g. for a noun-phrase, "individual car owners", \code{length = 3})}}
 }
 \examples{
 \donttest{
