@@ -6,10 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wrapper to the 'spaCy' 'NLP' Library • spacyr</title>
-<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/readable/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><meta property="og:title" content="Wrapper to the 'spaCy' 'NLP' Library">
+<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="Wrapper to the 'spaCy' 'NLP' Library">
 <meta property="og:description" content="An R wrapper to the 'Python' 'spaCy' 'NLP' library,
     from &lt;http://spacy.io&gt;.">
 <meta name="twitter:card" content="summary">
@@ -20,7 +21,7 @@
 </head>
 <body>
     <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -30,23 +31,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">spacyr</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.9.9</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.9.91</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -88,16 +80,14 @@
 <li>
 <p>Install the <strong>spacyr</strong> R package:</p>
 <ul>
-<li>
-<p>From GitHub:</p>
-<p>To install the latest package from source, you can simply run the following.</p>
-</li>
+<li>From GitHub:</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"quanteda/spacyr"</span>, <span class="dt">build_vignettes =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<p>To install the latest package from source, you can simply run the following.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"quanteda/spacyr"</span>, <span class="dt">build_vignettes =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <ul>
 <li>From CRAN:</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">install.packages</span>(<span class="st">"spacyr"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"spacyr"</span>)</code></pre></div>
 </li>
 <li>
 <p>Install spaCy in a conda environment</p>
@@ -105,19 +95,19 @@
 <li><p>For Windows, you need to run R as an administrator to make installation work properly. To do so, right click Rstudio (or R desktop icon) and select “Run as administrator” when launching R.</p></li>
 <li><p>To install spaCy, you can simply run</p></li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(<span class="st">"spacyr"</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="reference/spacy_install.html">spacy_install</a></span>()</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">"spacyr"</span>)
+<span class="kw"><a href="reference/spacy_install.html">spacy_install</a></span>()</code></pre></div>
 <p>This will install the latest version of spaCy (and its required packages) and English language model. After installation, you can initialize spacy in R with</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>()</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>()</code></pre></div>
 <p>This will return the following message if spaCy was installed with this method.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">## Found 'spacy_condaenv'. spacyr will use this environment</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">## successfully initialized (spaCy Version: 2.0.11, language model: en)</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">## (python options: type = "condaenv", value = "spacy_condaenv")</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Found 'spacy_condaenv'. spacyr will use this environment
+## successfully initialized (spaCy Version: 2.0.11, language model: en)
+## (python options: type = "condaenv", value = "spacy_condaenv")</code></pre></div>
 </li>
 <li>
 <p>(optional) Add more language models</p>
 <p>For spaCy installed by <code><a href="reference/spacy_install.html">spacy_install()</a></code>, <strong>spacyr</strong> provides a useful helper function to install additional language models. For instance, to install Gernman language model</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span>(<span class="st">"de"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span>(<span class="st">"de"</span>)</code></pre></div>
 <p>(Again, Windows users have to run this command as an administrator. Otherwise, sim-link to language model will fail.)</p>
 </li>
 </ol>
@@ -136,11 +126,11 @@
 <a href="#starting-a-spacyr-session" class="anchor"></a>Starting a <strong>spacyr</strong> session</h3>
 <p>To allow R to access the underlying Python functionality, it must open a connection by being initialized within your R session.</p>
 <p>We provide a function for this, <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code>, which attempts to make this process as painless as possible by searching your system for Python executables, and testing which have spaCy installed. For power users (such as those with multiple installations of Python), it is possible to specify the path manually through the <code>python_executable</code> argument, which also makes initialization faster. (You will need to change the value on your system of the Python executable.)</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">library</span>(<span class="st">"spacyr"</span>)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>()</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">## Found 'spacy_condaenv'. spacyr will use this environment</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">## successfully initialized (spaCy Version: 2.0.10, language model: en)</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">## (python options: type = "condaenv", value = "spacy_condaenv")</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">"spacyr"</span>)
+<span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>()
+## Found 'spacy_condaenv'. spacyr will use this environment
+## successfully initialized (spaCy Version: 2.0.11, language model: en)
+## (python options: type = "condaenv", value = "spacy_condaenv")</code></pre></div>
 </div>
 <div id="tokenizing-and-tagging-texts" class="section level3">
 <h3 class="hasAnchor">
@@ -148,108 +138,108 @@
 <p>The <code><a href="reference/spacy_parse.html">spacy_parse()</a></code> is <strong>spacyr</strong>’s main function. It calls spaCy both to tokenize and tag the texts. It provides two options for part of speech tagging, plus options to return word lemmas, entity recognition, and dependency parsing. It returns a <code>data.frame</code> corresponding to the emerging <a href="https://github.com/ropensci/tif"><em>text interchange format</em></a> for token data.frames.</p>
 <p>The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.</p>
 <p>Example:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">txt &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">d1 =</span> <span class="st">"spaCy excels at large-scale information extraction tasks."</span>,</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">         <span class="dt">d2 =</span> <span class="st">"Mr. Smith goes to North Carolina."</span>)</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co"># process documents and obtain a data.table</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">parsedtxt &lt;-<span class="st"> </span><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt)</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">parsedtxt</a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">##    doc_id sentence_id token_id       token       lemma   pos   entity</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">## 1      d1           1        1       spaCy       spacy   ADJ         </a>
-<a class="sourceLine" id="cb8-9" data-line-number="9">## 2      d1           1        2      excels       excel  NOUN         </a>
-<a class="sourceLine" id="cb8-10" data-line-number="10">## 3      d1           1        3          at          at   ADP         </a>
-<a class="sourceLine" id="cb8-11" data-line-number="11">## 4      d1           1        4       large       large   ADJ         </a>
-<a class="sourceLine" id="cb8-12" data-line-number="12">## 5      d1           1        5           -           - PUNCT         </a>
-<a class="sourceLine" id="cb8-13" data-line-number="13">## 6      d1           1        6       scale       scale  NOUN         </a>
-<a class="sourceLine" id="cb8-14" data-line-number="14">## 7      d1           1        7 information information  NOUN         </a>
-<a class="sourceLine" id="cb8-15" data-line-number="15">## 8      d1           1        8  extraction  extraction  NOUN         </a>
-<a class="sourceLine" id="cb8-16" data-line-number="16">## 9      d1           1        9       tasks        task  NOUN         </a>
-<a class="sourceLine" id="cb8-17" data-line-number="17">## 10     d1           1       10           .           . PUNCT         </a>
-<a class="sourceLine" id="cb8-18" data-line-number="18">## 11     d2           1        1         Mr.         mr. PROPN         </a>
-<a class="sourceLine" id="cb8-19" data-line-number="19">## 12     d2           1        2       Smith       smith PROPN PERSON_B</a>
-<a class="sourceLine" id="cb8-20" data-line-number="20">## 13     d2           1        3        goes          go  VERB         </a>
-<a class="sourceLine" id="cb8-21" data-line-number="21">## 14     d2           1        4          to          to   ADP         </a>
-<a class="sourceLine" id="cb8-22" data-line-number="22">## 15     d2           1        5       North       north PROPN    GPE_B</a>
-<a class="sourceLine" id="cb8-23" data-line-number="23">## 16     d2           1        6    Carolina    carolina PROPN    GPE_I</a>
-<a class="sourceLine" id="cb8-24" data-line-number="24">## 17     d2           1        7           .           . PUNCT</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">txt &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">d1 =</span> <span class="st">"spaCy excels at large-scale information extraction tasks."</span>,
+         <span class="dt">d2 =</span> <span class="st">"Mr. Smith goes to North Carolina."</span>)
+
+<span class="co"># process documents and obtain a data.table</span>
+parsedtxt &lt;-<span class="st"> </span><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt)
+parsedtxt
+##    doc_id sentence_id token_id       token       lemma   pos   entity
+## 1      d1           1        1       spaCy       spacy   ADJ         
+## 2      d1           1        2      excels       excel  NOUN         
+## 3      d1           1        3          at          at   ADP         
+## 4      d1           1        4       large       large   ADJ         
+## 5      d1           1        5           -           - PUNCT         
+## 6      d1           1        6       scale       scale  NOUN         
+## 7      d1           1        7 information information  NOUN         
+## 8      d1           1        8  extraction  extraction  NOUN         
+## 9      d1           1        9       tasks        task  NOUN         
+## 10     d1           1       10           .           . PUNCT         
+## 11     d2           1        1         Mr.         mr. PROPN         
+## 12     d2           1        2       Smith       smith PROPN PERSON_B
+## 13     d2           1        3        goes          go  VERB         
+## 14     d2           1        4          to          to   ADP         
+## 15     d2           1        5       North       north PROPN    GPE_B
+## 16     d2           1        6    Carolina    carolina PROPN    GPE_I
+## 17     d2           1        7           .           . PUNCT</code></pre></div>
 <p>Two fields are available for part-of-speech tags. The <code>pos</code> field returned is the <a href="http://universaldependencies.org/u/pos/all.html">Universal tagset for parts-of-speech</a>, a general scheme that most users will find serves their needs, and also that provides equivalencies across langages. <strong>spacyr</strong> also provides a more detailed tagset, defined in each spaCy language model. For English, this is the <a href="https://spacy.io/docs/usage/pos-tagging#pos-tagging-english">OntoNotes 5 version of the Penn Treebank tag set</a>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">tag =</span> <span class="ot">TRUE</span>, <span class="dt">entity =</span> <span class="ot">FALSE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">##    doc_id sentence_id token_id       token   pos  tag</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3">## 1      d1           1        1       spaCy   ADJ   JJ</a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">## 2      d1           1        2      excels  NOUN  NNS</a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">## 3      d1           1        3          at   ADP   IN</a>
-<a class="sourceLine" id="cb9-6" data-line-number="6">## 4      d1           1        4       large   ADJ   JJ</a>
-<a class="sourceLine" id="cb9-7" data-line-number="7">## 5      d1           1        5           - PUNCT HYPH</a>
-<a class="sourceLine" id="cb9-8" data-line-number="8">## 6      d1           1        6       scale  NOUN   NN</a>
-<a class="sourceLine" id="cb9-9" data-line-number="9">## 7      d1           1        7 information  NOUN   NN</a>
-<a class="sourceLine" id="cb9-10" data-line-number="10">## 8      d1           1        8  extraction  NOUN   NN</a>
-<a class="sourceLine" id="cb9-11" data-line-number="11">## 9      d1           1        9       tasks  NOUN  NNS</a>
-<a class="sourceLine" id="cb9-12" data-line-number="12">## 10     d1           1       10           . PUNCT    .</a>
-<a class="sourceLine" id="cb9-13" data-line-number="13">## 11     d2           1        1         Mr. PROPN  NNP</a>
-<a class="sourceLine" id="cb9-14" data-line-number="14">## 12     d2           1        2       Smith PROPN  NNP</a>
-<a class="sourceLine" id="cb9-15" data-line-number="15">## 13     d2           1        3        goes  VERB  VBZ</a>
-<a class="sourceLine" id="cb9-16" data-line-number="16">## 14     d2           1        4          to   ADP   IN</a>
-<a class="sourceLine" id="cb9-17" data-line-number="17">## 15     d2           1        5       North PROPN  NNP</a>
-<a class="sourceLine" id="cb9-18" data-line-number="18">## 16     d2           1        6    Carolina PROPN  NNP</a>
-<a class="sourceLine" id="cb9-19" data-line-number="19">## 17     d2           1        7           . PUNCT    .</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">tag =</span> <span class="ot">TRUE</span>, <span class="dt">entity =</span> <span class="ot">FALSE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>)
+##    doc_id sentence_id token_id       token   pos  tag
+## 1      d1           1        1       spaCy   ADJ   JJ
+## 2      d1           1        2      excels  NOUN  NNS
+## 3      d1           1        3          at   ADP   IN
+## 4      d1           1        4       large   ADJ   JJ
+## 5      d1           1        5           - PUNCT HYPH
+## 6      d1           1        6       scale  NOUN   NN
+## 7      d1           1        7 information  NOUN   NN
+## 8      d1           1        8  extraction  NOUN   NN
+## 9      d1           1        9       tasks  NOUN  NNS
+## 10     d1           1       10           . PUNCT    .
+## 11     d2           1        1         Mr. PROPN  NNP
+## 12     d2           1        2       Smith PROPN  NNP
+## 13     d2           1        3        goes  VERB  VBZ
+## 14     d2           1        4          to   ADP   IN
+## 15     d2           1        5       North PROPN  NNP
+## 16     d2           1        6    Carolina PROPN  NNP
+## 17     d2           1        7           . PUNCT    .</code></pre></div>
 <p>For the German language model, the Universal tagset (<code>pos</code>) remains the same, but the detailed tagset (<code>tag</code>) is the <a href="https://spacy.io/docs/usage/pos-tagging#pos-tagging-german">TIGER Treebank</a> scheme.</p>
 </div>
 <div id="extracting-entities" class="section level3">
 <h3 class="hasAnchor">
 <a href="#extracting-entities" class="anchor"></a>Extracting entities</h3>
 <p><strong>spacyr</strong> can extract entities, either named or <a href="https://spacy.io/docs/usage/entity-recognition#entity-types">“extended”</a>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">parsedtxt &lt;-<span class="st"> </span><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">lemma =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="kw"><a href="reference/entity_extract.html">entity_extract</a></span>(parsedtxt)</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">##   doc_id sentence_id         entity entity_type</a>
-<a class="sourceLine" id="cb10-4" data-line-number="4">## 1     d2           1          Smith      PERSON</a>
-<a class="sourceLine" id="cb10-5" data-line-number="5">## 2     d2           1 North Carolina         GPE</a></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="reference/entity_extract.html">entity_extract</a></span>(parsedtxt, <span class="dt">type =</span> <span class="st">"all"</span>)</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">##   doc_id sentence_id         entity entity_type</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">## 1     d2           1          Smith      PERSON</a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">## 2     d2           1 North Carolina         GPE</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">parsedtxt &lt;-<span class="st"> </span><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">lemma =</span> <span class="ot">FALSE</span>)
+<span class="kw"><a href="reference/entity_extract.html">entity_extract</a></span>(parsedtxt)
+##   doc_id sentence_id         entity entity_type
+## 1     d2           1          Smith      PERSON
+## 2     d2           1 North Carolina         GPE</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/entity_extract.html">entity_extract</a></span>(parsedtxt, <span class="dt">type =</span> <span class="st">"all"</span>)
+##   doc_id sentence_id         entity entity_type
+## 1     d2           1          Smith      PERSON
+## 2     d2           1 North Carolina         GPE</code></pre></div>
 <p>Or, convert multi-word entities into single “tokens”:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="reference/entity_extract.html">entity_consolidate</a></span>(parsedtxt)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">##    doc_id sentence_id token_id          token    pos entity_type</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">## 1      d1           1        1          spaCy    ADJ            </a>
-<a class="sourceLine" id="cb12-4" data-line-number="4">## 2      d1           1        2         excels   NOUN            </a>
-<a class="sourceLine" id="cb12-5" data-line-number="5">## 3      d1           1        3             at    ADP            </a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">## 4      d1           1        4          large    ADJ            </a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">## 5      d1           1        5              -  PUNCT            </a>
-<a class="sourceLine" id="cb12-8" data-line-number="8">## 6      d1           1        6          scale   NOUN            </a>
-<a class="sourceLine" id="cb12-9" data-line-number="9">## 7      d1           1        7    information   NOUN            </a>
-<a class="sourceLine" id="cb12-10" data-line-number="10">## 8      d1           1        8     extraction   NOUN            </a>
-<a class="sourceLine" id="cb12-11" data-line-number="11">## 9      d1           1        9          tasks   NOUN            </a>
-<a class="sourceLine" id="cb12-12" data-line-number="12">## 10     d1           1       10              .  PUNCT            </a>
-<a class="sourceLine" id="cb12-13" data-line-number="13">## 11     d2           1        1            Mr.  PROPN            </a>
-<a class="sourceLine" id="cb12-14" data-line-number="14">## 12     d2           1        2          Smith ENTITY      PERSON</a>
-<a class="sourceLine" id="cb12-15" data-line-number="15">## 13     d2           1        3           goes   VERB            </a>
-<a class="sourceLine" id="cb12-16" data-line-number="16">## 14     d2           1        4             to    ADP            </a>
-<a class="sourceLine" id="cb12-17" data-line-number="17">## 15     d2           1        5 North_Carolina ENTITY         GPE</a>
-<a class="sourceLine" id="cb12-18" data-line-number="18">## 16     d2           1        6              .  PUNCT</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/entity_extract.html">entity_consolidate</a></span>(parsedtxt)
+##    doc_id sentence_id token_id          token    pos entity_type
+## 1      d1           1        1          spaCy    ADJ            
+## 2      d1           1        2         excels   NOUN            
+## 3      d1           1        3             at    ADP            
+## 4      d1           1        4          large    ADJ            
+## 5      d1           1        5              -  PUNCT            
+## 6      d1           1        6          scale   NOUN            
+## 7      d1           1        7    information   NOUN            
+## 8      d1           1        8     extraction   NOUN            
+## 9      d1           1        9          tasks   NOUN            
+## 10     d1           1       10              .  PUNCT            
+## 11     d2           1        1            Mr.  PROPN            
+## 12     d2           1        2          Smith ENTITY      PERSON
+## 13     d2           1        3           goes   VERB            
+## 14     d2           1        4             to    ADP            
+## 15     d2           1        5 North_Carolina ENTITY         GPE
+## 16     d2           1        6              .  PUNCT</code></pre></div>
 </div>
 <div id="dependency-parsing" class="section level3">
 <h3 class="hasAnchor">
 <a href="#dependency-parsing" class="anchor"></a>Dependency parsing</h3>
 <p>Detailed parsing of syntactic dependencies is possible with the <code>dependency = TRUE</code> option:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">dependency =</span> <span class="ot">TRUE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">pos =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">##    doc_id sentence_id token_id       token head_token_id  dep_rel   entity</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">## 1      d1           1        1       spaCy             2    nsubj         </a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">## 2      d1           1        2      excels             2     ROOT         </a>
-<a class="sourceLine" id="cb13-5" data-line-number="5">## 3      d1           1        3          at             2     prep         </a>
-<a class="sourceLine" id="cb13-6" data-line-number="6">## 4      d1           1        4       large             6     amod         </a>
-<a class="sourceLine" id="cb13-7" data-line-number="7">## 5      d1           1        5           -             6    punct         </a>
-<a class="sourceLine" id="cb13-8" data-line-number="8">## 6      d1           1        6       scale             9 compound         </a>
-<a class="sourceLine" id="cb13-9" data-line-number="9">## 7      d1           1        7 information             8 compound         </a>
-<a class="sourceLine" id="cb13-10" data-line-number="10">## 8      d1           1        8  extraction             9 compound         </a>
-<a class="sourceLine" id="cb13-11" data-line-number="11">## 9      d1           1        9       tasks             3     pobj         </a>
-<a class="sourceLine" id="cb13-12" data-line-number="12">## 10     d1           1       10           .             2    punct         </a>
-<a class="sourceLine" id="cb13-13" data-line-number="13">## 11     d2           1        1         Mr.             2 compound         </a>
-<a class="sourceLine" id="cb13-14" data-line-number="14">## 12     d2           1        2       Smith             3    nsubj PERSON_B</a>
-<a class="sourceLine" id="cb13-15" data-line-number="15">## 13     d2           1        3        goes             3     ROOT         </a>
-<a class="sourceLine" id="cb13-16" data-line-number="16">## 14     d2           1        4          to             3     prep         </a>
-<a class="sourceLine" id="cb13-17" data-line-number="17">## 15     d2           1        5       North             6 compound    GPE_B</a>
-<a class="sourceLine" id="cb13-18" data-line-number="18">## 16     d2           1        6    Carolina             4     pobj    GPE_I</a>
-<a class="sourceLine" id="cb13-19" data-line-number="19">## 17     d2           1        7           .             3    punct</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">dependency =</span> <span class="ot">TRUE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">pos =</span> <span class="ot">FALSE</span>)
+##    doc_id sentence_id token_id       token head_token_id  dep_rel   entity
+## 1      d1           1        1       spaCy             2    nsubj         
+## 2      d1           1        2      excels             2     ROOT         
+## 3      d1           1        3          at             2     prep         
+## 4      d1           1        4       large             6     amod         
+## 5      d1           1        5           -             6    punct         
+## 6      d1           1        6       scale             9 compound         
+## 7      d1           1        7 information             8 compound         
+## 8      d1           1        8  extraction             9 compound         
+## 9      d1           1        9       tasks             3     pobj         
+## 10     d1           1       10           .             2    punct         
+## 11     d2           1        1         Mr.             2 compound         
+## 12     d2           1        2       Smith             3    nsubj PERSON_B
+## 13     d2           1        3        goes             3     ROOT         
+## 14     d2           1        4          to             3     prep         
+## 15     d2           1        5       North             6 compound    GPE_B
+## 16     d2           1        6    Carolina             4     pobj    GPE_I
+## 17     d2           1        7           .             3    punct</code></pre></div>
 </div>
 <div id="using-other-language-models" class="section level3">
 <h3 class="hasAnchor">
@@ -288,117 +278,117 @@
 </tbody>
 </table>
 <p>This is an example of parsing German texts.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">## first finalize the spacy if it's loaded</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw"><a href="reference/spacy_finalize.html">spacy_finalize</a></span>()</a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">model =</span> <span class="st">"de"</span>)</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">## Python space is already attached.  If you want to switch to a different Python, please restart R.</a>
-<a class="sourceLine" id="cb14-5" data-line-number="5">## successfully initialized (spaCy Version: 2.0.10, language model: de)</a>
-<a class="sourceLine" id="cb14-6" data-line-number="6">## (python options: type = "condaenv", value = "spacy_condaenv")</a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8">txt_german &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">R =</span> <span class="st">"R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt."</span>,</a>
-<a class="sourceLine" id="cb14-9" data-line-number="9">               <span class="dt">python =</span> <span class="st">"Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern."</span>)</a>
-<a class="sourceLine" id="cb14-10" data-line-number="10">results_german &lt;-<span class="st"> </span><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt_german, <span class="dt">dependency =</span> <span class="ot">TRUE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">tag =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb14-11" data-line-number="11">results_german</a>
-<a class="sourceLine" id="cb14-12" data-line-number="12">##    doc_id sentence_id token_id              token   pos   tag</a>
-<a class="sourceLine" id="cb14-13" data-line-number="13">## 1       R           1        1                  R PROPN    NE</a>
-<a class="sourceLine" id="cb14-14" data-line-number="14">## 2       R           1        2                ist   AUX VAFIN</a>
-<a class="sourceLine" id="cb14-15" data-line-number="15">## 3       R           1        3               eine   DET   ART</a>
-<a class="sourceLine" id="cb14-16" data-line-number="16">## 4       R           1        4              freie   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-17" data-line-number="17">## 5       R           1        5 Programmiersprache  NOUN    NN</a>
-<a class="sourceLine" id="cb14-18" data-line-number="18">## 6       R           1        6                für   ADP  APPR</a>
-<a class="sourceLine" id="cb14-19" data-line-number="19">## 7       R           1        7       statistische   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-20" data-line-number="20">## 8       R           1        8       Berechnungen  NOUN    NN</a>
-<a class="sourceLine" id="cb14-21" data-line-number="21">## 9       R           1        9                und  CONJ   KON</a>
-<a class="sourceLine" id="cb14-22" data-line-number="22">## 10      R           1       10           Grafiken  NOUN    NN</a>
-<a class="sourceLine" id="cb14-23" data-line-number="23">## 11      R           1       11                  . PUNCT    $.</a>
-<a class="sourceLine" id="cb14-24" data-line-number="24">## 12      R           2        1                Sie  PRON  PPER</a>
-<a class="sourceLine" id="cb14-25" data-line-number="25">## 13      R           2        2              wurde   AUX VAFIN</a>
-<a class="sourceLine" id="cb14-26" data-line-number="26">## 14      R           2        3                von   ADP  APPR</a>
-<a class="sourceLine" id="cb14-27" data-line-number="27">## 15      R           2        4       Statistikern  NOUN    NN</a>
-<a class="sourceLine" id="cb14-28" data-line-number="28">## 16      R           2        5                für   ADP  APPR</a>
-<a class="sourceLine" id="cb14-29" data-line-number="29">## 17      R           2        6           Anwender  NOUN    NN</a>
-<a class="sourceLine" id="cb14-30" data-line-number="30">## 18      R           2        7                mit   ADP  APPR</a>
-<a class="sourceLine" id="cb14-31" data-line-number="31">## 19      R           2        8      statistischen   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-32" data-line-number="32">## 20      R           2        9           Aufgaben  NOUN    NN</a>
-<a class="sourceLine" id="cb14-33" data-line-number="33">## 21      R           2       10         entwickelt  VERB  VVPP</a>
-<a class="sourceLine" id="cb14-34" data-line-number="34">## 22      R           2       11                  . PUNCT    $.</a>
-<a class="sourceLine" id="cb14-35" data-line-number="35">## 23 python           1        1             Python  NOUN    NN</a>
-<a class="sourceLine" id="cb14-36" data-line-number="36">## 24 python           1        2                ist   AUX VAFIN</a>
-<a class="sourceLine" id="cb14-37" data-line-number="37">## 25 python           1        3               eine   DET   ART</a>
-<a class="sourceLine" id="cb14-38" data-line-number="38">## 26 python           1        4        universelle   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-39" data-line-number="39">## 27 python           1        5                  , PUNCT    $,</a>
-<a class="sourceLine" id="cb14-40" data-line-number="40">## 28 python           1        6      üblicherweise   ADV   ADV</a>
-<a class="sourceLine" id="cb14-41" data-line-number="41">## 29 python           1        7     interpretierte   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-42" data-line-number="42">## 30 python           1        8             höhere   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-43" data-line-number="43">## 31 python           1        9 Programmiersprache  NOUN    NN</a>
-<a class="sourceLine" id="cb14-44" data-line-number="44">## 32 python           1       10                  . PUNCT    $.</a>
-<a class="sourceLine" id="cb14-45" data-line-number="45">## 33 python           2        1                Sie  PRON  PPER</a>
-<a class="sourceLine" id="cb14-46" data-line-number="46">## 34 python           2        2               will  VERB VMFIN</a>
-<a class="sourceLine" id="cb14-47" data-line-number="47">## 35 python           2        3              einen   DET   ART</a>
-<a class="sourceLine" id="cb14-48" data-line-number="48">## 36 python           2        4                gut   ADJ  ADJD</a>
-<a class="sourceLine" id="cb14-49" data-line-number="49">## 37 python           2        5           lesbaren   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-50" data-line-number="50">## 38 python           2        6                  , PUNCT    $,</a>
-<a class="sourceLine" id="cb14-51" data-line-number="51">## 39 python           2        7            knappen   ADJ  ADJA</a>
-<a class="sourceLine" id="cb14-52" data-line-number="52">## 40 python           2        8    Programmierstil  NOUN    NN</a>
-<a class="sourceLine" id="cb14-53" data-line-number="53">## 41 python           2        9            fördern  VERB VVFIN</a>
-<a class="sourceLine" id="cb14-54" data-line-number="54">## 42 python           2       10                  . PUNCT    $.</a>
-<a class="sourceLine" id="cb14-55" data-line-number="55">##    head_token_id dep_rel entity</a>
-<a class="sourceLine" id="cb14-56" data-line-number="56">## 1              2      sb       </a>
-<a class="sourceLine" id="cb14-57" data-line-number="57">## 2              2    ROOT       </a>
-<a class="sourceLine" id="cb14-58" data-line-number="58">## 3              5      nk       </a>
-<a class="sourceLine" id="cb14-59" data-line-number="59">## 4              5      nk       </a>
-<a class="sourceLine" id="cb14-60" data-line-number="60">## 5              2      pd       </a>
-<a class="sourceLine" id="cb14-61" data-line-number="61">## 6              5     mnr       </a>
-<a class="sourceLine" id="cb14-62" data-line-number="62">## 7              8      nk       </a>
-<a class="sourceLine" id="cb14-63" data-line-number="63">## 8              6      nk       </a>
-<a class="sourceLine" id="cb14-64" data-line-number="64">## 9              8      cd       </a>
-<a class="sourceLine" id="cb14-65" data-line-number="65">## 10             9      cj       </a>
-<a class="sourceLine" id="cb14-66" data-line-number="66">## 11             2   punct       </a>
-<a class="sourceLine" id="cb14-67" data-line-number="67">## 12             2      sb       </a>
-<a class="sourceLine" id="cb14-68" data-line-number="68">## 13             2    ROOT       </a>
-<a class="sourceLine" id="cb14-69" data-line-number="69">## 14            10     sbp       </a>
-<a class="sourceLine" id="cb14-70" data-line-number="70">## 15             3      nk  LOC_B</a>
-<a class="sourceLine" id="cb14-71" data-line-number="71">## 16             4     mnr       </a>
-<a class="sourceLine" id="cb14-72" data-line-number="72">## 17             5      nk       </a>
-<a class="sourceLine" id="cb14-73" data-line-number="73">## 18            10      mo       </a>
-<a class="sourceLine" id="cb14-74" data-line-number="74">## 19             9      nk       </a>
-<a class="sourceLine" id="cb14-75" data-line-number="75">## 20             7      nk       </a>
-<a class="sourceLine" id="cb14-76" data-line-number="76">## 21             2      oc       </a>
-<a class="sourceLine" id="cb14-77" data-line-number="77">## 22             2   punct       </a>
-<a class="sourceLine" id="cb14-78" data-line-number="78">## 23             2      sb MISC_B</a>
-<a class="sourceLine" id="cb14-79" data-line-number="79">## 24             2    ROOT       </a>
-<a class="sourceLine" id="cb14-80" data-line-number="80">## 25             9      nk       </a>
-<a class="sourceLine" id="cb14-81" data-line-number="81">## 26             9      nk       </a>
-<a class="sourceLine" id="cb14-82" data-line-number="82">## 27             4   punct       </a>
-<a class="sourceLine" id="cb14-83" data-line-number="83">## 28             7      mo       </a>
-<a class="sourceLine" id="cb14-84" data-line-number="84">## 29             4      cj       </a>
-<a class="sourceLine" id="cb14-85" data-line-number="85">## 30             9      nk       </a>
-<a class="sourceLine" id="cb14-86" data-line-number="86">## 31             2      pd       </a>
-<a class="sourceLine" id="cb14-87" data-line-number="87">## 32             2   punct       </a>
-<a class="sourceLine" id="cb14-88" data-line-number="88">## 33             2      sb       </a>
-<a class="sourceLine" id="cb14-89" data-line-number="89">## 34             2    ROOT       </a>
-<a class="sourceLine" id="cb14-90" data-line-number="90">## 35             8      nk       </a>
-<a class="sourceLine" id="cb14-91" data-line-number="91">## 36             5      mo       </a>
-<a class="sourceLine" id="cb14-92" data-line-number="92">## 37             8      nk       </a>
-<a class="sourceLine" id="cb14-93" data-line-number="93">## 38             5   punct       </a>
-<a class="sourceLine" id="cb14-94" data-line-number="94">## 39             5      cj       </a>
-<a class="sourceLine" id="cb14-95" data-line-number="95">## 40             9      oa       </a>
-<a class="sourceLine" id="cb14-96" data-line-number="96">## 41             2      oc       </a>
-<a class="sourceLine" id="cb14-97" data-line-number="97">## 42             2   punct</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## first finalize the spacy if it's loaded
+<span class="kw"><a href="reference/spacy_finalize.html">spacy_finalize</a></span>()
+<span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">model =</span> <span class="st">"de"</span>)
+## Python space is already attached.  If you want to switch to a different Python, please restart R.
+## successfully initialized (spaCy Version: 2.0.11, language model: de)
+## (python options: type = "condaenv", value = "spacy_condaenv")
+
+txt_german &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">R =</span> <span class="st">"R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt."</span>,
+               <span class="dt">python =</span> <span class="st">"Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern."</span>)
+results_german &lt;-<span class="st"> </span><span class="kw"><a href="reference/spacy_parse.html">spacy_parse</a></span>(txt_german, <span class="dt">dependency =</span> <span class="ot">TRUE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">tag =</span> <span class="ot">TRUE</span>)
+results_german
+##    doc_id sentence_id token_id              token   pos   tag
+## 1       R           1        1                  R PROPN    NE
+## 2       R           1        2                ist   AUX VAFIN
+## 3       R           1        3               eine   DET   ART
+## 4       R           1        4              freie   ADJ  ADJA
+## 5       R           1        5 Programmiersprache  NOUN    NN
+## 6       R           1        6                für   ADP  APPR
+## 7       R           1        7       statistische   ADJ  ADJA
+## 8       R           1        8       Berechnungen  NOUN    NN
+## 9       R           1        9                und  CONJ   KON
+## 10      R           1       10           Grafiken  NOUN    NN
+## 11      R           1       11                  . PUNCT    $.
+## 12      R           2        1                Sie  PRON  PPER
+## 13      R           2        2              wurde   AUX VAFIN
+## 14      R           2        3                von   ADP  APPR
+## 15      R           2        4       Statistikern  NOUN    NN
+## 16      R           2        5                für   ADP  APPR
+## 17      R           2        6           Anwender  NOUN    NN
+## 18      R           2        7                mit   ADP  APPR
+## 19      R           2        8      statistischen   ADJ  ADJA
+## 20      R           2        9           Aufgaben  NOUN    NN
+## 21      R           2       10         entwickelt  VERB  VVPP
+## 22      R           2       11                  . PUNCT    $.
+## 23 python           1        1             Python  NOUN    NN
+## 24 python           1        2                ist   AUX VAFIN
+## 25 python           1        3               eine   DET   ART
+## 26 python           1        4        universelle   ADJ  ADJA
+## 27 python           1        5                  , PUNCT    $,
+## 28 python           1        6      üblicherweise   ADV   ADV
+## 29 python           1        7     interpretierte   ADJ  ADJA
+## 30 python           1        8             höhere   ADJ  ADJA
+## 31 python           1        9 Programmiersprache  NOUN    NN
+## 32 python           1       10                  . PUNCT    $.
+## 33 python           2        1                Sie  PRON  PPER
+## 34 python           2        2               will  VERB VMFIN
+## 35 python           2        3              einen   DET   ART
+## 36 python           2        4                gut   ADJ  ADJD
+## 37 python           2        5           lesbaren   ADJ  ADJA
+## 38 python           2        6                  , PUNCT    $,
+## 39 python           2        7            knappen   ADJ  ADJA
+## 40 python           2        8    Programmierstil  NOUN    NN
+## 41 python           2        9            fördern  VERB VVFIN
+## 42 python           2       10                  . PUNCT    $.
+##    head_token_id dep_rel entity
+## 1              2      sb       
+## 2              2    ROOT       
+## 3              5      nk       
+## 4              5      nk       
+## 5              2      pd       
+## 6              5     mnr       
+## 7              8      nk       
+## 8              6      nk       
+## 9              8      cd       
+## 10             9      cj       
+## 11             2   punct       
+## 12             2      sb       
+## 13             2    ROOT       
+## 14            10     sbp       
+## 15             3      nk  LOC_B
+## 16             4     mnr       
+## 17             5      nk       
+## 18            10      mo       
+## 19             9      nk       
+## 20             7      nk       
+## 21             2      oc       
+## 22             2   punct       
+## 23             2      sb MISC_B
+## 24             2    ROOT       
+## 25             9      nk       
+## 26             9      nk       
+## 27             4   punct       
+## 28             7      mo       
+## 29             4      cj       
+## 30             9      nk       
+## 31             2      pd       
+## 32             2   punct       
+## 33             2      sb       
+## 34             2    ROOT       
+## 35             8      nk       
+## 36             5      mo       
+## 37             8      nk       
+## 38             5   punct       
+## 39             5      cj       
+## 40             9      oa       
+## 41             2      oc       
+## 42             2   punct</code></pre></div>
 <p>Note that the additional language models must first be installed in spaCy. The German language model, for example, can be installed (<code>python -m spacy download de</code>) before you call <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code>.</p>
 </div>
 <div id="when-you-finish" class="section level3">
 <h3 class="hasAnchor">
 <a href="#when-you-finish" class="anchor"></a>When you finish</h3>
 <p>A background process of spaCy is initiated when you ran <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code>. Because of the size of language models of spaCy, this takes up a lot of memory (typically 1.5GB). When you do not need the Python connection any longer, you can finalize the python connection (and terminate the process) by calling the <code><a href="reference/spacy_finalize.html">spacy_finalize()</a></code> function.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="reference/spacy_finalize.html">spacy_finalize</a></span>()</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/spacy_finalize.html">spacy_finalize</a></span>()</code></pre></div>
 <p>By calling <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code> again, you can restart the backend spaCy.</p>
 </div>
 <div id="permanently-seting-the-default-python" class="section level3">
 <h3 class="hasAnchor">
 <a href="#permanently-seting-the-default-python" class="anchor"></a>Permanently seting the default Python</h3>
 <p>If you want to skip <strong>spacyr</strong> searching for Python intallation with spaCy, you can do so by permanently setting the path to the spaCy-enabled Python by specifying it in an R-startup file (For Mac/Linux, the file is <code>~/.Rprofile</code>), which is read every time a new <code>R</code> is launched. You can set the option permanently when you call <code>spacy_initialize</code>:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">save_profile =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">save_profile =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <p>Once this is appropriately set up, the message from <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code> changes to something like:</p>
 <pre><code>## spacy python option is already set, spacyr will use:
 ##  condaenv = "spacy_condaenv"
@@ -415,20 +405,20 @@
 <a href="#quanteda" class="anchor"></a><strong>quanteda</strong>
 </h3>
 <p>Some of the token- and type-related standard methods from <a href="http://githiub.com/quanteda/quanteda"><strong>quanteda</strong></a> also work on the new tagged token objects:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">require</span>(quanteda, <span class="dt">warn.conflicts =</span> <span class="ot">FALSE</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">## Package version: 1.2.1</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3">## Parallel computing: 2 of 8 threads used.</a>
-<a class="sourceLine" id="cb18-4" data-line-number="4">## See https://quanteda.io for tutorials and examples.</a>
-<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/docnames">docnames</a></span>(parsedtxt)</a>
-<a class="sourceLine" id="cb18-6" data-line-number="6">## [1] "d1" "d2"</a>
-<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/ndoc">ndoc</a></span>(parsedtxt)</a>
-<a class="sourceLine" id="cb18-8" data-line-number="8">## [1] 2</a>
-<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/ntoken">ntoken</a></span>(parsedtxt)</a>
-<a class="sourceLine" id="cb18-10" data-line-number="10">## d1 d2 </a>
-<a class="sourceLine" id="cb18-11" data-line-number="11">## 10  7</a>
-<a class="sourceLine" id="cb18-12" data-line-number="12"><span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/ntoken">ntype</a></span>(parsedtxt)</a>
-<a class="sourceLine" id="cb18-13" data-line-number="13">## d1 d2 </a>
-<a class="sourceLine" id="cb18-14" data-line-number="14">## 10  7</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(quanteda, <span class="dt">warn.conflicts =</span> <span class="ot">FALSE</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)
+## Package version: 1.3.0
+## Parallel computing: 2 of 8 threads used.
+## See https://quanteda.io for tutorials and examples.
+<span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/docnames">docnames</a></span>(parsedtxt)
+## [1] "d1" "d2"
+<span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/ndoc">ndoc</a></span>(parsedtxt)
+## [1] 2
+<span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/ntoken">ntoken</a></span>(parsedtxt)
+## d1 d2 
+## 10  7
+<span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/ntoken">ntype</a></span>(parsedtxt)
+## d1 d2 
+## 10  7</code></pre></div>
 </div>
 <div id="conformity-to-the-text-interchange-format" class="section level3">
 <h3 class="hasAnchor">

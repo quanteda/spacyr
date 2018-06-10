@@ -1,0 +1,92 @@
+/* Edit pkgdown/extra.css to customize the theme */
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,500');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+b, strong, th {
+    font-weight: 500;
+}
+
+.navbar-brand {
+    background-image: url(https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg);
+    background-repeat: no-repeat;
+    background-position: 12.5px 12.5px;
+    background-size: 112px auto;
+    width: 250px;
+}
+
+.navbar-brand > .navbar-link {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    display: block;
+
+}
+
+.navbar-brand > .label {
+    margin-left: 112px;
+}
+
+.navbar .navbar-nav > li > a {
+    padding: 8px 8px;
+}
+
+div#overview div.page-header h1 {
+    margin-top: 22px;
+    padding: 0;
+    font-size: 250%;
+    color: dimgray;
+}
+
+div#system-requirements th {
+    text-align: center;
+}
+
+div.page-header h1 {
+    font-size: 250%;
+    color: dimgray;
+}
+
+div.page-header h4 {
+    padding-top: 10px;
+    font-size: 120%;
+}
+
+div.contents h1 {
+    color: dimgray;
+    font-size: 200%;
+    padding-top: 80px;
+}
+
+div.contents h2 {
+    font-size: 150%;
+    padding-top: 70px;
+}
+
+div.contents h3 {
+    font-size: 120%;
+    padding-top: 60px;
+}
+
+div.contents h4 {
+    font-size: 100%;
+    padding-top: 60px;
+}
+
+pre {
+    overflow-x: auto;
+    font-size: 80%;
+    line-height: 150%;
+}
+
+
+
