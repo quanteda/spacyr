@@ -18,7 +18,7 @@ Imports:
 Suggests:
     rmarkdown,
     testthat,
-    knitr.
+    knitr,
     quanteda
 URL: http://github.com/quanteda/spacyr
 Encoding: UTF-8

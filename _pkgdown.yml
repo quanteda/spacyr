@@ -1,0 +1,10 @@
+url: http://spacyr.quanteda.io
+template:
+  params:
+    bootswatch: readable
+navbar:
+  title: "Spacyr"
+  type: inverse
+  left:
+    - text: "Reference"
+      href: reference/index.html
