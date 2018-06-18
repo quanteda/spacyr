@@ -119,7 +119,7 @@ change the value on your system of the Python executable.)
 library("spacyr")
 spacy_initialize()
 ## Found 'spacy_condaenv'. spacyr will use this environment
-## successfully initialized (spaCy Version: 2.0.10, language model: en)
+## successfully initialized (spaCy Version: 2.0.11, language model: en)
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 ```
 
@@ -296,7 +296,7 @@ This is an example of parsing German texts.
 spacy_finalize()
 spacy_initialize(model = "de")
 ## Python space is already attached.  If you want to switch to a different Python, please restart R.
-## successfully initialized (spaCy Version: 2.0.10, language model: de)
+## successfully initialized (spaCy Version: 2.0.11, language model: de)
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
@@ -439,13 +439,13 @@ To ignore the permanently set options, you can initialize spacy with
 ### **quanteda**
 
 Some of the token- and type-related standard methods from
-[**quanteda**](http://githiub.com/quanteda/quanteda) also work on the
+[**quanteda**](https://github.com/quanteda/quanteda) also work on the
 new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## Package version: 1.2.1
-## Parallel computing: 2 of 8 threads used.
+## Package version: 1.3.0
+## Parallel computing: 4 of 8 threads used.
 ## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)
 ## [1] "d1" "d2"

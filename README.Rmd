@@ -202,7 +202,7 @@ To ignore the permanently set options, you can initialize spacy with `refresh_se
 
 ### **quanteda**
 
-Some of the token- and type-related standard methods from [**quanteda**](http://githiub.com/quanteda/quanteda) also work on the new tagged token objects:
+Some of the token- and type-related standard methods from [**quanteda**](https://github.com/quanteda/quanteda) also work on the new tagged token objects:
 ```{r}
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 docnames(parsedtxt)

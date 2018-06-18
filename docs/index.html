@@ -8,8 +8,8 @@
 <title>Wrapper to the 'spaCy' 'NLP' Library • spacyr</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><meta property="og:title" content="Wrapper to the 'spaCy' 'NLP' Library">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="pkgdown.js"></script><meta property="og:title" content="Wrapper to the 'spaCy' 'NLP' Library">
 <meta property="og:description" content="An R wrapper to the 'Python' 'spaCy' 'NLP' library,
     from &lt;http://spacy.io&gt;.">
 <meta name="twitter:card" content="summary">
@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">spacyr</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.9.9</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.9.91</span>
       </span>
     </div>
 
@@ -139,7 +139,7 @@
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">library</span>(<span class="st">"spacyr"</span>)</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>()</a>
 <a class="sourceLine" id="cb7-3" data-line-number="3">## Found 'spacy_condaenv'. spacyr will use this environment</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">## successfully initialized (spaCy Version: 2.0.10, language model: en)</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">## successfully initialized (spaCy Version: 2.0.11, language model: en)</a>
 <a class="sourceLine" id="cb7-5" data-line-number="5">## (python options: type = "condaenv", value = "spacy_condaenv")</a></code></pre></div>
 </div>
 <div id="tokenizing-and-tagging-texts" class="section level3">
@@ -292,7 +292,7 @@
 <a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw"><a href="reference/spacy_finalize.html">spacy_finalize</a></span>()</a>
 <a class="sourceLine" id="cb14-3" data-line-number="3"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">model =</span> <span class="st">"de"</span>)</a>
 <a class="sourceLine" id="cb14-4" data-line-number="4">## Python space is already attached.  If you want to switch to a different Python, please restart R.</a>
-<a class="sourceLine" id="cb14-5" data-line-number="5">## successfully initialized (spaCy Version: 2.0.10, language model: de)</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">## successfully initialized (spaCy Version: 2.0.11, language model: de)</a>
 <a class="sourceLine" id="cb14-6" data-line-number="6">## (python options: type = "condaenv", value = "spacy_condaenv")</a>
 <a class="sourceLine" id="cb14-7" data-line-number="7"></a>
 <a class="sourceLine" id="cb14-8" data-line-number="8">txt_german &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">R =</span> <span class="st">"R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt."</span>,</a>
@@ -414,9 +414,9 @@
 <h3 class="hasAnchor">
 <a href="#quanteda" class="anchor"></a><strong>quanteda</strong>
 </h3>
-<p>Some of the token- and type-related standard methods from <a href="http://githiub.com/quanteda/quanteda"><strong>quanteda</strong></a> also work on the new tagged token objects:</p>
+<p>Some of the token- and type-related standard methods from <a href="https://github.com/quanteda/quanteda"><strong>quanteda</strong></a> also work on the new tagged token objects:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">require</span>(quanteda, <span class="dt">warn.conflicts =</span> <span class="ot">FALSE</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">## Package version: 1.2.1</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">## Package version: 1.3.0</a>
 <a class="sourceLine" id="cb18-3" data-line-number="3">## Parallel computing: 2 of 8 threads used.</a>
 <a class="sourceLine" id="cb18-4" data-line-number="4">## See https://quanteda.io for tutorials and examples.</a>
 <a class="sourceLine" id="cb18-5" data-line-number="5"><span class="kw"><a href="http://www.rdocumentation.org/packages/quanteda/topics/docnames">docnames</a></span>(parsedtxt)</a>
