@@ -1,41 +1,40 @@
-#' Extract noun-phrases
+#' Extract noun phrases from a text
 #' 
-#' @description This function extracts noun-phrases from documents, utilizing \code{noun_chunks} 
-#' attributes of documents objects parsed by spaCy (see \url{https://spacy.io/usage/linguistic-features#noun-chunks}). 
-#' 
-#' @details When the option 
-#' \code{value = "data.frame"} is selected, the function returns a \code{data.frame}
-#' with following fields.
-#' \describe{\item{\code{text}}{contents of noun-phrase}
-#' \item{\code{root_text}}{contents of root token}
-#' \item{\code{start_id}}{serial number ID of starting token. This number corresponds with the number of
-#' \code{data.frame} returned from \code{spacy_tokenize(x)} with default options.}
-#' \item{\code{root_id}}{serial number ID of root token}
-#' \item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g. for a noun-phrase, "individual car owners", \code{length = 3})}}
+#' This function extracts noun-phrases from documents, based on the
+#' \code{noun_chunks} attributes of documents objects parsed by spaCy (see
+#' \url{https://spacy.io/usage/linguistic-features#noun-chunks}).
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}).
-#' @param value type of returning object. Either \code{list} or \code{data.frame}. 
-#' @param ... not used directly
-#' @return either \code{list} or \code{data.frame} of tokens
+#' @param output type of returned object, either \code{"list"} or
+#'   \code{"data.frame"}.
+#' @param ... unused
+#' @details When the option \code{output = "data.frame"} is selected, the
+#'   function returns a \code{data.frame} with the following fields.
+#' \describe{\item{\code{text}}{contents of noun-phrase}
+#' \item{\code{root_text}}{contents of root token}
+#' \item{\code{start_id}}{serial number ID of starting token. This number
+#' corresponds with the number of \code{data.frame} returned from
+#' \code{spacy_tokenize(x)} with default options.}
+#' \item{\code{root_id}}{serial number ID of root token}
+#' \item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g.
+#' for a noun-phrase, "individual car owners", \code{length = 3})}}
+#' 
+#' @return either a \code{list} or \code{data.frame} of tokens
 #' @export
 #' @examples
 #' \donttest{
 #' spacy_initialize()
-#' txt <- "And now for something completely different."
-#' spacy_tokenize(txt)
 #' 
-#' txt2 <- c(doc1 = "The fast cat catches mice.\\nThe quick brown dog jumped.", 
-#'           doc2 = "This is the second document.",
-#'           doc3 = "This is a \\\"quoted\\\" text." )
-#' spacy_tokenize(txt2)
+#' txt <- c(doc1 = "Natural language processing is a branch of computer science.",
+#'          doc2 = "Paul earned a postgraduate degree from MIT.")
+#' spacy_extract_nounphrases(txt)
+#' spacy_extract_nounphrases(txt, output = "list")
 #' }
-spacy_extract_nounphrases <- function(x, 
-                                      multithread = TRUE,
-                                      value = c('data.frame', 'list'),
-                                      ...) {
+spacy_extract_nounphrases <- function(x, output = c("data.frame", "list"),
+                                      multithread = TRUE, ...) {
     UseMethod("spacy_extract_nounphrases")
 }
 
@@ -44,13 +43,12 @@ spacy_extract_nounphrases <- function(x,
 #' @importFrom data.table data.table
 #' @noRd
 spacy_extract_nounphrases.character <- function(x, 
-                                                multithread = TRUE,
-                                                value = c('list', 'data.frame'),
-                                                ...) {
+                                                output = c("data.frame", "list"),
+                                                multithread = TRUE, ...) {
     
     `:=` <- NULL
     
-    value <- match.arg(value)
+    output <- match.arg(output)
     
     if (!is.null(names(x))) {
         docnames <- names(x) 
@@ -61,7 +59,7 @@ spacy_extract_nounphrases.character <- function(x,
         multithread <- FALSE
     }
     
-    if(all(!duplicated(docnames)) == FALSE) {
+    if (all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")
     } else if (all(nchar(docnames) > 0L) == FALSE) {
         stop("Some docnames are missing.")
@@ -71,8 +69,8 @@ spacy_extract_nounphrases.character <- function(x,
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
     spacyr_pyexec("texts = []")
     
-    if(spacyr_pyget("py_version") != 3) {
-        message("multithreading for python 2 is not supported by spacyr::spacy_tokenize()")
+    if (spacyr_pyget("py_version") != 3) {
+        message("multithreading for python 2 is not supported by spacy_tokenize()")
         multithread <- FALSE
     }
     
@@ -90,7 +88,7 @@ spacy_extract_nounphrases.character <- function(x,
     
     ## run noun phrase extraction
     spacyr_pyexec("spobj = spacyr()")
-    if(identical(value, "list")){
+    if (identical(output, "list")) {
         command_str <- paste("noun_phrases = spobj.extract_nounphrases_list(texts, docnames,",
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
@@ -128,5 +126,3 @@ spacy_extract_nounphrases.data.frame <- function(x, ...) {
     names(txt) <- x$doc_id
     spacy_extract_nounphrases(txt, ...)
 }
-
-

@@ -2,49 +2,50 @@
 % Please edit documentation in R/spacy_extract_nounphrases.R
 \name{spacy_extract_nounphrases}
 \alias{spacy_extract_nounphrases}
-\title{Extract noun-phrases}
+\title{Extract noun phrases from a text}
 \usage{
-spacy_extract_nounphrases(x, multithread = TRUE, value = c("data.frame",
-  "list"), ...)
+spacy_extract_nounphrases(x, output = c("data.frame", "list"),
+  multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
+\item{output}{type of returned object, either \code{"list"} or
+\code{"data.frame"}.}
+
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
 
-\item{value}{type of returning object. Either \code{list} or \code{data.frame}.}
-
-\item{...}{not used directly}
+\item{...}{unused}
 }
 \value{
-either \code{list} or \code{data.frame} of tokens
+either a \code{list} or \code{data.frame} of tokens
 }
 \description{
-This function extracts noun-phrases from documents, utilizing \code{noun_chunks} 
-attributes of documents objects parsed by spaCy (see \url{https://spacy.io/usage/linguistic-features#noun-chunks}).
+This function extracts noun-phrases from documents, based on the
+\code{noun_chunks} attributes of documents objects parsed by spaCy (see
+\url{https://spacy.io/usage/linguistic-features#noun-chunks}).
 }
 \details{
-When the option 
-\code{value = "data.frame"} is selected, the function returns a \code{data.frame}
-with following fields.
+When the option \code{output = "data.frame"} is selected, the
+  function returns a \code{data.frame} with the following fields.
 \describe{\item{\code{text}}{contents of noun-phrase}
 \item{\code{root_text}}{contents of root token}
-\item{\code{start_id}}{serial number ID of starting token. This number corresponds with the number of
-\code{data.frame} returned from \code{spacy_tokenize(x)} with default options.}
+\item{\code{start_id}}{serial number ID of starting token. This number
+corresponds with the number of \code{data.frame} returned from
+\code{spacy_tokenize(x)} with default options.}
 \item{\code{root_id}}{serial number ID of root token}
-\item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g. for a noun-phrase, "individual car owners", \code{length = 3})}}
+\item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g.
+for a noun-phrase, "individual car owners", \code{length = 3})}}
 }
 \examples{
 \donttest{
 spacy_initialize()
-txt <- "And now for something completely different."
-spacy_tokenize(txt)
 
-txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.", 
-          doc2 = "This is the second document.",
-          doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
-spacy_tokenize(txt2)
+txt <- c(doc1 = "Natural language processing is a branch of computer science.",
+         doc2 = "Paul earned a postgraduate degree from MIT.")
+spacy_extract_nounphrases(txt)
+spacy_extract_nounphrases(txt, output = "list")
 }
 }
