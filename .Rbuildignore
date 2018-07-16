@@ -19,3 +19,5 @@
 ^vignettes/pkgdown/
 ^CNAME$
 ^docs/
+^images/
+^pkgdown/

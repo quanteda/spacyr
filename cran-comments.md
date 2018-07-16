@@ -4,12 +4,19 @@
 
 Improvements to usability through automating the installation process.
 
+Fixed the following in r-devel:
+
+```
+Result: WARN 
+    '::' or ':::' import not declared from: ‘quanteda’ 
+```
+
 ## Test environments
 
-* local OS X install, R 3.4.4
-* ubuntu Ubuntu 16.04 LTS (on travis-ci), R 3.4.4
-* Windows Server 2012 R2 x64 (build 9600), R 3.4.4 (on Appveyor)
-* local Windows 10, R 3.4.4
+* local macOS 10.13.51, R 3.5.1
+* ubuntu Ubuntu 16.04 LTS (on travis-ci), R 3.5.1
+* Windows Server 2012 R2 x64 (build 9600), R 3.5.1 (on Appveyor)
+* local Windows 10, R 3.5.1
 * win-builder (devel and release)
 
 ## R CMD check results
