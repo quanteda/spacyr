@@ -1,4 +1,3 @@
-
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
 ![Downloads](https://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI
@@ -444,7 +443,7 @@ new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## Package version: 1.3.0
+## Package version: 1.3.4
 ## Parallel computing: 4 of 8 threads used.
 ## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)

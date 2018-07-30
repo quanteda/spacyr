@@ -1,9 +1,8 @@
 ---
 output:
-  github_document:
-    html_preview: false
+  md_document:
+    variant: gfm
 ---
-
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
