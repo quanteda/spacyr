@@ -4,8 +4,8 @@
 \alias{spacy_parse}
 \title{Parse a text using spaCy}
 \usage{
-spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE, entity = TRUE,
-  dependency = FALSE, multithread = TRUE, ...)
+spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE,
+  entity = TRUE, dependency = FALSE, multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
