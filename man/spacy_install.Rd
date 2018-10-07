@@ -6,8 +6,8 @@
 \title{Install spaCy in conda or virtualenv environment}
 \usage{
 spacy_install(conda = "auto", version = "latest", lang_models = "en",
-  python_version = "3.6", envname = "spacy_condaenv", python_path = NULL,
-  prompt = TRUE)
+  python_version = "3.6", envname = "spacy_condaenv",
+  python_path = NULL, prompt = TRUE)
 
 spacy_install_virtualenv(version = "latest", lang_models = "en",
   python_version = "3.6", python_path = NULL, prompt = TRUE)
