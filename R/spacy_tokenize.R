@@ -8,12 +8,12 @@
 #' @param remove_punct remove puctuation tokens.
 #' @param remove_numbers remove tokens that look like a number (e.g. "334", "3.1415", "fifty").
 #' @param remove_url remove tokens that look like a url or email address.
+#' @param remove_separators remove whitespaces as separators when
+#'  all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}.
 #' @param padding if \code{TRUE}, leave an empty string where the removed tokens 
 #'   previously existed. This is useful if a positional match is needed between 
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
 #'   needs to be computed.
-#' @param remove_whitespace_separators remove whitespaces as separators when
-#'  all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}.
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}).
 #' @param value type of returning object. Either \code{list} or \code{data.frame}. 
@@ -36,8 +36,8 @@ spacy_tokenize <- function(x,
                            remove_punct = FALSE,
                            remove_url = FALSE,
                            remove_numbers = FALSE,
+                           remove_separators = TRUE,
                            padding = FALSE,
-                           remove_whitespace_separators = TRUE,
                            multithread = TRUE,
                            value = c('list', 'data.frame'),
                            ...) {
@@ -53,8 +53,8 @@ spacy_tokenize.character <- function(x,
                                      remove_punct = FALSE,
                                      remove_url = FALSE,
                                      remove_numbers = FALSE,
+                                     remove_separators = TRUE,
                                      padding = FALSE,
-                                     remove_whitespace_separators = TRUE,
                                      multithread = TRUE,
                                      value = c('list', 'data.frame'),
                                      ...) {
@@ -111,10 +111,10 @@ spacy_tokenize.character <- function(x,
         spacyr_pyassign("padding", padding)
         turn_off_pipes <- if(all(!c(remove_punct, remove_url, remove_numbers))) {TRUE} else {FALSE}
         spacyr_pyassign("turn_off_pipes", turn_off_pipes)
-        if(remove_whitespace_separators == FALSE & turn_off_pipes == FALSE) {
-            stop("remove_whitespace_separators = FALSE and remove_* = TURE are not compatible", call. = FALSE)
+        if(remove_separators == FALSE & turn_off_pipes == FALSE) {
+            stop("remove_separators = FALSE and remove_* = TURE are not compatible", call. = FALSE)
         }
-        spacyr_pyassign("remove_whitespace_separators", remove_whitespace_separators)
+        spacyr_pyassign("remove_separators", remove_separators)
         
         ## assign removal settings for tokenizer in python
         spacyr_pyassign("remove_punct", remove_punct)
@@ -127,7 +127,7 @@ spacy_tokenize.character <- function(x,
                              "remove_punct = remove_punct,",
                              "remove_url = remove_url,",
                              "remove_numbers = remove_numbers,",
-                             "remove_whitespace_separators = remove_whitespace_separators,",
+                             "remove_whitespace_separators = remove_separators,",
                              "turn_off_pipes = turn_off_pipes,",
                              "padding = padding,",
                              "multithread = multithread)")
