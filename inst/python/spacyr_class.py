@@ -116,9 +116,9 @@ class spacyr:
                         rem = True
                     if rem:
                         if padding:
-                            continue
-                        else:
                             text = ""
+                        else:
+                            continue
                     toks.append(text)
                     if remove_whitespace_separators == False and w.whitespace_:
                         toks.append(w.whitespace_)
