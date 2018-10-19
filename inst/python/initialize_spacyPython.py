@@ -5,9 +5,12 @@
 ## The solution is from:
 ## https://github.com/naiquevin/pipdeptree/blob/master/pipdeptree.py
 try:
-    from pip._internal import get_installed_distributions
+    from pip._internal.utils.misc import get_installed_distributions
 except ImportError:
-    from pip import get_installed_distributions
+    try:
+        from pip._internal import get_installed_distributions
+    except ImportError:
+        from pip import get_installed_distributions
 installed_packages = get_installed_distributions()
 versions = {package.key: package.version for package in installed_packages}
 
