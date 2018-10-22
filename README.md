@@ -1,4 +1,3 @@
-
 # spacyr: an R wrapper for spaCy
 
 [![CRAN
@@ -8,7 +7,8 @@ Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis
 [![Appveyor Build
 status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/kbenoit/spacyr/branch/master)
 [![codecov.io](https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master)](https://codecov.io/gh/quanteda/spacyr/branch/master)
-\[![Downloads](https://cranlogs.r-pkg.org/badges/spacyr)\] [![Total
+[![Downloads](https://cranlogs.r-pkg.org/badges/spacyr)](https://CRAN.R-project.org/package=spacyr)
+[![Total
 Downloads](https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange)](https://CRAN.R-project.org/package=spacyr)
 
 This package is an R wrapper to the spaCy “industrial strength natural
@@ -120,11 +120,7 @@ change the value on your system of the Python executable.)
 library("spacyr")
 spacy_initialize()
 ## Found 'spacy_condaenv'. spacyr will use this environment
-<<<<<<< Updated upstream
-## successfully initialized (spaCy Version: 2.0.11, language model: en)
-=======
 ## successfully initialized (spaCy Version: 2.0.12, language model: en)
->>>>>>> Stashed changes
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 ```
 
@@ -301,11 +297,7 @@ This is an example of parsing German texts.
 spacy_finalize()
 spacy_initialize(model = "de")
 ## Python space is already attached.  If you want to switch to a different Python, please restart R.
-<<<<<<< Updated upstream
-## successfully initialized (spaCy Version: 2.0.11, language model: de)
-=======
 ## successfully initialized (spaCy Version: 2.0.12, language model: de)
->>>>>>> Stashed changes
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
@@ -453,13 +445,8 @@ new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-<<<<<<< Updated upstream
-## Package version: 1.3.4
-## Parallel computing: 4 of 8 threads used.
-=======
 ## Package version: 1.3.9
 ## Parallel computing: 2 of 12 threads used.
->>>>>>> Stashed changes
 ## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)
 ## [1] "d1" "d2"
