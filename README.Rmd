@@ -1,5 +1,7 @@
 ---
-output: github_document
+output:
+  md_document:
+    variant: gfm
 ---
 
 ```{r, echo = FALSE}
