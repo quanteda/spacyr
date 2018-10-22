@@ -86,11 +86,13 @@ class spacyr:
                 for w in doc:
                     rem = False
                     text = w.text
-                    if remove_punct & w.is_punct:
+                    if remove_punct and w.is_punct:
                         rem = True
-                    if remove_url & (w.like_url | w.like_email):
+                    if remove_url and (w.like_url or w.like_email):
                         rem = True
-                    if remove_numbers & w.like_num:
+                    if remove_numbers and w.like_num:
+                        rem = True
+                    if remove_whitespace_separators == True and w.is_space:
                         rem = True
                     if rem:
                         if padding:
@@ -109,11 +111,13 @@ class spacyr:
                 for w in doc:
                     rem = False
                     text = w.text
-                    if remove_punct & w.is_punct:
+                    if remove_punct and w.is_punct:
                         rem = True
-                    if remove_url & (w.like_url | w.like_email):
+                    if remove_url and (w.like_url or w.like_email):
                         rem = True
-                    if remove_numbers & w.like_num:
+                    if remove_numbers and w.like_num:
+                        rem = True
+                    if remove_whitespace_separators == True and w.is_space:
                         rem = True
                     if rem:
                         if padding:
@@ -132,6 +136,7 @@ class spacyr:
     def tokenize_sentence(self, texts, docnames, multithread = True):
         if isinstance(texts, list) == False:
             texts = [texts]
+            docnames = [docnames]
         for i in range(len(texts)):
             try:
                 if not isinstance(texts[i], unicode):
