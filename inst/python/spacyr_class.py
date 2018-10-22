@@ -66,6 +66,7 @@ class spacyr:
             disabled_pipes = self.nlp.disable_pipes(*pipes)
         if isinstance(texts, list) == False:
             texts = [texts]
+            docnames = [docnames]
         for i in range(len(texts)):
             try:
                 if not isinstance(texts[i], unicode):
