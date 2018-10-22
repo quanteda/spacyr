@@ -132,3 +132,4 @@ test_that("spacy_tokenize what = 'sentence' works as expected", {
         quanteda::tokens(txt, what = "sentence", remove_separators = TRUE) %>% as.list()
     )
 })
+
