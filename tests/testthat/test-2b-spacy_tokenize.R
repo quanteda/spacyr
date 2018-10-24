@@ -24,7 +24,7 @@ test_that("spacy_tokenize remove_punct argument work as expected", {
     )
     expect_equivalent(
         spacy_tokenize(txt, remove_punct = TRUE, padding = FALSE), 
-        list(c("This", "GBP", "15", "not", "20", "percent"))
+        list(c("This", "£", "=", "GBP", "15", "not", ">", "20", "percent"))
     )
 })
 
@@ -117,14 +117,14 @@ test_that("spacy_tokenize multithread = TRUE is faster than when FALSE", {
 })
 
 test_that("spacy_tokenize what = 'sentence' works as expected", {
-    txt <- "Sentence one!  This: is a test.\n\nYeah, yeah.  What, Mr. Jones?"
+    txt <- "Sentence one!  This: is a test.\n\nYeah, right.  What, Mr. Jones?"
     expect_equivalent(
         spacy_tokenize(txt, what = "sentence", remove_punct = TRUE,
                        remove_separators = TRUE),
         list(c(
             "Sentence one!",
             "This: is a test.",
-            "Yeah, yeah.",
+            "Yeah, right.",
             "What, Mr. Jones?"
         ))
     )
