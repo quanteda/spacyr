@@ -144,6 +144,7 @@ class spacyr:
             except NameError:
                 pass
         tokens_out = {}
+        regex_tailspace = re.compile('\s+$')
         # this multithread solution is suggested by @honnibal
         # https://github.com/explosion/spaCy/issues/172
         if multithread == True:
@@ -154,7 +155,7 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for sent in doc.sents:
-                    toks.append(sent.text)
+                    toks.append(regex_tailspace.sub('', sent.text))
                 tokens_out[id_] = toks
         else:
             for i in range(len(texts)):
@@ -162,7 +163,7 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for sent in doc.sents:
-                    toks.append(sent.text)
+                    toks.append(regex_tailspace.sub('', sent.text))
                 tokens_out[docnames[i]] = toks
         return tokens_out
         

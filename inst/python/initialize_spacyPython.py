@@ -22,3 +22,5 @@ if 'spacy_entity' in locals() and spacy_entity == False and spacy_version >= 2:
     nlp = spacy.load(model, disable=['ner'])
 else:
     nlp = spacy.load(model)
+
+import re
