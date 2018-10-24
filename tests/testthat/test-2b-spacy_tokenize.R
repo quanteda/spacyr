@@ -16,8 +16,8 @@ test_that("spacy_tokenize docnames work as expected", {
     )
 })
 
-test_that("spacy_tokenize remnove_punct argument work as expected", {
-    txt <- "This: £ = GBP!  15% not! > 20 percent?"
+test_that("spacy_tokenize remove_punct argument work as expected", {
+    txt <- "This: £ = GBP! 15% not! > 20 percent?"
     expect_equivalent(
         spacy_tokenize(txt, remove_punct = FALSE), 
         list(c("This", ":", "£", "=", "GBP", "!", "15", "%", "not", "!", ">", "20", "percent", "?"))
@@ -96,7 +96,7 @@ test_that("spacy_tokenize remove_separators works as expected", {
     )
     expect_equivalent(
         spacy_tokenize(txt, remove_separators = TRUE),
-        quanteda::tokens(txt, remove_numbers = TRUE) %>% quanteda::as.list()
+        quanteda::tokens(txt, remove_separators = TRUE) %>% quanteda::as.list()
     )
 })
 
@@ -119,7 +119,8 @@ test_that("spacy_tokenize multithread = TRUE is faster than when FALSE", {
 test_that("spacy_tokenize what = 'sentence' works as expected", {
     txt <- "Sentence one!  This: is a test.\n\nYeah, yeah.  What, Mr. Jones?"
     expect_equivalent(
-        spacy_tokenize(txt, what = "sentence", remove_separators = TRUE),
+        spacy_tokenize(txt, what = "sentence", remove_punct = TRUE,
+                       remove_separators = TRUE),
         list(c(
             "Sentence one!",
             "This: is a test.",
