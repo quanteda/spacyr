@@ -127,7 +127,7 @@ spacy_tokenize.character <- function(x,
                              "remove_punct = remove_punct,",
                              "remove_url = remove_url,",
                              "remove_numbers = remove_numbers,",
-                             "remove_whitespace_separators = remove_separators,",
+                             "remove_separators = remove_separators,",
                              "turn_off_pipes = turn_off_pipes,",
                              "padding = padding,",
                              "multithread = multithread)")
