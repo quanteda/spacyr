@@ -133,7 +133,7 @@ class spacyr:
         return tokens_out
 
 
-    def tokenize_sentence(self, texts, docnames, multithread = True):
+    def tokenize_sentence(self, texts, docnames, multithread = True, remove_separators = False):
         if isinstance(texts, list) == False:
             texts = [texts]
             docnames = [docnames]
@@ -144,7 +144,7 @@ class spacyr:
             except NameError:
                 pass
         tokens_out = {}
-        regex_tailspace = re.compile('\s+$')
+        regex_trailspace = re.compile('\s+$')
         # this multithread solution is suggested by @honnibal
         # https://github.com/explosion/spaCy/issues/172
         if multithread == True:
@@ -155,7 +155,7 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for sent in doc.sents:
-                    toks.append(regex_tailspace.sub('', sent.text))
+                    toks.append(regex_trailspace.sub('', sent.text))
                 tokens_out[id_] = toks
         else:
             for i in range(len(texts)):
@@ -163,7 +163,10 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for sent in doc.sents:
-                    toks.append(regex_tailspace.sub('', sent.text))
+                    sent_text =  sent.text
+                    if remove_separators:
+                        sent_text = regex_trailspace.sub('', sent_text)
+                    toks.append(sent_text)
                 tokens_out[docnames[i]] = toks
         return tokens_out
 

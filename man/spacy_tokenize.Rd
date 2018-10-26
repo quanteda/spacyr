@@ -23,8 +23,9 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{remove_numbers}{remove tokens that look like a number (e.g. "334", "3.1415", "fifty").}
 
-\item{remove_separators}{remove whitespaces as separators when
-all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}.}
+\item{remove_separators}{remove spaces as separators when
+all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}. 
+When \code{what = "sentence"}, this option will remove trailing spaces if \code{TRUE}.}
 
 \item{padding}{if \code{TRUE}, leave an empty string where the removed tokens 
 previously existed. This is useful if a positional match is needed between 

@@ -169,6 +169,16 @@ test_that("spacy_tokenize what = 'sentence' works as expected", {
         ))
     )
     expect_equivalent(
+        spacy_tokenize(txt, what = "sentence", remove_punct = TRUE,
+                       remove_separators = FALSE),
+        list(c(
+            "Sentence one!  ",
+            "This: is a test.\n\n", 
+            "Yeah, right.  ", 
+            "What, Mr. Jones?"
+        ))
+    )
+    expect_equivalent(
         spacy_tokenize(txt, what = "sentence", remove_separators = TRUE),
         quanteda::tokens(txt, what = "sentence", remove_separators = TRUE) %>% as.list()
     )
