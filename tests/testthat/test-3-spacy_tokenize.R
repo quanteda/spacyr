@@ -36,6 +36,24 @@ test_that("spacy_tokenize remove_punct argument work as expected", {
     )
 })
 
+test_that("spacy_tokenize remove_symbols argument work as expected", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    txt <- "This: £ = GBP! 15% not! > 20 percent?"
+    expect_equivalent(
+        spacy_tokenize(txt, remove_symbols = FALSE), 
+        list(c("This", ":", "£", "=", "GBP", "!", "15", "%", "not", "!", ">", "20", "percent", "?"))
+    )
+    expect_equivalent(
+        spacy_tokenize(txt, remove_symbols = TRUE, padding = FALSE), 
+        list(c("This", ":", "GBP", "!", "15", "%", "not", "!", 
+               ">", "20", "percent", "?"))
+    )
+})
+
+
 test_that("spacy_tokenize padding argument work as expected", {
     skip_on_cran()
     skip_on_os("solaris")
