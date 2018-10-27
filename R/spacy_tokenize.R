@@ -11,6 +11,8 @@
 #' @param remove_separators remove spaces as separators when
 #'  all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}. 
 #'  When \code{what = "sentence"}, this option will remove trailing spaces if \code{TRUE}.
+#' @param remove_symbols remove symbols. The symbols are either \code{SYM} in \code{pos}
+#'   field, or currency symbols.
 #' @param padding if \code{TRUE}, leave an empty string where the removed tokens 
 #'   previously existed. This is useful if a positional match is needed between 
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
@@ -38,6 +40,7 @@ spacy_tokenize <- function(x,
                            remove_url = FALSE,
                            remove_numbers = FALSE,
                            remove_separators = TRUE,
+                           remove_symbols = FALSE, 
                            padding = FALSE,
                            multithread = TRUE,
                            value = c('list', 'data.frame'),
@@ -55,6 +58,7 @@ spacy_tokenize.character <- function(x,
                                      remove_url = FALSE,
                                      remove_numbers = FALSE,
                                      remove_separators = TRUE,
+                                     remove_symbols = FALSE, 
                                      padding = FALSE,
                                      multithread = TRUE,
                                      value = c('list', 'data.frame'),
@@ -124,6 +128,7 @@ spacy_tokenize.character <- function(x,
         spacyr_pyassign("remove_punct", remove_punct)
         spacyr_pyassign("remove_url", remove_url)
         spacyr_pyassign("remove_numbers", remove_numbers)
+        spacyr_pyassign("remove_symbols", remove_symbols)
         
         ## run tokenizer
         spacyr_pyexec("spobj = spacyr()")
@@ -132,6 +137,7 @@ spacy_tokenize.character <- function(x,
                              "remove_url = remove_url,",
                              "remove_numbers = remove_numbers,",
                              "remove_separators = remove_separators,",
+                             "remove_symbols = remove_symbols,",
                              "turn_off_pipes = turn_off_pipes,",
                              "padding = padding,",
                              "multithread = multithread)")

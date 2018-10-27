@@ -6,8 +6,8 @@
 \usage{
 spacy_tokenize(x, what = c("word", "sentence"), remove_punct = FALSE,
   remove_url = FALSE, remove_numbers = FALSE,
-  remove_separators = TRUE, padding = FALSE, multithread = TRUE,
-  value = c("list", "data.frame"), ...)
+  remove_separators = TRUE, remove_symbols = FALSE, padding = FALSE,
+  multithread = TRUE, value = c("list", "data.frame"), ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -26,6 +26,9 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 \item{remove_separators}{remove spaces as separators when
 all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}. 
 When \code{what = "sentence"}, this option will remove trailing spaces if \code{TRUE}.}
+
+\item{remove_symbols}{remove symbols. The symbols are either \code{SYM} in \code{pos}
+field, or currency symbols.}
 
 \item{padding}{if \code{TRUE}, leave an empty string where the removed tokens 
 previously existed. This is useful if a positional match is needed between 

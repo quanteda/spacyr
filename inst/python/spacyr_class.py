@@ -59,9 +59,10 @@ class spacyr:
                  remove_numbers = False,
                  remove_url = False,
                  remove_separators = True,
+                 remove_symbols = False,
                  padding = False,
                  multithread = True):
-        if spacy_version >= 2 & turn_off_pipes:
+        if spacy_version >= 2  and turn_off_pipes and remove_symbols == False:
             pipes = self.nlp.pipe_names
             disabled_pipes = self.nlp.disable_pipes(*pipes)
         if isinstance(texts, list) == False:
@@ -84,16 +85,8 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for w in doc:
-                    rem = False
+                    rem = self.rem_check(w)
                     text = w.text
-                    if remove_punct and w.is_punct:
-                        rem = True
-                    if remove_url and (w.like_url or w.like_email):
-                        rem = True
-                    if remove_numbers and w.like_num:
-                        rem = True
-                    if remove_separators == True and w.is_space:
-                        rem = True
                     if rem:
                         if padding:
                             text = ""
@@ -109,16 +102,8 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for w in doc:
-                    rem = False
+                    rem = self.rem_check(w)
                     text = w.text
-                    if remove_punct and w.is_punct:
-                        rem = True
-                    if remove_url and (w.like_url or w.like_email):
-                        rem = True
-                    if remove_numbers and w.like_num:
-                        rem = True
-                    if remove_separators == True and w.is_space:
-                        rem = True
                     if rem:
                         if padding:
                             text = ""
@@ -128,10 +113,26 @@ class spacyr:
                     if remove_separators == False and w.whitespace_:
                         toks.append(w.whitespace_)
                 tokens_out[docnames[i]] = toks
-        if spacy_version >= 2 & turn_off_pipes:
+        if spacy_version >= 2  and turn_off_pipes and remove_symbols == False:
             disabled_pipes.restore()
         return tokens_out
-
+    
+    def rem_check(self, w): # part of tokernize. Check if the token should be removed
+        rem = False
+        if remove_punct and w.is_punct:
+            rem = True
+        if remove_url and (w.like_url or w.like_email):
+            rem = True
+        if remove_numbers and w.like_num:
+            rem = True
+        if remove_separators == True and w.is_space:
+            rem = True
+        if remove_symbols == True:
+            if w.is_currency:
+                rem = True
+            if  w.pos_ == "SYM":
+                rem = True
+        return(rem)
 
     def tokenize_sentence(self, texts, docnames, multithread = True, remove_separators = False):
         if isinstance(texts, list) == False:
