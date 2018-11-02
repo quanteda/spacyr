@@ -95,7 +95,7 @@ spacy_initialize <- function(model = "en",
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                        package = "spacyr"))
 
-    spacy_version <- spacyr_pyget("versions")$spacy
+    spacy_version <- spacyr_pyget("spacy_version")
     if(entity == FALSE && as.integer(substr(spacy_version, 1, 1)) < 2){
         message("entity == FALSE is only available for spaCy version 2.0.0 or higher")
         options("spacy_entity" = TRUE)

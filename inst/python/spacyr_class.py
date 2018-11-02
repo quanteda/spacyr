@@ -3,7 +3,7 @@
 #  Google universal: http://www.petrovi.de/data/universal.pdf
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
-from __future__ import unicode_literals 
+from __future__ import unicode_literals
 import os
 import sys
 import spacy
@@ -25,7 +25,7 @@ class spacyr:
     def __init__(self):
         self.nlp = nlp
         self.documents = {}
-    
+
     def parse(self, texts, multithread = True):
         epoch_nanos = []
         if isinstance(texts, list) == False:
@@ -52,20 +52,22 @@ class spacyr:
                 doc = self.nlp(text)
                 self.documents[epoch_nano] = doc
                 epoch_nanos.append(epoch_nano)
-        return epoch_nanos 
+        return epoch_nanos
 
-    def tokenize(self, texts, docnames, turn_off_pipes = True, 
+    def tokenize(self, texts, docnames, turn_off_pipes = True,
                  remove_punct = False,
                  remove_numbers = False,
-                 remove_url = False, 
-                 remove_whitespace_separators = True,
+                 remove_url = False,
+                 remove_separators = True,
+                 remove_symbols = False,
                  padding = False,
                  multithread = True):
-        if spacy_version >= 2 & turn_off_pipes:
+        if VersionParser(spacy_version) >= VersionParser("2") and turn_off_pipes and remove_symbols == False:
             pipes = self.nlp.pipe_names
             disabled_pipes = self.nlp.disable_pipes(*pipes)
         if isinstance(texts, list) == False:
             texts = [texts]
+            docnames = [docnames]
         for i in range(len(texts)):
             try:
                 if not isinstance(texts[i], unicode):
@@ -83,21 +85,15 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for w in doc:
-                    rem = False
+                    rem = self.rem_check(w)
                     text = w.text
-                    if remove_punct & w.is_punct:
-                        rem = True
-                    if remove_url & (w.like_url | w.like_email):
-                        rem = True
-                    if remove_numbers & w.like_num:
-                        rem = True
                     if rem:
                         if padding:
                             text = ""
                         else:
                             continue
                     toks.append(text)
-                    if remove_whitespace_separators == False and w.whitespace_:
+                    if remove_separators == False and w.whitespace_:
                         toks.append(w.whitespace_)
                 tokens_out[id_] = toks
         else:
@@ -106,31 +102,42 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for w in doc:
-                    rem = False
+                    rem = self.rem_check(w)
                     text = w.text
-                    if remove_punct & w.is_punct:
-                        rem = True
-                    if remove_url & (w.like_url | w.like_email):
-                        rem = True
-                    if remove_numbers & w.like_num:
-                        rem = True
                     if rem:
                         if padding:
                             text = ""
                         else:
                             continue
                     toks.append(text)
-                    if remove_whitespace_separators == False and w.whitespace_:
+                    if remove_separators == False and w.whitespace_:
                         toks.append(w.whitespace_)
                 tokens_out[docnames[i]] = toks
-        if spacy_version >= 2 & turn_off_pipes:
+        if VersionParser(spacy_version) >= VersionParser("2")  and turn_off_pipes and remove_symbols == False:
             disabled_pipes.restore()
         return tokens_out
+    
+    def rem_check(self, w): # part of tokernize. Check if the token should be removed
+        rem = False
+        if remove_punct and w.is_punct:
+            rem = True
+        if remove_url and (w.like_url or w.like_email):
+            rem = True
+        if remove_numbers and w.like_num:
+            rem = True
+        if remove_separators == True and w.is_space:
+            rem = True
+        if remove_symbols == True:
+            if w.is_currency:
+                rem = True
+            if  w.pos_ == "SYM":
+                rem = True
+        return(rem)
 
-
-    def tokenize_sentence(self, texts, docnames, multithread = True):
+    def tokenize_sentence(self, texts, docnames, multithread = True, remove_separators = False):
         if isinstance(texts, list) == False:
             texts = [texts]
+            docnames = [docnames]
         for i in range(len(texts)):
             try:
                 if not isinstance(texts[i], unicode):
@@ -138,6 +145,7 @@ class spacyr:
             except NameError:
                 pass
         tokens_out = {}
+        regex_trailspace = re.compile('\s+$')
         # this multithread solution is suggested by @honnibal
         # https://github.com/explosion/spaCy/issues/172
         if multithread == True:
@@ -148,7 +156,7 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for sent in doc.sents:
-                    toks.append(sent.text)
+                    toks.append(regex_trailspace.sub('', sent.text))
                 tokens_out[id_] = toks
         else:
             for i in range(len(texts)):
@@ -156,10 +164,13 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for sent in doc.sents:
-                    toks.append(sent.text)
+                    sent_text =  sent.text
+                    if remove_separators:
+                        sent_text = regex_trailspace.sub('', sent_text)
+                    toks.append(sent_text)
                 tokens_out[docnames[i]] = toks
         return tokens_out
-        
+
     def extract_nounphrases_list(self, texts, docnames, multithread = True):
         if isinstance(texts, list) == False:
             texts = [texts]
@@ -259,7 +270,7 @@ class spacyr:
                 ntok_in_sent.append(len(sent))
             ntok_by_sent.append(ntok_in_sent)
         return ntok_by_sent
-        
+
     def attributes(self, timestamps, attrname, deal_utf8 = 0):
         all_attrs = []
         if isinstance(timestamps, list) == False:
@@ -275,7 +286,7 @@ class spacyr:
                 for i in range(len(all_attrs)):
                     all_attrs[i] = all_attrs[i].encode('utf-8')
         return all_attrs
-        
+
     def attributes_by_sent(self, timestamps, attrname):
         all_attrs = []
         if isinstance(timestamps, list) == False:
@@ -288,36 +299,36 @@ class spacyr:
                     attrs.append(getattr(w, attrname))
                 all_attrs.extend(attrs)
         return all_attrs
-    
+
     def tokens(self, timestamps):
         all_tokens = self.attributes(timestamps, 'text', 1)
         return all_tokens
-    
+
     def tags(self, timestamps, tag_type):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         attr_name = "tag_" if tag_type == "detailed" else "pos_"
         all_tokens = self.attributes(timestamps, attr_name)
         return all_tokens
-        
+
     def run_entity(self, timestamps):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
             self.nlp.entity(self.documents[ts])
-    
+
     def run_tagger(self, timestamps):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
             self.nlp.tagger(self.documents[ts])
-            
+
     def run_dependency_parser(self, timestamps):
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
         for ts in timestamps:
             self.nlp.parser(self.documents[ts])
-            
+
     def list_entities(self, timestamps):
         all_entities = {}
         if isinstance(timestamps, list) == False:
@@ -330,7 +341,7 @@ class spacyr:
                 entities.append((entity.label_, ' '.join(t.orth_ for t in entity)))
             all_entities[ts] = entities
         return all_entities
-        
+
     def dep_head_id(self, timestamps):
         all_head_ids = []
         if isinstance(timestamps, list) == False:
@@ -343,4 +354,3 @@ class spacyr:
                     head_ids.append(w.head.i)
             all_head_ids.extend(head_ids)
         return all_head_ids
-

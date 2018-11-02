@@ -11,8 +11,8 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/readable/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -21,23 +21,28 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 <meta property="og:title" content="Parse a text using spaCy — spacy_parse" />
 
 <meta property="og:description" content="The spacy_parse() function calls spaCy to both tokenize and tag the
 texts, and returns a data.table of the results. The function provides options
-on the types of tagsets (tagset_ options) either  "google" or
-"detailed", as well as lemmatization (lemma). It provides a
+on the types of tagsets (tagset_ options) either  &quot;google&quot; or
+&quot;detailed&quot;, as well as lemmatization (lemma). It provides a
 functionalities of dependency parsing and named entity recognition as an
-option. If "full_parse = TRUE" is provided, the function returns the
+option. If &quot;full_parse = TRUE&quot; is provided, the function returns the
 most extensive list of the parsing results from spaCy." />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -54,7 +59,7 @@ most extensive list of the parsing results from spaCy." />
   <body>
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -64,23 +69,14 @@ most extensive list of the parsing results from spaCy." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.9.9</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.9.91</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -120,8 +116,8 @@ most extensive list of the parsing results from spaCy.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>spacy_parse</span>(<span class='no'>x</span>, <span class='kw'>pos</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>tag</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>lemma</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>dependency</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>multithread</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>spacy_parse</span>(<span class='no'>x</span>, <span class='kw'>pos</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>tag</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>lemma</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dependency</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>multithread</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

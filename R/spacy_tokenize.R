@@ -8,8 +8,11 @@
 #' @param remove_punct remove puctuation tokens.
 #' @param remove_numbers remove tokens that look like a number (e.g. "334", "3.1415", "fifty").
 #' @param remove_url remove tokens that look like a url or email address.
-#' @param remove_separators remove whitespaces as separators when
-#'  all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}.
+#' @param remove_separators remove spaces as separators when
+#'  all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}. 
+#'  When \code{what = "sentence"}, this option will remove trailing spaces if \code{TRUE}.
+#' @param remove_symbols remove symbols. The symbols are either \code{SYM} in \code{pos}
+#'   field, or currency symbols.
 #' @param padding if \code{TRUE}, leave an empty string where the removed tokens 
 #'   previously existed. This is useful if a positional match is needed between 
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
@@ -37,6 +40,7 @@ spacy_tokenize <- function(x,
                            remove_url = FALSE,
                            remove_numbers = FALSE,
                            remove_separators = TRUE,
+                           remove_symbols = FALSE, 
                            padding = FALSE,
                            multithread = TRUE,
                            value = c('list', 'data.frame'),
@@ -54,6 +58,7 @@ spacy_tokenize.character <- function(x,
                                      remove_url = FALSE,
                                      remove_numbers = FALSE,
                                      remove_separators = TRUE,
+                                     remove_symbols = FALSE, 
                                      padding = FALSE,
                                      multithread = TRUE,
                                      value = c('list', 'data.frame'),
@@ -102,7 +107,10 @@ spacy_tokenize.character <- function(x,
     
     if(identical(what, "sentence")){
         spacyr_pyexec("spobj = spacyr()")
+        spacyr_pyassign("remove_separators", remove_separators)
+        
         command_str <- paste("tokens = spobj.tokenize_sentence(texts, docnames,",
+                             "remove_separators = remove_separators,",
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
     } else {
@@ -120,6 +128,7 @@ spacy_tokenize.character <- function(x,
         spacyr_pyassign("remove_punct", remove_punct)
         spacyr_pyassign("remove_url", remove_url)
         spacyr_pyassign("remove_numbers", remove_numbers)
+        spacyr_pyassign("remove_symbols", remove_symbols)
         
         ## run tokenizer
         spacyr_pyexec("spobj = spacyr()")
@@ -127,7 +136,8 @@ spacy_tokenize.character <- function(x,
                              "remove_punct = remove_punct,",
                              "remove_url = remove_url,",
                              "remove_numbers = remove_numbers,",
-                             "remove_whitespace_separators = remove_separators,",
+                             "remove_separators = remove_separators,",
+                             "remove_symbols = remove_symbols,",
                              "turn_off_pipes = turn_off_pipes,",
                              "padding = padding,",
                              "multithread = multithread)")
