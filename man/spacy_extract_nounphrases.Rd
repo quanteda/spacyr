@@ -8,7 +8,7 @@ spacy_extract_nounphrases(x, output = c("data.frame", "list"),
   multithread = TRUE, ...)
 }
 \arguments{
-\item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
+\item{x}{a character object or a TIF-compliant
 corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{output}{type of returned object, either \code{"list"} or

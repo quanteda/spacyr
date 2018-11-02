@@ -4,7 +4,7 @@
 #' \code{noun_chunks} attributes of documents objects parsed by spaCy (see
 #' \url{https://spacy.io/usage/linguistic-features#noun-chunks}).
 #' 
-#' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
+#' @param x a character object or a TIF-compliant
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}).
