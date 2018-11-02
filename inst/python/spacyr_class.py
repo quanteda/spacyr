@@ -62,7 +62,7 @@ class spacyr:
                  remove_symbols = False,
                  padding = False,
                  multithread = True):
-        if spacy_version >= 2  and turn_off_pipes and remove_symbols == False:
+        if VersionParser(spacy_version) >= VersionParser("2") and turn_off_pipes and remove_symbols == False:
             pipes = self.nlp.pipe_names
             disabled_pipes = self.nlp.disable_pipes(*pipes)
         if isinstance(texts, list) == False:
@@ -113,7 +113,7 @@ class spacyr:
                     if remove_separators == False and w.whitespace_:
                         toks.append(w.whitespace_)
                 tokens_out[docnames[i]] = toks
-        if spacy_version >= 2  and turn_off_pipes and remove_symbols == False:
+        if VersionParser(spacy_version) >= VersionParser("2")  and turn_off_pipes and remove_symbols == False:
             disabled_pipes.restore()
         return tokens_out
     

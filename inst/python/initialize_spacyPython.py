@@ -1,5 +1,9 @@
 # from __future__ import unicode_literals 
 
+## check python version 
+import sys
+py_version = sys.version_info.major
+
 ## Parser for version strings
 try:
     from packaging.version import parse as VersionParser
