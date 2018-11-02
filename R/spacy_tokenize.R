@@ -1,5 +1,7 @@
-#' Just tokenize text with spaCy
+#' Tokenize text with spaCy
 #' 
+#' Efficient tokenization (without POS tagging, dependency parsing,
+#' lemmatization, or named entity recognition) of texts using spaCy.
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see \url{https://github.com/ropensci/tif})
 #' @param what the unit for splitting the text, available alternatives are: 

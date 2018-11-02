@@ -2,7 +2,7 @@
 % Please edit documentation in R/spacy_tokenize.R
 \name{spacy_tokenize}
 \alias{spacy_tokenize}
-\title{Just tokenize text with spaCy}
+\title{Tokenize text with spaCy}
 \usage{
 spacy_tokenize(x, what = c("word", "sentence"), remove_punct = FALSE,
   remove_url = FALSE, remove_numbers = FALSE,
@@ -46,7 +46,8 @@ functionality of spacy (\url{https://spacy.io/api/pipe}).}
 either \code{list} or \code{data.frame} of tokens
 }
 \description{
-Just tokenize text with spaCy
+Efficient tokenization (without POS tagging, dependency parsing,
+lemmatization, or named entity recognition) of texts using spaCy.
 }
 \examples{
 \donttest{
