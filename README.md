@@ -1,14 +1,15 @@
+# spacyr: an R wrapper for spaCy
 
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
-![Downloads](https://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI
-Build
+[![Travis-CI Build
 Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
 [![Appveyor Build
 status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/kbenoit/spacyr/branch/master)
 [![codecov.io](https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master)](https://codecov.io/gh/quanteda/spacyr/branch/master)
-
-# spacyr: an R wrapper for spaCy
+[![Downloads](https://cranlogs.r-pkg.org/badges/spacyr)](https://CRAN.R-project.org/package=spacyr)
+[![Total
+Downloads](https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange)](https://CRAN.R-project.org/package=spacyr)
 
 This package is an R wrapper to the spaCy “industrial strength natural
 language processing” Python library from <http://spacy.io>.
@@ -119,7 +120,7 @@ change the value on your system of the Python executable.)
 library("spacyr")
 spacy_initialize()
 ## Found 'spacy_condaenv'. spacyr will use this environment
-## successfully initialized (spaCy Version: 2.0.10, language model: en)
+## successfully initialized (spaCy Version: 2.0.12, language model: en)
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 ```
 
@@ -296,7 +297,7 @@ This is an example of parsing German texts.
 spacy_finalize()
 spacy_initialize(model = "de")
 ## Python space is already attached.  If you want to switch to a different Python, please restart R.
-## successfully initialized (spaCy Version: 2.0.10, language model: de)
+## successfully initialized (spaCy Version: 2.0.12, language model: de)
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
@@ -439,13 +440,13 @@ To ignore the permanently set options, you can initialize spacy with
 ### **quanteda**
 
 Some of the token- and type-related standard methods from
-[**quanteda**](http://githiub.com/quanteda/quanteda) also work on the
+[**quanteda**](https://github.com/quanteda/quanteda) also work on the
 new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## Package version: 1.2.1
-## Parallel computing: 2 of 8 threads used.
+## Package version: 1.3.9
+## Parallel computing: 2 of 12 threads used.
 ## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)
 ## [1] "d1" "d2"

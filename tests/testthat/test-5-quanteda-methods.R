@@ -8,6 +8,7 @@ test_that("quanteda functions work", {
     skip_if_not_installed("quanteda")
     skip_if_no_python_or_no_spacy()
     
+    library("quanteda")
     spacy_initialize()
     
     txt <- c(doc1 = "And now, now, now for something completely different.",

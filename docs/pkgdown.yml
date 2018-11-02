@@ -1,5 +1,8 @@
-pandoc: '2.2'
-pkgdown: 1.0.0
+pandoc: 2.3.1
+pkgdown: 1.1.0
 pkgdown_sha: ~
 articles: []
+urls:
+  reference: http://spacyr.quanteda.io/reference
+  article: http://spacyr.quanteda.io/articles
 
