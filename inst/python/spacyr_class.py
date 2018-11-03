@@ -174,6 +174,7 @@ class spacyr:
     def extract_nounphrases_list(self, texts, docnames, multithread = True):
         if isinstance(texts, list) == False:
             texts = [texts]
+            docnames = [docnames]
         for i in range(len(texts)):
             try:
                 if not isinstance(texts[i], unicode):
@@ -206,6 +207,7 @@ class spacyr:
     def extract_nounphrases_dataframe(self, texts, docnames, multithread = True):
         if isinstance(texts, list) == False:
             texts = [texts]
+            docnames = [docnames]
         for i in range(len(texts)):
             try:
                 if not isinstance(texts[i], unicode):
