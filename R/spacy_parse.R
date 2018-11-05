@@ -133,7 +133,7 @@ spacy_parse.character <- function(x,
         dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
             by = .(doc_id, root_id)]
         dt[, c("w_id", "start_id", "root_id") := NULL]    
-        setnames(dt, c("text", "root_text"), c("noun_phrase", "noun_phrase_root_text"))
+        setnames(dt, c("text", "root_text", "length"), c("noun_phrase", "noun_phrase_root_text", "noun_phrase_length"))
     }
     
     dt <- as.data.frame(dt)
