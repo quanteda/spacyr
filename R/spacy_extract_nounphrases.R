@@ -89,12 +89,14 @@ spacy_extract_nounphrases.character <- function(x,
     ## run noun phrase extraction
     spacyr_pyexec("spobj = spacyr()")
     if (identical(output, "list")) {
-        command_str <- paste("noun_phrases = spobj.extract_nounphrases_list(texts, docnames,",
+        command_str <- paste("noun_phrases = spobj.extract_nounphrases_list(texts = texts,",
+                             "docnames = docnames,",
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
         return(spacyr_pyget("noun_phrases"))
     } else {
-        command_str <- paste("noun_phrases = spobj.extract_nounphrases_dataframe(texts, docnames,",
+        command_str <- paste("noun_phrases = spobj.extract_nounphrases_dataframe(texts = texts,",
+                             "docnames = docnames,",
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
         noun_phrases <- spacyr_pyget("noun_phrases")

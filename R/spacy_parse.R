@@ -23,6 +23,7 @@
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
+#' @param noun_phrase logical
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
@@ -46,6 +47,7 @@ spacy_parse <- function(x,
                         lemma = TRUE,
                         entity = TRUE, 
                         dependency = FALSE,
+                        noun_phrase = FALSE,
                         multithread = TRUE,
                         ...) {
     UseMethod("spacy_parse")
@@ -61,6 +63,7 @@ spacy_parse.character <- function(x,
                                   lemma = TRUE,
                                   entity = TRUE, 
                                   dependency = FALSE,
+                                  noun_phrase = FALSE,
                                   multithread = TRUE,
                                   ...) {
     
@@ -116,6 +119,19 @@ spacy_parse.character <- function(x,
     ## named entity fields
     if (entity) {
         dt[, entity := get_named_entities(spacy_out)]
+    }
+    
+    ## noun phrases
+    if (noun_phrase) {
+        dt_noun_phrases <- setDT(get_noun_phrases(spacy_out))
+        dt_noun_phrases <- dt_noun_phrases[rep(1:nrow(dt_noun_phrases), times=length)]
+        dt_noun_phrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
+        dt[, w_id := seq_len(.N), by = doc_id]
+        dt <- merge(dt, dt_noun_phrases, by  = c("doc_id", "w_id"), all.x = TRUE)
+        dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
+            by = .(doc_id, root_id)]
+        dt[, c("w_id", "start_id", "root_id", "length") := NULL]    
+        setnames(dt, c("text", "root_text"), c("noun_phrase", "noun_phrase_root_text"))
     }
     
     dt <- as.data.frame(dt)

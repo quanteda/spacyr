@@ -5,7 +5,8 @@
 \title{Parse a text using spaCy}
 \usage{
 spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE,
-  entity = TRUE, dependency = FALSE, multithread = TRUE, ...)
+  entity = TRUE, dependency = FALSE, noun_phrase = FALSE,
+  multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -26,6 +27,8 @@ may not work properly for non-English models)}
 \item{entity}{logical; if \code{TRUE}, report named entities}
 
 \item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
+
+\item{noun_phrase}{logical}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
