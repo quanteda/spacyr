@@ -129,9 +129,9 @@ spacy_parse.character <- function(x,
         dt_nounphrases <- data.table::setDT(get_noun_phrases(spacy_out))
         dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times=length)]
         dt_nounphrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
-        dt_nounphrases[, np := ifelse(w_id == start_id, "beg", 
+        dt_nounphrases[, nounphrase := ifelse(w_id == start_id, "beg", 
                                       ifelse(w_id == max(w_id), "end", "mid")), by = .(doc_id, start_id)]
-        dt_nounphrases[, np := ifelse(w_id == root_id, paste0(np, "_root"), np)]
+        dt_nounphrases[, nounphrase := ifelse(w_id == root_id, paste0(nounphrase, "_root"), nounphrase)]
         dt[, w_id := seq_len(.N), by = doc_id]
         dt <- merge(dt, dt_nounphrases, by  = c("doc_id", "w_id"), all.x = TRUE)
         # dt[ !is.na(start_id), start_token_id := token_id[w_id == start_id][1],
