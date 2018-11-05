@@ -128,9 +128,11 @@ spacy_parse.character <- function(x,
         dt_noun_phrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
         dt[, w_id := seq_len(.N), by = doc_id]
         dt <- merge(dt, dt_noun_phrases, by  = c("doc_id", "w_id"), all.x = TRUE)
+        dt[ !is.na(start_id), start_token_id := token_id[w_id == start_id][1],
+            by = .(doc_id, root_id)]
         dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
             by = .(doc_id, root_id)]
-        dt[, c("w_id", "start_id", "root_id", "length") := NULL]    
+        dt[, c("w_id", "start_id", "root_id") := NULL]    
         setnames(dt, c("text", "root_text"), c("noun_phrase", "noun_phrase_root_text"))
     }
     
