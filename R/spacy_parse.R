@@ -126,6 +126,8 @@ spacy_parse.character <- function(x,
     
     ## noun phrases
     if (nounphrase) {
+        doc_id <- start_id <- nounphrase <- NULL
+        
         dt_nounphrases <- data.table::setDT(get_noun_phrases(spacy_out))
         dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times=length)]
         dt_nounphrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
@@ -140,6 +142,7 @@ spacy_parse.character <- function(x,
         #     by = .(doc_id, root_id)]
         dt[, c("w_id", "start_id", "root_id", "text", "root_text", "length") := NULL]    
         dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
+        dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
         #setnames(dt, c("text", "root_text", "length"), c("nounphrase", "nounphrase_root_text", "nounphrase_length"))
     }
     
