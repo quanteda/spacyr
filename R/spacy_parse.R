@@ -22,8 +22,8 @@
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
-#' @param dependency logical; if \code{TRUE}, analyze and return dependencies
-#' @param nounphrase logical
+#' @param dependency logical; if \code{TRUE}, analyze and return dependency tags
+#' @param nounphrase logical; if \code{TRUE}, analyze and return noun phrases tags
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
