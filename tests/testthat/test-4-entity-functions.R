@@ -13,7 +13,7 @@ test_that("getting named entities works", {
               doc2 = "New buildings on the New York skyline.")
     parsed <- spacy_parse(txt1, entity = TRUE)
     
-    entities <- entity_extract(parsed)
+    entities <- entity_extract(parsed, concatenator = " ")
     
     expect_equal(
         entities$entity,
@@ -70,6 +70,13 @@ test_that("entity consolidation works", {
         c(1:8, 1:10)
     )
 
+    parsed <- spacy_parse(txt1, entity = TRUE, nounphrase = TRUE)
+    expect_equal(
+        entity_consolidate(parsed)$token[c(1, 4)],
+        c("The_United_States", "Donald_Trump")
+    )
+    expect_true( !("nounphrase" %in% names(entity_consolidate(parsed))) )
+    
     parsed <- spacy_parse(txt1, entity = TRUE, pos = TRUE, tag = TRUE)
     expect_equal(
         entity_consolidate(parsed)$pos[c(1, 4, 17)],

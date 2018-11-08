@@ -3,17 +3,17 @@
 \name{nounphrase_extract}
 \alias{nounphrase_extract}
 \alias{nounphrase_consolidate}
-\title{Extract or consolidate entities from parsed documents}
+\title{Extract or consolidate noun phrases from parsed documents}
 \usage{
-nounphrase_extract(x)
+nounphrase_extract(x, concatenator = "_")
 
 nounphrase_consolidate(x, concatenator = "_")
 }
 \arguments{
-\item{x}{output from \code{\link{spacy_parse}}.}
+\item{x}{output from \code{\link{spacy_parse}}}
 
-\item{concatenator}{the character used to concatenator elements of multi-word
-nounphrases.}
+\item{concatenator}{the character(s) used to join elements of multi-word
+noun phrases}
 }
 \value{
 \code{noun} returns a \code{data.frame} of all named
@@ -31,9 +31,10 @@ nounphrases.}
   occurs.
 }
 \description{
-From an object parsed by \code{\link{spacy_parse}}, extract the nounphrase as a
-separate object, or convert the multi-word nounphrases into single "token"
-consisting of the concatenated elements of the multi-word nounphrases.
+From an object parsed by \code{\link{spacy_parse}}, extract the multi-word
+noun phrases as a separate object, or convert the multi-word nounphrases into
+single "token" consisting of the concatenated elements of the multi-word
+nounphrases.
 }
 \examples{
 \donttest{

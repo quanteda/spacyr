@@ -1,9 +1,12 @@
-#' Extract or consolidate entities from parsed documents
+#' Extract or consolidate noun phrases from parsed documents
 #' 
-#' From an object parsed by \code{\link{spacy_parse}}, extract the nounphrase as a
-#' separate object, or convert the multi-word nounphrases into single "token"
-#' consisting of the concatenated elements of the multi-word nounphrases.
-#' @param x output from \code{\link{spacy_parse}}.
+#' From an object parsed by \code{\link{spacy_parse}}, extract the multi-word
+#' noun phrases as a separate object, or convert the multi-word nounphrases into
+#' single "token" consisting of the concatenated elements of the multi-word
+#' nounphrases.
+#' @param x output from \code{\link{spacy_parse}}
+#' @param concatenator the character(s) used to join elements of multi-word
+#'   noun phrases
 #' @return \code{noun} returns a \code{data.frame} of all named
 #'   entities, containing the following fields: 
 #'   \itemize{
@@ -23,14 +26,16 @@
 #' entity_extract(parsed)
 #' }
 #' @export
-nounphrase_extract <- function(x) {
+nounphrase_extract <- function(x, concatenator = "_") {
     UseMethod("nounphrase_extract")
 }
     
 #' @noRd
 #' @export
-nounphrase_extract.spacyr_parsed <- function(x) {
+nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
 
+    nounphrase_id <- token_space <- token <- start_id <- root_id <- NULL
+    
     spacy_result <- as.data.table(x)
 
     is_root <- nounphrase <- whitespace <- root_token <- iob <- entity_id <- .SD <- `:=` <- sentence_id <- doc_id <- NULL
@@ -51,14 +56,17 @@ nounphrase_extract.spacyr_parsed <- function(x) {
                                           by = nounphrase_id,
                                           .SDcols = c("token_space")]$token_space]
     nounphrases[, nounphrase := sub("\\s+$", "", nounphrase)]
-    nounphrases[, root_token := spacy_result[is_root == TRUE, token[1], by = nounphrase_id]$V1]
+    nounphrases[, nounphrase := sub("\\s+$", "", nounphrase)]
+    # use concatenator instead of space
+    if (concatenator != " ")
+        nounphrases[, nounphrase := gsub(" ", concatenator, nounphrase)]
+    # no need for root_token
+    # nounphrases[, root_token := spacy_result[is_root == TRUE, token[1], by = nounphrase_id]$V1]
     as.data.frame(nounphrases[, list(doc_id, sentence_id, nounphrase, root_token)])
 }
 
 
 #' @rdname nounphrase_extract
-#' @param concatenator the character used to concatenator elements of multi-word
-#'   nounphrases. 
 #' @return \code{nounphrase_consolidate} returns a modified \code{data.frame} of
 #'   parsed results, where the nounphrases have been combined into a single
 #'   "token".  Currently, dependency parsing is removed when this consolidation
@@ -77,6 +85,7 @@ nounphrase_consolidate <- function(x, concatenator = "_") {
 }
     
 #' @noRd
+#' @importFrom data.table data.table
 #' @export
 nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
 
@@ -130,9 +139,9 @@ nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     spacy_result_modified[, token_id := NULL]
     data.table::setnames(spacy_result_modified, "new_token_id", "token_id")
     keep_cols <- intersect(c("doc_id", "sentence_id", "token_id", "token", 
-                             "lemma", "pos", "tag", "head_token_id", "dep_rel", "entity"),
+                             "lemma", "pos", "tag", "head_token_id", "dep_rel"),
                            names(spacy_result_modified))
-
+    
     ret <- as.data.frame(spacy_result_modified[, keep_cols, with = FALSE])
     class(ret) <- c("spacyr_parsed", class(ret))
     ret
