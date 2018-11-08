@@ -129,6 +129,7 @@ get_dependency <- function(spacy_out) {
 #' @export
 #' @keywords internal
 get_noun_phrases <- function(spacy_out) {
+    `:=` <- start_id <- root_id <- NULL
     # get ids of head of each token
     spacyr_pyassign("timestamps", spacy_out$timestamps)
     spacyr_pyassign("docnames", spacy_out$docnames)

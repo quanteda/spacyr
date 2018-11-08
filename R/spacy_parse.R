@@ -70,8 +70,6 @@ spacy_parse.character <- function(x,
                                   multithread = TRUE,
                                   ...) {
     
-    `:=` <- NULL
-    
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
@@ -126,7 +124,7 @@ spacy_parse.character <- function(x,
     
     ## noun phrases
     if (nounphrase) {
-        doc_id <- start_id <- nounphrase <- NULL
+        doc_id <- start_id <- nounphrase <- w_id <- root_id <- whitespace <- NULL
         
         dt_nounphrases <- data.table::setDT(get_noun_phrases(spacy_out))
         dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times=length)]
