@@ -3,7 +3,7 @@
 #' Efficient tokenization (without POS tagging, dependency parsing,
 #' lemmatization, or named entity recognition) of texts using spaCy.
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-#'   corpus data.frame (see \url{https://github.com/ropensci/tif})
+#'   corpus data.frame (see \url{https://github.com/ropensci/tif}) 
 #' @param what the unit for splitting the text, available alternatives are: 
 #'   \describe{ \item{\code{"word"}}{word segmenter} 
 #'   \item{\code{"sentence"}}{sentence segmenter }}
@@ -101,7 +101,7 @@ spacy_tokenize.character <- function(x,
     x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
     x <- gsub("\\\\","", x) # delete unnecessary backslashes
     x <- unname(x)
-
+    
     ## send documents to python
     spacyr_pyassign("texts", x)
     spacyr_pyassign("docnames", docnames)
@@ -116,7 +116,7 @@ spacy_tokenize.character <- function(x,
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
     } else {
-    
+        
         ## assign general settings for tokenizer in python
         spacyr_pyassign("padding", padding)
         turn_off_pipes <- if(all(!c(remove_punct, remove_url, remove_numbers))) {TRUE} else {FALSE}
@@ -145,7 +145,7 @@ spacy_tokenize.character <- function(x,
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
     }
-
+    
     tokens <- spacyr_pyget("tokens")
     
     if (identical(value, 'list')) return(tokens)
