@@ -7,7 +7,7 @@ test_that("getting named entities works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     
-    expect_message(spacy_initialize(), "successfully")
+    expect_message(spacy_initialize(), "successfully|already")
     
     txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
               doc2 = "New buildings on the New York skyline.")

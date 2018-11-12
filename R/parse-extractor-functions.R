@@ -123,6 +123,34 @@ get_dependency <- function(spacy_out) {
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
 
+
+#' @rdname get-functions
+#' @return \code{get_noun_phrases} returns a data.frame of noun phrases.
+#' @export
+#' @keywords internal
+get_noun_phrases <- function(spacy_out) {
+    # get ids of head of each token
+    spacyr_pyassign("timestamps", spacy_out$timestamps)
+    spacyr_pyassign("docnames", spacy_out$docnames)
+    command_str <- paste("noun_phrases = spobj.extract_nounphrases_dataframe(timestamps = timestamps,",
+                         "docnames = docnames,",
+                         "multithread = False)")
+    spacyr_pyexec(command_str)
+    noun_phrases <- spacyr_pyget("noun_phrases")
+    
+    doc_id <- names(noun_phrases)
+    data_out <- 
+        data.table::rbindlist(lapply(doc_id, function(x) {
+            df <- as.data.frame(noun_phrases[[x]], stringsAsFactors = FALSE)
+            df$doc_id <- x
+            return(df)
+        }))
+    data_out[, start_id := start_id + 1][, root_id := root_id + 1]
+    data.table::setDF(data_out)
+    data_out <- data_out[, c(6, 1:5)]
+    return(data_out)
+}
+
 #' @rdname get-functions
 #' @return \code{get_ntokens} returns a data.frame of dependency relations
 #' @export
