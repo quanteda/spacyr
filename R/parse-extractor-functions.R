@@ -123,6 +123,7 @@ get_dependency <- function(spacy_out) {
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
 
+<<<<<<< HEAD
 
 #' @rdname get-functions
 #' @return \code{get_noun_phrases} returns a data.frame of noun phrases.
@@ -152,6 +153,8 @@ get_noun_phrases <- function(spacy_out) {
     return(data_out)
 }
 
+=======
+>>>>>>> origin/master
 #' @rdname get-functions
 #' @return \code{get_ntokens} returns a data.frame of dependency relations
 #' @export

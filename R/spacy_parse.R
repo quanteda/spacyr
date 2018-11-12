@@ -22,8 +22,7 @@
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param multithread logical; If true, the processing is parallelized using pipe 
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
-#' @param dependency logical; if \code{TRUE}, analyze and return dependency tags
-#' @param nounphrase logical; if \code{TRUE}, analyze and return noun phrases tags
+#' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
@@ -40,9 +39,6 @@
 #'           doc2 = "This is the second document.",
 #'           doc3 = "This is a \\\"quoted\\\" text." )
 #' spacy_parse(txt2, entity = TRUE, dependency = TRUE)
-#' 
-#' txt3 <- "We analyzed the Supreme Court using natural language processing." 
-#' sp3 <- spacy_parse(txt3, entity = TRUE, nounphrase = TRUE)
 #' }
 spacy_parse <- function(x, 
                         pos = TRUE,
@@ -50,7 +46,6 @@ spacy_parse <- function(x,
                         lemma = TRUE,
                         entity = TRUE, 
                         dependency = FALSE,
-                        nounphrase = FALSE,
                         multithread = TRUE,
                         ...) {
     UseMethod("spacy_parse")
@@ -58,7 +53,7 @@ spacy_parse <- function(x,
 
 
 #' @export
-#' @importFrom data.table data.table setDT setnames
+#' @importFrom data.table data.table
 #' @noRd
 spacy_parse.character <- function(x, 
                                   pos = TRUE,
@@ -66,7 +61,6 @@ spacy_parse.character <- function(x,
                                   lemma = TRUE,
                                   entity = TRUE, 
                                   dependency = FALSE,
-                                  nounphrase = FALSE,
                                   multithread = TRUE,
                                   ...) {
     
@@ -122,6 +116,7 @@ spacy_parse.character <- function(x,
         dt[, entity := get_named_entities(spacy_out)]
     }
     
+<<<<<<< HEAD
     ## noun phrases
     if (nounphrase) {
         doc_id <- start_id <- nounphrase <- w_id <- root_id <- whitespace <- NULL
@@ -144,6 +139,8 @@ spacy_parse.character <- function(x,
         #setnames(dt, c("text", "root_text", "length"), c("nounphrase", "nounphrase_root_text", "nounphrase_length"))
     }
     
+=======
+>>>>>>> origin/master
     dt <- as.data.frame(dt)
     class(dt) <- c("spacyr_parsed", class(dt))
     return(dt)
@@ -196,11 +193,6 @@ process_document <- function(x, multithread, ...) {
         docnames <- names(x) 
     } else {
         docnames <- paste0("text", 1:length(x))
-    }
-    if(all(!duplicated(docnames)) == FALSE) {
-        stop("Docmanes are duplicated.")
-    } else if (all(nchar(docnames) > 0L) == FALSE) {
-        stop("Some docnames are missing.")
     }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
