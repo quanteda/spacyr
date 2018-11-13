@@ -79,10 +79,6 @@ test_that("entity consolidation works", {
     
     parsed <- spacy_parse(txt1, entity = TRUE, pos = TRUE, tag = TRUE)
     expect_equal(
-        entity_consolidate(parsed)$pos[c(1, 4, 17)],
-        rep("ENTITY", 3)
-    )
-    expect_equal(
         entity_consolidate(parsed)$tag[c(1, 4, 17)],
         rep("ENTITY", 3)
     )
