@@ -46,7 +46,7 @@ spacy_extract_nounphrases.character <- function(x,
                                                 output = c("data.frame", "list"),
                                                 multithread = TRUE, ...) {
     
-    `:=` <- NULL
+    `root_id` <- `start_id` <- `:=` <- NULL
     
     output <- match.arg(output)
     

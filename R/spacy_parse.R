@@ -70,6 +70,7 @@ spacy_parse.character <- function(x,
                                   multithread = TRUE,
                                   ...) {
     
+    `:=` <- `.` <- `.N` <- NULL
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
