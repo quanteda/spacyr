@@ -7,6 +7,7 @@
 \alias{get_attrs}
 \alias{get_named_entities}
 \alias{get_dependency}
+\alias{get_noun_phrases}
 \alias{get_ntokens}
 \alias{get_ntokens_by_sent}
 \title{get functions for spaCy}
@@ -20,6 +21,8 @@ get_attrs(spacy_out, attr_name, deal_utf8 = FALSE)
 get_named_entities(spacy_out)
 
 get_dependency(spacy_out)
+
+get_noun_phrases(spacy_out)
 
 get_ntokens(spacy_out)
 
@@ -46,6 +49,8 @@ Options exist for using either the Google or Detaled tagsets. See
 \code{get_named_entities} returns a list of named entities in texts
 
 \code{get_dependency} returns a data.frame of dependency relations.
+
+\code{get_noun_phrases} returns a data.frame of noun phrases.
 
 \code{get_ntokens} returns a data.frame of dependency relations
 
