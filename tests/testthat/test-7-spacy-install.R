@@ -30,9 +30,9 @@ test_that("spacy_install specific version of spacy works", {
     expect_error(spacy_install(envname = "test_wrong_version", version = "1.10.1a", 
                                  prompt = FALSE), 
                    "major.minor.patch specification")
-    expect_message(spacy_install(envname = "test_specific_version", version = "2.0.1", 
-                                 prompt = FALSE), 
-                   "Installation complete")
+    # expect_message(spacy_install(envname = "test_specific_version", version = "2.0.1", 
+    #                              prompt = FALSE), 
+    #                "Installation complete")
     expect_message(spacy_install(envname = "test_specific_version_v1", version = "1.10.1", 
                                  prompt = FALSE), 
                    "Installation complete")
@@ -47,9 +47,9 @@ test_that("spacy_upgrade works", {
     
     expect_message(spacy_upgrade(prompt = FALSE),
                    "your spaCy is up-to-date")
-    expect_message(spacy_upgrade(envname = "test_specific_version",
-                                 prompt = FALSE), 
-                   "Successfully upgraded")
+    # expect_message(spacy_upgrade(envname = "test_specific_version",
+    #                              prompt = FALSE), 
+    #                "Successfully upgraded")
     expect_message(spacy_upgrade(envname = "test_specific_version_v1",
                                  prompt = FALSE), 
                    "Successfully upgraded")
@@ -63,9 +63,9 @@ test_that("spacy_uninstall works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     
-    expect_output(spacy_uninstall(envname = "test_specific_version", 
-                                   prompt = FALSE),
-                   "Uninstallation complete")
+    # expect_output(spacy_uninstall(envname = "test_specific_version", 
+    #                                prompt = FALSE),
+    #                "Uninstallation complete")
     expect_output(spacy_uninstall(envname = "test_specific_version_v1", 
                                   prompt = FALSE),
                   "Uninstallation complete")
