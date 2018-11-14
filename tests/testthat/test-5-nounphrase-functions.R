@@ -1,4 +1,4 @@
-context("testing entity functions")
+context("testing nounphrase functions")
 source("utils.R")
 
 test_that("spacy_extract_nounphrases data.frame works", {
@@ -13,6 +13,7 @@ test_that("spacy_extract_nounphrases data.frame works", {
               doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
     noun_phrases <- spacy_extract_nounphrases(txt1, output = 'data.frame')
     
+    
     expect_equal(
         noun_phrases$text,
         c("The history", "natural language processing", "the 1950s", 
@@ -23,8 +24,76 @@ test_that("spacy_extract_nounphrases data.frame works", {
         c("history", "processing", "1950s", "work", "periods", "Turing", 
           "article", "what", "criterion", "intelligence"))
 
+    expect_error(
+        spacy_extract_nounphrases(c(doc1 = "Hello", doc1 = "world"), output = 'data.frame'),
+        "duplicated"
+    )
+    
+    expect_error(
+        spacy_extract_nounphrases(c(doc1 = "Hello", "world"), output = 'data.frame'),
+        "missing"
+    )
+    
     expect_silent(spacy_finalize())
 })
+
+
+test_that("spacy_extract_nounphrases works with data.frame", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    # comment out following line to increase a coverage
+    #expect_message(spacy_initialize(), "successfully|already")
+    
+    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+              doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
+    txt1_df <- data.frame(doc_id = names(txt1), text = txt1, stringsAsFactors = FALSE)
+    
+    expect_equal(
+        spacy_extract_nounphrases(txt1_df, output = 'data.frame'),
+        spacy_extract_nounphrases(txt1, output = 'data.frame')
+    )
+    
+    txt1_df_err <- data.frame(doc_name = names(txt1), text = txt1, stringsAsFactors = FALSE)
+    expect_error(
+        spacy_extract_nounphrases(txt1_df_err, output = 'data.frame'),
+        "input data.frame does not conform to the TIF standard"
+    )
+    
+    
+    expect_silent(spacy_finalize())
+})
+
+
+test_that("spacy_extract_nounphrases with atomic text string", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    expect_message(spacy_initialize(), "successfully|already")
+    
+    txt1 <-"The history of natural language processing generally started in the 1950s, although work can be found from earlier periods."
+    noun_phrases <- spacy_extract_nounphrases(txt1, output = 'data.frame')
+    
+    expect_true(
+        all.equal(noun_phrases$doc_id[1],"text1")
+    )
+    expect_equal(
+        noun_phrases$text,
+        c("The history", "natural language processing", "the 1950s", 
+          "work", "earlier periods")
+    )
+    expect_equal(
+        noun_phrases$root_text,
+        c("history", "processing", "1950s", "work", "periods")
+    )
+    
+    expect_silent(spacy_finalize())
+})
+
 
 test_that("spacy_extract_nounphrases list works", {
     skip_on_cran()
@@ -121,6 +190,10 @@ test_that("nounphrase_extract() on parsed object works", {
         nounphrase_extract(parsed_without_nounphrase),
         "no nounphrases in parsed object"
     )
+    expect_error(
+        nounphrase_consolidate(parsed_without_nounphrase),
+        "no nounphrases in parsed object"
+    )
     
     
 })
@@ -197,6 +270,12 @@ test_that("entity consolidation works", {
         nounphrase_consolidate(parsed)$lemma[c(1, 3, 7)],
         c("the_history", "natural_language_processing", "the_1950")
     )
-
+    
+    parsed <- spacy_parse(txt1, nounphrase = TRUE, dependency = TRUE)
+    expect_message(
+        nounphrase_consolidate(parsed),
+        "emoving head_token_id, dep_rel for nounphrases"
+    )
+    
     expect_silent(spacy_finalize())
 })
