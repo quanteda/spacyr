@@ -550,7 +550,7 @@ spacy_upgrade  <- function(conda = "auto",
     } else if (substr(installed_spacy, 0, 2) == "1."){
         cat(sprintf("The version spacy installed is %s\n", 
                     installed_spacy)) 
-        ans <- ifelse(prompt, utils::menu(c("v1.*", "v2.*"), title = sprintf('Do you want to upgrade to v1.* or lastest v2.*?')), 2)
+        ans <- if(prompt) utils::menu(c("v1.*", "v2.*"), title = sprintf('Do you want to upgrade to v1.* or lastest v2.*?')) else 2
         if (ans == 2) {
             cat('spaCy will be upgraded to version', latest_spacy,'\n')
             process_spacy_installation_conda(conda = conda, 
@@ -589,7 +589,7 @@ spacy_upgrade  <- function(conda = "auto",
     } else {
         cat(sprintf("A new version of spacy (%s) was found (installed version: %s)\n", 
                     latest_spacy, installed_spacy))
-        ans <- ifelse(prompt, utils::menu(c("No", "Yes"), title = sprintf("Do you want to upgrade?")), 2)
+        ans <- if(prompt) utils::menu(c("No", "Yes"), title = sprintf("Do you want to upgrade?")) else 2
         if (ans == 2) {
             cat('"Yes" was chosen. spaCy will be upgraded.\n\n')
             if (!is.null(lang_models)) {
