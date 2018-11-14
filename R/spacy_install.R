@@ -76,7 +76,7 @@ spacy_install <- function(conda = "auto",
     #
 
     if (!(identical(version, "latest") || identical(version, "latest_v1"))) {
-        if (!(grepl("(\\d+\\.){1,2}(\\d+)?", version))){
+        if (!(grepl("^[1-9]\\.\\d{1,2}\\.\\d{1,2}\\b", version))){
             stop("spacy version specification error\n",
                  "Please provide a full major.minor.patch specification",
                  call. = FALSE)
@@ -251,9 +251,9 @@ process_spacy_installation_conda <- function(conda, version, lang_models, python
                                              envname = "spacy_condaenv") {
 
     conda_envs <- reticulate::conda_list(conda = conda)
+    cat("A new conda environment", paste0('"', envname, '"'), "will be created and \nspaCy and language model(s):",
+        paste(lang_models, collapse = ", "), "will be installed.  ")
     if (prompt) {
-        cat("A new conda environment", paste0('"', envname, '"'), "will be created and \nspaCy and language model(s):",
-                paste(lang_models, collapse = ", "), "will be installed.  ")
         ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
         if (ans == 1) stop("condaenv setup is cancelled by user", call. = FALSE)
     }
@@ -360,11 +360,10 @@ process_spacy_installation_virtualenv <- function(python, virtualenv, version, l
     virtualenv_root <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
     virtualenv_path <- file.path(virtualenv_root, "spacy_virtualenv")
 
+    cat(sprintf('A new virtual environment "%s" will be created and, \nspaCy and language model(s), "%s", will be installed.\n ',
+                virtualenv_path,
+                paste(lang_models, collapse = ", ")))
     if (prompt) {
-        cat(sprintf('A new virtual environment "%s" will be created and, \nspaCy and language model(s), "%s", will be installed.\n ',
-                    virtualenv_path,
-                    paste(lang_models, collapse = ", ")))
-    
         ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
         if (ans == 1) stop("Virtualenv setup is cancelled by user", call. = FALSE)
     }
@@ -482,9 +481,11 @@ spacy_pkgs <- function(version, packages = NULL) {
 #' @inheritParams reticulate::conda_list
 #' @param conda Path to conda executable. Default "auto" which automatically
 #'   find the path
+#' @param prompt logical; ask whether to proceed during the installation
 #' @param envname character; name of conda environent to remove
 #' @export
 spacy_uninstall <- function(conda = "auto",
+                            prompt = TRUE,
                             envname = "spacy_condaenv") {
     conda <- tryCatch(reticulate::conda_binary(conda), error = function(e) NULL)
     have_conda <- !is.null(conda)
@@ -498,7 +499,7 @@ spacy_uninstall <- function(conda = "auto",
         stop("conda environment", envname, "is not found", call. = FALSE)
     }
     cat("A conda environment", envname, "will be removed\n")
-    ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
+    ans <- ifelse(prompt, utils::menu(c("No", "Yes"), title = "Proceed?"), 2)
     if (ans == 1) stop("condaenv removal is cancelled by user", call. = FALSE)
     python <- reticulate::conda_remove(envname = envname)
 
@@ -515,10 +516,12 @@ spacy_uninstall <- function(conda = "auto",
 #'   find the path
 #' @param lang_models Language models to be upgraded. Default NULL (No upgrade). 
 #'   A vector of multiple model names can be used (e.g. \code{c("en", "de")})
+#' @param prompt logical; ask whether to proceed during the installation
 #' @param envname character; name of conda environment to upgrate spaCy
 #' @export
 spacy_upgrade  <- function(conda = "auto",
                            envname = "spacy_condaenv",
+                           prompt = TRUE,
                            lang_models = "en") {
     #message(sprintf("installing model \"%s\"\n", model))
     # resolve conda binary
@@ -547,7 +550,7 @@ spacy_upgrade  <- function(conda = "auto",
     } else if (substr(installed_spacy, 0, 2) == "1."){
         cat(sprintf("The version spacy installed is %s\n", 
                     installed_spacy)) 
-        ans <- utils::menu(c("v1.*", "v2.*"), title = sprintf('Do you want to upgrade to v1.* or lastest v2.*?'))
+        ans <- ifelse(prompt, utils::menu(c("v1.*", "v2.*"), title = sprintf('Do you want to upgrade to v1.* or lastest v2.*?')), 2)
         if (ans == 2) {
             cat('spaCy will be upgraded to version', latest_spacy,'\n')
             process_spacy_installation_conda(conda = conda, 
@@ -556,6 +559,8 @@ spacy_upgrade  <- function(conda = "auto",
                                              lang_models = lang_models, 
                                              python_version = "3.6", 
                                              prompt = FALSE)
+            message("\nSuccessfully upgraded\n",
+                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
         } else {
             cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
                            ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
@@ -584,12 +589,13 @@ spacy_upgrade  <- function(conda = "auto",
     } else {
         cat(sprintf("A new version of spacy (%s) was found (installed version: %s)\n", 
                     latest_spacy, installed_spacy))
-        ans <- utils::menu(c("No", "Yes"), title = sprintf("Do you want to upgrade?"))
+        ans <- ifelse(prompt, utils::menu(c("No", "Yes"), title = sprintf("Do you want to upgrade?")), 2)
         if (ans == 2) {
             cat('"Yes" was chosen. spaCy will be upgraded.\n\n')
             if (!is.null(lang_models)) {
-                ans <- utils::menu(c("No", "Yes"), title = sprintf("Do you also want to re-download language model %s?", 
-                                                                   paste(lang_models, collapse = ", ")))
+                ans <- ifelse(prompt, utils::menu(c("No", "Yes"), 
+                                                  title = sprintf("Do you also want to re-download language model %s?", 
+                                                  paste(lang_models, collapse = ", "))), 2)
                 if (ans == 1) lang_models <- NULL
             }
             process_spacy_installation_conda(conda = conda, 
@@ -598,6 +604,9 @@ spacy_upgrade  <- function(conda = "auto",
                                              lang_models = lang_models, 
                                              python_version = "3.6", 
                                              prompt = FALSE)
+            message("\nSuccessfully upgraded\n",
+                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
+            
         } else {
             message("No upgrade is chosen")
         }
