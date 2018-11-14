@@ -45,8 +45,8 @@ test_that("spacy_upgrade works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     
-    expect_message(spacy_upgrade(prompt = FALSE),
-                   "your spaCy is up-to-date")
+    # expect_message(spacy_upgrade(prompt = FALSE),
+    #                "your spaCy is up-to-date")
     # expect_message(spacy_upgrade(envname = "test_specific_version",
     #                              prompt = FALSE), 
     #                "Successfully upgraded")
