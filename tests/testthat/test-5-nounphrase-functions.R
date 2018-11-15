@@ -38,7 +38,7 @@ test_that("spacy_extract_nounphrases data.frame works", {
 })
 
 
-test_that("spacy_extract_nounphrases works with data.frame", {
+test_that("spacy_extract_nounphrases works with a TIF formatted data.frame", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")

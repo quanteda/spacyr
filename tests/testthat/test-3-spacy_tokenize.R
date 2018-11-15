@@ -1,5 +1,55 @@
-context("test spacy_parse")
+context("test spacy_tokenize")
 source("utils.R")
+
+test_that("spacy_tokenize returns either data.frame and list", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    txt <- "This is a test for document names."
+    tokens_list <- spacy_tokenize(txt, value = "list")
+    expect_identical(
+        length(tokens_list[[1]]), 
+        8L
+    )
+    expect_true(
+        is.list(tokens_list)
+    )
+    
+    tokens_df <- spacy_tokenize(txt, value = "data.frame")
+    expect_identical(
+        nrow(tokens_df), 
+        8L
+    )
+    expect_true(
+        is.data.frame(tokens_df)
+    )
+    
+})
+
+test_that("spacy_tokenize works with a TIF formatted data.frame", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+              doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
+    txt1_df <- data.frame(doc_id = names(txt1), text = txt1, stringsAsFactors = FALSE)
+    
+    expect_equal(
+        spacy_tokenize(txt1_df, value = 'list'),
+        spacy_tokenize(txt1, value = 'list')
+    )
+    
+    txt1_df_err <- data.frame(doc_name = names(txt1), text = txt1, stringsAsFactors = FALSE)
+    expect_error(
+        spacy_tokenize(txt1_df_err, value = 'data.frame'),
+        "input data.frame does not conform to the TIF standard"
+    )
+    
+    
+})
+
 
 test_that("spacy_tokenize docnames work as expected", {
     skip_on_cran()
