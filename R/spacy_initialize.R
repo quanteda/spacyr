@@ -330,14 +330,14 @@ check_spacy_python_options <- function() {
     return(settings)
 }
 
-save_spacy_options <- function(key, val) {
+save_spacy_options <- function(key, val, prompt = TRUE) {
     prof_file <- "~/.Rprofile"
     # prof_file_bak <- sprintf("%s_bak%s", prof_file, as.numeric(Sys.time()))
     # file.copy(prof_file, prof_file_bak)
     # ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
+    if(!is.null(getOption("spacy_prompt"))) prompt <- getOption("spacy_prompt")
     
-    ans <- utils::menu(c("No", "Yes"), title = sprintf('Do you want to set the option, \'%s = "%s"\' , as a default (y|[n])? ', 
-                                    key, val))
+    ans <- if(prompt) utils::menu(c("No", "Yes"), title = sprintf('Do you want to set the option, \'%s = "%s"\' , as a default (y|[n])? ', key, val)) else 2
     if(ans == 2) {
         rprofile <- if (file.exists(prof_file)) readLines(prof_file) else NULL
         rprofile <- grep("options\\(\\s*spacy_.+\\)", rprofile, value = TRUE, invert = TRUE)

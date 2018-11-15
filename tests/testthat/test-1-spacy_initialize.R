@@ -1,4 +1,5 @@
 context("test spacy_initialize")
+source("utils.R")
 
 test_that("spacy_initialize() with non-existent python (#49)", {
     skip_on_os("solaris")
@@ -7,3 +8,26 @@ test_that("spacy_initialize() with non-existent python (#49)", {
         "notpython is not a python executable"
     )
 })
+
+test_that("spacy_initialize works as expected", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    options(spacy_prompt = FALSE)
+    expect_message(spacy_initialize(refresh_settings = TRUE, save_profile = TRUE), 
+                   "successfully")
+    
+    spacy_finalize()
+})
+
+test_that("find_spacy() works", {
+    skip_on_os("solaris")
+    skip_on_cran()
+    skip_on_os("windows")
+    
+    expect_warning(
+        find_spacy(ask = FALSE)
+    )
+})
+
