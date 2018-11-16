@@ -34,15 +34,15 @@ nounphrase_extract <- function(x, concatenator = "_") {
 #' @export
 nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
 
-    nounphrase_id <- token_space <- token <- start_id <- root_id <- NULL
-    
-    spacy_result <- as.data.table(x)
+    nounphrase_id <- token_space <- token <- NULL
 
-    is_root <- nounphrase <- whitespace <- root_token <- iob <- entity_id <- .SD <- `:=` <- sentence_id <- doc_id <- NULL
+    spacy_result <- data.table::as.data.table(x)
+
+    is_root <- nounphrase <- whitespace <- root_token <- iob <- .SD <- `:=` <- sentence_id <- doc_id <- NULL
 
 
     if (!"nounphrase" %in% names(spacy_result)) {
-        stop("no nounphrases in parsed object: rerun spacy_parse() with nounphrase = TRUE") 
+        stop("no nounphrases in parsed object: rerun spacy_parse() with nounphrase = TRUE")
     }
     spacy_result <- spacy_result[nchar(spacy_result$nounphrase) > 0]
     spacy_result[, iob := sub("_.+", "", nounphrase)]
@@ -50,7 +50,7 @@ nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
     spacy_result[, nounphrase_id := cumsum(iob == "beg")]
     spacy_result[, whitespace := ifelse(whitespace, " ", "")]
     spacy_result[, token_space := paste0(token, whitespace)]
-    nounphrases <- spacy_result[, lapply(.SD, function(x) x[1]), by = nounphrase_id, 
+    nounphrases <- spacy_result[, lapply(.SD, function(x) x[1]), by = nounphrase_id,
                              .SDcols = c("doc_id", "sentence_id")]
     nounphrases[, nounphrase := spacy_result[, lapply(.SD, function(x) paste(x, collapse = "")),
                                           by = nounphrase_id,
@@ -89,26 +89,26 @@ nounphrase_consolidate <- function(x, concatenator = "_") {
 #' @export
 nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
 
-    spacy_result <- as.data.table(x)
+    spacy_result <- data.table::as.data.table(x)
     lemma_space <- token_space <- NULL
     nounphrase <- whitespace <- nounphrase_count <- iob <- nounphrase_id <- .N <- .SD <-
         `:=` <- token <- lemma <- pos <- tag <- new_token_id <- token_id <-
         sentence_id <- doc_id <- NULL
-    
+
     if (!"nounphrase" %in% names(spacy_result)) {
         stop("no nounphrases in parsed object: rerun spacy_parse() with nounphrase = TRUE")
     }
     spacy_result[, iob := sub("_.+", "", nounphrase)]
-    spacy_result[, nounphrase_count := ifelse(iob == "beg"| iob == "", 1, 0)]
+    spacy_result[, nounphrase_count := ifelse(iob == "beg" | iob == "", 1, 0)]
     spacy_result[, nounphrase_id := cumsum(nounphrase_count), by = c("doc_id", "sentence_id")]
     spacy_result[, whitespace := ifelse(whitespace, concatenator, "")]
     spacy_result[, token_space := paste0(token, whitespace)]
-    
+
     spacy_result_modified <- spacy_result[, lapply(.SD, function(x) x[1]),
                                           by = c("doc_id", "sentence_id", "nounphrase_id"),
                                           .SDcols = setdiff(names(spacy_result),
                                                             c("doc_id", "sentence_id", "nounphrase_id"))]
-    
+
     spacy_result_modified[, token := spacy_result[, lapply(.SD, function(x) paste(x, collapse = "")),
                                              by = c("doc_id", "sentence_id", "nounphrase_id"),
                                              .SDcols = c("token_space")]$token_space]
@@ -120,7 +120,7 @@ nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
                                                       by = c("doc_id", "sentence_id", "nounphrase_id"),
                                                       .SDcols = c("lemma_space")]$lemma_space]
         spacy_result_modified[, lemma := sub(paste0(concatenator, "$"), "", lemma)]
-        
+
     }
     if ("pos" %in% names(spacy_result_modified)){
         spacy_result_modified[nchar(nounphrase) > 0, pos := "nounphrase"]
@@ -129,19 +129,19 @@ nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
         spacy_result_modified[nchar(nounphrase) > 0, tag := "nounphrase"]
     }
     spacy_result_modified[, new_token_id := nounphrase_id]
-    
+
     # for now, just obliterate dependency parsing for consolidated NEs
     if ("dep_rel" %in% names(spacy_result_modified)){
         message("Note: removing head_token_id, dep_rel for nounphrases")
         spacy_result_modified[, c("dep_rel", "head_token_id") := NULL]
     }
-        
+
     spacy_result_modified[, token_id := NULL]
     data.table::setnames(spacy_result_modified, "new_token_id", "token_id")
-    keep_cols <- intersect(c("doc_id", "sentence_id", "token_id", "token", 
+    keep_cols <- intersect(c("doc_id", "sentence_id", "token_id", "token",
                              "lemma", "pos", "tag", "head_token_id", "dep_rel"),
                            names(spacy_result_modified))
-    
+
     ret <- as.data.frame(spacy_result_modified[, keep_cols, with = FALSE])
     class(ret) <- c("spacyr_parsed", class(ret))
     ret

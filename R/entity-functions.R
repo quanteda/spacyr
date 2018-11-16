@@ -35,27 +35,28 @@ entity_extract <- function(x, type = c("named", "extended", "all"), concatenator
     
 #' @noRd
 #' @export
-entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all"), concatenator = "_") {
+entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all"), 
+                                         concatenator = "_") {
 
-    spacy_result <- as.data.table(x)
+    spacy_result <- data.table::as.data.table(x)
 
     entity_type <- entity <- iob <- entity_id <- .SD <- `:=` <- sentence_id <- doc_id <- NULL
 
     type <- match.arg(type)
 
     if (!"entity" %in% names(spacy_result)) {
-        stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE") 
+        stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE")
     }
     spacy_result <- spacy_result[nchar(spacy_result$entity) > 0]
     spacy_result[, entity_type := sub("_.+", "", entity)]
     spacy_result[, iob := sub(".+_", "", entity)]
     spacy_result[, entity_id := cumsum(iob == "B")]
-    entities <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id, 
+    entities <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id,
                              .SDcols = c("doc_id", "sentence_id", "entity_type")]
     entities[, entity := spacy_result[, lapply(.SD, function(x) paste(x, collapse = concatenator)),
                                       by = entity_id,
                                       .SDcols = c("token")]$token]
-    extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", 
+    extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL",
                        "CARDINAL")
     if (type == "extended"){
         entities <- entities[entity_type %in% extended_list]
@@ -91,17 +92,17 @@ entity_consolidate <- function(x, concatenator = "_") {
 #' @export
 entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
 
-    spacy_result <- as.data.table(x)
+    spacy_result <- data.table::as.data.table(x)
     entity <- entity_type <- entity_count <- iob <- entity_id <- .N <- .SD <-
         `:=` <- token <- lemma <- pos <- tag <- new_token_id <- token_id <-
         sentence_id <- doc_id <- NULL
-    
+
     if (!"entity" %in% names(spacy_result)) {
         stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE")
     }
     spacy_result[, entity_type := sub("_.+", "", entity)]
     spacy_result[, iob := sub(".+_", "", entity)]
-    extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", 
+    extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY",
                        "ORDINAL", "CARDINAL")
     # if (type == 'extended'){
     #     spacy_result[entity_type != ""  & !(entity_type %in% extended_list),
@@ -110,7 +111,7 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     #     spacy_result[entity_type != ""  & (entity_type %in% extended_list),
     #                  c("entity_type", "iob") := ""]
     # }
-    spacy_result[, entity_count := ifelse(iob == "B"|iob == "", 1, 0)]
+    spacy_result[, entity_count := ifelse(iob == "B" | iob == "", 1, 0)]
     spacy_result[, entity_id := cumsum(entity_count), by = c("doc_id", "sentence_id")]
     spacy_result_modified <- spacy_result[, lapply(.SD, function(x) x[1]),
                                           by = c("doc_id", "sentence_id", "entity_id"),
@@ -118,16 +119,15 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
                                                             c("doc_id", "sentence_id", "entity_id"))]
 
     spacy_result_modified[
-        , token := spacy_result[, lapply(.SD, function(x) paste(x, collapse = concatenator)), 
-                                 by = c("doc_id", "sentence_id", "entity_id"), 
-                                 .SDcols = "token"]$token] 
-    
+        , token := spacy_result[, lapply(.SD, function(x) paste(x, collapse = concatenator)),
+                                 by = c("doc_id", "sentence_id", "entity_id"),
+                                 .SDcols = "token"]$token]
+
     if ("lemma" %in% colnames(spacy_result)) {
         spacy_result_modified[
-            , lemma := spacy_result[, lapply(.SD, function(x) paste(x, collapse = "_")), 
-                                    by = c("doc_id", "sentence_id", "entity_id"), 
-                                    .SDcols = "lemma"]$lemma] 
-        
+            , lemma := spacy_result[, lapply(.SD, function(x) paste(x, collapse = "_")),
+                                    by = c("doc_id", "sentence_id", "entity_id"),
+                                    .SDcols = "lemma"]$lemma]
     }
     if ("pos" %in% names(spacy_result_modified)){
         spacy_result_modified[nchar(entity_type) > 0, pos := "ENTITY"]
@@ -136,20 +136,20 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
         spacy_result_modified[nchar(entity_type) > 0, tag := "ENTITY"]
     }
     spacy_result_modified[, new_token_id := entity_id]
-    
+
     # for now, just obliterate dependency parsing for consolidated NEs
     if ("dep_rel" %in% names(spacy_result_modified)){
         message("Note: removing head_token_id, dep_rel for named entities")
         spacy_result_modified[, c("dep_rel", "head_token_id") := NULL]
     }
-        
+
     #     dt_id_match <- spacy_result[, .(doc_id, sentence_id, token_id, entity_id)]
     #     data.table::setnames(dt_id_match, "token_id", "head_token_id")
     #     data.table::setnames(dt_id_match, "entity_id", "new_head_token_id")
     #     #data.table::set2keyv(dt_id_match, "head_token_id")
     #     spacy_result_modified[, serialn := seq(nrow(spacy_result_modified))]
     #     #data.table::set2keyv(spacy_result_modified, "head_token_id")
-    #     spacy_result_modified <- merge(spacy_result_modified, dt_id_match, 
+    #     spacy_result_modified <- merge(spacy_result_modified, dt_id_match,
     #                                    by = c("doc_id", "sentence_id", "head_token_id"), all.x = TRUE)
     #     spacy_result_modified <- spacy_result_modified[order(serialn)]
     #     spacy_result_modified[, head_token_id := NULL]
@@ -159,10 +159,10 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
 
     spacy_result_modified[, token_id := NULL]
     data.table::setnames(spacy_result_modified, "new_token_id", "token_id")
-    keep_cols <- intersect(c("doc_id", "sentence_id", "token_id", "token", 
+    keep_cols <- intersect(c("doc_id", "sentence_id", "token_id", "token",
                              "lemma", "pos", "tag", "head_token_id", "dep_rel", "entity_type"),
                            names(spacy_result_modified))
-    
+
     ret <- as.data.frame(spacy_result_modified[, keep_cols, with = FALSE])
     class(ret) <- c("spacyr_parsed", class(ret))
     ret
