@@ -1,0 +1,26 @@
+---
+title: "Noun phrase extractions"
+author: "Akitaka Matsuo"
+date: "11/5/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(spacyr)
+txt <- c(doc1 = "Natural Language Processing is a branch of computer science that employs various Artificial Intelligence (AI) techniques to process content written in natural language. NLP-enhanced wikis can support users in finding, developing and organizing knowledge contained inside the wiki repository. ", 
+  doc2 = "Paul earned a postgraduate degree from MIT.")
+(tmp <- spacy_parse(txt, nounphrase = TRUE))
+```
+
+```{r}
+nounphrase_extract(tmp)
+```
+
+
+```{r}
+nounphrase_consolidate(tmp)
+```

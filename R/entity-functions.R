@@ -29,13 +29,13 @@
 #' entity_extract(parsed, type = "all")
 #' }
 #' @export
-entity_extract <- function(x, type = c("named", "extended", "all")) {
+entity_extract <- function(x, type = c("named", "extended", "all"), concatenator = "_") {
     UseMethod("entity_extract")
 }
     
 #' @noRd
 #' @export
-entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")) {
+entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all"), concatenator = "_") {
 
     spacy_result <- as.data.table(x)
 
@@ -52,7 +52,7 @@ entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")
     spacy_result[, entity_id := cumsum(iob == "B")]
     entities <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id, 
                              .SDcols = c("doc_id", "sentence_id", "entity_type")]
-    entities[, entity := spacy_result[, lapply(.SD, function(x) paste(x, collapse = " ")),
+    entities[, entity := spacy_result[, lapply(.SD, function(x) paste(x, collapse = concatenator)),
                                       by = entity_id,
                                       .SDcols = c("token")]$token]
     extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", 
@@ -68,7 +68,7 @@ entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")
 
 
 #' @rdname entity_extract
-#' @param concatenator the character used to concatenator elements of multi-word
+#' @param concatenator the character(s) used to join the elements of multi-word
 #'   named entities
 #' @return \code{entity_consolidate} returns a modified \code{data.frame} of
 #'   parsed results, where the named entities have been combined into a single
@@ -162,7 +162,7 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     keep_cols <- intersect(c("doc_id", "sentence_id", "token_id", "token", 
                              "lemma", "pos", "tag", "head_token_id", "dep_rel", "entity_type"),
                            names(spacy_result_modified))
-
+    
     ret <- as.data.frame(spacy_result_modified[, keep_cols, with = FALSE])
     class(ret) <- c("spacyr_parsed", class(ret))
     ret
