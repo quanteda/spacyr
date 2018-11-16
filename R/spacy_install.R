@@ -23,7 +23,7 @@
 #'   issues} affect the speed of the spaCy pipeline for spacy v2.x relative to
 #'   v1.x.   This can  enormously affect the performance of
 #'   \code{spacy_parse()}, especially when a large number of small texts are
-#'   parseed. For this reason, the \pkg{spacyr} provides an option to
+#'   parsed. For this reason, the \pkg{spacyr} provides an option to
 #'   automatically install the latest version of spacy v1.*, using \code{version
 #'   = "latest_v1"}.
 #'   
@@ -132,7 +132,7 @@ spacy_install <- function(conda = "auto",
  
     }
     message("\nInstallation complete.\n",
-            sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
+            sprintf("Condaenv: %s; Language model(s): ", envname), lang_models, "\n")
 
     invisible(NULL)
 }
@@ -476,13 +476,13 @@ spacy_pkgs <- function(version, packages = NULL) {
     return(packages)
 }
 
-#' Unnstall spaCy conda environment
+#' Uninstall spaCy conda environment
 #'
-#' Removes the conda environemnt craeted by spacy_install()
+#' Removes the conda environment created by spacy_install()
 #' @inheritParams reticulate::conda_list
-#' @param conda Path to conda executable. Default "auto" which automatically
-#'   find the path
-#' @param envname character; name of conda environent to remove
+#' @param conda Path to conda executable, default to "auto" which automatically
+#'   finds the path
+#' @param envname character; name of conda environment to remove
 #' @export
 spacy_uninstall <- function(conda = "auto",
                             envname = "spacy_condaenv") {
@@ -515,7 +515,7 @@ spacy_uninstall <- function(conda = "auto",
 #'   find the path
 #' @param lang_models Language models to be upgraded. Default NULL (No upgrade). 
 #'   A vector of multiple model names can be used (e.g. \code{c("en", "de")})
-#' @param envname character; name of conda environment to upgrate spaCy
+#' @param envname character; name of conda environment to upgrade spaCy
 #' @export
 spacy_upgrade  <- function(conda = "auto",
                            envname = "spacy_condaenv",

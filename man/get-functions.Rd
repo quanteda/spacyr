@@ -41,7 +41,7 @@ scheme from the Penn Treebank (or the German Text Archive in case of German lang
 \code{get_tokens} returns a data.frame of tokens from spaCy.
 
 \code{get_tags} returns a tokenized text object with part-of-speech tags.
-Options exist for using either the Google or Detaled tagsets. See 
+Options exist for using either the Google or Detailed tagsets. See 
 \url{http://spacy.io}.
 
 \code{get_attrs} returns a list of attributes from spaCy output

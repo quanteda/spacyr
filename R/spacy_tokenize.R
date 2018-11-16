@@ -7,7 +7,7 @@
 #' @param what the unit for splitting the text, available alternatives are: 
 #'   \describe{ \item{\code{"word"}}{word segmenter} 
 #'   \item{\code{"sentence"}}{sentence segmenter }}
-#' @param remove_punct remove puctuation tokens.
+#' @param remove_punct remove punctuation tokens.
 #' @param remove_numbers remove tokens that look like a number (e.g. "334", "3.1415", "fifty").
 #' @param remove_url remove tokens that look like a url or email address.
 #' @param remove_separators remove spaces as separators when

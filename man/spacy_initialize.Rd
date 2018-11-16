@@ -13,7 +13,7 @@ spacy_initialize(model = "en", python_executable = NULL,
 \item{model}{Language package for loading spaCy. Example: \code{en} (English) and
 \code{de} (German). Default is \code{en}.}
 
-\item{python_executable}{the full path to the Python excutable, for which
+\item{python_executable}{the full path to the Python executable, for which
 spaCy is installed}
 
 \item{virtualenv}{set a path to the Python virtual environment with spaCy
@@ -27,7 +27,7 @@ if \code{TRUE}, list available spaCy installations and prompt the user for
 which to use. If another (e.g. \code{python_executable}) is set, then this
 value will always be treated as \code{FALSE}.}
 
-\item{refresh_settings}{logical; if \code{TRUE}, spacyr will ignore the seved
+\item{refresh_settings}{logical; if \code{TRUE}, spacyr will ignore the saved
 settings in the profile and initiate a search of new settings.}
 
 \item{save_profile}{logical; if \code{TRUE}, the current spaCy setting will

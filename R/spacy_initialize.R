@@ -4,7 +4,7 @@
 #' @return NULL
 #' @param model Language package for loading spaCy. Example: \code{en} (English) and
 #' \code{de} (German). Default is \code{en}.
-#' @param python_executable the full path to the Python excutable, for which
+#' @param python_executable the full path to the Python executable, for which
 #'   spaCy is installed
 #' @param ask logical; if \code{FALSE}, use the first spaCy installation found;
 #'   if \code{TRUE}, list available spaCy installations and prompt the user for
@@ -21,7 +21,7 @@
 #'   is available only for spaCy version 2.0.0 or higher.
 #' @param check_env logical; check whether conda/virtual environment generated
 #'   by \code{spacyr_istall()} exists
-#' @param refresh_settings logical; if \code{TRUE}, spacyr will ignore the seved
+#' @param refresh_settings logical; if \code{TRUE}, spacyr will ignore the saved
 #'   settings in the profile and initiate a search of new settings.
 #' @param save_profile logical; if \code{TRUE}, the current spaCy setting will
 #'   be saved for the future use.
@@ -113,7 +113,7 @@ spacy_initialize <- function(model = "en",
 #' Finalize spaCy
 #' 
 #' While running spaCy on Python through R, a Python process is always running
-#' in the backgroud and rsession will take up a lot of memory (typically over
+#' in the background and rsession will take up a lot of memory (typically over
 #' 1.5GB). \code{spacy_finalize()} terminates the Python process and frees up
 #' the memory it was using.
 #' @return NULL

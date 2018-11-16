@@ -13,11 +13,11 @@
 #' @param pos logical whether to return universal dependency POS tagset
 #'   \url{http://universaldependencies.org/u/pos/})
 #' @param tag logical whether to return detailed part-of-speech tags, for the
-#'   langage model \code{en}, it uses the OntoNotes 5 version of the Penn
+#'   language model \code{en}, it uses the OntoNotes 5 version of the Penn
 #'   Treebank tag set (\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). 
 #' Annotation specifications for other available languages are available on the 
 #' spaCy website (\url{https://spacy.io/api/annotation}).
-#' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
+#' @param lemma logical; include lemmatized tokens in the output (lemmatization 
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param multithread logical; If true, the processing is parallelized using pipe 
@@ -171,10 +171,10 @@ spacy_parse.data.frame <- function(x, ...) {
 #' object. To obtain the tokens results in R, use \code{get_tokens()}.
 #' \url{http://spacy.io}.
 #' @param x input text
-#' functionalities including the tagging, named entity recognisiton, dependency 
+#' functionalities including the tagging, named entity recognition, dependency 
 #' analysis. 
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
-#' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
+#' If FALSE, tagging, entity recognition, and dependency analysis when 
 #' relevant functions are called.
 #' @param multithread logical;
 #' @param ... arguments passed to specific methods

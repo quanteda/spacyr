@@ -16,12 +16,12 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 \url{http://universaldependencies.org/u/pos/})}
 
 \item{tag}{logical whether to return detailed part-of-speech tags, for the
-  langage model \code{en}, it uses the OntoNotes 5 version of the Penn
+  language model \code{en}, it uses the OntoNotes 5 version of the Penn
   Treebank tag set (\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). 
 Annotation specifications for other available languages are available on the 
 spaCy website (\url{https://spacy.io/api/annotation}).}
 
-\item{lemma}{logical; inlucde lemmatized tokens in the output (lemmatization 
+\item{lemma}{logical; include lemmatized tokens in the output (lemmatization 
 may not work properly for non-English models)}
 
 \item{entity}{logical; if \code{TRUE}, report named entities}

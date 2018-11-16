@@ -38,7 +38,7 @@ get_tokens <- function(spacy_out) {
 
 #' @rdname get-functions
 #' @return \code{get_tags} returns a tokenized text object with part-of-speech tags.
-#' Options exist for using either the Google or Detaled tagsets. See 
+#' Options exist for using either the Google or Detailed tagsets. See 
 #' \url{http://spacy.io}.
 #' @param tagset character label for the tagset to use, either \code{"google"} 
 #'   or \code{"detailed"} to use the simplified Google tagset, or the more detailed 

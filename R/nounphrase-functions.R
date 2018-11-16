@@ -10,7 +10,7 @@
 #' @return \code{noun} returns a \code{data.frame} of all named
 #'   entities, containing the following fields: 
 #'   \itemize{
-#'   \item{\code{doc_id}}{ name of the documument containing the nounphrase} 
+#'   \item{\code{doc_id}}{ name of the document containing the nounphrase} 
 #'   \item{\code{sentence_id}}{ the sentence ID containing the nounphrase, within the document}
 #'   \item{\code{nounphrase}}{ the nounphrase}
 #'   \item{\code{root}}{ the root token of the nounphrase}
