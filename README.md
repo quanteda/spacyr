@@ -445,7 +445,7 @@ new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## Package version: 1.3.9
+## Package version: 1.3.14
 ## Parallel computing: 2 of 12 threads used.
 ## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)

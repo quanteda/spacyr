@@ -20,7 +20,7 @@ Suggests:
     testthat,
     knitr,
     quanteda
-URL: http://github.com/quanteda/spacyr
+URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1

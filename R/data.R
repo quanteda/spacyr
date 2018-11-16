@@ -6,7 +6,7 @@
 #' a simple format.
 #' 
 #' 
-#' @references \url{http://spacy.io}, \url{http://github.com/kbenoit/spacyr}.
+#' @references \url{https://spacy.io}, \url{https://spacyr.quanteda.io}.
 #' @author Ken Benoit and Akitaka Matsuo
 "_PACKAGE"
 
