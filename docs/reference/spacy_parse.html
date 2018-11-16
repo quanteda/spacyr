@@ -112,7 +112,8 @@ most extensive list of the parsing results from spaCy.</p>
     </div>
 
     <pre class="usage"><span class='fu'>spacy_parse</span>(<span class='no'>x</span>, <span class='kw'>pos</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>tag</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>lemma</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dependency</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>multithread</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dependency</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>nounphrase</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>multithread</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,7 +147,11 @@ may not work properly for non-English models)</p></td>
     </tr>
     <tr>
       <th>dependency</th>
-      <td><p>logical; if <code>TRUE</code>, analyze and return dependencies</p></td>
+      <td><p>logical; if <code>TRUE</code>, analyze and return dependency tags</p></td>
+    </tr>
+    <tr>
+      <th>nounphrase</th>
+      <td><p>logical; if <code>TRUE</code>, analyze and return noun phrases tags</p></td>
     </tr>
     <tr>
       <th>multithread</th>
@@ -255,7 +260,9 @@ functionality of spacy (<a href='https://spacy.io/api/pipe'>https://spacy.io/api
 #&gt; 24          
 #&gt; 25          
 #&gt; 26          
-#&gt; 27          </div></pre>
+#&gt; 27          </div><div class='input'>
+<span class='no'>txt3</span> <span class='kw'>&lt;-</span> <span class='st'>"We analyzed the Supreme Court using natural language processing."</span>
+<span class='no'>sp3</span> <span class='kw'>&lt;-</span> <span class='fu'>spacy_parse</span>(<span class='no'>txt3</span>, <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>nounphrase</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
