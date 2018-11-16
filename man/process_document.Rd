@@ -8,10 +8,10 @@ process_document(x, multithread, ...)
 }
 \arguments{
 \item{x}{input text
-functionalities including the tagging, named entity recognisiton, dependency 
+functionalities including the tagging, named entity recognition, dependency 
 analysis. 
 This slows down \code{spacy_parse()} but speeds up the later parsing. 
-If FALSE, tagging, entity recogitions, and dependendcy analysis when 
+If FALSE, tagging, entity recognition, and dependency analysis when 
 relevant functions are called.}
 
 \item{multithread}{logical;}

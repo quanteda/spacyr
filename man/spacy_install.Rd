@@ -62,7 +62,7 @@ If you wish to install Python ion a "virtualenv", use the
   issues} affect the speed of the spaCy pipeline for spacy v2.x relative to
   v1.x.   This can  enormously affect the performance of
   \code{spacy_parse()}, especially when a large number of small texts are
-  parseed. For this reason, the \pkg{spacyr} provides an option to
+  parsed. For this reason, the \pkg{spacyr} provides an option to
   automatically install the latest version of spacy v1.*, using \code{version
   = "latest_v1"}.
 }

@@ -6,15 +6,15 @@ test_that("getting named entities works", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
-    txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
+
+    txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.",
               doc2 = "New buildings on the New York skyline.")
     parsed <- spacy_parse(txt1, entity = TRUE)
-    
+
     entities <- entity_extract(parsed, concatenator = " ")
-    
+
     expect_equal(
         entities$entity,
         c("The United States", "Donald Trump", "New York", "New York")
@@ -23,8 +23,8 @@ test_that("getting named entities works", {
         entities$entity_type,
         c("GPE", "PERSON", "GPE", "GPE")
     )
-    
-    txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
+
+    txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.",
               doc2 = "New buildings on the New York skyline appeared in January.")
     parsed <- spacy_parse(txt1, entity = TRUE)
     expect_equal(
@@ -35,7 +35,7 @@ test_that("getting named entities works", {
         entity_extract(parsed, type = "named")$entity_type,
         c("GPE", "PERSON", "GPE", "GPE")
     )
-    
+
     parsed <- spacy_parse(txt1, entity = FALSE)
     expect_error(
         entity_extract(parsed),
@@ -52,8 +52,8 @@ test_that("entity consolidation works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     expect_message(spacy_initialize(), "successfully")
-    
-    txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.", 
+
+    txt1 <- c(doc1 = "The United States elected President Donald Trump, from New York.",
               doc2 = "New buildings on the New York skyline appeared in January.")
 
     parsed <- spacy_parse(txt1, entity = TRUE)
@@ -76,7 +76,7 @@ test_that("entity consolidation works", {
         c("The_United_States", "Donald_Trump")
     )
     expect_true( !("nounphrase" %in% names(entity_consolidate(parsed))) )
-    
+
     parsed <- spacy_parse(txt1, entity = TRUE, pos = TRUE, tag = TRUE)
     expect_equal(
         entity_consolidate(parsed)$tag[c(1, 4, 17)],
@@ -86,7 +86,7 @@ test_that("entity consolidation works", {
         entity_consolidate(parsed)$lemma[c(1, 4, 16)],
         tolower(entity_consolidate(parsed)$token[c(1, 4, 16)])
     )
-    
+
     parsed <- spacy_parse(txt1, entity = TRUE, dependency = TRUE)
     expect_true(
         !"dep_rel" %in% names(entity_consolidate(parsed))
@@ -101,7 +101,6 @@ test_that("entity consolidation works", {
         entity_consolidate(parsed),
         "no entities in parsed object"
     )
-    
+
     expect_silent(spacy_finalize())
 })
-

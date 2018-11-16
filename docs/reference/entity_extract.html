@@ -77,12 +77,7 @@ consisting of the concatenated elements of the multi-word entities." />
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="http://github.com/quanteda/spacyr">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -96,7 +91,7 @@ consisting of the concatenated elements of the multi-word entities." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Extract or consolidate entities from parsed documents</h1>
-    <small class="dont-index">Source: <a href='http://github.com/quanteda/spacyr/blob/master/R/entity-functions.R'><code>R/entity-functions.R</code></a></small>
+    
     <div class="hidden name"><code>entity_extract.Rd</code></div>
     </div>
 
@@ -108,7 +103,8 @@ consisting of the concatenated elements of the multi-word entities.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>entity_extract</span>(<span class='no'>x</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"named"</span>, <span class='st'>"extended"</span>, <span class='st'>"all"</span>))
+    <pre class="usage"><span class='fu'>entity_extract</span>(<span class='no'>x</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"named"</span>, <span class='st'>"extended"</span>, <span class='st'>"all"</span>),
+  <span class='kw'>concatenator</span> <span class='kw'>=</span> <span class='st'>"_"</span>)
 
 <span class='fu'>entity_consolidate</span>(<span class='no'>x</span>, <span class='kw'>concatenator</span> <span class='kw'>=</span> <span class='st'>"_"</span>)</pre>
     
@@ -128,7 +124,7 @@ details.</p></td>
     </tr>
     <tr>
       <th>concatenator</th>
-      <td><p>the character used to concatenator elements of multi-word
+      <td><p>the character(s) used to join the elements of multi-word
 named entities</p></td>
     </tr>
     </table>
@@ -157,9 +153,9 @@ named entities</p></td>
 <span class='no'>parsed</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='spacy_parse.html'>spacy_parse</a></span>(<span class='no'>txt</span>, <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 <span class='fu'>entity_extract</span>(<span class='no'>parsed</span>)</div><div class='output co'>#&gt;   doc_id sentence_id        entity entity_type
 #&gt; 1  text1           1         Smith      PERSON
-#&gt; 2  text1           1 San Francisco         GPE</div><div class='input'><span class='fu'>entity_extract</span>(<span class='no'>parsed</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"all"</span>)</div><div class='output co'>#&gt;   doc_id sentence_id        entity entity_type
+#&gt; 2  text1           1 San_Francisco         GPE</div><div class='input'><span class='fu'>entity_extract</span>(<span class='no'>parsed</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"all"</span>)</div><div class='output co'>#&gt;   doc_id sentence_id        entity entity_type
 #&gt; 1  text1           1         Smith      PERSON
-#&gt; 2  text1           1 San Francisco         GPE
+#&gt; 2  text1           1 San_Francisco         GPE
 #&gt; 3  text1           1      December        DATE</div><div class='input'><span class='co'># consolidating multi-word entities </span>
 <span class='no'>txt</span> <span class='kw'>&lt;-</span> <span class='st'>"The House of Representatives voted to suspend aid to South Dakota."</span>
 <span class='no'>parsed</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='spacy_parse.html'>spacy_parse</a></span>(<span class='no'>txt</span>, <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)

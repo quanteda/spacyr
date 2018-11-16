@@ -22,10 +22,16 @@
     <loc>http://spacyr.quanteda.io/reference/get-functions.html</loc>
   </url>
   <url>
+    <loc>http://spacyr.quanteda.io/reference/nounphrase_extract.html</loc>
+  </url>
+  <url>
     <loc>http://spacyr.quanteda.io/reference/process_document.html</loc>
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_download_langmodel.html</loc>
+  </url>
+  <url>
+    <loc>http://spacyr.quanteda.io/reference/spacy_extract_nounphrases.html</loc>
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_finalize.html</loc>
@@ -38,6 +44,9 @@
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_parse.html</loc>
+  </url>
+  <url>
+    <loc>http://spacyr.quanteda.io/reference/spacy_tokenize.html</loc>
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_uninstall.html</loc>

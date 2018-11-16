@@ -17,7 +17,7 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 \describe{ \item{\code{"word"}}{word segmenter} 
 \item{\code{"sentence"}}{sentence segmenter }}}
 
-\item{remove_punct}{remove puctuation tokens.}
+\item{remove_punct}{remove punctuation tokens.}
 
 \item{remove_url}{remove tokens that look like a url or email address.}
 
