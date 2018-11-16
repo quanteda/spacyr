@@ -7,7 +7,7 @@ test_that("spacy_tokenize returns either data.frame and list", {
     skip_if_no_python_or_no_spacy()
     
     txt <- "This is a test for document names."
-    tokens_list <- spacy_tokenize(txt, value = "list")
+    tokens_list <- spacy_tokenize(txt, output = "list")
     expect_identical(
         length(tokens_list[[1]]), 
         8L
@@ -16,7 +16,7 @@ test_that("spacy_tokenize returns either data.frame and list", {
         is.list(tokens_list)
     )
     
-    tokens_df <- spacy_tokenize(txt, value = "data.frame")
+    tokens_df <- spacy_tokenize(txt, output = "data.frame")
     expect_identical(
         nrow(tokens_df), 
         8L
@@ -37,13 +37,13 @@ test_that("spacy_tokenize works with a TIF formatted data.frame", {
     txt1_df <- data.frame(doc_id = names(txt1), text = txt1, stringsAsFactors = FALSE)
     
     expect_equal(
-        spacy_tokenize(txt1_df, value = 'list'),
-        spacy_tokenize(txt1, value = 'list')
+        spacy_tokenize(txt1_df, output = 'list'),
+        spacy_tokenize(txt1, output = 'list')
     )
     
     txt1_df_err <- data.frame(doc_name = names(txt1), text = txt1, stringsAsFactors = FALSE)
     expect_error(
-        spacy_tokenize(txt1_df_err, value = 'data.frame'),
+        spacy_tokenize(txt1_df_err, output = 'data.frame'),
         "input data.frame does not conform to the TIF standard"
     )
     

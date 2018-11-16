@@ -7,7 +7,7 @@
 spacy_tokenize(x, what = c("word", "sentence"), remove_punct = FALSE,
   remove_url = FALSE, remove_numbers = FALSE,
   remove_separators = TRUE, remove_symbols = FALSE, padding = FALSE,
-  multithread = TRUE, value = c("list", "data.frame"), ...)
+  multithread = TRUE, output = c("list", "data.frame"), ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -38,7 +38,7 @@ needs to be computed.}
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
 
-\item{value}{type of returning object. Either \code{list} or \code{data.frame}.}
+\item{output}{type of returning object. Either \code{list} or \code{data.frame}.}
 
 \item{...}{not used directly}
 }
