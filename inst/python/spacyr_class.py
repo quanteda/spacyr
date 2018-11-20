@@ -198,7 +198,7 @@ class spacyr:
             for i in range(len(texts)):
                 text = texts[i]
                 doc = self.nlp(text)
-                toks = []
+                noun_phrases_doc = []
                 for chunk in doc.noun_chunks:
                     noun_phrases_doc.append(chunk.text)
                 noun_phrases[docnames[i]] = noun_phrases_doc
