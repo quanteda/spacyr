@@ -86,28 +86,28 @@ spacy_extract_entity.character <- function(x,
     ## run noun phrase extraction
     spacyr_pyexec("spobj = spacyr()")
     if (identical(output, "list")) {
-        command_str <- paste("noun_phrases = spobj.extract_entity_list(texts = texts,",
+        command_str <- paste("entities = spobj.extract_entity_list(texts = texts,",
                              "docnames = docnames,",
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
-        return(spacyr_pyget("noun_phrases"))
+        return(spacyr_pyget("entities"))
     } else {
-        command_str <- paste("noun_phrases = spobj.extract_entity_dataframe(texts = texts,",
+        command_str <- paste("entities = spobj.extract_entity_dataframe(texts = texts,",
                              "docnames = docnames,",
                              "multithread = multithread)")
         spacyr_pyexec(command_str)
-        noun_phrases <- spacyr_pyget("noun_phrases")
+        entities <- spacyr_pyget("entities")
         
-        doc_id <- names(noun_phrases)
+        doc_id <- names(entities)
         data_out <-
             data.table::rbindlist(lapply(doc_id, function(x) {
-                df <- as.data.frame(noun_phrases[[x]], stringsAsFactors = FALSE)
+                df <- as.data.frame(entities[[x]], stringsAsFactors = FALSE)
                 df$doc_id <- x
                 return(df)
             }))
-        data_out[, start_id := start_id + 1][, root_id := root_id + 1]
+        data_out[, start_id := start_id + 1]
         data.table::setDF(data_out)
-        data_out <- data_out[, c(6, 1:5)]
+        #data_out <- data_out[, c(6, 1:5)]
         return(data_out)
     }
 }

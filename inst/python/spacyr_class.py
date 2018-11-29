@@ -189,28 +189,34 @@ class spacyr:
                 pass
         # this multithread solution is suggested by @honnibal
         # https://github.com/explosion/spaCy/issues/172
-        noun_phrases = {}
+        items = {}
         if multithread == True:
             gen1, gen2 = itertools.tee(gen_items(docnames, texts))
             ids = (id_ for (id_, text) in gen1)
             texts = (text for (id_, text) in gen2)
             docs = self.nlp.pipe(texts)
             for id_, doc in zip(ids, docs):
-                noun_phrases_doc = []
+                items_in_doc = []
                 for chunk in getattr(doc, what):
-                    noun_phrases_doc.append(chunk.text)
-                noun_phrases[id_] = noun_phrases_doc
+                    items_in_doc.append(chunk.text)
+                items[id_] = items_in_doc
         else:
             for i in range(len(texts)):
                 text = texts[i]
                 doc = self.nlp(text)
-                noun_phrases_doc = []
+                items_in_doc = []
                 for chunk in getattr(doc, what):
-                    noun_phrases_doc.append(chunk.text)
-                noun_phrases[docnames[i]] = noun_phrases_doc
-        return noun_phrases
+                    items_in_doc.append(chunk.text)
+                items[docnames[i]] = items_in_doc
+        return items
 
     def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = [], multithread = True):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, multithread, what = "noun_chunks")
+
+    def extract_entity_dataframe(self, docnames, texts = [], timestamps = [], multithread = True):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, multithread, what = "ents")
+
+    def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], multithread = True, what = "noun_chunks"):
         if timestamps:
             multithread = False
             if isinstance(timestamps, list) == False:
@@ -230,25 +236,29 @@ class spacyr:
                     pass
         # this multithread solution is suggested by @honnibal
         # https://github.com/explosion/spaCy/issues/172
-        noun_phrases = {}
+        df_all = {}
         if multithread == True:
             gen1, gen2 = itertools.tee(gen_items(docnames, texts))
             ids = (id_ for (id_, text) in gen1)
             texts = (text for (id_, text) in gen2)
             docs = self.nlp.pipe(texts)
             for id_, doc in zip(ids, docs):
-                noun_phrases_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
-                for chunk in doc.noun_chunks:
-                    noun_phrases_doc['text'].append(chunk.text)
-                    noun_phrases_doc['root_text'].append(chunk.root.text)
-                    for w in chunk:
-                        noun_phrases_doc['start_id'].append(w.i)
-                        break
-                    noun_phrases_doc['root_id'].append(chunk.root.i)
-                    noun_phrases_doc['length'].append(len(chunk))
-                if len(noun_phrases_doc['text']) == 0:
+                if what == "noun_chunks":
+                    df_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
+                else:
+                    df_doc = {"text": [], "ent_type": [], "start_id": [], "length": []}
+                for chunk in getattr(doc, what):
+                    df_doc['text'].append(chunk.text)
+                    df_doc['start_id'].append(chunk[0].i)
+                    df_doc['length'].append(len(chunk))
+                    if what == "noun_chunks":
+                        df_doc['root_text'].append(chunk.root.text)
+                        df_doc['root_id'].append(chunk.root.i)
+                    else:
+                        df_doc['ent_type'].append(chunk.label_)
+                if len(df_doc['text']) == 0:
                     continue
-                noun_phrases[id_] = noun_phrases_doc
+                df_all[id_] = df_doc
         else:
             for i in range(ndocs):
                 if timestamps:
@@ -256,17 +266,21 @@ class spacyr:
                 else:
                     text = texts[i]
                     doc = self.nlp(text)
-                noun_phrases_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
-                for chunk in doc.noun_chunks:
-                    noun_phrases_doc['text'].append(chunk.text)
-                    noun_phrases_doc['root_text'].append(chunk.root.text)
-                    for w in chunk:
-                        noun_phrases_doc['start_id'].append(w.i)
-                        break
-                    noun_phrases_doc['root_id'].append(chunk.root.i)
-                    noun_phrases_doc['length'].append(len(chunk))
-                noun_phrases[docnames[i]] = noun_phrases_doc
-        return noun_phrases
+                if what == "noun_chunks":
+                    df_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
+                else:
+                    df_doc = {"text": [], "ent_type": [], "start_id": [], "length": []}
+                for chunk in getattr(doc, what):
+                    df_doc['text'].append(chunk.text)
+                    df_doc['start_id'].append(chunk[0].i)
+                    df_doc['length'].append(len(chunk))
+                    if what == "noun_chunks":
+                        df_doc['root_text'].append(chunk.root.text)
+                        df_doc['root_id'].append(chunk.root.i)
+                    else:
+                        df_doc['ent_type'].append(chunk.label_)
+                df_all[docnames[i]] = df_doc
+        return df_all
 
     def ntokens(self, timestamps):
         ntok = []
