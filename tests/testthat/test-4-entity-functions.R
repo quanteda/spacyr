@@ -6,20 +6,20 @@ test_that("spacy_extract_entity data.frame works", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt1 <- c(doc1 = "I would have accepted without question the information that Gatsby sprang from the swamps of Louisiana or from the lower East Side of New York.",
               doc2 = "I graduated from New Haven in 1915, just a quarter of a century after my father, and a little later I participated in that delayed Teutonic migration known as the Great War.")
     entities <- spacy_extract_entity(txt1, output = "data.frame")
-    
+
     expect_equal(
         entities$text,
-        c("Gatsby", "Louisiana", "East Side", "New York", "New Haven", 
+        c("Gatsby", "Louisiana", "East Side", "New York", "New Haven",
           "1915", "just a quarter of a century", "Teutonic", "the Great War"))
     expect_equal(
         entities$ent_type,
-        c("GPE", "GPE", "LOC", "GPE", "GPE", "DATE", "DATE", "NORP", "EVENT"))    
+        c("GPE", "GPE", "LOC", "GPE", "GPE", "DATE", "DATE", "NORP", "EVENT"))
     expect_silent(spacy_finalize())
 })
 
@@ -28,20 +28,20 @@ test_that("spacy_extract_entity list works", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt1 <- c(doc1 = "I would have accepted without question the information that Gatsby sprang from the swamps of Louisiana or from the lower East Side of New York.",
               doc2 = "I graduated from New Haven in 1915, just a quarter of a century after my father, and a little later I participated in that delayed Teutonic migration known as the Great War.")
     entities <- spacy_extract_entity(txt1, output = "list")
-    
+
     expect_equal(
         entities,
-        list(doc1 = c("Gatsby", "Louisiana", "East Side", "New York"), 
-             doc2 = c("New Haven", "1915", "just a quarter of a century", 
+        list(doc1 = c("Gatsby", "Louisiana", "East Side", "New York"),
+             doc2 = c("New Haven", "1915", "just a quarter of a century",
                       "Teutonic", "the Great War"))
     )
-    
+
 })
 
 test_that("spacy_extract_entity data.frame and list returns the same entity", {
@@ -49,25 +49,23 @@ test_that("spacy_extract_entity data.frame and list returns the same entity", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt1 <- c(doc1 = "I would have accepted without question the information that Gatsby sprang from the swamps of Louisiana or from the lower East Side of New York.",
               doc2 = "It was a matter of chance that I should have rented a house in one of the strangest communities in North America.")
     entities_dataframe <- spacy_extract_entity(txt1, output = "data.frame")
     entities_list <- spacy_extract_entity(txt1, output = "list")
-    
+
     expect_equal(
         entities_dataframe$text,
         unname(unlist(entities_list))
     )
-    
-    expect_equal(
-        unname(sapply(entities_list, length)),
-        as.vector(unclass(unname(table(entities_dataframe$doc_id))))
-    )  
-    
-  
+
+    expect_identical(
+        lengths(entities_list, use.names = FALSE),
+        as.integer(table(entities_dataframe$doc_id))
+    )
 })
 
 test_that("spacy_extract_entity.data.frame() works", {
@@ -76,12 +74,12 @@ test_that("spacy_extract_entity.data.frame() works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt <- c(doc1 = "I would have accepted without question the information that Gatsby sprang from the swamps of Louisiana or from the lower East Side of New York.",
-              doc2 = "It was a matter of chance that I should have rented a house in one of the strangest communities in North America.")
-    txt_df <- data.frame(doc_id = paste0("doc", 1:2), 
+             doc2 = "It was a matter of chance that I should have rented a house in one of the strangest communities in North America.")
+    txt_df <- data.frame(doc_id = paste0("doc", 1:2),
                          text = txt, stringsAsFactors = FALSE)
-    
+
     expect_equal(
         spacy_extract_entity(txt),
         spacy_extract_entity(txt_df)
@@ -94,17 +92,17 @@ test_that("spacy_extract_entity type option works", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt1 <- c(doc1 = "I would have accepted without question the information that Gatsby sprang from the swamps of Louisiana or from the lower East Side of New York.",
               doc2 = "I graduated from New Haven in 1915, just a quarter of a century after my father, and a little later I participated in that delayed Teutonic migration known as the Great War.")
-    
+
     expect_equal(
         nrow(spacy_extract_entity(txt1, output = "data.frame", type = "named")),
         7
     )
-    
+
     expect_equal(
         nrow(spacy_extract_entity(txt1, output = "data.frame", type = "extended")),
         2
@@ -114,18 +112,18 @@ test_that("spacy_extract_entity type option works", {
         nrow(spacy_extract_entity(txt1, output = "data.frame", type = "all")),
         9
     )
-    
+
     expect_equal(
         unname(unlist(spacy_extract_entity(txt1, output = "list", type = "named"))),
         c("Gatsby", "Louisiana", "East Side", "New York", "New Haven", 
           "Teutonic", "the Great War")
     )
-    
+
     expect_equal(
         unname(unlist(spacy_extract_entity(txt1, output = "list", type = "extended"))),
         c("1915", "just a quarter of a century")
     )
-    
+
     expect_equal(
         spacy_extract_entity(txt1, output = "data.frame", type = "named")$text,
         unname(unlist(spacy_extract_entity(txt1, output = "list", type = "named")))
@@ -183,13 +181,13 @@ test_that("compare entity_extract(spacy_parse()) and spacy_extract_entity()", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
               doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
     parsed <- spacy_parse(txt1, entity = TRUE)
-    
+
     entities_1 <- entity_extract(parsed, concatenator = " ", type = "all")
     entities_2 <- spacy_extract_entity(txt1, output = "data.frame")
     expect_equal(

@@ -139,7 +139,7 @@ spacy_parse.character <- function(x,
         #     by = .(doc_id, root_id)]
         # dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
         #     by = .(doc_id, root_id)]
-        dt[, c("w_id", "start_id", "root_id", "text", "root_text", "length") := NULL] 
+        dt[, c("w_id", "start_id", "root_id", "text", "root_text", "length") := NULL]
         dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
         dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
         #setnames(dt, c("text", "root_text", "length"), c("nounphrase", "nounphrase_root_text", "nounphrase_length"))

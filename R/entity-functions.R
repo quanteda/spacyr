@@ -35,7 +35,7 @@ entity_extract <- function(x, type = c("named", "extended", "all"), concatenator
     
 #' @noRd
 #' @export
-entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all"), 
+entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all"),
                                          concatenator = "_") {
 
     spacy_result <- data.table::as.data.table(x)
@@ -150,7 +150,8 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     #     spacy_result_modified[, serialn := seq(nrow(spacy_result_modified))]
     #     #data.table::set2keyv(spacy_result_modified, "head_token_id")
     #     spacy_result_modified <- merge(spacy_result_modified, dt_id_match,
-    #                                    by = c("doc_id", "sentence_id", "head_token_id"), all.x = TRUE)
+    #                                    by = c("doc_id", "sentence_id", "head_token_id"),
+    #                                    all.x = TRUE)
     #     spacy_result_modified <- spacy_result_modified[order(serialn)]
     #     spacy_result_modified[, head_token_id := NULL]
     #     data.table::setnames(spacy_result_modified, "new_head_token_id", "head_token_id")
