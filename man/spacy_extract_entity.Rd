@@ -5,7 +5,7 @@
 \title{Extract named entity}
 \usage{
 spacy_extract_entity(x, output = c("data.frame", "list"),
-  multithread = TRUE, ...)
+  type = c("named", "extended", "all"), multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant
@@ -13,6 +13,11 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{output}{type of returned object, either \code{"list"} or
 \code{"data.frame"}.}
+
+\item{type}{type of named entities, either \code{named}, \code{extended}, or 
+\code{all}.  See 
+\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
+details.}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
@@ -24,6 +29,17 @@ either a \code{list} or \code{data.frame} of tokens
 }
 \description{
 This function extracts named entities from texts.
+}
+\details{
+When the option \code{output = "data.frame"} is selected, the
+  function returns a \code{data.frame} with the following fields.
+\describe{\item{\code{text}}{contents of entity}
+\item{\code{entity_type}}{type of entity (e.g. \code{ORG} for organizations)}
+\item{\code{start_id}}{serial number ID of starting token. This number
+corresponds with the number of \code{data.frame} returned from
+\code{spacy_tokenize(x)} with default options.}
+\item{\code{length}}{number of words (tokens) included in a named entity (e.g.
+for an entity, "New York Stock Exchange"", \code{length = 4})}}
 }
 \examples{
 \donttest{

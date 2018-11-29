@@ -174,10 +174,10 @@ class spacyr:
     def extract_nounphrases_list(self, texts, docnames, multithread = True):
         return self.extract_np_ne_list(texts, docnames, multithread, what = "noun_chunks")
 
-    def extract_entity_list(self, texts, docnames, multithread = True):
-        return self.extract_np_ne_list(texts, docnames, multithread, what = "ents")
+    def extract_entity_list(self, texts, docnames, multithread = True, ent_type_category = "all"):
+        return self.extract_np_ne_list(texts, docnames, multithread, what = "ents", ent_type_category = ent_type_category)
 
-    def extract_np_ne_list(self, texts, docnames, multithread = True, what = "noun_chunks"):
+    def extract_np_ne_list(self, texts, docnames, multithread = True, what = "noun_chunks", ent_type_category = 'all'):
         if isinstance(texts, list) == False:
             texts = [texts]
             docnames = [docnames]
@@ -187,6 +187,7 @@ class spacyr:
                     texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
             except NameError:
                 pass
+        extended_list = ("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", "CARDINAL")
         # this multithread solution is suggested by @honnibal
         # https://github.com/explosion/spaCy/issues/172
         items = {}
@@ -198,6 +199,11 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 items_in_doc = []
                 for chunk in getattr(doc, what):
+                    if what == "ents":
+                        if ent_type_category == "extended" and not (chunk.label_ in extended_list):
+                            continue
+                        elif ent_type_category == "named" and (chunk.label_ in extended_list):
+                            continue
                     items_in_doc.append(chunk.text)
                 items[id_] = items_in_doc
         else:
@@ -206,6 +212,11 @@ class spacyr:
                 doc = self.nlp(text)
                 items_in_doc = []
                 for chunk in getattr(doc, what):
+                    if what == "ents":
+                        if ent_type_category == "extended" and not (chunk.label_ in extended_list):
+                            continue
+                        elif ent_type_category == "named" and (chunk.label_ in extended_list):
+                            continue
                     items_in_doc.append(chunk.text)
                 items[docnames[i]] = items_in_doc
         return items

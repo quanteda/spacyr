@@ -8,11 +8,15 @@
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}).
 #' @param output type of returned object, either \code{"list"} or
 #'   \code{"data.frame"}.
+#' @param type type of named entities, either \code{named}, \code{extended}, or 
+#'   \code{all}.  See 
+#'   \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
+#'   details.
 #' @param ... unused
 #' @details When the option \code{output = "data.frame"} is selected, the
 #'   function returns a \code{data.frame} with the following fields.
 #' \describe{\item{\code{text}}{contents of entity}
-#' \describe{\item{\code{entity_type}}{type of entity (e.g. \code{ORG} for organizations)}
+#' \item{\code{entity_type}}{type of entity (e.g. \code{ORG} for organizations)}
 #' \item{\code{start_id}}{serial number ID of starting token. This number
 #' corresponds with the number of \code{data.frame} returned from
 #' \code{spacy_tokenize(x)} with default options.}
@@ -31,6 +35,7 @@
 #' spacy_extract_entity(txt, output = "list")
 #' }
 spacy_extract_entity <- function(x, output = c("data.frame", "list"),
+                                 type = c("named", "extended", "all"),
                                  multithread = TRUE, ...) {
     UseMethod("spacy_extract_entity")
 }
@@ -41,9 +46,11 @@ spacy_extract_entity <- function(x, output = c("data.frame", "list"),
 #' @noRd
 spacy_extract_entity.character <- function(x,
                                            output = c("data.frame", "list"),
+                                           type = c("all", "named", "extended"),
                                            multithread = TRUE, ...) {
+    type <- match.arg(type)
     
-    `root_id` <- `start_id` <- `:=` <- NULL
+    `ent_type` <- `start_id` <- `:=` <- NULL
     
     output <- match.arg(output)
     
@@ -55,6 +62,8 @@ spacy_extract_entity.character <- function(x,
     if (length(x) == 1) {
         multithread <- FALSE
     }
+    
+    
     
     if (all(!duplicated(docnames)) == FALSE) {
         stop("Docmanes are duplicated.")
@@ -81,6 +90,7 @@ spacy_extract_entity.character <- function(x,
     spacyr_pyassign("texts", x)
     spacyr_pyassign("docnames", docnames)
     spacyr_pyassign("multithread", multithread)
+    spacyr_pyassign("ent_type_category", type)
     
     
     ## run noun phrase extraction
@@ -88,7 +98,8 @@ spacy_extract_entity.character <- function(x,
     if (identical(output, "list")) {
         command_str <- paste("entities = spobj.extract_entity_list(texts = texts,",
                              "docnames = docnames,",
-                             "multithread = multithread)")
+                             "multithread = multithread, 
+                             ent_type_category = ent_type_category)")
         spacyr_pyexec(command_str)
         return(spacyr_pyget("entities"))
     } else {
@@ -106,8 +117,16 @@ spacy_extract_entity.character <- function(x,
                 return(df)
             }))
         data_out[, start_id := start_id + 1]
+        extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL",
+                           "CARDINAL")
+        if (type == "extended"){
+            data_out <- data_out[ent_type %in% extended_list]
+        } else if (type == "named") {
+            data_out <- data_out[!ent_type %in% extended_list]
+        }
+        
         data.table::setDF(data_out)
-        #data_out <- data_out[, c(6, 1:5)]
+        data_out <- data_out[, c(5, 1:4)]
         return(data_out)
     }
 }
