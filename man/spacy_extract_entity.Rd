@@ -2,10 +2,10 @@
 % Please edit documentation in R/spacy_extract_entity.R
 \name{spacy_extract_entity}
 \alias{spacy_extract_entity}
-\title{Extract named entity}
+\title{Extract named entities from texts using spaCy}
 \usage{
 spacy_extract_entity(x, output = c("data.frame", "list"),
-  type = c("named", "extended", "all"), multithread = TRUE, ...)
+  type = c("all", "named", "extended"), multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant
@@ -28,7 +28,9 @@ functionality of spacy (\url{https://spacy.io/api/pipe}).}
 either a \code{list} or \code{data.frame} of tokens
 }
 \description{
-This function extracts named entities from texts.
+This function extracts named entities from texts, based on the entity tag
+\code{ent} attributes of documents objects parsed by spaCy (see
+\url{https://spacy.io/usage/linguistic-features#section-named-entities}).
 }
 \details{
 When the option \code{output = "data.frame"} is selected, the
@@ -45,7 +47,7 @@ for an entity, "New York Stock Exchange"", \code{length = 4})}}
 \donttest{
 spacy_initialize()
 
-txt <- c(doc1 = "Natural language processing is a branch of computer science.",
+txt <- c(doc1 = "The Supreme Court is located in Washington D.C.",
          doc2 = "Paul earned a postgraduate degree from MIT.")
 spacy_extract_entity(txt)
 spacy_extract_entity(txt, output = "list")
