@@ -38,7 +38,8 @@ nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
 
     spacy_result <- data.table::as.data.table(x)
 
-    is_root <- nounphrase <- whitespace <- root_token <- iob <- .SD <- `:=` <- sentence_id <- doc_id <- NULL
+    is_root <- nounphrase <- whitespace <- root_token <- iob <- .SD <- `:=` <-
+        sentence_id <- doc_id <- NULL
 
 
     if (!"nounphrase" %in% names(spacy_result)) {
@@ -60,8 +61,6 @@ nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
     # use concatenator instead of space
     if (concatenator != " ")
         nounphrases[, nounphrase := gsub(" ", concatenator, nounphrase)]
-    # no need for root_token
-    # nounphrases[, root_token := spacy_result[is_root == TRUE, token[1], by = nounphrase_id]$V1]
     as.data.frame(nounphrases[, list(doc_id, sentence_id, nounphrase, root_token)])
 }
 
