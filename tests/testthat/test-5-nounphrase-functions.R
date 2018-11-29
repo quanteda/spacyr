@@ -72,6 +72,24 @@ test_that("spacy_extract_nounphrases data.frame and list returns the same nounph
     expect_silent(spacy_finalize())
 })
 
+test_that("spacy_extract_nounphrases.data.frame() works", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    expect_message(spacy_initialize(), "successfully|already")
+    
+    txt <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+             doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
+    txt_df <- data.frame(doc_id = paste0("doc", 1:2), 
+                         text = txt, stringsAsFactors = FALSE)
+    
+    expect_equal(
+        spacy_extract_nounphrases(txt),
+        spacy_extract_nounphrases(txt_df)
+    )
+})
+
 
 test_that("spacy_parse nounphrase = TRUE works", {
     skip_on_cran()
@@ -150,7 +168,7 @@ test_that("compare nounphrase_extract(spacy_parse()) and spacy_extract_nounphras
 })
 
 
-test_that("entity consolidation works", {
+test_that("nounphrase consolidation works", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
@@ -193,3 +211,7 @@ test_that("entity consolidation works", {
 
     expect_silent(spacy_finalize())
 })
+
+
+
+
