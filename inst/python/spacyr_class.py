@@ -172,6 +172,12 @@ class spacyr:
         return tokens_out
 
     def extract_nounphrases_list(self, texts, docnames, multithread = True):
+        return self.extract_np_ne_list(texts, docnames, multithread, what = "noun_chunks")
+
+    def extract_entity_list(self, texts, docnames, multithread = True):
+        return self.extract_np_ne_list(texts, docnames, multithread, what = "ents")
+
+    def extract_np_ne_list(self, texts, docnames, multithread = True, what = "noun_chunks"):
         if isinstance(texts, list) == False:
             texts = [texts]
             docnames = [docnames]
@@ -191,7 +197,7 @@ class spacyr:
             docs = self.nlp.pipe(texts)
             for id_, doc in zip(ids, docs):
                 noun_phrases_doc = []
-                for chunk in doc.noun_chunks:
+                for chunk in getattr(doc, what):
                     noun_phrases_doc.append(chunk.text)
                 noun_phrases[id_] = noun_phrases_doc
         else:
@@ -199,7 +205,7 @@ class spacyr:
                 text = texts[i]
                 doc = self.nlp(text)
                 noun_phrases_doc = []
-                for chunk in doc.noun_chunks:
+                for chunk in getattr(doc, what):
                     noun_phrases_doc.append(chunk.text)
                 noun_phrases[docnames[i]] = noun_phrases_doc
         return noun_phrases
