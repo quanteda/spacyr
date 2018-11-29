@@ -2,20 +2,20 @@
 % Please edit documentation in R/spacy_extract_nounphrases.R
 \name{spacy_extract_nounphrases}
 \alias{spacy_extract_nounphrases}
-\title{Extract noun phrases from a text}
+\title{Extract noun phrases from texts using spaCy}
 \usage{
 spacy_extract_nounphrases(x, output = c("data.frame", "list"),
   multithread = TRUE, ...)
 }
 \arguments{
-\item{x}{a character object or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropensci/tif})}
+\item{x}{a character object or a TIF-compliant corpus data.frame (see
+\url{https://github.com/ropensci/tif})}
 
-\item{output}{type of returned object, either \code{"list"} or
-\code{"data.frame"}.}
+\item{output}{type of returned object, either \code{"data.frame"} or
+\code{"list"}}
 
-\item{multithread}{logical; If true, the processing is parallelized using pipe 
-functionality of spacy (\url{https://spacy.io/api/pipe}).}
+\item{multithread}{logical; If true, the processing is parallelized using
+pipe functionality of spacy (\url{https://spacy.io/api/pipe}).}
 
 \item{...}{unused}
 }
@@ -23,7 +23,7 @@ functionality of spacy (\url{https://spacy.io/api/pipe}).}
 either a \code{list} or \code{data.frame} of tokens
 }
 \description{
-This function extracts noun-phrases from documents, based on the
+This function extracts noun phrases from documents, based on the
 \code{noun_chunks} attributes of documents objects parsed by spaCy (see
 \url{https://spacy.io/usage/linguistic-features#noun-chunks}).
 }

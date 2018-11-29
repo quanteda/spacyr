@@ -1,15 +1,15 @@
-#' Extract noun phrases from a text
+#' Extract noun phrases from texts using spaCy
 #' 
-#' This function extracts noun-phrases from documents, based on the
+#' This function extracts noun phrases from documents, based on the
 #' \code{noun_chunks} attributes of documents objects parsed by spaCy (see
 #' \url{https://spacy.io/usage/linguistic-features#noun-chunks}).
 #' 
-#' @param x a character object or a TIF-compliant
-#'   corpus data.frame (see \url{https://github.com/ropensci/tif})
-#' @param multithread logical; If true, the processing is parallelized using pipe 
-#'   functionality of spacy (\url{https://spacy.io/api/pipe}).
-#' @param output type of returned object, either \code{"list"} or
-#'   \code{"data.frame"}.
+#' @param x a character object or a TIF-compliant corpus data.frame (see
+#'   \url{https://github.com/ropensci/tif})
+#' @param multithread logical; If true, the processing is parallelized using
+#'   pipe functionality of spacy (\url{https://spacy.io/api/pipe}).
+#' @param output type of returned object, either \code{"data.frame"} or
+#'   \code{"list"}
 #' @param ... unused
 #' @details When the option \code{output = "data.frame"} is selected, the
 #'   function returns a \code{data.frame} with the following fields.
