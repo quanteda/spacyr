@@ -234,7 +234,7 @@ spacy_install_virtualenv <- function(version = "latest",
                  install_commands, "\n\n", call. = FALSE)
         }
     }
-    process_spacy_installation_virtualenv(python, virtualenv, version, lang_models, prompt) 
+    process_spacy_installation_virtualenv(python, virtualenv, version, lang_models, prompt)
 
     cat("\nInstallation complete.\n\n")
 
@@ -584,7 +584,7 @@ spacy_upgrade  <- function(conda = "auto",
                                                  python_version = "3.6",
                                                  prompt = FALSE)
             }
-        }         
+        }       
     } else {
         cat(sprintf("A new version of spacy (%s) was found (installed version: %s)\n",
                     latest_spacy, installed_spacy))

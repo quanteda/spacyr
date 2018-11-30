@@ -130,13 +130,31 @@ test_that("spacy_extract_nounphrases data.frame and list returns the same nounph
         noun_phrases_dataframe$text,
         unname(unlist(noun_phrases_list))
     )
- 
+
     expect_equal(
         unname(sapply(noun_phrases_list, length)),
         as.vector(unclass(unname(table(noun_phrases_dataframe$doc_id))))
-    )  
+    ) 
 
     expect_silent(spacy_finalize())
+})
+
+test_that("spacy_extract_nounphrases.data.frame() works", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    expect_message(spacy_initialize(), "successfully|already")
+
+    txt <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.",
+             doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
+    txt_df <- data.frame(doc_id = paste0("doc", 1:2),
+                         text = txt, stringsAsFactors = FALSE)
+
+    expect_equal(
+        spacy_extract_nounphrases(txt),
+        spacy_extract_nounphrases(txt_df)
+    )
 })
 
 
@@ -175,7 +193,7 @@ test_that("nounphrase_extract() on parsed object works", {
 
     expect_message(spacy_initialize(), "successfully|already")
 
-    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.",
               doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
     parsed <- spacy_parse(txt1, nounphrase = TRUE)
 
@@ -198,7 +216,7 @@ test_that("compare nounphrase_extract(spacy_parse()) and spacy_extract_nounphras
 
     expect_message(spacy_initialize(), "successfully|already")
 
-    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.",
               doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
     parsed <- spacy_parse(txt1, nounphrase = TRUE)
 
@@ -217,16 +235,16 @@ test_that("compare nounphrase_extract(spacy_parse()) and spacy_extract_nounphras
 })
 
 
-test_that("entity consolidation works", {
+test_that("nounphrase consolidation works", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     expect_message(spacy_initialize(), "successfully|already")
 
-    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.",
               doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
-    
+
     parsed <- spacy_parse(txt1, entity = TRUE, nounphrase = TRUE)
     expect_equal(
         nounphrase_consolidate(parsed)$token[c(1, 3, 15)],
