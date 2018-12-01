@@ -24,6 +24,13 @@
 #'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
 #' @param dependency logical; if \code{TRUE}, analyze and return dependency tags
 #' @param nounphrase logical; if \code{TRUE}, analyze and return noun phrases tags
+#' @param additional_attributes a character vector; this option is for extracting 
+#'   arbitrary attributes of tokens in spacy. When the names of attributes are supplied, 
+#'   the output data.frame will contains variables that correspond to the names 
+#'   of the attributes. For instance, when \code{additional_attributes = c('is_punct')},
+#'   a variable named \code{is_punct}, which is a boolean variable to check if the token
+#'   is a punctuation, will be included. A full list of
+#'   available attributes is available here: \code{https://spacy.io/api/token#attributes}
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
@@ -52,6 +59,7 @@ spacy_parse <- function(x,
                         dependency = FALSE,
                         nounphrase = FALSE,
                         multithread = TRUE,
+                        additional_attributes = NULL,
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -68,6 +76,7 @@ spacy_parse.character <- function(x,
                                   dependency = FALSE,
                                   nounphrase = FALSE,
                                   multithread = TRUE,
+                                  additional_attributes = NULL,
                                   ...) {
 
     `:=` <- `.` <- `.N` <- NULL
@@ -143,6 +152,12 @@ spacy_parse.character <- function(x,
         dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
         dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
         #setnames(dt, c("text", "root_text", "length"), c("nounphrase", "nounphrase_root_text", "nounphrase_length"))
+    }
+    
+    if(!is.null(additional_attributes)) {
+        for (att_name in additional_attributes){
+            dt[, (att_name) := get_attrs(spacy_out, att_name, deal_utf8 = TRUE)]
+        }
     }
 
     dt <- as.data.frame(dt)

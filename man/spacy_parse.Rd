@@ -6,7 +6,7 @@
 \usage{
 spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE,
   entity = TRUE, dependency = FALSE, nounphrase = FALSE,
-  multithread = TRUE, ...)
+  multithread = TRUE, additional_attributes = NULL, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -32,6 +32,13 @@ may not work properly for non-English models)}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
+
+\item{additional_attributes}{a character vector; this option is for extracting 
+any attributes of tokens in spacy. When the names of attributes are supplied, 
+ the output data.frame will contains the variables that correspond to the names 
+ of the attributes. For instance, when \code{additional_attributes = c('is_currensy')},
+ a binary variable named \code{is_currency} will be included. A full list of 
+ available attributes is available here: \code{https://spacy.io/api/token#attributes}}
 
 \item{...}{not used directly}
 }
