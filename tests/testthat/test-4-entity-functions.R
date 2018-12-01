@@ -131,7 +131,7 @@ test_that("spacy_extract_entity type option works", {
 })
 
 
-test_that("getting named entities works", {
+test_that("getting named entities from spacy_parsed object works", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
