@@ -34,11 +34,12 @@ may not work properly for non-English models)}
 functionality of spacy (\url{https://spacy.io/api/pipe}).}
 
 \item{additional_attributes}{a character vector; this option is for extracting 
-any attributes of tokens in spacy. When the names of attributes are supplied, 
- the output data.frame will contains the variables that correspond to the names 
- of the attributes. For instance, when \code{additional_attributes = c('is_currensy')},
- a binary variable named \code{is_currency} will be included. A full list of 
- available attributes is available here: \code{https://spacy.io/api/token#attributes}}
+arbitrary attributes of tokens in spaCy. When the names of attributes are supplied, 
+the output data.frame will contain variables that correspond to the names 
+of the attributes. For instance, when \code{additional_attributes = c('is_punct')},
+a variable named \code{is_punct}, which is a boolean variable to check if the token
+is a punctuation, will be included in the output. A full list of
+available attributes is available here: \url{https://spacy.io/api/token#attributes}}
 
 \item{...}{not used directly}
 }
