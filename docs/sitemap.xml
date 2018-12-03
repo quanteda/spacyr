@@ -31,6 +31,9 @@
     <loc>http://spacyr.quanteda.io/reference/spacy_download_langmodel.html</loc>
   </url>
   <url>
+    <loc>http://spacyr.quanteda.io/reference/spacy_extract_entity.html</loc>
+  </url>
+  <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_extract_nounphrases.html</loc>
   </url>
   <url>
