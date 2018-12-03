@@ -32,7 +32,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
     The easiest way to install spaCy and **spacyr** is through the **spacyr** function `spacy_install()`. This function by default creates a new conda environment called `spacy_condaenv`, as long as some  version of conda is installed on the user's the system. You can install miniconda from https://conda.io/miniconda.html.  (Choose the 64-bit version, or alternatively, run to the computer store now and purchase a 64-bit system to replace your ancient 32-bit platform.)
 
-    If you alreayd have any version of conda, you can skip this step. You can check it by entering `conda --version` in the Console.
+    If you alreayd have any version of conda, you can skip this step. You can check it by entering `conda --version` in the Terminal.
 
     For a Windows-based system, Visual C++ Build Tools or Visual Studio Express must be installed to compile spaCy for pip installation. The version of Visual Studio required for the installation of spaCy is found [here](https://spacy.io/usage/#source-windows) and the default python version used in our installation method is 3.6.x.
 

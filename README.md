@@ -28,7 +28,7 @@ language processing” Python library from <http://spacy.io>.
     platform.)
     
     If you alreayd have any version of conda, you can skip this step.
-    You can check it by entering `conda --version` in the Console.
+    You can check it by entering `conda --version` in the Terminal.
     
     For a Windows-based system, Visual C++ Build Tools or Visual Studio
     Express must be installed to compile spaCy for pip installation. The
