@@ -20,7 +20,7 @@
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
 #'   needs to be computed.
 #' @param multithread logical; If true, the processing is parallelized using pipe 
-#'   functionality of spacy (\url{https://spacy.io/api/pipe}).
+#'   functionality of spaCy (\url{https://spacy.io/api/pipe}).
 #' @param output type of returning object. Either \code{list} or \code{data.frame}. 
 #' @param ... not used directly
 #' @return either \code{list} or \code{data.frame} of tokens
@@ -49,7 +49,6 @@ spacy_tokenize <- function(x,
                            ...) {
     UseMethod("spacy_tokenize")
 }
-
 
 #' @export
 #' @importFrom data.table data.table

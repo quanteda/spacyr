@@ -11,7 +11,7 @@ spacy_upgrade(conda = "auto", envname = "spacy_condaenv",
 \item{conda}{Path to conda executable. Default "auto" which automatically
 find the path}
 
-\item{envname}{character; name of conda environment to upgrate spaCy}
+\item{envname}{character; name of conda environment to upgrade spaCy}
 
 \item{prompt}{logical; ask whether to proceed during the installation}
 

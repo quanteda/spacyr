@@ -111,7 +111,7 @@ spacy_initialize <- function(model = "en",
 #' Finalize spaCy
 #' 
 #' While running spaCy on Python through R, a Python process is always running
-#' in the background and rsession will take up a lot of memory (typically over
+#' in the background and Rsession will take up a lot of memory (typically over
 #' 1.5GB). \code{spacy_finalize()} terminates the Python process and frees up
 #' the memory it was using.
 #' @return NULL

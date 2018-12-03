@@ -19,22 +19,23 @@ noun phrases}
 \code{noun} returns a \code{data.frame} of all named
   entities, containing the following fields: 
   \itemize{
-  \item{\code{doc_id}}{ name of the document containing the nounphrase} 
-  \item{\code{sentence_id}}{ the sentence ID containing the nounphrase, within the document}
-  \item{\code{nounphrase}}{ the nounphrase}
-  \item{\code{root}}{ the root token of the nounphrase}
+  \item{\code{doc_id}}{ name of the document containing the noun phrase}
+  \item{\code{sentence_id}}{ the sentence ID containing the noun phrase,
+  within the document}
+  \item{\code{nounphrase}}{the noun phrase}
+  \item{\code{root}}{ the root token of the noun phrase}
   }
 
 \code{nounphrase_consolidate} returns a modified \code{data.frame} of
-  parsed results, where the nounphrases have been combined into a single
+  parsed results, where the noun phrases have been combined into a single
   "token".  Currently, dependency parsing is removed when this consolidation
   occurs.
 }
 \description{
 From an object parsed by \code{\link{spacy_parse}}, extract the multi-word
-noun phrases as a separate object, or convert the multi-word nounphrases into
-single "token" consisting of the concatenated elements of the multi-word
-nounphrases.
+noun phrases as a separate object, or convert the multi-word noun phrases
+into single "token" consisting of the concatenated elements of the multi-word
+noun phrases.
 }
 \examples{
 \donttest{
@@ -46,7 +47,7 @@ parsed <- spacy_parse(txt, nounphrase = TRUE)
 entity_extract(parsed)
 }
 \donttest{
-# consolidating multi-word nounphrases
+# consolidating multi-word noun phrases
 txt <- "The House of Representatives voted to suspend aid to South Dakota."
 parsed <- spacy_parse(txt, nounphrase = TRUE)
 nounphrase_consolidate(parsed)

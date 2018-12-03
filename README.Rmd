@@ -1,8 +1,10 @@
 ---
 output:
   md_document:
-    variant: gfm
+      variant: gfm
 ---
+
+
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
@@ -15,8 +17,8 @@ knitr::opts_chunk$set(
 # spacyr: an R wrapper for spaCy
 
 [![CRAN Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
-[![Travis-CI Build Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr) 
-[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/kbenoit/spacyr/branch/master) 
+[![Travis-CI Build Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
+[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/kbenoit/spacyr/branch/master)
 [![codecov.io](https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master)](https://codecov.io/gh/quanteda/spacyr/branch/master)
 [![Downloads](https://cranlogs.r-pkg.org/badges/spacyr)](https://CRAN.R-project.org/package=spacyr)
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange)](https://CRAN.R-project.org/package=spacyr)
@@ -28,9 +30,11 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 1.  Install miniconda
 
-    The easiest way to install spaCy and **spacyr** is through an auto-installation function in **spacyr** package. This function utilizes a conda environment and therefore, some version of conda has to be installed in the system. You can install miniconda from https://conda.io/miniconda.html (Choose 64-bit version for your system). 
-    
-    If you have any version of conda, you can skip this step. You can check it by entering `conda --version` in Console.
+    The easiest way to install spaCy and **spacyr** is through the **spacyr** function `spacy_install()`. This function by default creates a new conda environment called `spacy_condaenv`, as long as some  version of conda is installed on the user's the system. You can install miniconda from https://conda.io/miniconda.html.  (Choose the 64-bit version, or alternatively, run to the computer store now and purchase a 64-bit system to replace your ancient 32-bit platform.)
+
+    If you alreayd have any version of conda, you can skip this step. You can check it by entering `conda --version` in the Terminal.
+
+    For a Windows-based system, Visual C++ Build Tools or Visual Studio Express must be installed to compile spaCy for pip installation. The version of Visual Studio required for the installation of spaCy is found [here](https://spacy.io/usage/#source-windows) and the default python version used in our installation method is 3.6.x.
 
 2.  Install the **spacyr** R package:
 
@@ -40,7 +44,7 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
     ```{r, eval = FALSE}
     devtools::install_github("quanteda/spacyr", build_vignettes = FALSE)
     ```
-    
+
     * From CRAN:
     ```{r, eval = FALSE}
     install.packages("spacyr")
@@ -48,38 +52,38 @@ This package is an R wrapper to the spaCy "industrial strength natural language 
 
 3.  Install spaCy in a conda environment
 
-    * For Windows, you need to run R as an administrator to make installation work properly. To do so, right click Rstudio (or R desktop icon) and select "Run as administrator" when launching R. 
-    
+    * For Windows, you need to run R as an administrator to make installation work properly. To do so, right click the RStudio (or R desktop icon) and select "Run as administrator" when launching R.
+
     * To install spaCy, you can simply run
 
     ```{r, eval = FALSE}
     library("spacyr")
     spacy_install()
     ```
-      
-      This will install the latest version of spaCy (and its required packages) and English language model. After installation, you can initialize spacy in R with 
-      
+
+      This will create a stand-alone conda environment including a python executable separate from your system Python (or anaconda python), install the latest version of spaCy (and its required packages), and download English language model. After installation, you can initialize spacy in R with
+
     ```{r, eval = FALSE}
     spacy_initialize()
     ```
-    
+
     This will return the following message if spaCy was installed with this method.
-    
+
     ```{r, eval = FALSE}
     ## Found 'spacy_condaenv'. spacyr will use this environment
-    ## successfully initialized (spaCy Version: 2.0.11, language model: en)
+    ## successfully initialized (spaCy Version: 2.0.18, language model: en)
     ## (python options: type = "condaenv", value = "spacy_condaenv")
     ```
-      
-      
+
+
 4. (optional) Add more language models
 
-    For spaCy installed by `spacy_install()`, **spacyr** provides a useful helper function to install additional language models. For instance, to install Gernman language model
-    
+    For spaCy installed by `spacy_install()`, **spacyr** provides a useful helper function to install additional language models. For instance, to install German language model
+
     ```{r, eval = FALSE}
     spacy_download_langmodel("de")
     ```
-    
+
     (Again, Windows users have to run this command as an administrator. Otherwise, sim-link to language model will fail.)
 
 
@@ -91,9 +95,15 @@ We welcome your comments and feedback.  Please file issues on the [issues](https
 
 ### Starting a **spacyr** session
 
-To allow R to access the underlying Python functionality, it must open a connection by being initialized within your R session.  
+To allow R to access the underlying Python functionality, it must open a connection by being initialized within your R session.
 
-We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible by searching your system for Python executables, and testing which have spaCy installed.  For power users (such as those with multiple installations of Python), it is possible to specify the path manually through the `python_executable` argument, which also makes initialization faster.  (You will need to change the value on your system of the Python executable.)
+We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible. When spaCy has been installed in a conda environment with `spacy_install()`, `spacy_initialize()` automatically detects it and initializes spaCy. If spaCy is installed in a normal environment (i.e. not in a condaenv or virtualenv), `spacy_initialize()` searches your system for Python executables, and testing which have spaCy installed.
+
+For power users with a specialized setup of spaCy (i.e. users who have a conda environment already set up for spaCy), it is possible to specify which environment or python executable to be used through one of the following methods:
+
+1. `condaenv` argument: supplying the name of conda environment
+2. `virtualenv` argument: supplying the path to the python virtual environment
+3. `python_executable` argument: supplying the path to the python
 
 ```{r}
 library("spacyr")
@@ -102,7 +112,7 @@ spacy_initialize()
 
 ### Tokenizing and tagging texts
 
-The `spacy_parse()` is **spacyr**'s main function.  It calls spaCy both to tokenize and tag the texts.  It provides two options for part of speech tagging, plus options to return word lemmas, entity recognition, and dependency parsing.  It returns a `data.frame` corresponding to the emerging [*text interchange format*](https://github.com/ropensci/tif) for token data.frames. 
+The `spacy_parse()` function is **spacyr**'s main workhorse.  It calls spaCy both to tokenize and tag the texts.  It provides two options for part of speech tagging, plus options to return word lemmas, entity recognition, noun phrase recognition, and dependency parsing.  It returns a `data.frame` corresponding to the emerging [*text interchange format*](https://github.com/ropensci/tif) for token data.frames.
 
 The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.
 
@@ -126,7 +136,7 @@ For the German language model, the Universal tagset (`pos`) remains the same, bu
 
 ### Extracting entities
 
-**spacyr** can extract entities, either named or ["extended"](https://spacy.io/docs/usage/entity-recognition#entity-types).
+**spacyr** can extract entities, either named or ["extended"](https://spacy.io/docs/usage/entity-recognition#entity-types) from the output of `spacy_parse()`.
 ```{r}
 parsedtxt <- spacy_parse(txt, lemma = FALSE)
 entity_extract(parsedtxt)
@@ -142,6 +152,21 @@ entity_consolidate(parsedtxt)
 ```
 
 
+### Noun phrase extraction
+
+In a similar manner to named entity extraction, **spacyr** can extract or concatenate noun phrases (or [noun chunks](https://spacy.io/usage/linguistic-features#noun-chunks)).
+
+```{r}
+parsedtxt <- spacy_parse(txt, lemma = FALSE, nounphrase = TRUE)
+nounphrase_extract(parsedtxt)
+```
+
+```{r}
+nounphrase_consolidate(parsedtxt)
+```
+
+
+
 ### Dependency parsing
 
 Detailed parsing of syntactic dependencies is possible with the `dependency = TRUE` option:
@@ -149,10 +174,17 @@ Detailed parsing of syntactic dependencies is possible with the `dependency = TR
 spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
 ```
 
+### Additional token attributes
+
+You can also extract additional [attributes of spaCy tokens](https://spacy.io/api/token#attributes) with the `additional_attributes` option:
+```{r}
+spacy_parse(txt, additional_attributes = c("is_title", "is_punct"))
+```
+
 
 ### Using other language models
 
-By default, **spacyr** loads an English language model. You also can load SpaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have sucessfully tested following language models with spacy version 2.0.1.  
+By default, **spacyr** loads an English language model. You also can load SpaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have successfully tested following language models with spaCy version 2.0.18.
 
 ```{r echo = FALSE}
 knitr::kable(data.frame(Language = c("German", "Spanish", "Portuguese",  "French", "Italian", "Dutch"),
@@ -173,18 +205,26 @@ results_german
 ```
 Note that the additional language models must first be installed in spaCy.  The German language model, for example, can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
 
+### Additional functionalities of **spacyr**
+
+**spacyr** package provides more functionalities that directly work with spaCy
+
+- `spacy_tokenize()`: a function for efficient tokenization (without POS tagging, dependency parsing, lemmatization, or named entity recognition) of texts
+- `spacy_extract_entity()`: a one-step function to extract named entities without `spacy_parse()`
+- `spacy_extract_nounphrases()`: a one-step function to extract noun phrases without `spacy_parse()`
+
 ### When you finish
 
-A background process of spaCy is initiated when you ran `spacy_initialize()`. Because of the size of language models of spaCy, this takes up a lot of memory (typically 1.5GB). When you do not need the Python connection any longer, you can finalize the python connection (and terminate the process) by calling the `spacy_finalize()` function.
+When `spacy_initialize()` is executed, a background process of spaCy is attached in python space. This can take up a significant size of memory especially when a larger language model is used (e.g. [en_core_web_lg](https://spacy.io/models/en#en_core_web_lg)). When you do not need the connection to spaCy any longer, you can remove the spaCy object by calling the `spacy_finalize()` function.
 
 ```{r, eval = FALSE}
 spacy_finalize()
 ```
-By calling `spacy_initialize()` again, you can restart the backend spaCy.
+By calling `spacy_initialize()` again, you can reattach the backend spaCy.
 
 ### Permanently seting the default Python
 
-If you want to skip **spacyr** searching for Python intallation with spaCy, you can do so by permanently setting the path to the spaCy-enabled Python by specifying it in an R-startup file (For Mac/Linux, the file is `~/.Rprofile`), which is read every time a new `R` is launched. You can set the option permanently when you call  `spacy_initialize`:
+If you are using the same setting for spaCy (e.g. condaenv or python path) every time and want to reduce the time for initialization, you can fixate the setting by specifying it in an R-startup file (For Mac/Linux, the file is `~/.Rprofile`), which is read every time a new `R` is launched. You can set the option permanently when you call  `spacy_initialize()`:
 
 ```{R eval = FALSE}
 spacy_initialize(save_profile = TRUE)
@@ -194,11 +234,11 @@ Once this is appropriately set up, the message from `spacy_initialize()` changes
 ```
 ## spacy python option is already set, spacyr will use:
 ##	condaenv = "spacy_condaenv"
-## successfully initialized (spaCy Version: 2.0.11, language model: en)
+## successfully initialized (spaCy Version: 2.0.18, language model: en)
 ## (python options: type = "condaenv", value = "spacy_condaenv")
 ```
 
-To ignore the permanently set options, you can initialize spacy with `refresh_settings = TRUE`. 
+To ignore the permanently set options, you can initialize spacy with `refresh_settings = TRUE`.
 
 ## Using **spacyr** with other packages
 
@@ -216,5 +256,3 @@ ntype(parsedtxt)
 ### Conformity to the *Text Interchange Format*
 
 The [Text Interchange Format](https://github.com/ropensci/tif) is an emerging standard structure for text package objects in R, such as corpus and token objects.  `spacy_initialize()` can take a TIF corpus data.frame or character object as a valid input.  Moreover, the data.frames returned by `spacy_parse()` and `entity_consolidate()` conform to the TIF tokens standard for data.frame tokens objects.  This will make it easier to use with any text analysis package for R that works with TIF standard objects.
-
-

@@ -36,7 +36,7 @@ the pre- and post-selected tokens, for instance if a window of adjacency
 needs to be computed.}
 
 \item{multithread}{logical; If true, the processing is parallelized using pipe 
-functionality of spacy (\url{https://spacy.io/api/pipe}).}
+functionality of spaCy (\url{https://spacy.io/api/pipe}).}
 
 \item{output}{type of returning object. Either \code{list} or \code{data.frame}.}
 
