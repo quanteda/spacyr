@@ -4,11 +4,14 @@
 \alias{spacy_uninstall}
 \title{Uninstall spaCy conda environment}
 \usage{
-spacy_uninstall(conda = "auto", envname = "spacy_condaenv")
+spacy_uninstall(conda = "auto", prompt = TRUE,
+  envname = "spacy_condaenv")
 }
 \arguments{
 \item{conda}{Path to conda executable, default to "auto" which automatically
 finds the path}
+
+\item{prompt}{logical; ask whether to proceed during the installation}
 
 \item{envname}{character; name of conda environment to remove}
 }
