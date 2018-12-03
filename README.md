@@ -18,22 +18,23 @@ language processing” Python library from <http://spacy.io>.
 
 1.  Install miniconda
     
-    The easiest way to install spaCy and **spacyr** is through an
-    auto-installation function in **spacyr** package. This function by
-    default create a new conda environemnt called `spacy_condaenv` and
-    therefore, it requires some version of conda installed in the
-    system. You can install miniconda from
-    <https://conda.io/miniconda.html> (Choose 64-bit version for your
-    system).
+    The easiest way to install spaCy and **spacyr** is through the
+    **spacyr** function `spacy_install()`. This function by default
+    creates a new conda environment called `spacy_condaenv`, as long as
+    some version of conda is installed on the user’s the system. You can
+    install miniconda from <https://conda.io/miniconda.html>. (Choose
+    the 64-bit version, or alternatively, run to the computer store now
+    and purchase a 64-bit system to replace your ancient 32-bit
+    platform.)
     
-    If you have any version of conda, you can skip this step. You can
-    check it by entering `conda --version` in Console.
+    If you alreayd have any version of conda, you can skip this step.
+    You can check it by entering `conda --version` in the Console.
     
-    For a windows based system, Visual C++ Build Tools or Visual Studio
-    Express has to be installed to compile spaCy for pip installation.
-    The version of Visual Studio required for the installation of spaCy
-    is found [here](https://spacy.io/usage/#source-windows) and the
-    default python version used in our installation method is 3.6.x.
+    For a Windows-based system, Visual C++ Build Tools or Visual Studio
+    Express must be installed to compile spaCy for pip installation. The
+    version of Visual Studio required for the installation of spaCy is
+    found [here](https://spacy.io/usage/#source-windows) and the default
+    python version used in our installation method is 3.6.x.
 
 2.  Install the **spacyr** R package:
     
@@ -59,9 +60,9 @@ language processing” Python library from <http://spacy.io>.
 3.  Install spaCy in a conda environment
     
       - For Windows, you need to run R as an administrator to make
-        installation work properly. To do so, right click Rstudio (or R
-        desktop icon) and select “Run as administrator” when launching
-        R.
+        installation work properly. To do so, right click the RStudio
+        (or R desktop icon) and select “Run as administrator” when
+        launching R.
     
       - To install spaCy, you can simply run
     
@@ -73,7 +74,7 @@ language processing” Python library from <http://spacy.io>.
     ```
     
     This will create a stand-alone conda environment including a python
-    executable separate from your system python (or anaconda python),
+    executable separate from your system Python (or anaconda python),
     install the latest version of spaCy (and its required packages), and
     download English language model. After installation, you can
     initialize spacy in R with
@@ -148,11 +149,11 @@ spacy_initialize()
 
 ### Tokenizing and tagging texts
 
-The `spacy_parse()` is **spacyr**’s main function. It calls spaCy both
-to tokenize and tag the texts. It provides two options for part of
-speech tagging, plus options to return word lemmas, entity recognition,
-noun-phrase recognition, and dependency parsing. It returns a
-`data.frame` corresponding to the emerging [*text interchange
+The `spacy_parse()` function is **spacyr**’s main workhorse. It calls
+spaCy both to tokenize and tag the texts. It provides two options for
+part of speech tagging, plus options to return word lemmas, entity
+recognition, noun phrase recognition, and dependency parsing. It returns
+a `data.frame` corresponding to the emerging [*text interchange
 format*](https://github.com/ropensci/tif) for token data.frames.
 
 The approach to tokenizing taken by spaCy is inclusive: it includes all
@@ -522,10 +523,10 @@ spaCy
 
 When `spacy_initialize()` is executed, a background process of spaCy is
 attached in python space. This can take up a significant size of memory
-especially when a larger language model is used (e.g.
-[en\_core\_web\_lg](https://spacy.io/models/en#en_core_web_lg)). When
-you do not need the connection to spaCy any longer, you can remove the
-spaCy object by calling the `spacy_finalize()` function.
+especially when a larger language model is used
+(e.g. [en\_core\_web\_lg](https://spacy.io/models/en#en_core_web_lg)).
+When you do not need the connection to spaCy any longer, you can remove
+the spaCy object by calling the `spacy_finalize()` function.
 
 ``` r
 spacy_finalize()
@@ -568,8 +569,8 @@ new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## Package version: 1.3.14
-## Parallel computing: 2 of 4 threads used.
+## Package version: 1.3.16
+## Parallel computing: 2 of 12 threads used.
 ## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)
 ## [1] "d1" "d2"
