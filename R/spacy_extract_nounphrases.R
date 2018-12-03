@@ -7,7 +7,7 @@
 #' @param x a character object or a TIF-compliant corpus data.frame (see
 #'   \url{https://github.com/ropensci/tif})
 #' @param multithread logical; If true, the processing is parallelized using
-#'   pipe functionality of spacy (\url{https://spacy.io/api/pipe}).
+#'   pipe functionality of spaCy (\url{https://spacy.io/api/pipe}).
 #' @param output type of returned object, either \code{"data.frame"} or
 #'   \code{"list"}
 #' @param ... unused

@@ -15,7 +15,7 @@ spacy_extract_nounphrases(x, output = c("data.frame", "list"),
 \code{"list"}}
 
 \item{multithread}{logical; If true, the processing is parallelized using
-pipe functionality of spacy (\url{https://spacy.io/api/pipe}).}
+pipe functionality of spaCy (\url{https://spacy.io/api/pipe}).}
 
 \item{...}{unused}
 }
