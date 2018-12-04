@@ -1,4 +1,4 @@
-# [![spacyr: an R wrapper for spaCy](https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg)](https://spacyr.quanteda.io)
+# spacyr: an R wrapper for [spaCy](https://spacy.io)
 
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
