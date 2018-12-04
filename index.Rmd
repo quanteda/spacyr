@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# spacyr: an R wrapper for [spaCy](https://spacy.io)
+# spacyr: an R wrapper for spaCy
 
 [![CRAN Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
 [![Travis-CI Build Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
