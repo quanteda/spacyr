@@ -29,6 +29,11 @@
 <script src="pkgdown.js"></script>
 
 
+<!-- docsearch -->
+<script src="docsearch.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
 
   <link href="extra.css" rel="stylesheet">
   
@@ -69,13 +74,30 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="index.html">Installation</a>
+</li>
+<li>
+  <a href="articles/using_spacyr.html">Using spacyr</a>
+</li>
+<li>
   <a href="reference/index.html">Reference</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/quanteda/spacyr">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
       
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -92,12 +114,16 @@
 
     <ul class="list-unstyled">
       <li>
-        <p><strong>Kenneth Benoit</strong>. Author, maintainer, copyright holder. 
+        <p><strong>Kenneth Benoit</strong>. Maintainer, author, copyright holder. <a href='https://orcid.org/0000-0002-0797-564X' target='orcid.widget'><img src='https://members.orcid.org/sites/default/files/vector_iD_icon.svg' class='orcid' alt='ORCID' height='16'></a>
         </p>
       </li>
       <li>
-        <p><strong>Akitaka Matsuo</strong>. Author. 
+        <p><strong>Akitaka Matsuo</strong>. Author. <a href='https://orcid.org/0000-0002-3323-6330' target='orcid.widget'><img src='https://members.orcid.org/sites/default/files/vector_iD_icon.svg' class='orcid' alt='ORCID' height='16'></a>
         </p>
+      </li>
+      <li>
+        <p><strong>European Research Council</strong>. Funder. 
+        <br /><small>ERC-2011-StG 283794-QUANTESS</small></p>
       </li>
     </ul>
 
@@ -108,7 +134,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kenneth Benoit, Akitaka Matsuo.</p>
+  <p>Developed by Kenneth Benoit, Akitaka Matsuo, European Research Council.</p>
 </div>
 
 <div class="pkgdown">
@@ -118,6 +144,23 @@
    </div>
 
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: 'API_KEY',
+    indexName: 'INDEX_NAME',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
 
   </body>
 </html>
