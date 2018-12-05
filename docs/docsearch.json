@@ -1,5 +1,5 @@
 {
-  "index_name": "INDEX_NAME",
+  "index_name": "spacyr",
   "start_urls": [
     {
       "url": "http://spacyr.quanteda.io/index.html",
