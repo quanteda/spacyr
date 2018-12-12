@@ -90,7 +90,7 @@ spacy_tokenize(txt, remove_punct = TRUE, output = "data.frame") %>%
 
 **spacyr** can extract entities, either named or ["extended"](https://spacy.io/api/annotation#named-entities) from the output of `spacy_parse()`.
 ```{r}
-parsedtxt <- spacy_parse(txt, lemma = FALSE, entity = TRUE, nounphrases = TRUE)
+parsedtxt <- spacy_parse(txt, lemma = FALSE, entity = TRUE, nounphrase = TRUE)
 entity_extract(parsedtxt)
 ```
 
@@ -157,8 +157,9 @@ spacy_initialize(model = "de")
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
-results_german <- spacy_parse(txt_german, dependency = TRUE, lemma = FALSE, tag = TRUE)
+results_german <- spacy_parse(txt_german, dependency = FALSE, lemma = FALSE, tag = TRUE)
 results_german
+spacy_finalize()
 ```
 Note that the additional language models must first be installed in spaCy.  The German language model, for example, can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
 
@@ -179,15 +180,16 @@ ntype(parsedtxt)
 
 Conversion of tokens is easily performed, and the tokenizers in **spacyr** tend to be smarter than the purely syntactic pattern-based parsers used by **quanteda**.
 ```{r}
+spacy_initialize(model = "en")
 parsedtxt <- spacy_parse(txt, pos = TRUE, tag = TRUE)
 as.tokens(parsedtxt)
 as.tokens(parsedtxt, include_pos = "pos")
 as.tokens(parsedtxt, include_pos = "tag")
 ```
 
-The latter is useful for say, selecting only VERBS, using "glob" pattern matching with **quanteda**'s `tokens_select()` function:
+The latter is useful for say, selecting only nouns, using "glob" pattern matching with **quanteda**'s `tokens_select()` function:
 ```{r}
-spacy_parse("The cat in the hat ate green ham and eggs", pos = TRUE) %>%
+spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
     as.tokens(include_pos = "pos") %>%
     tokens_select(pattern = c("*/NOUN"))
 ```
@@ -214,11 +216,20 @@ spacy_parse(txt, entity = TRUE) %>%
 ```
 ### With **tidytext**
 
-If you prefer a tidy approach to text analysis, **spacyr** works well with this approach because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects. 
+If you prefer a tidy approach to text analysis, **spacyr** works nicely because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects. 
 ```{r}
-tidytext::unnest_tokens(parsedtxt, word, token) %>%
+library("tidytext")
+unnest_tokens(parsedtxt, word, token) %>%
     dplyr::anti_join(stop_words)
 ```
+
+Part of speech filtering can then happen using **dplyr**:
+```{r}
+spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
+    unnest_tokens(word, token) %>%
+    dplyr::filter(pos == "NOUN")
+```
+
 
 
 ### Adherence to the "TIF" standard
