@@ -72,7 +72,7 @@ Two fields are available for part-of-speech tags.  The `pos` field returned is t
 spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
 ```
 
-The Penn Treebank is specific to English parts of speech.  For other language models, the detailed tagset will be based on a different scheme.  In the German language model, for instnace, the universal tagset (`pos`) remains the same, but the detailed tagset (`tag`) is based on the [TIGER Treebank](https://spacy.io/docs/usage/pos-tagging#pos-tagging-german) scheme.  Full details are available from the [spaCy models web page](https://spacy.io/models/).
+The Penn Treebank is specific to English parts of speech.  For other language models, the detailed tagset will be based on a different scheme.  In the German language model, for instance, the universal tagset (`pos`) remains the same, but the detailed tagset (`tag`) is based on the [TIGER Treebank](https://spacy.io/docs/usage/pos-tagging#pos-tagging-german) scheme.  Full details are available from the [spaCy models web page](https://spacy.io/models/).
 
 Direct parsing of texts is also possible, using **spacy_tokenize()**.  The options are designed to match those in the [`tokens()` function](https://quanteda.io/reference/tokens.html) from the **quanteda** package.  By default this returns a named list (where the document name is the list element name):
 ```{r}
@@ -141,7 +141,7 @@ spacy_parse("I have six email addresses, including me@mymail.com.",
 
 ## Using other language models
 
-By default, **spacyr** loads an English language model. You also can load SpaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have successfully tested following language models with spaCy version 2.0.18.
+By default, **spacyr** loads an English language model. You also can load spaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have successfully tested following language models with spaCy version 2.0.18.
 
 ```{r echo = FALSE}
 knitr::kable(data.frame(Language = c("German", "Spanish", "Portuguese",  "French", "Italian", "Dutch"),
@@ -161,7 +161,7 @@ results_german <- spacy_parse(txt_german, dependency = FALSE, lemma = FALSE, tag
 results_german
 spacy_finalize()
 ```
-Note that the additional language models must first be installed in spaCy. When spaCy has been installed through `spacy_install()`, installation of additional language model is very simple. For example, the German language model can be installed (`spacy_download_langmodel('de')`). In other environments, you can install the model by entering `python -m spacy download de` in the console.
+Note that the additional language models must first be installed in spaCy. When spaCy has been installed through `spacy_install()`, installation of additional language models is very simple. For example, the German language model can be installed (`spacy_download_langmodel('de')`). In other environments, you can install the model by entering `python -m spacy download de` in the console.
 
 ## Integrating **spacyr** with other text analysis packages
 
