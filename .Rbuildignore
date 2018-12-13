@@ -1,3 +1,4 @@
+^docs$
 ^\.lintr$
 ^.*\.Rproj$
 ^\.Rproj\.user$
@@ -22,3 +23,5 @@
 ^docs/
 ^images/
 ^pkgdown/
+index.Rmd
+index.md

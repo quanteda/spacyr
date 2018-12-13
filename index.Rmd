@@ -12,8 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# [![spacyr: an R wrapper for
-spaCy](https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg)](https://spacyr.quanteda.io)
+# spacyr: an R wrapper for spaCy
 
 [![CRAN Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
 [![Travis-CI Build Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
@@ -32,7 +31,7 @@ An R wrapper to the spaCy "industrial strength natural language processing"" Pyt
 
     The easiest way to install spaCy and **spacyr** is through the **spacyr** function `spacy_install()`. This function by default creates a new conda environment called `spacy_condaenv`, as long as some  version of conda is installed on the user's the system. You can install miniconda from https://conda.io/miniconda.html.  (Choose the 64-bit version, or alternatively, run to the computer store now and purchase a 64-bit system to replace your ancient 32-bit platform.)
 
-    If you already have any version of conda, you can skip this step. You can check it by entering `conda --version` in the Terminal.
+    If you alreayd have any version of conda, you can skip this step. You can check it by entering `conda --version` in the Terminal.
 
     For a Windows-based system, Visual C++ Build Tools or Visual Studio Express must be installed to compile spaCy for pip installation. The version of Visual Studio required for the installation of spaCy is found [here](https://spacy.io/usage/#source-windows) and the default python version used in our installation method is 3.6.x.
 
@@ -52,7 +51,7 @@ An R wrapper to the spaCy "industrial strength natural language processing"" Pyt
 
 3.  Install spaCy in a conda environment
 
-    * For Windows, you need to run R as an administrator to make installation work properly. To do so, right click the RStudio icon (or R desktop icon) and select "Run as administrator" when launching R.
+    * For Windows, you need to run R as an administrator to make installation work properly. To do so, right click the RStudio (or R desktop icon) and select "Run as administrator" when launching R.
 
     * To install spaCy, you can simply run
 
@@ -61,7 +60,7 @@ An R wrapper to the spaCy "industrial strength natural language processing"" Pyt
     spacy_install()
     ```
 
-      This will create a stand-alone conda environment including a python executable separate from your system Python (or anaconda python), install the latest version of spaCy (and its required packages), and download English language model. After installation, you can initialize spaCy in R with
+      This will create a stand-alone conda environment including a python executable separate from your system Python (or anaconda python), install the latest version of spaCy (and its required packages), and download English language model. After installation, you can initialize spacy in R with
 
     ```{r, eval = FALSE}
     spacy_initialize()
@@ -86,7 +85,7 @@ An R wrapper to the spaCy "industrial strength natural language processing"" Pyt
 
     (Again, Windows users have to run this command as an administrator. Otherwise, sim-link to language model will fail.)
 
-### Permanently setting the default Python
+### Permanently seting the default Python
 
 If you are using the same setting for spaCy (e.g. condaenv or python path) every time and want to reduce the time for initialization, you can fixate the setting by specifying it in an R-startup file (For Mac/Linux, the file is `~/.Rprofile`), which is read every time a new `R` is launched. You can set the option permanently when you call  `spacy_initialize()`:
 
