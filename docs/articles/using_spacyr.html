@@ -77,7 +77,7 @@
       <h1>A Guide to Using spacyr</h1>
                         <h4 class="author">Kenneth Benoit and Akitaka Matsuo</h4>
             
-            <h4 class="date">2018-12-12</h4>
+            <h4 class="date">2018-12-13</h4>
       
       
       <div class="hidden name"><code>using_spacyr.Rmd</code></div>
@@ -124,7 +124,7 @@
 <h2 class="hasAnchor">
 <a href="#tokenizing-and-tagging-texts" class="anchor"></a>Tokenizing and tagging texts</h2>
 <p>The <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> function is <strong>spacyr</strong>’s main workhorse. It calls spaCy both to tokenize and tag the texts. It provides two options for part of speech tagging, plus options to return word lemmas, recognize names entities or noun phrases recognition, and identify grammatical structures features by parsing syntactic dependencies. It returns a <code>data.frame</code> corresponding to the emerging <a href="https://github.com/ropensci/tif"><em>text interchange format</em></a> for token data.frames.</p>
-<p>The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.</p>
+<p>The tokenization approach taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.</p>
 <p>Example:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">txt &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">d1 =</span> <span class="st">"spaCy is great at fast natural language processing."</span>,</a>
 <a class="sourceLine" id="cb2-2" title="2">         <span class="dt">d2 =</span> <span class="st">"Mr. Smith spent two years in North Carolina."</span>)</a>
@@ -172,8 +172,8 @@
 <a class="sourceLine" id="cb3-18" title="18"><span class="co">## 16     d2           1        7      North PROPN NNP</span></a>
 <a class="sourceLine" id="cb3-19" title="19"><span class="co">## 17     d2           1        8   Carolina PROPN NNP</span></a>
 <a class="sourceLine" id="cb3-20" title="20"><span class="co">## 18     d2           1        9          . PUNCT   .</span></a></code></pre></div>
-<p>The Penn Treebank is specific to English parts of speech. For other language models, the detailed tagset will be based on a different scheme. In the German language model, for instnace, the universal tagset (<code>pos</code>) remains the same, but the detailed tagset (<code>tag</code>) is based on the <a href="https://spacy.io/docs/usage/pos-tagging#pos-tagging-german">TIGER Treebank</a> scheme. Full details are available from the <a href="https://spacy.io/models/">spaCy models web page</a>.</p>
-<p>Direct parsing of texts is also possible, using <strong>spacy_tokenize()</strong>. The options are designed to match those in the <a href="https://quanteda.io/reference/tokens.html"><code><a href="https://www.rdocumentation.org/packages/quanteda/topics/tokens">tokens()</a></code> function</a> from the <strong>quanteda</strong> package. By default this returns a named list (where the document name is the list element name):</p>
+<p>The Penn Treebank is specific to English parts of speech. For other language models, the detailed tagset will be based on a different scheme. In the German language model, for instance, the universal tagset (<code>pos</code>) remains the same, but the detailed tagset (<code>tag</code>) is based on the <a href="https://spacy.io/docs/usage/pos-tagging#pos-tagging-german">TIGER Treebank</a> scheme. Full details are available from the <a href="https://spacy.io/models/">spaCy models web page</a>.</p>
+<p>Direct parsing of texts is also possible, using <strong>spacy_tokenize()</strong>. The options are designed to match those in the <a href="https://quanteda.io/reference/tokens.html"><code><a href="https://quanteda.io/reference/tokens.html">tokens()</a></code> function</a> from the <strong>quanteda</strong> package. By default this returns a named list (where the document name is the list element name):</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span>(txt)</a>
 <a class="sourceLine" id="cb4-2" title="2"><span class="co">## $d1</span></a>
 <a class="sourceLine" id="cb4-3" title="3"><span class="co">## [1] "spaCy"      "is"         "great"      "at"         "fast"      </span></a>
@@ -311,7 +311,7 @@
 <div id="using-other-language-models" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-other-language-models" class="anchor"></a>Using other language models</h2>
-<p>By default, <strong>spacyr</strong> loads an English language model. You also can load SpaCy’s other <a href="https://spacy.io/docs/usage/models">language models</a> or use one of the <a href="https://spacy.io/docs/api/language-models#alpha-support">language models with alpha support</a> by specifying the <code>model</code> option when calling <code><a href="../reference/spacy_initialize.html">spacy_initialize()</a></code>. We have successfully tested following language models with spaCy version 2.0.18.</p>
+<p>By default, <strong>spacyr</strong> loads an English language model. You also can load spaCy’s other <a href="https://spacy.io/docs/usage/models">language models</a> or use one of the <a href="https://spacy.io/docs/api/language-models#alpha-support">language models with alpha support</a> by specifying the <code>model</code> option when calling <code><a href="../reference/spacy_initialize.html">spacy_initialize()</a></code>. We have successfully tested following language models with spaCy version 2.0.18.</p>
 <table class="table">
 <thead><tr class="header">
 <th align="left">Language</th>
@@ -400,7 +400,7 @@
 <a class="sourceLine" id="cb14-53" title="53"><span class="co">## 41 python           2        9            fördern  VERB VVFIN       </span></a>
 <a class="sourceLine" id="cb14-54" title="54"><span class="co">## 42 python           2       10                  . PUNCT    $.</span></a>
 <a class="sourceLine" id="cb14-55" title="55"><span class="kw"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span>()</a></code></pre></div>
-<p>Note that the additional language models must first be installed in spaCy. The German language model, for example, can be installed (<code>python -m spacy download de</code>) before you call <code><a href="../reference/spacy_initialize.html">spacy_initialize()</a></code>.</p>
+<p>Note that the additional language models must first be installed in spaCy. When spaCy has been installed through <code><a href="../reference/spacy_install.html">spacy_install()</a></code>, installation of additional language models is very simple. For example, the German language model can be installed (<code><a href="../reference/spacy_download_langmodel.html">spacy_download_langmodel('de')</a></code>). In other environments, you can install the model by entering <code>python -m spacy download de</code> in the console.</p>
 </div>
 <div id="integrating-spacyr-with-other-text-analysis-packages" class="section level2">
 <h2 class="hasAnchor">
@@ -413,14 +413,14 @@
 <p>The outputs and formats of <strong>spacyr</strong> are designed to integrate directly with the <strong>quanteda</strong> package.</p>
 <p>For instance, many of its functions operate directly on <strong>spacyr</strong> objects, such as a parsed text.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(quanteda, <span class="dt">warn.conflicts =</span> <span class="ot">FALSE</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb15-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/docnames">docnames</a></span>(parsedtxt)</a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="kw"><a href="https://quanteda.io/reference/docnames.html">docnames</a></span>(parsedtxt)</a>
 <a class="sourceLine" id="cb15-3" title="3"><span class="co">## [1] "d1" "d2"</span></a>
-<a class="sourceLine" id="cb15-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/ndoc">ndoc</a></span>(parsedtxt)</a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="kw"><a href="https://quanteda.io/reference/ndoc.html">ndoc</a></span>(parsedtxt)</a>
 <a class="sourceLine" id="cb15-5" title="5"><span class="co">## [1] 2</span></a>
-<a class="sourceLine" id="cb15-6" title="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/ntoken">ntoken</a></span>(parsedtxt)</a>
+<a class="sourceLine" id="cb15-6" title="6"><span class="kw"><a href="https://quanteda.io/reference/ntoken.html">ntoken</a></span>(parsedtxt)</a>
 <a class="sourceLine" id="cb15-7" title="7"><span class="co">## d1 d2 </span></a>
 <a class="sourceLine" id="cb15-8" title="8"><span class="co">##  9  9</span></a>
-<a class="sourceLine" id="cb15-9" title="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/ntoken">ntype</a></span>(parsedtxt)</a>
+<a class="sourceLine" id="cb15-9" title="9"><span class="kw"><a href="https://quanteda.io/reference/ntoken.html">ntype</a></span>(parsedtxt)</a>
 <a class="sourceLine" id="cb15-10" title="10"><span class="co">## d1 d2 </span></a>
 <a class="sourceLine" id="cb15-11" title="11"><span class="co">##  9  9</span></a></code></pre></div>
 <p>Conversion of tokens is easily performed, and the tokenizers in <strong>spacyr</strong> tend to be smarter than the purely syntactic pattern-based parsers used by <strong>quanteda</strong>.</p>
@@ -429,7 +429,7 @@
 <a class="sourceLine" id="cb16-3" title="3"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></a>
 <a class="sourceLine" id="cb16-4" title="4"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a>
 <a class="sourceLine" id="cb16-5" title="5">parsedtxt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">pos =</span> <span class="ot">TRUE</span>, <span class="dt">tag =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb16-6" title="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/as.tokens">as.tokens</a></span>(parsedtxt)</a>
+<a class="sourceLine" id="cb16-6" title="6"><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>(parsedtxt)</a>
 <a class="sourceLine" id="cb16-7" title="7"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb16-8" title="8"><span class="co">## d1 :</span></a>
 <a class="sourceLine" id="cb16-9" title="9"><span class="co">## [1] "spaCy"      "is"         "great"      "at"         "fast"      </span></a>
@@ -438,7 +438,7 @@
 <a class="sourceLine" id="cb16-12" title="12"><span class="co">## d2 :</span></a>
 <a class="sourceLine" id="cb16-13" title="13"><span class="co">## [1] "Mr."      "Smith"    "spent"    "two"      "years"    "in"      </span></a>
 <a class="sourceLine" id="cb16-14" title="14"><span class="co">## [7] "North"    "Carolina" "."</span></a>
-<a class="sourceLine" id="cb16-15" title="15"><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/as.tokens">as.tokens</a></span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">"pos"</span>)</a>
+<a class="sourceLine" id="cb16-15" title="15"><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">"pos"</span>)</a>
 <a class="sourceLine" id="cb16-16" title="16"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb16-17" title="17"><span class="co">## d1 :</span></a>
 <a class="sourceLine" id="cb16-18" title="18"><span class="co">## [1] "spaCy/ADJ"       "is/VERB"         "great/ADJ"       "at/ADP"         </span></a>
@@ -449,7 +449,7 @@
 <a class="sourceLine" id="cb16-23" title="23"><span class="co">## [1] "Mr./PROPN"      "Smith/PROPN"    "spent/VERB"     "two/NUM"       </span></a>
 <a class="sourceLine" id="cb16-24" title="24"><span class="co">## [5] "years/NOUN"     "in/ADP"         "North/PROPN"    "Carolina/PROPN"</span></a>
 <a class="sourceLine" id="cb16-25" title="25"><span class="co">## [9] "./PUNCT"</span></a>
-<a class="sourceLine" id="cb16-26" title="26"><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/as.tokens">as.tokens</a></span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">"tag"</span>)</a>
+<a class="sourceLine" id="cb16-26" title="26"><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">"tag"</span>)</a>
 <a class="sourceLine" id="cb16-27" title="27"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb16-28" title="28"><span class="co">## d1 :</span></a>
 <a class="sourceLine" id="cb16-29" title="29"><span class="co">## [1] "spaCy/JJ"      "is/VBZ"        "great/JJ"      "at/IN"        </span></a>
@@ -460,16 +460,16 @@
 <a class="sourceLine" id="cb16-34" title="34"><span class="co">## [1] "Mr./NNP"      "Smith/NNP"    "spent/VBD"    "two/CD"      </span></a>
 <a class="sourceLine" id="cb16-35" title="35"><span class="co">## [5] "years/NNS"    "in/IN"        "North/NNP"    "Carolina/NNP"</span></a>
 <a class="sourceLine" id="cb16-36" title="36"><span class="co">## [9] "./."</span></a></code></pre></div>
-<p>The latter is useful for say, selecting only nouns, using “glob” pattern matching with <strong>quanteda</strong>’s <code><a href="https://www.rdocumentation.org/packages/quanteda/topics/tokens_select">tokens_select()</a></code> function:</p>
+<p>The latter is useful for say, selecting only nouns, using “glob” pattern matching with <strong>quanteda</strong>’s <code><a href="https://quanteda.io/reference/tokens_select.html">tokens_select()</a></code> function:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw"><a href="../reference/spacy_parse.html">spacy_parse</a></span>(<span class="st">"The cat in the hat ate green eggs and ham."</span>, <span class="dt">pos =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-2" title="2"><span class="st">    </span><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/as.tokens">as.tokens</a></span>(<span class="dt">include_pos =</span> <span class="st">"pos"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-3" title="3"><span class="st">    </span><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/tokens_select">tokens_select</a></span>(<span class="dt">pattern =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"*/NOUN"</span>))</a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="st">    </span><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>(<span class="dt">include_pos =</span> <span class="st">"pos"</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="st">    </span><span class="kw"><a href="https://quanteda.io/reference/tokens_select.html">tokens_select</a></span>(<span class="dt">pattern =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"*/NOUN"</span>))</a>
 <a class="sourceLine" id="cb17-4" title="4"><span class="co">## tokens from 1 document.</span></a>
 <a class="sourceLine" id="cb17-5" title="5"><span class="co">## text1 :</span></a>
 <a class="sourceLine" id="cb17-6" title="6"><span class="co">## [1] "cat/NOUN"  "hat/NOUN"  "eggs/NOUN" "ham/NOUN"</span></a></code></pre></div>
 <p>Direct conversion of just the spaCy-based tokens is also possible:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span>(txt) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb18-2" title="2"><span class="st">    </span><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/as.tokens">as.tokens</a></span>()</a>
+<a class="sourceLine" id="cb18-2" title="2"><span class="st">    </span><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>()</a>
 <a class="sourceLine" id="cb18-3" title="3"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb18-4" title="4"><span class="co">## d1 :</span></a>
 <a class="sourceLine" id="cb18-5" title="5"><span class="co">## [1] "spaCy"      "is"         "great"      "at"         "fast"      </span></a>
@@ -481,14 +481,14 @@
 <p>including for sentences, for which spaCy’s recognition is very smart:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">txt2 &lt;-<span class="st"> "A Ph.D. in Washington D.C.  Mr. Smith went to Washington."</span></a>
 <a class="sourceLine" id="cb19-2" title="2"><span class="kw"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span>(txt2, <span class="dt">what =</span> <span class="st">"sentence"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb19-3" title="3"><span class="st">    </span><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/as.tokens">as.tokens</a></span>()</a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="st">    </span><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>()</a>
 <a class="sourceLine" id="cb19-4" title="4"><span class="co">## tokens from 1 document.</span></a>
 <a class="sourceLine" id="cb19-5" title="5"><span class="co">## text1 :</span></a>
 <a class="sourceLine" id="cb19-6" title="6"><span class="co">## [1] "A Ph.D. in Washington D.C."    "Mr. Smith went to Washington."</span></a></code></pre></div>
 <p>This also works well with entity recognition, e.g.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw"><a href="../reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">entity =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb20-2" title="2"><span class="st">    </span><span class="kw"><a href="../reference/entity_extract.html">entity_consolidate</a></span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb20-3" title="3"><span class="st">    </span><span class="kw"><a href="https://www.rdocumentation.org/packages/quanteda/topics/as.tokens">as.tokens</a></span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb20-3" title="3"><span class="st">    </span><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb20-4" title="4"><span class="st">    </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(<span class="dv">1</span>)</a>
 <a class="sourceLine" id="cb20-5" title="5"><span class="co">## tokens from 1 document.</span></a>
 <a class="sourceLine" id="cb20-6" title="6"><span class="co">## d1 :</span></a>
@@ -501,7 +501,7 @@
 <p>If you prefer a tidy approach to text analysis, <strong>spacyr</strong> works nicely because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects.</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"tidytext"</span>)</a>
 <a class="sourceLine" id="cb21-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/tidytext/topics/unnest_tokens">unnest_tokens</a></span>(parsedtxt, word, token) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-3" title="3"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dplyr/topics/join">anti_join</a></span>(stop_words)</a>
+<a class="sourceLine" id="cb21-3" title="3"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/join.html">anti_join</a></span>(stop_words)</a>
 <a class="sourceLine" id="cb21-4" title="4"><span class="co">## Joining, by = "word"</span></a>
 <a class="sourceLine" id="cb21-5" title="5"><span class="co">##   doc_id sentence_id token_id      lemma   pos tag   entity       word</span></a>
 <a class="sourceLine" id="cb21-6" title="6"><span class="co">## 1     d1           1        1      spacy   ADJ  JJ    GPE_B      spacy</span></a>
@@ -516,7 +516,7 @@
 <p>Part of speech filtering can then happen using <strong>dplyr</strong>:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw"><a href="../reference/spacy_parse.html">spacy_parse</a></span>(<span class="st">"The cat in the hat ate green eggs and ham."</span>, <span class="dt">pos =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb22-2" title="2"><span class="st">    </span><span class="kw"><a href="https://www.rdocumentation.org/packages/tidytext/topics/unnest_tokens">unnest_tokens</a></span>(word, token) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb22-3" title="3"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dplyr/topics/filter">filter</a></span>(pos <span class="op">==</span><span class="st"> "NOUN"</span>)</a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pos <span class="op">==</span><span class="st"> "NOUN"</span>)</a>
 <a class="sourceLine" id="cb22-4" title="4"><span class="co">##   doc_id sentence_id token_id lemma  pos entity word</span></a>
 <a class="sourceLine" id="cb22-5" title="5"><span class="co">## 1  text1           1        2   cat NOUN         cat</span></a>
 <a class="sourceLine" id="cb22-6" title="6"><span class="co">## 2  text1           1        5   hat NOUN         hat</span></a>
