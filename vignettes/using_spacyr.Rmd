@@ -39,7 +39,7 @@ spacy_initialize()
 
 The `spacy_parse()` function is **spacyr**'s main workhorse.  It calls spaCy both to tokenize and tag the texts.  It provides two options for part of speech tagging, plus options to return word lemmas, entity recognition, noun phrase recognition, and dependency parsing.  It returns a `data.frame` corresponding to the emerging [*text interchange format*](https://github.com/ropensci/tif) for token data.frames.
 
-The approach to tokenizing taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.
+The tokenization approach taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.
 
 Example:
 ```{r}
@@ -128,7 +128,7 @@ txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berec
 results_german <- spacy_parse(txt_german, dependency = TRUE, lemma = FALSE, tag = TRUE)
 results_german
 ```
-Note that the additional language models must first be installed in spaCy.  The German language model, for example, can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
+Note that the additional language models must first be installed in spaCy. When spaCy has been installed through `spacy_install()`, installation of additional language model is very simple. For example, the German language model can be installed (`spacy_download_langmodel('de')`). In other environments, you can install the model by entering `python -m spacy download de` in the console.
 
 ### Additional functionalities of **spacyr**
 
