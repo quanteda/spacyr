@@ -23,3 +23,5 @@
 ^docs/
 ^images/
 ^pkgdown/
+index.Rmd
+index.md
