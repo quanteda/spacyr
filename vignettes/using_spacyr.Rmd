@@ -165,7 +165,7 @@ Note that the additional language models must first be installed in spaCy. When 
 
 ## Integrating **spacyr** with other text analysis packages
 
-## With **quanteda**
+### With **quanteda**
 
 The outputs and formats of **spacyr** are designed to integrate directly with the **quanteda** package.
 
