@@ -1,6 +1,4 @@
-## copied and modified from tensorflow::install.R
-## https://github.com/rstudio/tensorflow/blob/master/R/install.R
-
+# copied and modified from tensorflow::install.R, https://github.com/rstudio/tensorflow/blob/master/R/install.R
 
 #' Install spaCy in conda or virtualenv environment
 #'
@@ -156,15 +154,6 @@ spacy_install_virtualenv <- function(version = "latest",
         stop("This function is available only for Mac and Linux", call. = FALSE)
     }
 
-    # if (identical(method, "virtualenv") && is_windows()) {
-    #     stop("Installing spaCy into a virtualenv is not supported on Windows",
-    #          call. = FALSE)
-    # }
-
-    # unroll version
-    # ver <- parse_spacy_version(version)
-    # version <- ver$version
-
     if (!(identical(version, "latest") || identical(version, "latest_v1"))) {
         if (!(grepl("(\\d+\\.){1,2}(\\d+)?", version))){
             stop("spaCy version specification error\n",
@@ -237,9 +226,6 @@ spacy_install_virtualenv <- function(version = "latest",
     process_spacy_installation_virtualenv(python, virtualenv, version, lang_models, prompt)
 
     cat("\nInstallation complete.\n\n")
-
-    # if (restart_session && rstudioapi::hasFun("restartSession"))
-    #     rstudioapi::restartSession()
 
     invisible(NULL)
 }
@@ -325,26 +311,6 @@ process_spacy_installation_conda <- function(conda, version, lang_models, python
                                                        envname = envname)
 
 }
-
-
-# conda_forge_install <- function(envname, packages, conda = "auto") {
-#     
-#     # resolve conda binary
-#     conda <- conda_binary(conda)
-#     
-#     # use native conda package manager with conda forge enabled
-#     result <- system2(conda, shQuote(c("install", "-c", "conda-forge", "--yes", "--name", envname, packages)))
-#     
-#     # check for errors
-#     if (result != 0L) {
-#         stop("Error ", result, " occurred installing packages into conda environment ",
-#              envname, call. = FALSE)
-#     }
-#     
-#     invisible(NULL)
-# }
-
-
 
 process_spacy_installation_virtualenv <- function(python, virtualenv, version, lang_models, prompt = TRUE) {
 
@@ -521,8 +487,6 @@ spacy_upgrade  <- function(conda = "auto",
                            envname = "spacy_condaenv",
                            prompt = TRUE,
                            lang_models = "en") {
-    #message(sprintf("installing model \"%s\"\n", model))
-    # resolve conda binary
 
     message("checking spaCy version")
     conda <- reticulate::conda_binary(conda)
@@ -544,10 +508,10 @@ spacy_upgrade  <- function(conda = "auto",
     if (latest_spacy == installed_spacy) {
         message("your spaCy is up-to-date")
         return(invisible(NULL))
-    } else if (substr(installed_spacy, 0, 2) == "1."){
-        cat(sprintf("The version spacy installed is %s\n", 
-                    installed_spacy)) 
-        ans <- if(prompt) utils::menu(c("v1.*", "v2.*"), title = sprintf('Do you want to upgrade to v1.* or lastest v2.*?')) else 2
+    } else if (substr(installed_spacy, 0, 2) == "1.") {
+        cat(sprintf("The version spacy installed is %s\n",
+                    installed_spacy))
+        ans <- if (prompt) utils::menu(c("v1.*", "v2.*"), title = sprintf("Do you want to upgrade to v1.* or lastest v2.*?")) else 2
         if (ans == 2) {
             cat("spaCy will be upgraded to version", latest_spacy, "\n")
             process_spacy_installation_conda(conda = conda,
@@ -582,16 +546,16 @@ spacy_upgrade  <- function(conda = "auto",
                                                  python_version = "3.6",
                                                  prompt = FALSE)
             }
-        }       
+        }
     } else {
         cat(sprintf("A new version of spaCy (%s) was found (installed version: %s)\n",
                     latest_spacy, installed_spacy))
-        ans <- if(prompt) utils::menu(c("No", "Yes"), title = sprintf("Do you want to upgrade?")) else 2
+        ans <- if (prompt) utils::menu(c("No", "Yes"), title = sprintf("Do you want to upgrade?")) else 2
         if (ans == 2) {
             cat('"Yes" was chosen. spaCy will be upgraded.\n\n')
             if (!is.null(lang_models)) {
-                ans <- ifelse(prompt, utils::menu(c("No", "Yes"), 
-                                                  title = sprintf("Do you also want to re-download language model %s?", 
+                ans <- ifelse(prompt, utils::menu(c("No", "Yes"),
+                                                  title = sprintf("Do you also want to re-download language model %s?",
                                                   paste(lang_models, collapse = ", "))), 2)
                 if (ans == 1) lang_models <- NULL
             }
@@ -603,7 +567,7 @@ spacy_upgrade  <- function(conda = "auto",
                                              prompt = FALSE)
             message("\nSuccessfully upgraded\n",
                     sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
-            
+
         } else {
             message("No upgrade is chosen")
         }
@@ -617,17 +581,17 @@ install_miniconda <- function() {
     if (is_osx()) {
         message("Downloading installation script")
         system(paste(
-            'curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o ~/miniconda.sh;',
-            'echo "Running installation script";',
-            'bash ~/miniconda.sh -b -p $HOME/miniconda'))
+            "curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o ~/miniconda.sh;",
+            "echo \"Running installation script\";",
+            "bash ~/miniconda.sh -b -p $HOME/miniconda"))
         system('echo \'export PATH="$PATH:$HOME/miniconda/bin"\' >> $HOME/.bash_profile; rm ~/miniconda.sh')
         message("Installation of miniconda complete")
     } else if (is_linux()) {
         message("Downloading installation script")
         system(paste(
-            'wget -nv https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh;',
-            'echo "Running installation script";',
-            'bash ~/miniconda.sh -b -p $HOME/miniconda'))
+            "wget -nv https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh;",
+            "echo \"Running installation script\";",
+            "bash ~/miniconda.sh -b -p $HOME/miniconda"))
         system('echo \'export PATH="$PATH:$HOME/miniconda/bin"\' >> $HOME/.bashrc; rm ~/miniconda.sh')
         message("Installation of miniconda complete")
     } else {
@@ -647,62 +611,3 @@ pip_get_version <- function(cmd, major_version) {
     version_check_regex <- sprintf(".+(%s.\\d+\\.\\d+).+", major_version)
     return(sub(version_check_regex, "\\1", result))
 }
-
-# # additional dependencies to install (required by some features of keras)
-# tf_extra_pkgs <- function(scipy = TRUE, extra_packages = NULL) {
-#     pkgs <- c("h5py", "pyyaml",  "requests",  "Pillow")
-#     pkgs <- c(pkgs, extra_packages)
-#     if (scipy)
-#         c(pkgs, "scipy")
-#     else
-#         pkgs
-# }
-
-
-
-# 
-# virtualenv_install <- function(envname, packages) {
-#     
-#     # TODO: refactor to share code between this and install_tensorflow_virtualenv
-#     # (we added this code late in the v1.0 cycle so didn't want to do the
-#     # refactor then)
-#     
-#     # determine path to virtualenv
-#     virtualenv_root <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
-#     virtualenv_path <- file.path(virtualenv_root, envname)
-#     
-#     # helper to construct paths to virtualenv binaries
-#     virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
-#     
-#     # determine pip version to use
-#     python <- virtualenv_bin("python")
-#     is_python3 <- python_version(python) >= "3.0"
-#     pip_version <- ifelse(is_python3, "pip3", "pip")
-#     
-#     # build and execute install command
-#     cmd <- sprintf("%ssource %s && %s install --ignore-installed --upgrade %s%s",
-#                    ifelse(is_osx(), "", "/bin/bash -c \""),
-#                    shQuote(path.expand(virtualenv_bin("activate"))),
-#                    shQuote(path.expand(virtualenv_bin(pip_version))),
-#                    paste(shQuote(packages), collapse = " "),
-#                    ifelse(is_osx(), "", "\""))
-#     result <- system(cmd)
-#     if (result != 0L)
-#         stop("Error ", result, " occurred installing packages", call. = FALSE)
-# }
-# 
-# 
-# windows_system_install <- function(python, packages) {
-#     
-#     # TODO: refactor to share code with install_tensorflow_windows_system
-#     
-#     # determine pip location from python binary location
-#     pip <- file.path(dirname(python), "Scripts", "pip.exe")
-#     
-#     # execute the installation
-#     result <- system2(pip, c("install", "--upgrade --ignore-installed",
-#                              paste(shQuote(packages), collapse = " ")))
-#     if (result != 0L)
-#         stop("Error ", result, " occurred installing tensorflow package", call. = FALSE)
-# }
-# 

@@ -1,1 +1,7 @@
-linters: with_defaults(line_length_linter(120)) 
+linters: with_defaults(
+    commented_code_linter = NULL, # 49
+    line_length_linter = NULL, # 37
+    absolute_paths_linter = NULL, # 31
+    object_usage_linter = NULL, # 4
+    NULL
+  )

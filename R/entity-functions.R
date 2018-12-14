@@ -33,7 +33,6 @@ entity_extract <- function(x, type = c("named", "extended", "all"), concatenator
     UseMethod("entity_extract")
 }
     
-#' @noRd
 #' @export
 entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all"),
                                          concatenator = "_") {
@@ -88,7 +87,6 @@ entity_consolidate <- function(x, concatenator = "_") {
     UseMethod("entity_consolidate")
 }
     
-#' @noRd
 #' @export
 entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
 
@@ -142,21 +140,6 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
         message("Note: removing head_token_id, dep_rel for named entities")
         spacy_result_modified[, c("dep_rel", "head_token_id") := NULL]
     }
-
-    #     dt_id_match <- spacy_result[, .(doc_id, sentence_id, token_id, entity_id)]
-    #     data.table::setnames(dt_id_match, "token_id", "head_token_id")
-    #     data.table::setnames(dt_id_match, "entity_id", "new_head_token_id")
-    #     #data.table::set2keyv(dt_id_match, "head_token_id")
-    #     spacy_result_modified[, serialn := seq(nrow(spacy_result_modified))]
-    #     #data.table::set2keyv(spacy_result_modified, "head_token_id")
-    #     spacy_result_modified <- merge(spacy_result_modified, dt_id_match,
-    #                                    by = c("doc_id", "sentence_id", "head_token_id"),
-    #                                    all.x = TRUE)
-    #     spacy_result_modified <- spacy_result_modified[order(serialn)]
-    #     spacy_result_modified[, head_token_id := NULL]
-    #     data.table::setnames(spacy_result_modified, "new_head_token_id", "head_token_id")
-    #     spacy_result_modified[nchar(entity_type) > 0, head_token_id := NA]
-    # }
 
     spacy_result_modified[, token_id := NULL]
     data.table::setnames(spacy_result_modified, "new_token_id", "token_id")

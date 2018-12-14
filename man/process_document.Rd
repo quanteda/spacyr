@@ -27,12 +27,12 @@ object. To obtain the tokens results in R, use \code{get_tokens()}.
 \url{http://spacy.io}.
 }
 \examples{
-\donttest{spacy_initialize()
+\donttest{
+spacy_initialize()
 # the result has to be "tag() is ready to run" to run the following
 txt <- c(text1 = "This is the first sentence.\\nHere is the second sentence.", 
          text2 = "This is the second document.")
 results <- spacy_parse(txt)
-
 }
 }
 \keyword{internal}

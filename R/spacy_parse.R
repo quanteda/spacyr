@@ -21,10 +21,10 @@
 #' @param lemma logical; include lemmatized tokens in the output (lemmatization
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
-#' @param multithread logical; If true, the processing is parallelized using
-#'   pipe functionality of spaCy (\url{https://spacy.io/api/pipe}).
-#' @param dependency logical; if \code{TRUE}, analyze and return dependency tags
-#' @param nounphrase logical; if \code{TRUE}, analyze and return noun phrases
+#' @param multithread logical; If \code{TRUE}, the processing is parallelized
+#'   using pipe functionality of spaCy (\url{https://spacy.io/api/pipe})
+#' @param dependency logical; if \code{TRUE}, analyse and tag dependencies
+#' @param nounphrase logical; if \code{TRUE}, analyse and tag noun phrases
 #'   tags
 #' @param additional_attributes a character vector; this option is for
 #'   extracting additional attributes of tokens from spaCy. When the names of
@@ -70,9 +70,8 @@ spacy_parse <- function(x,
 }
 
 
-#' @export
 #' @importFrom data.table data.table setDT setnames
-#' @noRd
+#' @export
 spacy_parse.character <- function(x,
                                   pos = TRUE,
                                   tag = FALSE,
@@ -158,7 +157,6 @@ spacy_parse.character <- function(x,
         dt[, c("w_id", "start_id", "root_id", "text", "root_text", "length") := NULL]
         dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
         dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
-        # setnames(dt, c("text", "root_text", "length"), c("nounphrase", "nounphrase_root_text", "nounphrase_length"))
     }
 
     if (!is.null(additional_attributes)) {
@@ -173,7 +171,6 @@ spacy_parse.character <- function(x,
 }
 
 
-#' @noRd
 #' @export
 spacy_parse.data.frame <- function(x, ...) {
 
@@ -203,12 +200,12 @@ spacy_parse.data.frame <- function(x, ...) {
 #' @return result marker object
 #' @importFrom methods new
 #' @examples
-#' \donttest{spacy_initialize()
+#' \donttest{
+#' spacy_initialize()
 #' # the result has to be "tag() is ready to run" to run the following
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")
 #' results <- spacy_parse(txt)
-#' 
 #' }
 #' @export
 #' @keywords internal

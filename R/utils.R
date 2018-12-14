@@ -1,5 +1,4 @@
-## checking os functions
-## thanks to r-tensorflow
+# checking os functions, thanks to r-tensorflow
 
 is_windows <- function() {
     identical(.Platform$OS.type, "windows")
@@ -18,7 +17,6 @@ is_linux <- function() {
 }
 
 is_ubuntu <- function() {
-    # check /etc/lsb-release
     if (is_unix() && file.exists("/etc/lsb-release")) {
         lsbrelease <- readLines("/etc/lsb-release")
         any(grepl("Ubuntu", lsbrelease))

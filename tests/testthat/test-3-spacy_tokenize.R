@@ -5,49 +5,48 @@ test_that("spacy_tokenize returns either data.frame and list", {
     skip_on_cran()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     txt <- "This is a test for document names."
     tokens_list <- spacy_tokenize(txt, output = "list")
     expect_identical(
-        length(tokens_list[[1]]), 
+        length(tokens_list[[1]]),
         8L
     )
     expect_true(
         is.list(tokens_list)
     )
-    
+
     tokens_df <- spacy_tokenize(txt, output = "data.frame")
     expect_identical(
-        nrow(tokens_df), 
+        nrow(tokens_df),
         8L
     )
     expect_true(
         is.data.frame(tokens_df)
     )
-    
+
 })
 
 test_that("spacy_tokenize works with a TIF formatted data.frame", {
     skip_on_cran()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
-    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+
+    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.",
               doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
     txt1_df <- data.frame(doc_id = names(txt1), text = txt1, stringsAsFactors = FALSE)
-    
+
     expect_equal(
-        spacy_tokenize(txt1_df, output = 'list'),
-        spacy_tokenize(txt1, output = 'list')
+        spacy_tokenize(txt1_df, output = "list"),
+        spacy_tokenize(txt1, output = "list")
     )
-    
+
     txt1_df_err <- data.frame(doc_name = names(txt1), text = txt1, stringsAsFactors = FALSE)
     expect_error(
-        spacy_tokenize(txt1_df_err, output = 'data.frame'),
+        spacy_tokenize(txt1_df_err, output = "data.frame"),
         "input data.frame does not conform to the TIF standard"
     )
-    
-    
+
 })
 
 
@@ -184,7 +183,9 @@ test_that("spacy_tokenize remove_separators works as expected", {
     txt <- c(doc1 = "Sentence  one\ttwo\nNew paragraph\u2029Last paragraph")
     expect_equivalent(
         spacy_tokenize(txt, remove_separators = FALSE),
-        list(c("Sentence", " ", " ", "one", "\t", "two", "\n", "New", " ", "paragraph", "\u2029", "Last", " ", "paragraph"))
+        list(c("Sentence", " ", " ", "one", "\t", "two", "\n",
+               "New", " ", "paragraph", "\u2029",
+               "Last", " ", "paragraph"))
     )
     expect_equivalent(
         spacy_tokenize(txt, remove_separators = TRUE),

@@ -50,9 +50,8 @@ spacy_tokenize <- function(x,
     UseMethod("spacy_tokenize")
 }
 
-#' @export
 #' @importFrom data.table data.table
-#' @noRd
+#' @export
 spacy_tokenize.character <- function(x,
                                      what = c("word", "sentence"),
                                      remove_punct = FALSE,
@@ -155,7 +154,6 @@ spacy_tokenize.character <- function(x,
 }
 
 
-#' @noRd
 #' @export
 spacy_tokenize.data.frame <- function(x, ...) {
 

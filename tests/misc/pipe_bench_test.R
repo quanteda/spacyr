@@ -1,4 +1,3 @@
-# devtools::install_github("quanteda/spacyr", ref = "test-pipe")
 library(spacyr)
 library(quanteda)
 library(dplyr)
@@ -6,7 +5,6 @@ library(microbenchmark)
 corpus_reshape(data_corpus_inaugural, to = "sentences") %>% texts %>% .[1:10000] -> texts
 
 spacy_initialize(check_env = F, condaenv = "spacy_condaenv_latest")
-#spacy_initialize(check_env = F, condaenv = "spacy_condaenv_v1.10.0")
 
 microbenchmark(multithread = spacy_parse(texts),
                multithread = spacy_parse(texts, multithread = FALSE),
