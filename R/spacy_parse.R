@@ -13,16 +13,28 @@
 #' @param pos logical whether to return universal dependency POS tagset
 #'   \url{http://universaldependencies.org/u/pos/})
 #' @param tag logical whether to return detailed part-of-speech tags, for the
-#'   langage model \code{en}, it uses the OntoNotes 5 version of the Penn
-#'   Treebank tag set (\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). 
-#' Annotation specifications for other available languages are available on the 
-#' spaCy website (\url{https://spacy.io/api/annotation}).
-#' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
+#'   language model \code{en}, it uses the OntoNotes 5 version of the Penn
+#'   Treebank tag set
+#'   (\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). Annotation
+#'   specifications for other available languages are available on the spaCy
+#'   website (\url{https://spacy.io/api/annotation}).
+#' @param lemma logical; include lemmatized tokens in the output (lemmatization
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
-#' @param multithread logical; If true, the processing is parallelized using pipe 
-#'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
-#' @param dependency logical; if \code{TRUE}, analyze and return dependencies
+#' @param multithread logical; If true, the processing is parallelized using
+#'   pipe functionality of spaCy (\url{https://spacy.io/api/pipe}).
+#' @param dependency logical; if \code{TRUE}, analyze and return dependency tags
+#' @param nounphrase logical; if \code{TRUE}, analyze and return noun phrases
+#'   tags
+#' @param additional_attributes a character vector; this option is for
+#'   extracting additional attributes of tokens from spaCy. When the names of
+#'   attributes are supplied, the output data.frame will contain additional
+#'   variables corresponding to the names of the attributes. For instance, when
+#'   \code{additional_attributes = c("is_punct")}, the output will include an
+#'   additional variable named \code{is_punct}, which is a Boolean (in R,
+#'   logical) variable indicating whether  the token is a punctuation. A full
+#'   list of available attributes is available from
+#'   \url{https://spacy.io/api/token#attributes}.
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
 #' @export
@@ -39,58 +51,65 @@
 #'           doc2 = "This is the second document.",
 #'           doc3 = "This is a \\\"quoted\\\" text." )
 #' spacy_parse(txt2, entity = TRUE, dependency = TRUE)
+#' 
+#' txt3 <- "We analyzed the Supreme Court with three natural language processing tools." 
+#' spacy_parse(txt3, entity = TRUE, nounphrase = TRUE)
+#' spacy_parse(txt3, additional_attributes = c("like_num", "is_punct"))
 #' }
-spacy_parse <- function(x, 
+spacy_parse <- function(x,
                         pos = TRUE,
                         tag = FALSE,
                         lemma = TRUE,
-                        entity = TRUE, 
+                        entity = TRUE,
                         dependency = FALSE,
+                        nounphrase = FALSE,
                         multithread = TRUE,
+                        additional_attributes = NULL,
                         ...) {
     UseMethod("spacy_parse")
 }
 
 
 #' @export
-#' @importFrom data.table data.table
+#' @importFrom data.table data.table setDT setnames
 #' @noRd
-spacy_parse.character <- function(x, 
+spacy_parse.character <- function(x,
                                   pos = TRUE,
                                   tag = FALSE,
                                   lemma = TRUE,
-                                  entity = TRUE, 
+                                  entity = TRUE,
                                   dependency = FALSE,
+                                  nounphrase = FALSE,
                                   multithread = TRUE,
+                                  additional_attributes = NULL,
                                   ...) {
-    
-    `:=` <- NULL
-    
+
+    `:=` <- `.` <- `.N` <- NULL
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
-    
+
     ## check the omit_entity status
     if (entity == TRUE & getOption("spacy_entity") == FALSE) {
         message("entity == TRUE is ignored because spaCy model is initialized without Entity Recognizer")
         message("In order to turn on entity recognition, run spacy_finalize(); spacy_initialize(entity = TURE)")
         entity <- FALSE
     }
-    
+
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
     ntokens_by_sent <- get_ntokens_by_sent(spacy_out)
-    
-    dt <- data.table(doc_id = rep(spacy_out$docnames, ntokens), 
+
+    dt <- data.table(doc_id = rep(spacy_out$docnames, ntokens),
                      sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(seq_along(x), x))),
-                     token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) seq(to = x))), 
+                     token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) seq(to = x))),
                      token = tokens)
-    
+
     if (lemma) {
         model <- spacyr_pyget("model")
         dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
-        if(model != 'en'){
+        if (model != "en"){
             warning("lemmatization may not work properly in model '", model, "'")
         }
     }
@@ -104,7 +123,7 @@ spacy_parse.character <- function(x,
     ## add dependency data fields
     if (dependency) {
         subtractor <- unlist(lapply(ntokens_by_sent, function(x) {
-            if(length(x) == 0) return(NULL)
+            if (length(x) == 0) return(NULL)
             csumx <- cumsum(c(0, x[-length(x)]))
             return(rep(csumx, x))
         }))
@@ -112,12 +131,42 @@ spacy_parse.character <- function(x,
         dt[, c("head_token_id", "dep_rel") := list(deps$head_id - subtractor,
                                                    deps$dep_rel)]
     }
-    
+
     ## named entity fields
     if (entity) {
         dt[, entity := get_named_entities(spacy_out)]
     }
-    
+
+    ## noun phrases
+    if (nounphrase) {
+        doc_id <- start_id <- nounphrase <- w_id <- root_id <- whitespace <- NULL
+
+        dt_nounphrases <- data.table::setDT(get_noun_phrases(spacy_out))
+        dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times = length)]
+        dt_nounphrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
+        dt_nounphrases <- data.table::setorder(dt_nounphrases, w_id, -length)
+        dt_nounphrases <- unique(dt_nounphrases, by = c("doc_id", "w_id"))
+        dt_nounphrases[, nounphrase := ifelse(w_id == start_id, "beg",
+                                      ifelse(w_id == max(w_id), "end", "mid")), by = .(doc_id, start_id)]
+        dt_nounphrases[, nounphrase := ifelse(w_id == root_id, paste0(nounphrase, "_root"), nounphrase)]
+        dt[, w_id := seq_len(.N), by = doc_id]
+        dt <- merge(dt, dt_nounphrases, by  = c("doc_id", "w_id"), all.x = TRUE)
+        # dt[ !is.na(start_id), start_token_id := token_id[w_id == start_id][1],
+        #     by = .(doc_id, root_id)]
+        # dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
+        #     by = .(doc_id, root_id)]
+        dt[, c("w_id", "start_id", "root_id", "text", "root_text", "length") := NULL]
+        dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
+        dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
+        # setnames(dt, c("text", "root_text", "length"), c("nounphrase", "nounphrase_root_text", "nounphrase_length"))
+    }
+
+    if (!is.null(additional_attributes)) {
+        for (att_name in additional_attributes){
+            dt[, (att_name) := get_attrs(spacy_out, att_name, deal_utf8 = TRUE)]
+        }
+    }
+
     dt <- as.data.frame(dt)
     class(dt) <- c("spacyr_parsed", class(dt))
     return(dt)
@@ -127,7 +176,7 @@ spacy_parse.character <- function(x,
 #' @noRd
 #' @export
 spacy_parse.data.frame <- function(x, ...) {
-    
+
     # insert compliance check here - replace with tif package
     if (!all(c("doc_id", "text") %in% names(x)))
         stop("input data.frame does not conform to the TIF standard")
@@ -144,10 +193,10 @@ spacy_parse.data.frame <- function(x, ...) {
 #' object. To obtain the tokens results in R, use \code{get_tokens()}.
 #' \url{http://spacy.io}.
 #' @param x input text
-#' functionalities including the tagging, named entity recognisiton, dependency 
+#' functionalities including the tagging, named entity recognition, dependency 
 #' analysis. 
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
-#' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
+#' If FALSE, tagging, entity recognition, and dependency analysis when 
 #' relevant functions are called.
 #' @param multithread logical;
 #' @param ... arguments passed to specific methods
@@ -167,29 +216,33 @@ process_document <- function(x, multithread, ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
-        docnames <- names(x) 
+        docnames <- names(x)
     } else {
         docnames <- paste0("text", 1:length(x))
+    }
+    if (all(!duplicated(docnames)) == FALSE) {
+        stop("Docmanes are duplicated.")
+    } else if (all(nchar(docnames) > 0L) == FALSE) {
+        stop("Some docnames are missing.")
     }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
     spacyr_pyexec("texts = []")
-    
-    x <- gsub("\\\\n","\\\n", x) # replace two quotes \\n with \n
-    x <- gsub("\\\\t","\\\t", x) # replace two quotes \\t with \t
-    x <- gsub("\\\\","", x) # delete unnecessary backslashes
+
+    x <- gsub("\\\\n", "\\\n", x) # replace two quotes \\n with \n
+    x <- gsub("\\\\t", "\\\t", x) # replace two quotes \\t with \t
+    x <- gsub("\\\\", "", x) # delete unnecessary backslashes
     x <- unname(x)
-    
+
     spacyr_pyassign("texts", x)
     spacyr_pyassign("multithread", multithread)
     spacyr_pyexec("spobj = spacyr()")
-    
+
     spacyr_pyexec("timestamps = spobj.parse(texts, multithread = multithread)")
-    
-    timestamps = as.character(spacyr_pyget("timestamps"))
-    output <- spacy_out$new(docnames = docnames, 
+
+    timestamps <- as.character(spacyr_pyget("timestamps"))
+    output <- spacy_out$new(docnames = docnames,
                             timestamps = timestamps)
     return(output)
 }
-

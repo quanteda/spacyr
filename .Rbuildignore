@@ -1,3 +1,5 @@
+^docs$
+^\.lintr$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd
@@ -14,3 +16,12 @@
 ^tests/misc$
 ^cran-comments\.md$
 ^revdep
+^_pkgdown\.yml$
+^css/
+^vignettes/pkgdown/
+^CNAME$
+^docs/
+^images/
+^pkgdown/
+index.Rmd
+index.md

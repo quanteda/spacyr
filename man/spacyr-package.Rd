@@ -12,12 +12,12 @@ is designed to provide easy access to the powerful functionality of spaCy, in
 a simple format.
 }
 \references{
-\url{http://spacy.io}, \url{http://github.com/kbenoit/spacyr}.
+\url{https://spacy.io}, \url{https://spacyr.quanteda.io}.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://github.com/quanteda/spacyr}
+  \item \url{https://spacyr.quanteda.io}
   \item Report bugs at \url{https://github.com/quanteda/spacyr/issues}
 }
 

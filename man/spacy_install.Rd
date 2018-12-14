@@ -6,8 +6,8 @@
 \title{Install spaCy in conda or virtualenv environment}
 \usage{
 spacy_install(conda = "auto", version = "latest", lang_models = "en",
-  python_version = "3.6", envname = "spacy_condaenv", python_path = NULL,
-  prompt = TRUE)
+  python_version = "3.6", envname = "spacy_condaenv",
+  python_path = NULL, prompt = TRUE)
 
 spacy_install_virtualenv(version = "latest", lang_models = "en",
   python_version = "3.6", python_path = NULL, prompt = TRUE)
@@ -18,7 +18,7 @@ automatically find the path}
 
 \item{version}{character; spaCy version to install. Specify \code{"latest"}
   to install the latest release, or \code{"latest_v1"} to install the latest 
-  release of spacy v1.*.  See spaCy Version Issues.
+  release of spaCy v1.*.  See spaCy Version Issues.
 
   You can also provide a full major.minor.patch specification (e.g. "1.1.0")}
 
@@ -31,7 +31,7 @@ language models} page.}
 \item{python_version}{character; determine Python version for condaenv
 installation. 3.5 and 3.6 are available.}
 
-\item{envname}{character; name of the conda-environment to install spacy. 
+\item{envname}{character; name of the conda-environment to install spaCy. 
 Default is "spacy_condaenv".}
 
 \item{python_path}{character; path to Python in virtualenv installation}
@@ -59,11 +59,11 @@ If you wish to install Python ion a "virtualenv", use the
   The version options currently default to the latest spaCy v2 (\code{version
   = "latest"}). As of 2018-04, however,
   \href{https://github.com/explosion/spaCy/issues/1508}{some performance
-  issues} affect the speed of the spaCy pipeline for spacy v2.x relative to
+  issues} affect the speed of the spaCy pipeline for spaCy v2.x relative to
   v1.x.   This can  enormously affect the performance of
   \code{spacy_parse()}, especially when a large number of small texts are
-  parseed. For this reason, the \pkg{spacyr} provides an option to
-  automatically install the latest version of spacy v1.*, using \code{version
+  parsed. For this reason, the \pkg{spacyr} provides an option to
+  automatically install the latest version of spaCy v1.*, using \code{version
   = "latest_v1"}.
 }
 

@@ -11,9 +11,7 @@ spacy_out <- setRefClass(
     ),
     methods = list(
         initialize = function(timestamps = NULL, docnames = NULL) {
-            
             tagger <<- entity <<- parser <<- TRUE
-            
             timestamps <<- timestamps
             docnames <<- docnames
         }
@@ -38,7 +36,7 @@ get_tokens <- function(spacy_out) {
 
 #' @rdname get-functions
 #' @return \code{get_tags} returns a tokenized text object with part-of-speech tags.
-#' Options exist for using either the Google or Detaled tagsets. See 
+#' Options exist for using either the Google or Detailed tagsets. See 
 #' \url{http://spacy.io}.
 #' @param tagset character label for the tagset to use, either \code{"google"} 
 #'   or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
@@ -58,7 +56,7 @@ get_tokens <- function(spacy_out) {
 get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
     tagset <- match.arg(tagset)
     spacyr_pyassign("timestamps", spacy_out$timestamps)
-    if(spacy_out$tagger == FALSE) {
+    if (spacy_out$tagger == FALSE) {
         spacyr_pyexec("tags_list = spobj.run_tagger(timestamps)")
         spacy_out$tagger <- TRUE
     }
@@ -89,7 +87,7 @@ get_attrs <- function(spacy_out, attr_name, deal_utf8 = FALSE) {
 #' @keywords internal
 get_named_entities <- function(spacy_out){
     spacyr_pyassign("timestamps", spacy_out$timestamps)
-    if(spacy_out$entity == FALSE) {
+    if (spacy_out$entity == FALSE) {
         spacyr_pyexec("tags_list = spobj.run_entity(timestamps)")
         spacy_out$entity <- TRUE
     }
@@ -117,10 +115,39 @@ get_dependency <- function(spacy_out) {
         spacy_out$parser <- TRUE
     }
     spacyr_pyexec("head_id = spobj.dep_head_id(timestamps)")
-    head_id <- spacyr_pyget("head_id") + 1 ## + 1 is for fixing the start index to 1
-    
+    head_id <- spacyr_pyget("head_id") + 1 # + 1 is for fixing the start index to 1
+
     dep_rel <- get_attrs(spacy_out, "dep_")
     return(list(head_id = head_id, dep_rel = dep_rel))
+}
+
+
+#' @rdname get-functions
+#' @return \code{get_noun_phrases} returns a data.frame of noun phrases.
+#' @export
+#' @keywords internal
+get_noun_phrases <- function(spacy_out) {
+    `:=` <- start_id <- root_id <- NULL
+    # get ids of head of each token
+    spacyr_pyassign("timestamps", spacy_out$timestamps)
+    spacyr_pyassign("docnames", spacy_out$docnames)
+    command_str <- paste("noun_phrases = spobj.extract_nounphrases_dataframe(timestamps = timestamps,",
+                         "docnames = docnames,",
+                         "multithread = False)")
+    spacyr_pyexec(command_str)
+    noun_phrases <- spacyr_pyget("noun_phrases")
+
+    doc_id <- names(noun_phrases)
+    data_out <-
+        data.table::rbindlist(lapply(doc_id, function(x) {
+            df <- as.data.frame(noun_phrases[[x]], stringsAsFactors = FALSE)
+            df$doc_id <- x
+            return(df)
+        }))
+    data_out[, start_id := start_id + 1][, root_id := root_id + 1]
+    data.table::setDF(data_out)
+    data_out <- data_out[, c(6, 1:5)]
+    return(data_out)
 }
 
 #' @rdname get-functions
@@ -142,12 +169,8 @@ get_ntokens <- function(spacy_out){
 #' @keywords internal
 get_ntokens_by_sent <- function(spacy_out){
     # get ids of head of each token
-    spacyr_pyassign('timestamps', spacy_out$timestamps)
-    spacyr_pyexec('ntok_by_sent = spobj.ntokens_by_sent(timestamps)')
+    spacyr_pyassign("timestamps", spacy_out$timestamps)
+    spacyr_pyexec("ntok_by_sent = spobj.ntokens_by_sent(timestamps)")
     ntok_by_sent <- spacyr_pyget("ntok_by_sent")
     return(ntok_by_sent)
 }
-
-
-
-

@@ -95,5 +95,3 @@ spacy_parse("Failure for \'single\' quotes.")
 ## 4:   text1  3       is       be   VERB  VBZ
 ## 5:   text1  4     easy     easy    ADJ   JJ
 ## 6:   text1  5        .        .  PUNCT    .
-
-

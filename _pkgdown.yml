@@ -1,0 +1,20 @@
+url: http://spacyr.quanteda.io
+template:
+  params:
+    bootswatch: readable
+    docsearch:
+      api_key: 6db886781d6c5d5b8b62b7b72b1d1b7c
+      index_name: spacyr
+navbar:
+  title: "spacyr"
+  type: inverse
+  left:
+    - text: "Installation"
+      href: index.html
+    - text: "Using spacyr"
+      href: articles/using_spacyr.html
+    - text: "Reference"
+      href: reference/index.html
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/quanteda/spacyr

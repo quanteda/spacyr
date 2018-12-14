@@ -5,7 +5,8 @@
 \alias{entity_consolidate}
 \title{Extract or consolidate entities from parsed documents}
 \usage{
-entity_extract(x, type = c("named", "extended", "all"))
+entity_extract(x, type = c("named", "extended", "all"),
+  concatenator = "_")
 
 entity_consolidate(x, concatenator = "_")
 }
@@ -17,14 +18,14 @@ entity_consolidate(x, concatenator = "_")
 \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
 details.}
 
-\item{concatenator}{the character used to concatenator elements of multi-word
+\item{concatenator}{the character(s) used to join the elements of multi-word
 named entities}
 }
 \value{
 \code{entity_extract} returns a \code{data.frame} of all named
   entities, containing the following fields: 
   \itemize{
-  \item{\code{doc_id}}{ name of the documument containing the entity} 
+  \item{\code{doc_id}}{ name of the document containing the entity} 
   \item{\code{sentence_id}}{ the sentence ID containing the entity, within the document}
   \item{\code{entity}}{ the named entity}
   \item{\code{entity_type}}{ type of named entities (e.g. PERSON, ORG, PERCENT,

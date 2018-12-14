@@ -4,8 +4,9 @@
 \alias{spacy_parse}
 \title{Parse a text using spaCy}
 \usage{
-spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE, entity = TRUE,
-  dependency = FALSE, multithread = TRUE, ...)
+spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE,
+  entity = TRUE, dependency = FALSE, nounphrase = FALSE,
+  multithread = TRUE, additional_attributes = NULL, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -15,20 +16,34 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 \url{http://universaldependencies.org/u/pos/})}
 
 \item{tag}{logical whether to return detailed part-of-speech tags, for the
-  langage model \code{en}, it uses the OntoNotes 5 version of the Penn
-  Treebank tag set (\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). 
-Annotation specifications for other available languages are available on the 
-spaCy website (\url{https://spacy.io/api/annotation}).}
+language model \code{en}, it uses the OntoNotes 5 version of the Penn
+Treebank tag set
+(\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). Annotation
+specifications for other available languages are available on the spaCy
+website (\url{https://spacy.io/api/annotation}).}
 
-\item{lemma}{logical; inlucde lemmatized tokens in the output (lemmatization 
+\item{lemma}{logical; include lemmatized tokens in the output (lemmatization
 may not work properly for non-English models)}
 
 \item{entity}{logical; if \code{TRUE}, report named entities}
 
-\item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
+\item{dependency}{logical; if \code{TRUE}, analyze and return dependency tags}
 
-\item{multithread}{logical; If true, the processing is parallelized using pipe 
-functionality of spacy (\url{https://spacy.io/api/pipe}).}
+\item{nounphrase}{logical; if \code{TRUE}, analyze and return noun phrases
+tags}
+
+\item{multithread}{logical; If true, the processing is parallelized using
+pipe functionality of spaCy (\url{https://spacy.io/api/pipe}).}
+
+\item{additional_attributes}{a character vector; this option is for
+extracting additional attributes of tokens from spaCy. When the names of
+attributes are supplied, the output data.frame will contain additional
+variables corresponding to the names of the attributes. For instance, when
+\code{additional_attributes = c("is_punct")}, the output will include an
+additional variable named \code{is_punct}, which is a Boolean (in R,
+logical) variable indicating whether  the token is a punctuation. A full
+list of available attributes is available from
+\url{https://spacy.io/api/token#attributes}.}
 
 \item{...}{not used directly}
 }
@@ -57,5 +72,9 @@ txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.",
           doc2 = "This is the second document.",
           doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
 spacy_parse(txt2, entity = TRUE, dependency = TRUE)
+
+txt3 <- "We analyzed the Supreme Court with three natural language processing tools." 
+spacy_parse(txt3, entity = TRUE, nounphrase = TRUE)
+spacy_parse(txt3, additional_attributes = c("like_num", "is_punct"))
 }
 }

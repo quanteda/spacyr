@@ -20,8 +20,8 @@ is_linux <- function() {
 is_ubuntu <- function() {
     # check /etc/lsb-release
     if (is_unix() && file.exists("/etc/lsb-release")) {
-        lsbRelease <- readLines("/etc/lsb-release")
-        any(grepl("Ubuntu", lsbRelease))
+        lsbrelease <- readLines("/etc/lsb-release")
+        any(grepl("Ubuntu", lsbrelease))
     } else {
         FALSE
     }
