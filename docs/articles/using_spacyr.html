@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
       </span>
     </div>
 
@@ -77,7 +77,7 @@
       <h1>A Guide to Using spacyr</h1>
                         <h4 class="author">Kenneth Benoit and Akitaka Matsuo</h4>
             
-            <h4 class="date">2018-12-13</h4>
+            <h4 class="date">2018-12-14</h4>
       
       
       <div class="hidden name"><code>using_spacyr.Rmd</code></div>
@@ -117,7 +117,7 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"spacyr"</span>)</a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="kw"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span>()</a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="co">## Found 'spacy_condaenv'. spacyr will use this environment</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">## successfully initialized (spaCy Version: 2.0.10, language model: en)</span></a>
 <a class="sourceLine" id="cb1-5" title="5"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a></code></pre></div>
 </div>
 <div id="tokenizing-and-tagging-texts" class="section level2">
@@ -349,7 +349,7 @@
 <a class="sourceLine" id="cb14-2" title="2"><span class="kw"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span>()</a>
 <a class="sourceLine" id="cb14-3" title="3"><span class="kw"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">model =</span> <span class="st">"de"</span>)</a>
 <a class="sourceLine" id="cb14-4" title="4"><span class="co">## Python space is already attached.  If you want to switch to a different Python, please restart R.</span></a>
-<a class="sourceLine" id="cb14-5" title="5"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: de)</span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="co">## successfully initialized (spaCy Version: 2.0.10, language model: de)</span></a>
 <a class="sourceLine" id="cb14-6" title="6"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a>
 <a class="sourceLine" id="cb14-7" title="7"></a>
 <a class="sourceLine" id="cb14-8" title="8">txt_german &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">R =</span> <span class="st">"R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt."</span>,</a>
@@ -425,7 +425,7 @@
 <p>Conversion of tokens is easily performed, and the tokenizers in <strong>spacyr</strong> tend to be smarter than the purely syntactic pattern-based parsers used by <strong>quanteda</strong>.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">model =</span> <span class="st">"en"</span>)</a>
 <a class="sourceLine" id="cb16-2" title="2"><span class="co">## Python space is already attached.  If you want to switch to a different Python, please restart R.</span></a>
-<a class="sourceLine" id="cb16-3" title="3"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="co">## successfully initialized (spaCy Version: 2.0.10, language model: en)</span></a>
 <a class="sourceLine" id="cb16-4" title="4"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a>
 <a class="sourceLine" id="cb16-5" title="5">parsedtxt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/spacy_parse.html">spacy_parse</a></span>(txt, <span class="dt">pos =</span> <span class="ot">TRUE</span>, <span class="dt">tag =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb16-6" title="6"><span class="kw"><a href="https://quanteda.io/reference/as.tokens.html">as.tokens</a></span>(parsedtxt)</a>
