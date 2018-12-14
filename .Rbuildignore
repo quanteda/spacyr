@@ -21,7 +21,9 @@
 ^vignettes/pkgdown/
 ^CNAME$
 ^docs/
-^images/
-^pkgdown/
+^images$
+^pkgdown$
 index.Rmd
 index.md
+installation.Rmd
+installation.md

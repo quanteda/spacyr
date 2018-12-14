@@ -1,4 +1,4 @@
-# spacyr: an R wrapper for [spaCy](https://spacy.io)
+# spacyr: an R wrapper for spaCy
 
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
@@ -27,7 +27,7 @@ processing”" Python library from <https://spacy.io>.
     and purchase a 64-bit system to replace your ancient 32-bit
     platform.)
     
-    If you alreayd have any version of conda, you can skip this step.
+    If you already have any version of conda, you can skip this step.
     You can check it by entering `conda --version` in the Terminal.
     
     For a Windows-based system, Visual C++ Build Tools or Visual Studio
@@ -61,7 +61,7 @@ processing”" Python library from <https://spacy.io>.
     
       - For Windows, you need to run R as an administrator to make
         installation work properly. To do so, right click the RStudio
-        (or R desktop icon) and select “Run as administrator” when
+        icon (or R desktop icon) and select “Run as administrator” when
         launching R.
     
       - To install spaCy, you can simply run
@@ -77,7 +77,7 @@ processing”" Python library from <https://spacy.io>.
     executable separate from your system Python (or anaconda python),
     install the latest version of spaCy (and its required packages), and
     download English language model. After installation, you can
-    initialize spacy in R with
+    initialize spaCy in R with
     
     ``` r
     spacy_initialize()
@@ -103,9 +103,9 @@ processing”" Python library from <https://spacy.io>.
     ```
     
     (Again, Windows users have to run this command as an administrator.
-    Otherwise, sim-link to language model will fail.)
+    Otherwise, he symlink (alias) to the language model will fail.)
 
-### Permanently seting the default Python
+### Permanently setting the default Python
 
 If you are using the same setting for spaCy (e.g. condaenv or python
 path) every time and want to reduce the time for initialization, you can
