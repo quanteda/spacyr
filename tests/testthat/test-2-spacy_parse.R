@@ -113,26 +113,26 @@ test_that("spacy_parse additional_attributes option works as intended", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully")
-    
+
     txt1 <- c(doc1 = "I would have accepted without question the information that Gatsby sprang from the swamps of Louisiana or from the lower East Side of New York.",
               doc2 = "I graduated from New Haven in 1915, just a quarter of a century after my father, and a little later I participated in that delayed Teutonic migration known as the Great War.")
-    
-    spacy_parsed <- spacy_parse(txt1, additional_attributes = 'is_title')
-    
-    expect_true('is_title' %in% names(spacy_parsed))
+
+    spacy_parsed <- spacy_parse(txt1, additional_attributes = "is_title")
+
+    expect_true("is_title" %in% names(spacy_parsed))
     expect_equal(sum(spacy_parsed$is_title), 14)
-    
-    spacy_parsed <- spacy_parse(txt1, additional_attributes = c('is_title', 'like_num'))
-    
-    expect_true('like_num' %in% names(spacy_parsed))
-    expect_equal(spacy_parsed[spacy_parsed$token=="1915", "like_num"], 
+
+    spacy_parsed <- spacy_parse(txt1, additional_attributes = c("is_title", "like_num"))
+
+    expect_true("like_num" %in% names(spacy_parsed))
+    expect_equal(spacy_parsed[spacy_parsed$token == "1915", "like_num"],
                  TRUE)
-    
-    expect_error(spacy_parse(txt1, additional_attributes = c('random_attribute_name')),
-                 'object has no attribute')
-    
+
+    expect_error(spacy_parse(txt1, additional_attributes = c("random_attribute_name")),
+                 "object has no attribute")
+
     expect_silent(spacy_finalize())
 })
 
@@ -159,5 +159,3 @@ test_that("spacy_parse can handle data.frame properly", {
 
     expect_silent(spacy_finalize())
 })
-
-

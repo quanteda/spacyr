@@ -43,9 +43,8 @@ spacy_extract_entity <- function(x, output = c("data.frame", "list"),
 }
 
 
-#' @export
 #' @importFrom data.table data.table
-#' @noRd
+#' @export
 spacy_extract_entity.character <- function(x,
                                            output = c("data.frame", "list"),
                                            type = c("all", "named", "extended"),
@@ -130,7 +129,6 @@ spacy_extract_entity.character <- function(x,
 }
 
 
-#' @noRd
 #' @method spacy_extract_entity data.frame
 #' @export
 spacy_extract_entity.data.frame <- function(x, ...) {

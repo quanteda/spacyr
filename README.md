@@ -103,7 +103,7 @@ processing”" Python library from <https://spacy.io>.
     ```
     
     (Again, Windows users have to run this command as an administrator.
-    Otherwise, sim-link to language model will fail.)
+    Otherwise, he symlink (alias) to the language model will fail.)
 
 ### Permanently setting the default Python
 

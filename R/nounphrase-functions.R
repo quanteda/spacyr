@@ -31,7 +31,6 @@ nounphrase_extract <- function(x, concatenator = "_") {
     UseMethod("nounphrase_extract")
 }
     
-#' @noRd
 #' @export
 nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
 
@@ -84,7 +83,6 @@ nounphrase_consolidate <- function(x, concatenator = "_") {
     UseMethod("nounphrase_consolidate")
 }
     
-#' @noRd
 #' @importFrom data.table data.table
 #' @export
 nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {

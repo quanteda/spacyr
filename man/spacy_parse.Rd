@@ -27,13 +27,13 @@ may not work properly for non-English models)}
 
 \item{entity}{logical; if \code{TRUE}, report named entities}
 
-\item{dependency}{logical; if \code{TRUE}, analyze and return dependency tags}
+\item{dependency}{logical; if \code{TRUE}, analyse and tag dependencies}
 
-\item{nounphrase}{logical; if \code{TRUE}, analyze and return noun phrases
+\item{nounphrase}{logical; if \code{TRUE}, analyse and tag noun phrases
 tags}
 
-\item{multithread}{logical; If true, the processing is parallelized using
-pipe functionality of spaCy (\url{https://spacy.io/api/pipe}).}
+\item{multithread}{logical; If \code{TRUE}, the processing is parallelized
+using pipe functionality of spaCy (\url{https://spacy.io/api/pipe})}
 
 \item{additional_attributes}{a character vector; this option is for
 extracting additional attributes of tokens from spaCy. When the names of

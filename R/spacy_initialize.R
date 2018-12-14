@@ -42,15 +42,6 @@ spacy_initialize <- function(model = "en",
         message("spaCy is already initialized")
         return(NULL)
     }
-    # set an option for source_bash_profile
-    # source_bash_profile is retired
-    # if(is.null(source_bash_profile)) {
-    #     if(is_windows()){
-    #         source_bash_profile <- FALSE
-    #     } else {
-    #         source_bash_profile <- TRUE
-    #     }
-    # }
 
     # once python is initialized, you cannot change the python executables
     if (!is.null(options("python_initialized")$python_initialized)) {
@@ -79,7 +70,6 @@ spacy_initialize <- function(model = "en",
         }
         else if (settings$key == "spacy_virtualenv") reticulate::use_virtualenv(settings$val, required = TRUE)
         else if (settings$key == "spacy_condaenv") {
-            #spacy_upgrade(lang_models = model)
             reticulate::use_condaenv(settings$val, required = TRUE)
         }
     }
@@ -143,9 +133,6 @@ find_spacy <- function(model = "en", ask){
     spacy_found <- `:=` <- NA
     spacy_python <- NULL
     options(warn = -1)
-    # if(source_bash_profile == TRUE & is_windows()){
-    #     message("the option, source_bash_profile == TRUE, will be ignored for windows system")
-    # }
     py_execs <- if (is_windows()) {
         system2("where", "python", stdout = TRUE)
     } else if (is_osx() && file.exists("~/.bash_profile")) {
@@ -182,15 +169,6 @@ find_spacy <- function(model = "en", ask){
     } else {
         spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in more than one python")
-        # message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ": ", collapse = "\n"))
-        # number <- NA
-        # while (is.na(number)) {
-        #     number <- readline(prompt = "Please select python: ")
-        #     number <- as.integer(number)
-        #     if (is.na(number) | number < 1 | number > length(spacy_pythons)) {
-        #         number <- NA
-        #     }
-        # }
         number <- utils::menu(spacy_pythons, title = "Please select python:")
         if (number == 0) {
             stop("Initialization was canceled by user", call. = FALSE)
@@ -330,13 +308,13 @@ check_spacy_python_options <- function() {
 
 save_spacy_options <- function(key, val, prompt = TRUE) {
     prof_file <- "~/.Rprofile"
-    # prof_file_bak <- sprintf("%s_bak%s", prof_file, as.numeric(Sys.time()))
-    # file.copy(prof_file, prof_file_bak)
-    # ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
-    if(!is.null(getOption("spacy_prompt"))) prompt <- getOption("spacy_prompt")
-    
-    ans <- if(prompt) utils::menu(c("No", "Yes"), title = sprintf('Do you want to set the option, \'%s = "%s"\' , as a default (y|[n])? ', key, val)) else 2
-    if(ans == 2) {
+    if (!is.null(getOption("spacy_prompt"))) prompt <- getOption("spacy_prompt")
+
+    ans <- if (prompt) {
+        utils::menu(c("No", "Yes"),
+                    title = sprintf('Do you want to set the option, \'%s = "%s"\' , as a default (y|[n])? ', key, val))
+    } else 2
+    if (ans == 2) {
         rprofile <- if (file.exists(prof_file)) readLines(prof_file) else NULL
         rprofile <- grep("options\\(\\s*spacy_.+\\)", rprofile, value = TRUE, invert = TRUE)
         rprofile <- c(rprofile, sprintf('options(%s = "%s")', key, val))
@@ -345,5 +323,4 @@ save_spacy_options <- function(key, val, prompt = TRUE) {
     } else {
         message("The option was not saved (user cancelled)")
     }
-
 }

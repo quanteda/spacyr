@@ -115,7 +115,7 @@ test_that("spacy_extract_entity type option works", {
 
     expect_equal(
         unname(unlist(spacy_extract_entity(txt1, output = "list", type = "named"))),
-        c("Gatsby", "Louisiana", "East Side", "New York", "New Haven", 
+        c("Gatsby", "Louisiana", "East Side", "New York", "New Haven",
           "Teutonic", "the Great War")
     )
 
@@ -184,7 +184,7 @@ test_that("compare entity_extract(spacy_parse()) and spacy_extract_entity()", {
 
     expect_message(spacy_initialize(), "successfully|already")
 
-    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.", 
+    txt1 <- c(doc1 = "The history of natural language processing generally started in the 1950s, although work can be found from earlier periods.",
               doc2 = "In 1950, Alan Turing published an article titled Intelligence which proposed what is now called the Turing test as a criterion of intelligence.")
     parsed <- spacy_parse(txt1, entity = TRUE)
 

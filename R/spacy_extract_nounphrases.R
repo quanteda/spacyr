@@ -39,9 +39,8 @@ spacy_extract_nounphrases <- function(x, output = c("data.frame", "list"),
 }
 
 
-#' @export
 #' @importFrom data.table data.table
-#' @noRd
+#' @export
 spacy_extract_nounphrases.character <- function(x,
                                                 output = c("data.frame", "list"),
                                                 multithread = TRUE, ...) {
@@ -116,7 +115,6 @@ spacy_extract_nounphrases.character <- function(x,
 }
 
 
-#' @noRd
 #' @export
 spacy_extract_nounphrases.data.frame <- function(x, ...) {
 
