@@ -18,14 +18,15 @@ Imports:
     data.table,
     reticulate (>= 1.6)
 Suggests:
-    spelling,
-    rmarkdown,
-    testthat,
     knitr,
-    quanteda
+    quanteda, 
+    R.rsp,
+    rmarkdown,
+    spelling,
+    testthat
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
 RoxygenNote: 6.1.1
 Language: en-GB
-VignetteBuilder: knitr
+VignetteBuilder: R.rsp

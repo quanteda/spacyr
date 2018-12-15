@@ -1,3 +1,5 @@
+^Meta$
+^doc$
 ^CRAN-RELEASE$
 ^docs$
 ^\.lintr$
@@ -12,7 +14,6 @@
 ^testenv
 ^spacyr/testenv
 ^env
-^vignettes
 ^appveyor\.yml$
 ^tests/misc$
 ^cran-comments\.md$
