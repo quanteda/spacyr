@@ -1,3 +1,4 @@
+ac
 Appveyor
 Akitaka
 Benoit
@@ -11,7 +12,10 @@ equivalencies
 etc
 gfm
 io
+kbenoit
 knitr
+lemmatizing
+lse
 macOS
 Matsuo
 md
@@ -19,7 +23,9 @@ miniconda
 NLP
 OntoNotes
 ORG
+parsers
 quanteda
+reticulate
 rmarkdown
 RStudio
 Rsession
@@ -28,13 +34,19 @@ spacy
 spacyr
 spaCy
 spaCy's
+symlink
+tokenize
 tagset
 tagsets
 tidytext
 TIF
 tokenization
+tokenize
+tokenized
 tokenizers
+Tokenizing
 Treebank
+uk
 VignetteEncoding
 VignetteEngine
 VignetteIndexEntry
