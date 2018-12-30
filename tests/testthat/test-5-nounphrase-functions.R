@@ -36,6 +36,23 @@ test_that("spacy_extract_nounphrases data.frame works", {
 })
 
 
+test_that("spacy_extract_nounphrases data.frame works properly when there is no noun-phrase", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+
+    expect_message(spacy_initialize(), "successfully|already")
+
+    txt1 <- c(doc1 = "Hello")
+    expect_message(
+        spacy_extract_nounphrases(txt1, output = "data.frame"),
+        "No noun phrase")
+    expect_equivalent(
+        spacy_extract_nounphrases(txt1, output = "data.frame"),
+        NULL)
+})
+
 test_that("spacy_extract_nounphrases works with a TIF formatted data.frame", {
     skip_on_cran()
     # skip_on_appveyor()
@@ -182,6 +199,30 @@ test_that("spacy_parse nounphrase = TRUE works", {
 
 
     expect_silent(spacy_finalize())
+})
+
+
+test_that("spacy_parse nounphrase = TRUE return message when there is no nounphrase", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+
+    expect_message(spacy_initialize(), "successfully|already")
+
+    txt1 <- c(doc1 = "hello",
+              doc2 = "hello")
+
+    expect_message(
+        spacy_parse(txt1, nounphrase = TRUE),
+        "No noun phrase"
+    )
+    expect_false(
+        "nounphrase" %in% names(spacy_parse(txt1, nounphrase = TRUE))
+    )
+    expect_false(
+        "whitespace" %in% names(spacy_parse(txt1, nounphrase = TRUE))
+    )
 })
 
 test_that("nounphrase_extract() on parsed object works", {

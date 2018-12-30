@@ -23,6 +23,24 @@ test_that("spacy_extract_entity data.frame works", {
     expect_silent(spacy_finalize())
 })
 
+test_that("spacy_extract_entity data.frame works properly when there is no noun-phrase", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+
+    expect_message(spacy_initialize(), "successfully|already")
+
+    txt1 <- c(doc1 = "He told me all this very much later, but I've put it down here with the idea of exploding those wild rumors about his antecedents, which weren t even faintly true.")
+    expect_message(
+        spacy_extract_entity(txt1, output = "data.frame"),
+        "No entity")
+    expect_equivalent(
+        spacy_extract_entity(txt1, output = "data.frame"),
+        NULL)
+})
+
+
 test_that("spacy_extract_entity list works", {
     skip_on_cran()
     # skip_on_appveyor()

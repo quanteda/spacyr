@@ -141,9 +141,14 @@ get_noun_phrases <- function(spacy_out) {
     data_out <-
         data.table::rbindlist(lapply(doc_id, function(x) {
             df <- as.data.frame(noun_phrases[[x]], stringsAsFactors = FALSE)
+            if (nrow(df) == 0) return(NULL)
             df$doc_id <- x
             return(df)
         }))
+    if (nrow(data_out) == 0) {
+        return(NULL)
+    }
+
     data_out[, start_id := start_id + 1][, root_id := root_id + 1]
     data.table::setDF(data_out)
     data_out <- data_out[, c(6, 1:5)]
