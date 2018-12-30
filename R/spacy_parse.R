@@ -140,23 +140,27 @@ spacy_parse.character <- function(x,
     if (nounphrase) {
         doc_id <- start_id <- nounphrase <- w_id <- root_id <- whitespace <- NULL
 
-        dt_nounphrases <- data.table::setDT(get_noun_phrases(spacy_out))
-        dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times = length)]
-        dt_nounphrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
-        dt_nounphrases <- data.table::setorder(dt_nounphrases, w_id, -length)
-        dt_nounphrases <- unique(dt_nounphrases, by = c("doc_id", "w_id"))
-        dt_nounphrases[, nounphrase := ifelse(w_id == start_id, "beg",
-                                      ifelse(w_id == max(w_id), "end", "mid")), by = .(doc_id, start_id)]
-        dt_nounphrases[, nounphrase := ifelse(w_id == root_id, paste0(nounphrase, "_root"), nounphrase)]
-        dt[, w_id := seq_len(.N), by = doc_id]
-        dt <- merge(dt, dt_nounphrases, by  = c("doc_id", "w_id"), all.x = TRUE)
-        # dt[ !is.na(start_id), start_token_id := token_id[w_id == start_id][1],
-        #     by = .(doc_id, root_id)]
-        # dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
-        #     by = .(doc_id, root_id)]
-        dt[, c("w_id", "start_id", "root_id", "text", "root_text", "length") := NULL]
-        dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
-        dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
+        dt_nounphrases <- data.table::data.table(get_noun_phrases(spacy_out))
+        if(nrow(dt_nounphrases) > 0) {
+            dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times = length)]
+            dt_nounphrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
+            dt_nounphrases <- data.table::setorder(dt_nounphrases, w_id, -length)
+            dt_nounphrases <- unique(dt_nounphrases, by = c("doc_id", "w_id"))
+            dt_nounphrases[, nounphrase := ifelse(w_id == start_id, "beg",
+                                          ifelse(w_id == max(w_id), "end", "mid")), by = .(doc_id, start_id)]
+            dt_nounphrases[, nounphrase := ifelse(w_id == root_id, paste0(nounphrase, "_root"), nounphrase)]
+            dt[, w_id := seq_len(.N), by = doc_id]
+            dt <- merge(dt, dt_nounphrases, by  = c("doc_id", "w_id"), all.x = TRUE)
+            # dt[ !is.na(start_id), start_token_id := token_id[w_id == start_id][1],
+            #     by = .(doc_id, root_id)]
+            # dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
+            #     by = .(doc_id, root_id)]
+            dt[, c("w_id", "start_id", "root_id", "text", "root_text", "length") := NULL]
+            dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
+            dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
+        } else {
+            message("No noun phrase found in documents.")
+        }
     }
 
     if (!is.null(additional_attributes)) {
