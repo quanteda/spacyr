@@ -41,9 +41,9 @@ test_that("spacy_extract_nounphrases data.frame works properly when there is no 
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt1 <- c(doc1 = "Hello")
     expect_message(
         spacy_extract_nounphrases(txt1, output = "data.frame"),
@@ -207,16 +207,15 @@ test_that("spacy_parse nounphrase = TRUE return message when there is no nounphr
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
+
     expect_message(spacy_initialize(), "successfully|already")
-    
+
     txt1 <- c(doc1 = "hello",
               doc2 = "hello")
-    parsed <- 
-    
+
     expect_message(
         spacy_parse(txt1, nounphrase = TRUE),
-        "No noun phrase" 
+        "No noun phrase"
     )
     expect_false(
         "nounphrase" %in% names(spacy_parse(txt1, nounphrase = TRUE))

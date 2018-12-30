@@ -141,7 +141,7 @@ spacy_parse.character <- function(x,
         doc_id <- start_id <- nounphrase <- w_id <- root_id <- whitespace <- NULL
 
         dt_nounphrases <- data.table::data.table(get_noun_phrases(spacy_out))
-        if(nrow(dt_nounphrases) > 0) {
+        if (nrow(dt_nounphrases) > 0) {
             dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times = length)]
             dt_nounphrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
             dt_nounphrases <- data.table::setorder(dt_nounphrases, w_id, -length)

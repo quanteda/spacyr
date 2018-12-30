@@ -110,11 +110,11 @@ spacy_extract_entity.character <- function(x,
         data_out <-
             data.table::rbindlist(lapply(doc_id, function(x) {
                 df <- as.data.frame(entities[[x]], stringsAsFactors = FALSE)
-                if(nrow(df) == 0) return(NULL)
+                if (nrow(df) == 0) return(NULL)
                 df$doc_id <- x
                 return(df)
             }))
-        if(nrow(data_out) == 0) {
+        if (nrow(data_out) == 0) {
             message("No entity found in documents")
             return(NULL)
         }
