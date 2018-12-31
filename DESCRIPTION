@@ -19,6 +19,7 @@ Imports:
     reticulate (>= 1.6)
 Suggests:
     knitr,
+    lintr,
     quanteda, 
     R.rsp,
     rmarkdown,
