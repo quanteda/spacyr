@@ -46,6 +46,7 @@ before_script:
 env:
   global:
     - R_CHECK_ARGS="--no-build-vignettes"
+    - LINTR_COMMENT_BOT=false
 
 after_success:
   - Rscript -e 'library(covr);codecov()'
