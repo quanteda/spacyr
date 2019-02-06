@@ -239,7 +239,7 @@ set_spacy_python_option <- function(python_executable = NULL,
         settings <- check_spacy_python_options()
         message("spacy python option is already set, spacyr will use:\n\t",
                 sub("spacy_", "", settings$key), ' = "', settings$val, '"')
-    }     
+    }
     # a user can specify only one
     else if (sum(!is.null(c(python_executable, virtualenv, condaenv))) > 1) {
         stop(paste("Too many python environments are specified, please select only one",
@@ -262,8 +262,7 @@ set_spacy_python_option <- function(python_executable = NULL,
             clear_spacy_options()
             options(spacy_condaenv = condaenv)
         }
-        
-    } 
+    }
     else if (check_env &&
               !(is.null(tryCatch(reticulate::conda_binary("auto"), error = function(e) NULL))) &&
               "spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
