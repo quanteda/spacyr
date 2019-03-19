@@ -239,17 +239,6 @@ set_spacy_python_option <- function(python_executable = NULL,
         settings <- check_spacy_python_options()
         message("spacy python option is already set, spacyr will use:\n\t",
                 sub("spacy_", "", settings$key), ' = "', settings$val, '"')
-    } else if (check_env &&
-              !(is.null(tryCatch(reticulate::conda_binary("auto"), error = function(e) NULL))) &&
-              "spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
-        message("Found 'spacy_condaenv'. spacyr will use this environment")
-        clear_spacy_options()
-        options(spacy_condaenv = "spacy_condaenv")
-    }
-    else if (check_env && file.exists(file.path("~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
-        message("Found 'spacy_virtualenv'. spacyr will use this environment")
-        clear_spacy_options()
-        options(spacy_virtualenv = "~/.virtualenvs/spacy_virtualenv")
     }
     # a user can specify only one
     else if (sum(!is.null(c(python_executable, virtualenv, condaenv))) > 1) {
@@ -273,7 +262,20 @@ set_spacy_python_option <- function(python_executable = NULL,
             clear_spacy_options()
             options(spacy_condaenv = condaenv)
         }
-    } else {
+    }
+    else if (check_env &&
+              !(is.null(tryCatch(reticulate::conda_binary("auto"), error = function(e) NULL))) &&
+              "spacy_condaenv" %in% reticulate::conda_list(conda = "auto")$name) {
+        message("Found 'spacy_condaenv'. spacyr will use this environment")
+        clear_spacy_options()
+        options(spacy_condaenv = "spacy_condaenv")
+    }
+    else if (check_env && file.exists(file.path("~/.virtualenvs", "spacy_virtualenv", "bin", "activate"))) {
+        message("Found 'spacy_virtualenv'. spacyr will use this environment")
+        clear_spacy_options()
+        options(spacy_virtualenv = "~/.virtualenvs/spacy_virtualenv")
+    }
+    else {
         message("Finding a python executable with spaCy installed...")
         spacy_python <- find_spacy(model, ask = ask)
         if (is.null(spacy_python)) {

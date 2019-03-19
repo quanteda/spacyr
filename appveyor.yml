@@ -5,7 +5,7 @@ image: Visual Studio 2015
 environment:
   NOT_CRAN: true
   USE_RTOOLS: true
-  R_VERSION: 3.4.4
+  R_VERSION: 3.5.2
   PATH: "%PATH%;C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0;C:\\MinGW\\msys\\1.0\\bin"
   matrix:
     - PYTHON: "C:\\Python36"
