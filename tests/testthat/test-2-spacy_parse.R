@@ -163,8 +163,8 @@ test_that("spacy_parse can handle data.frame properly", {
 # see https://stackoverflow.com/questions/55518184/how-to-feed-a-tibble-to-spacyr
 test_that("spacy_parse handles numbers/tibbles correctly", {
     skip_if_not_installed("tibble")
-    bogustib <- tibble(doc_id = c(1,2,3),
-                       text = c("bug", "one love", "838383838"))
+    bogustib <- tibble::tibble(doc_id = c(1,2,3),
+                               text = c("bug", "one love", "838383838"))
     expect_equivalent(
         spacy_parse(bogustib)[, c("doc_id", "sentence_id", "token_id", "token", "pos")],
         data.frame(
