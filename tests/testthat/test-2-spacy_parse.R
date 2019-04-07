@@ -162,6 +162,7 @@ test_that("spacy_parse can handle data.frame properly", {
 
 # see https://stackoverflow.com/questions/55518184/how-to-feed-a-tibble-to-spacyr
 test_that("spacy_parse handles numbers/tibbles correctly", {
+    skip_if_no_python_or_no_spacy()
     skip_if_not_installed("tibble")
     bogustib <- tibble::tibble(doc_id = c(1, 2, 3),
                                text = c("bug", "one love", "838383838"))
