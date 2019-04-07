@@ -218,6 +218,7 @@ spacy_parse(txt, entity = TRUE) %>%
 
 If you prefer a tidy approach to text analysis, **spacyr** works nicely because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects. 
 ```{r}
+if(!"tidytext" %in% installed.packages()[,"Package"]) install.packages("tidytext")
 library("tidytext")
 unnest_tokens(parsedtxt, word, token) %>%
     dplyr::anti_join(stop_words)
