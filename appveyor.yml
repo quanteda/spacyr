@@ -38,7 +38,7 @@ build_script:
   # - "%PYTHON%\\python.exe -m pip install setuptools spacy"
   # - "%PYTHON%\\python.exe -m spacy download en"
   - conda install -c conda-forge spacy 
-  - conda activate spacy_condaenv 
+  - activate spacy_condaenv 
   - python -m spacy download en
   - conda deactivate
   - travis-tool.sh install_deps
