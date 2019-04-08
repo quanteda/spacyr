@@ -34,12 +34,13 @@ build_script:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - "conda create --name spacy_condaenv spacy python=3.6.8"
+  - "conda create --name spacy_condaenv python=3.6.8"
   # - "%PYTHON%\\python.exe -m pip install setuptools spacy"
   # - "%PYTHON%\\python.exe -m spacy download en"
   - activate spacy_condaenv 
+  - conda install -c conda-forge spacy 
   - python -m spacy download en
-  - deactivate
+  - conda deactivate
   - travis-tool.sh install_deps
 
 test_script:
