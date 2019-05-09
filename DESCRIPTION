@@ -24,10 +24,11 @@ Suggests:
     R.rsp,
     rmarkdown,
     spelling,
-    testthat
+    testthat,
+    tibble
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
 RoxygenNote: 6.1.1
 Language: en-GB
-VignetteBuilder: R.rsp
+VignetteBuilder: knitr

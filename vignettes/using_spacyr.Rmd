@@ -48,7 +48,7 @@ For power users with a specialized setup of spaCy (i.e. users who have a conda e
 
 ```{r}
 library("spacyr")
-spacy_initialize()
+spacy_initialize(model = "en_core_web_sm")
 ```
 
 ## Tokenizing and tagging texts
@@ -153,7 +153,7 @@ This is an example of parsing German texts.
 ```{r}
 ## first finalize the spacy if it's loaded
 spacy_finalize()
-spacy_initialize(model = "de")
+spacy_initialize(model = "de_core_news_sm")
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
@@ -180,7 +180,7 @@ ntype(parsedtxt)
 
 Conversion of tokens is easily performed, and the tokenizers in **spacyr** tend to be smarter than the purely syntactic pattern-based parsers used by **quanteda**.
 ```{r}
-spacy_initialize(model = "en")
+spacy_initialize(model = "en_core_web_sm")
 parsedtxt <- spacy_parse(txt, pos = TRUE, tag = TRUE)
 as.tokens(parsedtxt)
 as.tokens(parsedtxt, include_pos = "pos")
@@ -218,6 +218,8 @@ spacy_parse(txt, entity = TRUE) %>%
 
 If you prefer a tidy approach to text analysis, **spacyr** works nicely because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects. 
 ```{r}
+if (!requireNamespace("tidytext", quietly = TRUE))
+  install.packages("tidytext", repos = "https://cran.rstudio.com/")
 library("tidytext")
 unnest_tokens(parsedtxt, word, token) %>%
     dplyr::anti_join(stop_words)

@@ -97,7 +97,7 @@ test_that("spacy_tokenize remove_symbols argument work as expected", {
     )
     expect_equivalent(
         spacy_tokenize(txt, remove_symbols = TRUE, padding = FALSE),
-        list(c("This", ":", "GBP", "!", "15", "%", "not", "!",
+        list(c("This", ":", "=",  "GBP", "!", "15", "%", "not", "!",
                ">", "20", "percent", "?"))
     )
 })

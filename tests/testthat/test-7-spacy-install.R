@@ -3,7 +3,7 @@ source("utils.R")
 
 test_that("lanugage model download works", {
     skip_on_cran()
-    # skip_on_appveyor()
+    skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
@@ -13,7 +13,7 @@ test_that("lanugage model download works", {
 
 test_that("spacy_install works", {
     skip_on_cran()
-    # skip_on_appveyor()
+    skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
@@ -23,7 +23,7 @@ test_that("spacy_install works", {
 
 test_that("spacy_install specific version of spacy works", {
     skip_on_cran()
-    # skip_on_appveyor()
+    skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
@@ -41,12 +41,12 @@ test_that("spacy_install specific version of spacy works", {
 
 test_that("spacy_upgrade works", {
     skip_on_cran()
-    # skip_on_appveyor()
+    skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
     expect_message(spacy_upgrade(prompt = FALSE),
-                   "your spaCy is up-to-date")
+                   "Your spaCy version is the latest available")
     # expect_message(spacy_upgrade(envname = "test_specific_version",
     #                              prompt = FALSE),
     #                "Successfully upgraded")
@@ -59,7 +59,7 @@ test_that("spacy_upgrade works", {
 
 test_that("spacy_uninstall works", {
     skip_on_cran()
-    # skip_on_appveyor()
+    skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
@@ -74,7 +74,7 @@ test_that("spacy_uninstall works", {
 
 test_that("spacy_install_virtualenv works", {
     skip("not tested for the time being")
-    # skip_on_appveyor()
+    skip_on_appveyor()
     skip_on_os("solaris")
     skip_on_os("mac") # this test is travis only
     skip_if_no_python_or_no_spacy()

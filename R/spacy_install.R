@@ -502,11 +502,11 @@ spacy_upgrade  <- function(conda = "auto",
                    envname,
                    ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
     result <- system(cmd, intern = TRUE, ignore.stderr = TRUE)
-    spacy_index <- grep("spacy \\(", result)
+    spacy_index <- grep("^spacy \\(", result)
     latest_spacy <- sub("spacy \\((.+?)\\).+", "\\1", result[spacy_index])
     installed_spacy <- sub(".+?(\\d.+\\d).*", "\\1", result[spacy_index + 1])
     if (latest_spacy == installed_spacy) {
-        message("your spaCy is up-to-date")
+        message("Your spaCy version is the latest available.")
         return(invisible(NULL))
     } else if (substr(installed_spacy, 0, 2) == "1.") {
         cat(sprintf("The version spacy installed is %s\n",
