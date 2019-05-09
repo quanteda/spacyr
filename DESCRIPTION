@@ -24,7 +24,8 @@ Suggests:
     R.rsp,
     rmarkdown,
     spelling,
-    testthat
+    testthat,
+    tibble
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
