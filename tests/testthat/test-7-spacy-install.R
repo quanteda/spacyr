@@ -46,7 +46,7 @@ test_that("spacy_upgrade works", {
     skip_if_no_python_or_no_spacy()
 
     expect_message(spacy_upgrade(prompt = FALSE),
-                   "your spaCy is up-to-date")
+                   "Your spaCy version is the latest available")
     # expect_message(spacy_upgrade(envname = "test_specific_version",
     #                              prompt = FALSE),
     #                "Successfully upgraded")
