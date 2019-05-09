@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<!-- saved from url=(0127)file://localhost/private/var/folders/1v/ps2x_tvd0yg0lypdlshg_vwc0000gp/T/RtmpTGpOIH/preview-1162d6b44f961.dir/using_spacyr.html -->
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<html xmlns="http://www.w3.org/1999/xhtml">
 
+<head>
 
-<meta name="generator" content="pandoc">
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="author" content="Kenneth Benoit and Akitaka Matsuo">
+<meta name="author" content="Kenneth Benoit and Akitaka Matsuo" />
 
-<meta name="date" content="2018-12-15">
+<meta name="date" content="2019-05-09" />
 
 <title>A Guide to Using spacyr</title>
 
@@ -289,117 +291,25 @@ code > span.al { color: #ff0000; font-weight: bold; }
 code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
-<script type="text/javascript" src="./using_spacyr_files/MathJax.js"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
-.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
-.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
-.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
-.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
-</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-#MathJax_About.MathJax_MousePost {outline: none}
-.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-.MathJax_MenuItem {padding: 1px 2em; background: transparent}
-.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
-.MathJax_MenuActive .MathJax_MenuArrow {color: white}
-.MathJax_MenuArrow.RTL {left: .5em; right: auto}
-.MathJax_MenuCheck {position: absolute; left: .7em}
-.MathJax_MenuCheck.RTL {right: .7em; left: auto}
-.MathJax_MenuRadioCheck {position: absolute; left: .7em}
-.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
-.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
-.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
-.MathJax_MenuDisabled {color: GrayText}
-.MathJax_MenuActive {background-color: #606872; color: white}
-.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
-.MathJax_ContextMenu:focus {outline: none}
-.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
-#MathJax_AboutClose {top: .2em; right: .2em}
-.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
-.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
-.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
-.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
-.MathJax_MenuClose:hover span {background-color: #CCC!important}
-.MathJax_MenuClose:hover:focus {outline: none}
-</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
-</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
-.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
-</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
-#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
-#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
-</style><style type="text/css">.MathJax_Preview {color: #888}
-#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
-#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
-.MathJax_Error {color: #CC0000; font-style: italic}
-</style><style type="text/css">.MJXp-script {font-size: .8em}
-.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
-.MJXp-bold {font-weight: bold}
-.MJXp-italic {font-style: italic}
-.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-largeop {font-size: 150%}
-.MJXp-largeop.MJXp-int {vertical-align: -.2em}
-.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
-.MJXp-display {display: block; text-align: center; margin: 1em 0}
-.MJXp-math span {display: inline-block}
-.MJXp-box {display: block!important; text-align: center}
-.MJXp-box:after {content: " "}
-.MJXp-rule {display: block!important; margin-top: .1em}
-.MJXp-char {display: block!important}
-.MJXp-mo {margin: 0 .15em}
-.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
-.MJXp-denom {display: inline-table!important; width: 100%}
-.MJXp-denom > * {display: table-row!important}
-.MJXp-surd {vertical-align: top}
-.MJXp-surd > * {display: block!important}
-.MJXp-script-box > *  {display: table!important; height: 50%}
-.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
-.MJXp-script-box > *:last-child > * {vertical-align: bottom}
-.MJXp-script-box > * > * > * {display: block!important}
-.MJXp-mphantom {visibility: hidden}
-.MJXp-munderover {display: inline-table!important}
-.MJXp-over {display: inline-block!important; text-align: center}
-.MJXp-over > * {display: block!important}
-.MJXp-munderover > * {display: table-row!important}
-.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
-.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
-.MJXp-mtr {display: table-row!important}
-.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
-.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
-.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
-.MJXp-mlabeledtr {display: table-row!important}
-.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
-.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
-.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
-.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
-.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
-.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
-.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
-.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
-.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
-.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
-.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
-.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
-.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
-.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
-</style></head>
 
-<body><div id="MathJax_Message" style="display: none;"></div>
+
+
+</head>
+
+<body>
 
 
 
 
 <h1 class="title toc-ignore">A Guide to Using spacyr</h1>
-<h4 class="author"><em>Kenneth Benoit and Akitaka Matsuo</em></h4>
-<h4 class="date"><em>2018-12-15</em></h4>
+<h4 class="author">Kenneth Benoit and Akitaka Matsuo</h4>
+<h4 class="date">2019-05-09</h4>
 
 
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p><strong>spacyr</strong> provides a convenient R wrapper around the Python <a href="https://spacy.io/">spaCy</a> package. It offers easy access to the following functionality of spaCy:</p>
+<p><strong>spacyr</strong> provides a convenient R wrapper around the Python <a href="https://spacy.io">spaCy</a> package. It offers easy access to the following functionality of spaCy:</p>
 <ul>
 <li>parsing texts into tokens or sentences;</li>
 <li>lemmatizing tokens;</li>
@@ -408,38 +318,37 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </ul>
 <p>It also allows a user to request additional token-level attributes directly from spaCy.</p>
 <p><strong>spacyr</strong> also takes care of the installation of not only spaCy but also Python itself, in a self-contained miniconda or virtualenv environment, and can install additional language models or upgrade spaCy as new models and versions become available.</p>
-<p>Finally, <strong>spacyr</strong> works seamlessly with the <a href="https://quanteda.io/"><strong>quanteda</strong></a> package, although such use is optional.</p>
+<p>Finally, <strong>spacyr</strong> works seamlessly with the <a href="https://quanteda.io"><strong>quanteda</strong></a> package, although such use is optional.</p>
 </div>
 <div id="starting-a-spacyr-session" class="section level2">
 <h2>Starting a <strong>spacyr</strong> session</h2>
 <p><strong>spacyr</strong> works through the <a href="https://github.com/rstudio/reticulate"><strong>reticulate</strong></a> package that allows R to harness the power of Python. To access the underlying Python functionality, <strong>spacyr</strong> must open a connection by being initialized within your R session.</p>
-<p>We provide a function for this, <code>spacy_initialize()</code>, which attempts to make this process as painless as possible. When spaCy has been installed in a conda environment with <code>spacy_install()</code> (and see <a href="https://spacyr.quanteda.io/" class="uri">https://spacyr.quanteda.io</a> for detailed instructions on this setup), <code>spacy_initialize()</code> automatically detects it and initializes spaCy. If spaCy is installed in a normal environment (i.e.&nbsp;not in a condaenv or virtualenv), <code>spacy_initialize()</code> searches your system for Python executables, and testing which have spaCy installed.</p>
-<p>For power users with a specialized setup of spaCy (i.e.&nbsp;users who have a conda environment already set up for spaCy), it is possible to specify which environment or python executable to be used through one of the following methods:</p>
+<p>We provide a function for this, <code>spacy_initialize()</code>, which attempts to make this process as painless as possible. When spaCy has been installed in a conda environment with <code>spacy_install()</code> (and see <a href="https://spacyr.quanteda.io" class="uri">https://spacyr.quanteda.io</a> for detailed instructions on this setup), <code>spacy_initialize()</code> automatically detects it and initializes spaCy. If spaCy is installed in a normal environment (i.e. not in a condaenv or virtualenv), <code>spacy_initialize()</code> searches your system for Python executables, and testing which have spaCy installed.</p>
+<p>For power users with a specialized setup of spaCy (i.e. users who have a conda environment already set up for spaCy), it is possible to specify which environment or python executable to be used through one of the following methods:</p>
 <ol style="list-style-type: decimal">
 <li><code>condaenv</code> argument: supplying the name of conda environment</li>
 <li><code>virtualenv</code> argument: supplying the path to the python virtual environment</li>
 <li><code>python_executable</code> argument: supplying the path to the python</li>
 </ol>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(<span class="st">"spacyr"</span>)</a>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(<span class="st">&quot;spacyr&quot;</span>)</a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="kw">spacy_initialize</span>()</a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co">## spacy python option is already set, spacyr will use:</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="co">##  condaenv = "spacy_condaenv"</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">## Found &#39;spacy_condaenv&#39;. spacyr will use this environment</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">## successfully initialized (spaCy Version: 2.1.3, language model: en)</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co">## (python options: type = &quot;condaenv&quot;, value = &quot;spacy_condaenv&quot;)</span></a></code></pre></div>
 </div>
 <div id="tokenizing-and-tagging-texts" class="section level2">
 <h2>Tokenizing and tagging texts</h2>
 <p>The <code>spacy_parse()</code> function is <strong>spacyr</strong>’s main workhorse. It calls spaCy both to tokenize and tag the texts. It provides two options for part of speech tagging, plus options to return word lemmas, recognize names entities or noun phrases recognition, and identify grammatical structures features by parsing syntactic dependencies. It returns a <code>data.frame</code> corresponding to the emerging <a href="https://github.com/ropensci/tif"><em>text interchange format</em></a> for token data.frames.</p>
 <p>The tokenization approach taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.</p>
 <p>Example:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">txt &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">d1 =</span> <span class="st">"spaCy is great at fast natural language processing."</span>,</a>
-<a class="sourceLine" id="cb2-2" title="2">         <span class="dt">d2 =</span> <span class="st">"Mr. Smith spent two years in North Carolina."</span>)</a>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">txt &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">d1 =</span> <span class="st">&quot;spaCy is great at fast natural language processing.&quot;</span>,</a>
+<a class="sourceLine" id="cb2-2" title="2">         <span class="dt">d2 =</span> <span class="st">&quot;Mr. Smith spent two years in North Carolina.&quot;</span>)</a>
 <a class="sourceLine" id="cb2-3" title="3"></a>
 <a class="sourceLine" id="cb2-4" title="4"><span class="co"># process documents and obtain a data.table</span></a>
 <a class="sourceLine" id="cb2-5" title="5">parsedtxt &lt;-<span class="st"> </span><span class="kw">spacy_parse</span>(txt)</a>
 <a class="sourceLine" id="cb2-6" title="6">parsedtxt</a>
 <a class="sourceLine" id="cb2-7" title="7"><span class="co">##    doc_id sentence_id token_id      token      lemma   pos   entity</span></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co">## 1      d1           1        1      spaCy      spacy   ADJ    GPE_B</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="co">## 1      d1           1        1      spaCy      spacy  NOUN         </span></a>
 <a class="sourceLine" id="cb2-9" title="9"><span class="co">## 2      d1           1        2         is         be  VERB         </span></a>
 <a class="sourceLine" id="cb2-10" title="10"><span class="co">## 3      d1           1        3      great      great   ADJ         </span></a>
 <a class="sourceLine" id="cb2-11" title="11"><span class="co">## 4      d1           1        4         at         at   ADP         </span></a>
@@ -448,19 +357,19 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb2-14" title="14"><span class="co">## 7      d1           1        7   language   language  NOUN         </span></a>
 <a class="sourceLine" id="cb2-15" title="15"><span class="co">## 8      d1           1        8 processing processing  NOUN         </span></a>
 <a class="sourceLine" id="cb2-16" title="16"><span class="co">## 9      d1           1        9          .          . PUNCT         </span></a>
-<a class="sourceLine" id="cb2-17" title="17"><span class="co">## 10     d2           1        1        Mr.        mr. PROPN         </span></a>
-<a class="sourceLine" id="cb2-18" title="18"><span class="co">## 11     d2           1        2      Smith      smith PROPN PERSON_B</span></a>
+<a class="sourceLine" id="cb2-17" title="17"><span class="co">## 10     d2           1        1        Mr.        Mr. PROPN         </span></a>
+<a class="sourceLine" id="cb2-18" title="18"><span class="co">## 11     d2           1        2      Smith      Smith PROPN PERSON_B</span></a>
 <a class="sourceLine" id="cb2-19" title="19"><span class="co">## 12     d2           1        3      spent      spend  VERB         </span></a>
 <a class="sourceLine" id="cb2-20" title="20"><span class="co">## 13     d2           1        4        two        two   NUM   DATE_B</span></a>
 <a class="sourceLine" id="cb2-21" title="21"><span class="co">## 14     d2           1        5      years       year  NOUN   DATE_I</span></a>
 <a class="sourceLine" id="cb2-22" title="22"><span class="co">## 15     d2           1        6         in         in   ADP         </span></a>
-<a class="sourceLine" id="cb2-23" title="23"><span class="co">## 16     d2           1        7      North      north PROPN    GPE_B</span></a>
-<a class="sourceLine" id="cb2-24" title="24"><span class="co">## 17     d2           1        8   Carolina   carolina PROPN    GPE_I</span></a>
+<a class="sourceLine" id="cb2-23" title="23"><span class="co">## 16     d2           1        7      North      North PROPN    GPE_B</span></a>
+<a class="sourceLine" id="cb2-24" title="24"><span class="co">## 17     d2           1        8   Carolina   Carolina PROPN    GPE_I</span></a>
 <a class="sourceLine" id="cb2-25" title="25"><span class="co">## 18     d2           1        9          .          . PUNCT</span></a></code></pre></div>
 <p>Two fields are available for part-of-speech tags. The <code>pos</code> field returned is the <a href="http://universaldependencies.org/u/pos/all.html">Universal tagset for parts-of-speech</a>, a general scheme that most users will find serves their needs, and also that provides equivalencies across languages. <strong>spacyr</strong> also provides a more detailed tagset, defined in each spaCy language model. For English, this is the <a href="https://spacy.io/docs/usage/pos-tagging#pos-tagging-english">OntoNotes 5 version of the Penn Treebank tag set</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">spacy_parse</span>(txt, <span class="dt">tag =</span> <span class="ot">TRUE</span>, <span class="dt">entity =</span> <span class="ot">FALSE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>)</a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="co">##    doc_id sentence_id token_id      token   pos tag</span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="co">## 1      d1           1        1      spaCy   ADJ  JJ</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="co">## 1      d1           1        1      spaCy  NOUN  NN</span></a>
 <a class="sourceLine" id="cb3-4" title="4"><span class="co">## 2      d1           1        2         is  VERB VBZ</span></a>
 <a class="sourceLine" id="cb3-5" title="5"><span class="co">## 3      d1           1        3      great   ADJ  JJ</span></a>
 <a class="sourceLine" id="cb3-6" title="6"><span class="co">## 4      d1           1        4         at   ADP  IN</span></a>
@@ -482,14 +391,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>Direct parsing of texts is also possible, using <strong>spacy_tokenize()</strong>. The options are designed to match those in the <a href="https://quanteda.io/reference/tokens.html"><code>tokens()</code> function</a> from the <strong>quanteda</strong> package. By default this returns a named list (where the document name is the list element name):</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">spacy_tokenize</span>(txt)</a>
 <a class="sourceLine" id="cb4-2" title="2"><span class="co">## $d1</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="co">## [1] "spaCy"      "is"         "great"      "at"         "fast"      </span></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="co">## [6] "natural"    "language"   "processing" "."         </span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">## [1] &quot;spaCy&quot;      &quot;is&quot;         &quot;great&quot;      &quot;at&quot;         &quot;fast&quot;      </span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">## [6] &quot;natural&quot;    &quot;language&quot;   &quot;processing&quot; &quot;.&quot;         </span></a>
 <a class="sourceLine" id="cb4-5" title="5"><span class="co">## </span></a>
 <a class="sourceLine" id="cb4-6" title="6"><span class="co">## $d2</span></a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="co">## [1] "Mr."      "Smith"    "spent"    "two"      "years"    "in"      </span></a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="co">## [7] "North"    "Carolina" "."</span></a></code></pre></div>
+<a class="sourceLine" id="cb4-7" title="7"><span class="co">## [1] &quot;Mr.&quot;      &quot;Smith&quot;    &quot;spent&quot;    &quot;two&quot;      &quot;years&quot;    &quot;in&quot;      </span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="co">## [7] &quot;North&quot;    &quot;Carolina&quot; &quot;.&quot;</span></a></code></pre></div>
 <p>but it can also output a data.frame:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">spacy_tokenize</span>(txt, <span class="dt">remove_punct =</span> <span class="ot">TRUE</span>, <span class="dt">output =</span> <span class="st">"data.frame"</span>) <span class="op">%&gt;%</span></a>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">spacy_tokenize</span>(txt, <span class="dt">remove_punct =</span> <span class="ot">TRUE</span>, <span class="dt">output =</span> <span class="st">&quot;data.frame&quot;</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb5-2" title="2"><span class="st">    </span><span class="kw">tail</span>()</a>
 <a class="sourceLine" id="cb5-3" title="3"><span class="co">##    doc_id    token</span></a>
 <a class="sourceLine" id="cb5-4" title="4"><span class="co">## 11     d2    spent</span></a>
@@ -507,16 +416,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">parsedtxt &lt;-<span class="st"> </span><span class="kw">spacy_parse</span>(txt, <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">entity =</span> <span class="ot">TRUE</span>, <span class="dt">nounphrase =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb6-2" title="2"><span class="kw">entity_extract</span>(parsedtxt)</a>
 <a class="sourceLine" id="cb6-3" title="3"><span class="co">##   doc_id sentence_id         entity entity_type</span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="co">## 1     d1           1          spaCy         GPE</span></a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="co">## 2     d2           1          Smith      PERSON</span></a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="co">## 3     d2           1 North_Carolina         GPE</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-4" title="4"><span class="co">## 1     d2           1          Smith      PERSON</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="co">## 2     d2           1 North_Carolina         GPE</span></a></code></pre></div>
 <p>“Extended” entities including entities such as dates, events, and cardinal or ordinal quantities.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">entity_extract</span>(parsedtxt, <span class="dt">type =</span> <span class="st">"all"</span>)</a>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">entity_extract</span>(parsedtxt, <span class="dt">type =</span> <span class="st">&quot;all&quot;</span>)</a>
 <a class="sourceLine" id="cb7-2" title="2"><span class="co">##   doc_id sentence_id         entity entity_type</span></a>
-<a class="sourceLine" id="cb7-3" title="3"><span class="co">## 1     d1           1          spaCy         GPE</span></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="co">## 2     d2           1          Smith      PERSON</span></a>
-<a class="sourceLine" id="cb7-5" title="5"><span class="co">## 3     d2           1      two_years        DATE</span></a>
-<a class="sourceLine" id="cb7-6" title="6"><span class="co">## 4     d2           1 North_Carolina         GPE</span></a></code></pre></div>
+<a class="sourceLine" id="cb7-3" title="3"><span class="co">## 1     d2           1          Smith      PERSON</span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="co">## 2     d2           1      two_years        DATE</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="co">## 3     d2           1 North_Carolina         GPE</span></a></code></pre></div>
 <p>One very useful feature is to use the consolidation functions to compound multi-word entities into single “tokens” (as they would in a language like German):</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">entity_consolidate</span>(parsedtxt) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="st">    </span><span class="kw">tail</span>()</a>
@@ -530,14 +437,15 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>In a similar manner to named entity extraction, <strong>spacyr</strong> can extract or concatenate [noun phrases* (or <a href="https://spacy.io/usage/linguistic-features#noun-chunks"><em>noun chunks</em></a>).</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">nounphrase_extract</span>(parsedtxt)</a>
 <a class="sourceLine" id="cb9-2" title="2"><span class="co">##   doc_id sentence_id                       nounphrase</span></a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="co">## 1     d1           1 fast_natural_language_processing</span></a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="co">## 2     d2           1                        Mr._Smith</span></a>
-<a class="sourceLine" id="cb9-5" title="5"><span class="co">## 3     d2           1                        two_years</span></a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="co">## 4     d2           1                   North_Carolina</span></a></code></pre></div>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co">## 1     d1           1                            spaCy</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="co">## 2     d1           1 fast_natural_language_processing</span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="co">## 3     d2           1                        Mr._Smith</span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co">## 4     d2           1                        two_years</span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">## 5     d2           1                   North_Carolina</span></a></code></pre></div>
 <p>Just as with entities, noun phrases can also be consolidated into single “tokens”:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">nounphrase_consolidate</span>(parsedtxt)</a>
 <a class="sourceLine" id="cb10-2" title="2"><span class="co">##    doc_id sentence_id token_id                            token        pos</span></a>
-<a class="sourceLine" id="cb10-3" title="3"><span class="co">## 1      d1           1        1                            spaCy        ADJ</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="co">## 1      d1           1        1                            spaCy nounphrase</span></a>
 <a class="sourceLine" id="cb10-4" title="4"><span class="co">## 2      d1           1        2                               is       VERB</span></a>
 <a class="sourceLine" id="cb10-5" title="5"><span class="co">## 3      d1           1        3                            great        ADJ</span></a>
 <a class="sourceLine" id="cb10-6" title="6"><span class="co">## 4      d1           1        4                               at        ADP</span></a>
@@ -552,28 +460,29 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>If a user’s only goal is entity or noun phrase extraction, then two functions make this easy without first parsing the entire text:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">spacy_extract_entity</span>(txt)</a>
 <a class="sourceLine" id="cb11-2" title="2"><span class="co">##   doc_id           text ent_type start_id length</span></a>
-<a class="sourceLine" id="cb11-3" title="3"><span class="co">## 1     d1          spaCy      GPE        1      1</span></a>
-<a class="sourceLine" id="cb11-4" title="4"><span class="co">## 2     d2          Smith   PERSON        2      1</span></a>
-<a class="sourceLine" id="cb11-5" title="5"><span class="co">## 3     d2      two years     DATE        4      2</span></a>
-<a class="sourceLine" id="cb11-6" title="6"><span class="co">## 4     d2 North Carolina      GPE        7      2</span></a>
-<a class="sourceLine" id="cb11-7" title="7"><span class="kw">spacy_extract_nounphrases</span>(txt)</a>
-<a class="sourceLine" id="cb11-8" title="8"><span class="co">##   doc_id                             text  root_text start_id root_id</span></a>
-<a class="sourceLine" id="cb11-9" title="9"><span class="co">## 1     d1 fast natural language processing processing        5       8</span></a>
-<a class="sourceLine" id="cb11-10" title="10"><span class="co">## 2     d2                        Mr. Smith      Smith        1       2</span></a>
-<a class="sourceLine" id="cb11-11" title="11"><span class="co">## 3     d2                        two years      years        4       5</span></a>
-<a class="sourceLine" id="cb11-12" title="12"><span class="co">## 4     d2                   North Carolina   Carolina        7       8</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="co">## 1     d2          Smith   PERSON        2      1</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="co">## 2     d2      two years     DATE        4      2</span></a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="co">## 3     d2 North Carolina      GPE        7      2</span></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="kw">spacy_extract_nounphrases</span>(txt)</a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="co">##   doc_id                             text  root_text start_id root_id</span></a>
+<a class="sourceLine" id="cb11-8" title="8"><span class="co">## 1     d1                            spaCy      spaCy        1       1</span></a>
+<a class="sourceLine" id="cb11-9" title="9"><span class="co">## 2     d1 fast natural language processing processing        5       8</span></a>
+<a class="sourceLine" id="cb11-10" title="10"><span class="co">## 3     d2                        Mr. Smith      Smith        1       2</span></a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="co">## 4     d2                        two years      years        4       5</span></a>
+<a class="sourceLine" id="cb11-12" title="12"><span class="co">## 5     d2                   North Carolina   Carolina        7       8</span></a>
 <a class="sourceLine" id="cb11-13" title="13"><span class="co">##   length</span></a>
-<a class="sourceLine" id="cb11-14" title="14"><span class="co">## 1      4</span></a>
-<a class="sourceLine" id="cb11-15" title="15"><span class="co">## 2      2</span></a>
+<a class="sourceLine" id="cb11-14" title="14"><span class="co">## 1      1</span></a>
+<a class="sourceLine" id="cb11-15" title="15"><span class="co">## 2      4</span></a>
 <a class="sourceLine" id="cb11-16" title="16"><span class="co">## 3      2</span></a>
-<a class="sourceLine" id="cb11-17" title="17"><span class="co">## 4      2</span></a></code></pre></div>
+<a class="sourceLine" id="cb11-17" title="17"><span class="co">## 4      2</span></a>
+<a class="sourceLine" id="cb11-18" title="18"><span class="co">## 5      2</span></a></code></pre></div>
 </div>
 <div id="dependency-parsing" class="section level3">
 <h3>Dependency parsing</h3>
 <p>Detailed parsing of syntactic dependencies is possible with the <code>dependency = TRUE</code> option:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">spacy_parse</span>(txt, <span class="dt">dependency =</span> <span class="ot">TRUE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">pos =</span> <span class="ot">FALSE</span>)</a>
 <a class="sourceLine" id="cb12-2" title="2"><span class="co">##    doc_id sentence_id token_id      token head_token_id  dep_rel   entity</span></a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="co">## 1      d1           1        1      spaCy             2    nsubj    GPE_B</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="co">## 1      d1           1        1      spaCy             2    nsubj         </span></a>
 <a class="sourceLine" id="cb12-4" title="4"><span class="co">## 2      d1           1        2         is             2     ROOT         </span></a>
 <a class="sourceLine" id="cb12-5" title="5"><span class="co">## 3      d1           1        3      great             2    acomp         </span></a>
 <a class="sourceLine" id="cb12-6" title="6"><span class="co">## 4      d1           1        4         at             2     prep         </span></a>
@@ -595,8 +504,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="extracting-additional-token-attributes" class="section level3">
 <h3>Extracting additional token attributes</h3>
 <p>It is also possible to extract additional <a href="https://spacy.io/api/token#attributes">attributes of spaCy tokens</a> with the <code>additional_attributes</code> option. For example, detecting numbers and email addresses:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">spacy_parse</span>(<span class="st">"I have six email addresses, including me@mymail.com."</span>, </a>
-<a class="sourceLine" id="cb13-2" title="2">            <span class="dt">additional_attributes =</span> <span class="kw">c</span>(<span class="st">"like_num"</span>, <span class="st">"like_email"</span>),</a>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">spacy_parse</span>(<span class="st">&quot;I have six email addresses, including me@mymail.com.&quot;</span>, </a>
+<a class="sourceLine" id="cb13-2" title="2">            <span class="dt">additional_attributes =</span> <span class="kw">c</span>(<span class="st">&quot;like_num&quot;</span>, <span class="st">&quot;like_email&quot;</span>),</a>
 <a class="sourceLine" id="cb13-3" title="3">            <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">pos =</span> <span class="ot">FALSE</span>, <span class="dt">entity =</span> <span class="ot">FALSE</span>)</a>
 <a class="sourceLine" id="cb13-4" title="4"><span class="co">##   doc_id sentence_id token_id         token like_num like_email</span></a>
 <a class="sourceLine" id="cb13-5" title="5"><span class="co">## 1  text1           1        1             I    FALSE      FALSE</span></a>
@@ -648,19 +557,19 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tbody>
 </table>
 <p>This is an example of parsing German texts.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="co">## first finalize the spacy if it's loaded</span></a>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="co">## first finalize the spacy if it&#39;s loaded</span></a>
 <a class="sourceLine" id="cb14-2" title="2"><span class="kw">spacy_finalize</span>()</a>
-<a class="sourceLine" id="cb14-3" title="3"><span class="kw">spacy_initialize</span>(<span class="dt">model =</span> <span class="st">"de"</span>)</a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="kw">spacy_initialize</span>(<span class="dt">model =</span> <span class="st">&quot;de&quot;</span>)</a>
 <a class="sourceLine" id="cb14-4" title="4"><span class="co">## Python space is already attached.  If you want to switch to a different Python, please restart R.</span></a>
-<a class="sourceLine" id="cb14-5" title="5"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: de)</span></a>
-<a class="sourceLine" id="cb14-6" title="6"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="co">## successfully initialized (spaCy Version: 2.1.3, language model: de)</span></a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="co">## (python options: type = &quot;condaenv&quot;, value = &quot;spacy_condaenv&quot;)</span></a>
 <a class="sourceLine" id="cb14-7" title="7"></a>
-<a class="sourceLine" id="cb14-8" title="8">txt_german &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">R =</span> <span class="st">"R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt."</span>,</a>
-<a class="sourceLine" id="cb14-9" title="9">               <span class="dt">python =</span> <span class="st">"Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern."</span>)</a>
+<a class="sourceLine" id="cb14-8" title="8">txt_german &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">R =</span> <span class="st">&quot;R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.&quot;</span>,</a>
+<a class="sourceLine" id="cb14-9" title="9">               <span class="dt">python =</span> <span class="st">&quot;Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.&quot;</span>)</a>
 <a class="sourceLine" id="cb14-10" title="10">results_german &lt;-<span class="st"> </span><span class="kw">spacy_parse</span>(txt_german, <span class="dt">dependency =</span> <span class="ot">FALSE</span>, <span class="dt">lemma =</span> <span class="ot">FALSE</span>, <span class="dt">tag =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb14-11" title="11">results_german</a>
 <a class="sourceLine" id="cb14-12" title="12"><span class="co">##    doc_id sentence_id token_id              token   pos   tag entity</span></a>
-<a class="sourceLine" id="cb14-13" title="13"><span class="co">## 1       R           1        1                  R PROPN    NE       </span></a>
+<a class="sourceLine" id="cb14-13" title="13"><span class="co">## 1       R           1        1                  R PROPN    NE MISC_B</span></a>
 <a class="sourceLine" id="cb14-14" title="14"><span class="co">## 2       R           1        2                ist   AUX VAFIN       </span></a>
 <a class="sourceLine" id="cb14-15" title="15"><span class="co">## 3       R           1        3               eine   DET   ART       </span></a>
 <a class="sourceLine" id="cb14-16" title="16"><span class="co">## 4       R           1        4              freie   ADJ  ADJA       </span></a>
@@ -674,7 +583,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb14-24" title="24"><span class="co">## 12      R           2        1                Sie  PRON  PPER       </span></a>
 <a class="sourceLine" id="cb14-25" title="25"><span class="co">## 13      R           2        2              wurde   AUX VAFIN       </span></a>
 <a class="sourceLine" id="cb14-26" title="26"><span class="co">## 14      R           2        3                von   ADP  APPR       </span></a>
-<a class="sourceLine" id="cb14-27" title="27"><span class="co">## 15      R           2        4       Statistikern  NOUN    NN  LOC_B</span></a>
+<a class="sourceLine" id="cb14-27" title="27"><span class="co">## 15      R           2        4       Statistikern  NOUN    NN       </span></a>
 <a class="sourceLine" id="cb14-28" title="28"><span class="co">## 16      R           2        5                für   ADP  APPR       </span></a>
 <a class="sourceLine" id="cb14-29" title="29"><span class="co">## 17      R           2        6           Anwender  NOUN    NN       </span></a>
 <a class="sourceLine" id="cb14-30" title="30"><span class="co">## 18      R           2        7                mit   ADP  APPR       </span></a>
@@ -682,7 +591,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb14-32" title="32"><span class="co">## 20      R           2        9           Aufgaben  NOUN    NN       </span></a>
 <a class="sourceLine" id="cb14-33" title="33"><span class="co">## 21      R           2       10         entwickelt  VERB  VVPP       </span></a>
 <a class="sourceLine" id="cb14-34" title="34"><span class="co">## 22      R           2       11                  . PUNCT    $.       </span></a>
-<a class="sourceLine" id="cb14-35" title="35"><span class="co">## 23 python           1        1             Python  NOUN    NN MISC_B</span></a>
+<a class="sourceLine" id="cb14-35" title="35"><span class="co">## 23 python           1        1             Python PROPN    NE MISC_B</span></a>
 <a class="sourceLine" id="cb14-36" title="36"><span class="co">## 24 python           1        2                ist   AUX VAFIN       </span></a>
 <a class="sourceLine" id="cb14-37" title="37"><span class="co">## 25 python           1        3               eine   DET   ART       </span></a>
 <a class="sourceLine" id="cb14-38" title="38"><span class="co">## 26 python           1        4        universelle   ADJ  ADJA       </span></a>
@@ -700,10 +609,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb14-50" title="50"><span class="co">## 38 python           2        6                  , PUNCT    $,       </span></a>
 <a class="sourceLine" id="cb14-51" title="51"><span class="co">## 39 python           2        7            knappen   ADJ  ADJA       </span></a>
 <a class="sourceLine" id="cb14-52" title="52"><span class="co">## 40 python           2        8    Programmierstil  NOUN    NN       </span></a>
-<a class="sourceLine" id="cb14-53" title="53"><span class="co">## 41 python           2        9            fördern  VERB VVFIN       </span></a>
+<a class="sourceLine" id="cb14-53" title="53"><span class="co">## 41 python           2        9            fördern  VERB VVINF       </span></a>
 <a class="sourceLine" id="cb14-54" title="54"><span class="co">## 42 python           2       10                  . PUNCT    $.</span></a>
 <a class="sourceLine" id="cb14-55" title="55"><span class="kw">spacy_finalize</span>()</a></code></pre></div>
-<p>Note that the additional language models must first be installed in spaCy. When spaCy has been installed through <code>spacy_install()</code>, installation of additional language models is very simple. For example, the German language model can be installed (<code>spacy_download_langmodel('de')</code>). In other environments, you can install the model by entering <code>python -m spacy download de</code> in the console.</p>
+<p>Note that the additional language models must first be installed in spaCy. When spaCy has been installed through <code>spacy_install()</code>, installation of additional language models is very simple. For example, the German language model can be installed (<code>spacy_download_langmodel(&#39;de&#39;)</code>). In other environments, you can install the model by entering <code>python -m spacy download de</code> in the console.</p>
 </div>
 <div id="integrating-spacyr-with-other-text-analysis-packages" class="section level2">
 <h2>Integrating <strong>spacyr</strong> with other text analysis packages</h2>
@@ -713,7 +622,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>For instance, many of its functions operate directly on <strong>spacyr</strong> objects, such as a parsed text.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">require</span>(quanteda, <span class="dt">warn.conflicts =</span> <span class="ot">FALSE</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb15-2" title="2"><span class="kw">docnames</span>(parsedtxt)</a>
-<a class="sourceLine" id="cb15-3" title="3"><span class="co">## [1] "d1" "d2"</span></a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="co">## [1] &quot;d1&quot; &quot;d2&quot;</span></a>
 <a class="sourceLine" id="cb15-4" title="4"><span class="kw">ndoc</span>(parsedtxt)</a>
 <a class="sourceLine" id="cb15-5" title="5"><span class="co">## [1] 2</span></a>
 <a class="sourceLine" id="cb15-6" title="6"><span class="kw">ntoken</span>(parsedtxt)</a>
@@ -723,67 +632,67 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb15-10" title="10"><span class="co">## d1 d2 </span></a>
 <a class="sourceLine" id="cb15-11" title="11"><span class="co">##  9  9</span></a></code></pre></div>
 <p>Conversion of tokens is easily performed, and the tokenizers in <strong>spacyr</strong> tend to be smarter than the purely syntactic pattern-based parsers used by <strong>quanteda</strong>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">spacy_initialize</span>(<span class="dt">model =</span> <span class="st">"en"</span>)</a>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">spacy_initialize</span>(<span class="dt">model =</span> <span class="st">&quot;en&quot;</span>)</a>
 <a class="sourceLine" id="cb16-2" title="2"><span class="co">## Python space is already attached.  If you want to switch to a different Python, please restart R.</span></a>
-<a class="sourceLine" id="cb16-3" title="3"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="co">## successfully initialized (spaCy Version: 2.1.3, language model: en)</span></a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="co">## (python options: type = &quot;condaenv&quot;, value = &quot;spacy_condaenv&quot;)</span></a>
 <a class="sourceLine" id="cb16-5" title="5">parsedtxt &lt;-<span class="st"> </span><span class="kw">spacy_parse</span>(txt, <span class="dt">pos =</span> <span class="ot">TRUE</span>, <span class="dt">tag =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb16-6" title="6"><span class="kw">as.tokens</span>(parsedtxt)</a>
 <a class="sourceLine" id="cb16-7" title="7"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb16-8" title="8"><span class="co">## d1 :</span></a>
-<a class="sourceLine" id="cb16-9" title="9"><span class="co">## [1] "spaCy"      "is"         "great"      "at"         "fast"      </span></a>
-<a class="sourceLine" id="cb16-10" title="10"><span class="co">## [6] "natural"    "language"   "processing" "."         </span></a>
+<a class="sourceLine" id="cb16-9" title="9"><span class="co">## [1] &quot;spaCy&quot;      &quot;is&quot;         &quot;great&quot;      &quot;at&quot;         &quot;fast&quot;      </span></a>
+<a class="sourceLine" id="cb16-10" title="10"><span class="co">## [6] &quot;natural&quot;    &quot;language&quot;   &quot;processing&quot; &quot;.&quot;         </span></a>
 <a class="sourceLine" id="cb16-11" title="11"><span class="co">## </span></a>
 <a class="sourceLine" id="cb16-12" title="12"><span class="co">## d2 :</span></a>
-<a class="sourceLine" id="cb16-13" title="13"><span class="co">## [1] "Mr."      "Smith"    "spent"    "two"      "years"    "in"      </span></a>
-<a class="sourceLine" id="cb16-14" title="14"><span class="co">## [7] "North"    "Carolina" "."</span></a>
-<a class="sourceLine" id="cb16-15" title="15"><span class="kw">as.tokens</span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">"pos"</span>)</a>
+<a class="sourceLine" id="cb16-13" title="13"><span class="co">## [1] &quot;Mr.&quot;      &quot;Smith&quot;    &quot;spent&quot;    &quot;two&quot;      &quot;years&quot;    &quot;in&quot;      </span></a>
+<a class="sourceLine" id="cb16-14" title="14"><span class="co">## [7] &quot;North&quot;    &quot;Carolina&quot; &quot;.&quot;</span></a>
+<a class="sourceLine" id="cb16-15" title="15"><span class="kw">as.tokens</span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">&quot;pos&quot;</span>)</a>
 <a class="sourceLine" id="cb16-16" title="16"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb16-17" title="17"><span class="co">## d1 :</span></a>
-<a class="sourceLine" id="cb16-18" title="18"><span class="co">## [1] "spaCy/ADJ"       "is/VERB"         "great/ADJ"       "at/ADP"         </span></a>
-<a class="sourceLine" id="cb16-19" title="19"><span class="co">## [5] "fast/ADJ"        "natural/ADJ"     "language/NOUN"   "processing/NOUN"</span></a>
-<a class="sourceLine" id="cb16-20" title="20"><span class="co">## [9] "./PUNCT"        </span></a>
+<a class="sourceLine" id="cb16-18" title="18"><span class="co">## [1] &quot;spaCy/NOUN&quot;      &quot;is/VERB&quot;         &quot;great/ADJ&quot;       &quot;at/ADP&quot;         </span></a>
+<a class="sourceLine" id="cb16-19" title="19"><span class="co">## [5] &quot;fast/ADJ&quot;        &quot;natural/ADJ&quot;     &quot;language/NOUN&quot;   &quot;processing/NOUN&quot;</span></a>
+<a class="sourceLine" id="cb16-20" title="20"><span class="co">## [9] &quot;./PUNCT&quot;        </span></a>
 <a class="sourceLine" id="cb16-21" title="21"><span class="co">## </span></a>
 <a class="sourceLine" id="cb16-22" title="22"><span class="co">## d2 :</span></a>
-<a class="sourceLine" id="cb16-23" title="23"><span class="co">## [1] "Mr./PROPN"      "Smith/PROPN"    "spent/VERB"     "two/NUM"       </span></a>
-<a class="sourceLine" id="cb16-24" title="24"><span class="co">## [5] "years/NOUN"     "in/ADP"         "North/PROPN"    "Carolina/PROPN"</span></a>
-<a class="sourceLine" id="cb16-25" title="25"><span class="co">## [9] "./PUNCT"</span></a>
-<a class="sourceLine" id="cb16-26" title="26"><span class="kw">as.tokens</span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">"tag"</span>)</a>
+<a class="sourceLine" id="cb16-23" title="23"><span class="co">## [1] &quot;Mr./PROPN&quot;      &quot;Smith/PROPN&quot;    &quot;spent/VERB&quot;     &quot;two/NUM&quot;       </span></a>
+<a class="sourceLine" id="cb16-24" title="24"><span class="co">## [5] &quot;years/NOUN&quot;     &quot;in/ADP&quot;         &quot;North/PROPN&quot;    &quot;Carolina/PROPN&quot;</span></a>
+<a class="sourceLine" id="cb16-25" title="25"><span class="co">## [9] &quot;./PUNCT&quot;</span></a>
+<a class="sourceLine" id="cb16-26" title="26"><span class="kw">as.tokens</span>(parsedtxt, <span class="dt">include_pos =</span> <span class="st">&quot;tag&quot;</span>)</a>
 <a class="sourceLine" id="cb16-27" title="27"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb16-28" title="28"><span class="co">## d1 :</span></a>
-<a class="sourceLine" id="cb16-29" title="29"><span class="co">## [1] "spaCy/JJ"      "is/VBZ"        "great/JJ"      "at/IN"        </span></a>
-<a class="sourceLine" id="cb16-30" title="30"><span class="co">## [5] "fast/JJ"       "natural/JJ"    "language/NN"   "processing/NN"</span></a>
-<a class="sourceLine" id="cb16-31" title="31"><span class="co">## [9] "./."          </span></a>
+<a class="sourceLine" id="cb16-29" title="29"><span class="co">## [1] &quot;spaCy/NN&quot;      &quot;is/VBZ&quot;        &quot;great/JJ&quot;      &quot;at/IN&quot;        </span></a>
+<a class="sourceLine" id="cb16-30" title="30"><span class="co">## [5] &quot;fast/JJ&quot;       &quot;natural/JJ&quot;    &quot;language/NN&quot;   &quot;processing/NN&quot;</span></a>
+<a class="sourceLine" id="cb16-31" title="31"><span class="co">## [9] &quot;./.&quot;          </span></a>
 <a class="sourceLine" id="cb16-32" title="32"><span class="co">## </span></a>
 <a class="sourceLine" id="cb16-33" title="33"><span class="co">## d2 :</span></a>
-<a class="sourceLine" id="cb16-34" title="34"><span class="co">## [1] "Mr./NNP"      "Smith/NNP"    "spent/VBD"    "two/CD"      </span></a>
-<a class="sourceLine" id="cb16-35" title="35"><span class="co">## [5] "years/NNS"    "in/IN"        "North/NNP"    "Carolina/NNP"</span></a>
-<a class="sourceLine" id="cb16-36" title="36"><span class="co">## [9] "./."</span></a></code></pre></div>
+<a class="sourceLine" id="cb16-34" title="34"><span class="co">## [1] &quot;Mr./NNP&quot;      &quot;Smith/NNP&quot;    &quot;spent/VBD&quot;    &quot;two/CD&quot;      </span></a>
+<a class="sourceLine" id="cb16-35" title="35"><span class="co">## [5] &quot;years/NNS&quot;    &quot;in/IN&quot;        &quot;North/NNP&quot;    &quot;Carolina/NNP&quot;</span></a>
+<a class="sourceLine" id="cb16-36" title="36"><span class="co">## [9] &quot;./.&quot;</span></a></code></pre></div>
 <p>The latter is useful for say, selecting only nouns, using “glob” pattern matching with <strong>quanteda</strong>’s <code>tokens_select()</code> function:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">spacy_parse</span>(<span class="st">"The cat in the hat ate green eggs and ham."</span>, <span class="dt">pos =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-2" title="2"><span class="st">    </span><span class="kw">as.tokens</span>(<span class="dt">include_pos =</span> <span class="st">"pos"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-3" title="3"><span class="st">    </span><span class="kw">tokens_select</span>(<span class="dt">pattern =</span> <span class="kw">c</span>(<span class="st">"*/NOUN"</span>))</a>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">spacy_parse</span>(<span class="st">&quot;The cat in the hat ate green eggs and ham.&quot;</span>, <span class="dt">pos =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="st">    </span><span class="kw">as.tokens</span>(<span class="dt">include_pos =</span> <span class="st">&quot;pos&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="st">    </span><span class="kw">tokens_select</span>(<span class="dt">pattern =</span> <span class="kw">c</span>(<span class="st">&quot;*/NOUN&quot;</span>))</a>
 <a class="sourceLine" id="cb17-4" title="4"><span class="co">## tokens from 1 document.</span></a>
 <a class="sourceLine" id="cb17-5" title="5"><span class="co">## text1 :</span></a>
-<a class="sourceLine" id="cb17-6" title="6"><span class="co">## [1] "cat/NOUN"  "hat/NOUN"  "eggs/NOUN" "ham/NOUN"</span></a></code></pre></div>
+<a class="sourceLine" id="cb17-6" title="6"><span class="co">## [1] &quot;cat/NOUN&quot;  &quot;hat/NOUN&quot;  &quot;eggs/NOUN&quot; &quot;ham/NOUN&quot;</span></a></code></pre></div>
 <p>Direct conversion of just the spaCy-based tokens is also possible:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">spacy_tokenize</span>(txt) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb18-2" title="2"><span class="st">    </span><span class="kw">as.tokens</span>()</a>
 <a class="sourceLine" id="cb18-3" title="3"><span class="co">## tokens from 2 documents.</span></a>
 <a class="sourceLine" id="cb18-4" title="4"><span class="co">## d1 :</span></a>
-<a class="sourceLine" id="cb18-5" title="5"><span class="co">## [1] "spaCy"      "is"         "great"      "at"         "fast"      </span></a>
-<a class="sourceLine" id="cb18-6" title="6"><span class="co">## [6] "natural"    "language"   "processing" "."         </span></a>
+<a class="sourceLine" id="cb18-5" title="5"><span class="co">## [1] &quot;spaCy&quot;      &quot;is&quot;         &quot;great&quot;      &quot;at&quot;         &quot;fast&quot;      </span></a>
+<a class="sourceLine" id="cb18-6" title="6"><span class="co">## [6] &quot;natural&quot;    &quot;language&quot;   &quot;processing&quot; &quot;.&quot;         </span></a>
 <a class="sourceLine" id="cb18-7" title="7"><span class="co">## </span></a>
 <a class="sourceLine" id="cb18-8" title="8"><span class="co">## d2 :</span></a>
-<a class="sourceLine" id="cb18-9" title="9"><span class="co">## [1] "Mr."      "Smith"    "spent"    "two"      "years"    "in"      </span></a>
-<a class="sourceLine" id="cb18-10" title="10"><span class="co">## [7] "North"    "Carolina" "."</span></a></code></pre></div>
+<a class="sourceLine" id="cb18-9" title="9"><span class="co">## [1] &quot;Mr.&quot;      &quot;Smith&quot;    &quot;spent&quot;    &quot;two&quot;      &quot;years&quot;    &quot;in&quot;      </span></a>
+<a class="sourceLine" id="cb18-10" title="10"><span class="co">## [7] &quot;North&quot;    &quot;Carolina&quot; &quot;.&quot;</span></a></code></pre></div>
 <p>including for sentences, for which spaCy’s recognition is very smart:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">txt2 &lt;-<span class="st"> "A Ph.D. in Washington D.C.  Mr. Smith went to Washington."</span></a>
-<a class="sourceLine" id="cb19-2" title="2"><span class="kw">spacy_tokenize</span>(txt2, <span class="dt">what =</span> <span class="st">"sentence"</span>) <span class="op">%&gt;%</span></a>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">txt2 &lt;-<span class="st"> &quot;A Ph.D. in Washington D.C.  Mr. Smith went to Washington.&quot;</span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="kw">spacy_tokenize</span>(txt2, <span class="dt">what =</span> <span class="st">&quot;sentence&quot;</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb19-3" title="3"><span class="st">    </span><span class="kw">as.tokens</span>()</a>
 <a class="sourceLine" id="cb19-4" title="4"><span class="co">## tokens from 1 document.</span></a>
 <a class="sourceLine" id="cb19-5" title="5"><span class="co">## text1 :</span></a>
-<a class="sourceLine" id="cb19-6" title="6"><span class="co">## [1] "A Ph.D. in Washington D.C."    "Mr. Smith went to Washington."</span></a></code></pre></div>
+<a class="sourceLine" id="cb19-6" title="6"><span class="co">## [1] &quot;A Ph.D. in Washington D.C.&quot;    &quot;Mr. Smith went to Washington.&quot;</span></a></code></pre></div>
 <p>This also works well with entity recognition, e.g.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">spacy_parse</span>(txt, <span class="dt">entity =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb20-2" title="2"><span class="st">    </span><span class="kw">entity_consolidate</span>() <span class="op">%&gt;%</span></a>
@@ -791,30 +700,32 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb20-4" title="4"><span class="st">    </span><span class="kw">head</span>(<span class="dv">1</span>)</a>
 <a class="sourceLine" id="cb20-5" title="5"><span class="co">## tokens from 1 document.</span></a>
 <a class="sourceLine" id="cb20-6" title="6"><span class="co">## d1 :</span></a>
-<a class="sourceLine" id="cb20-7" title="7"><span class="co">## [1] "spaCy"      "is"         "great"      "at"         "fast"      </span></a>
-<a class="sourceLine" id="cb20-8" title="8"><span class="co">## [6] "natural"    "language"   "processing" "."</span></a></code></pre></div>
+<a class="sourceLine" id="cb20-7" title="7"><span class="co">## [1] &quot;spaCy&quot;      &quot;is&quot;         &quot;great&quot;      &quot;at&quot;         &quot;fast&quot;      </span></a>
+<a class="sourceLine" id="cb20-8" title="8"><span class="co">## [6] &quot;natural&quot;    &quot;language&quot;   &quot;processing&quot; &quot;.&quot;</span></a></code></pre></div>
 </div>
 <div id="with-tidytext" class="section level3">
 <h3>With <strong>tidytext</strong></h3>
 <p>If you prefer a tidy approach to text analysis, <strong>spacyr</strong> works nicely because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">library</span>(<span class="st">"tidytext"</span>)</a>
-<a class="sourceLine" id="cb21-2" title="2"><span class="kw">unnest_tokens</span>(parsedtxt, word, token) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-3" title="3"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">anti_join</span>(stop_words)</a>
-<a class="sourceLine" id="cb21-4" title="4"><span class="co">## Joining, by = "word"</span></a>
-<a class="sourceLine" id="cb21-5" title="5"><span class="co">##   doc_id sentence_id token_id      lemma   pos tag   entity       word</span></a>
-<a class="sourceLine" id="cb21-6" title="6"><span class="co">## 1     d1           1        1      spacy   ADJ  JJ    GPE_B      spacy</span></a>
-<a class="sourceLine" id="cb21-7" title="7"><span class="co">## 2     d1           1        5       fast   ADJ  JJ                fast</span></a>
-<a class="sourceLine" id="cb21-8" title="8"><span class="co">## 3     d1           1        6    natural   ADJ  JJ             natural</span></a>
-<a class="sourceLine" id="cb21-9" title="9"><span class="co">## 4     d1           1        7   language  NOUN  NN            language</span></a>
-<a class="sourceLine" id="cb21-10" title="10"><span class="co">## 5     d1           1        8 processing  NOUN  NN          processing</span></a>
-<a class="sourceLine" id="cb21-11" title="11"><span class="co">## 6     d2           1        2      smith PROPN NNP PERSON_B      smith</span></a>
-<a class="sourceLine" id="cb21-12" title="12"><span class="co">## 7     d2           1        3      spend  VERB VBD               spent</span></a>
-<a class="sourceLine" id="cb21-13" title="13"><span class="co">## 8     d2           1        7      north PROPN NNP    GPE_B      north</span></a>
-<a class="sourceLine" id="cb21-14" title="14"><span class="co">## 9     d2           1        8   carolina PROPN NNP    GPE_I   carolina</span></a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="cf">if</span> (<span class="op">!</span><span class="kw">requireNamespace</span>(<span class="st">&quot;tidytext&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb21-2" title="2">  <span class="kw">install.packages</span>(<span class="st">&quot;tidytext&quot;</span>, <span class="dt">repos =</span> <span class="st">&quot;https://cran.rstudio.com/&quot;</span>)</a>
+<a class="sourceLine" id="cb21-3" title="3"><span class="kw">library</span>(<span class="st">&quot;tidytext&quot;</span>)</a>
+<a class="sourceLine" id="cb21-4" title="4"><span class="kw">unnest_tokens</span>(parsedtxt, word, token) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb21-5" title="5"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">anti_join</span>(stop_words)</a>
+<a class="sourceLine" id="cb21-6" title="6"><span class="co">## Joining, by = &quot;word&quot;</span></a>
+<a class="sourceLine" id="cb21-7" title="7"><span class="co">##   doc_id sentence_id token_id      lemma   pos tag   entity       word</span></a>
+<a class="sourceLine" id="cb21-8" title="8"><span class="co">## 1     d1           1        1      spacy  NOUN  NN               spacy</span></a>
+<a class="sourceLine" id="cb21-9" title="9"><span class="co">## 2     d1           1        5       fast   ADJ  JJ                fast</span></a>
+<a class="sourceLine" id="cb21-10" title="10"><span class="co">## 3     d1           1        6    natural   ADJ  JJ             natural</span></a>
+<a class="sourceLine" id="cb21-11" title="11"><span class="co">## 4     d1           1        7   language  NOUN  NN            language</span></a>
+<a class="sourceLine" id="cb21-12" title="12"><span class="co">## 5     d1           1        8 processing  NOUN  NN          processing</span></a>
+<a class="sourceLine" id="cb21-13" title="13"><span class="co">## 6     d2           1        2      Smith PROPN NNP PERSON_B      smith</span></a>
+<a class="sourceLine" id="cb21-14" title="14"><span class="co">## 7     d2           1        3      spend  VERB VBD               spent</span></a>
+<a class="sourceLine" id="cb21-15" title="15"><span class="co">## 8     d2           1        7      North PROPN NNP    GPE_B      north</span></a>
+<a class="sourceLine" id="cb21-16" title="16"><span class="co">## 9     d2           1        8   Carolina PROPN NNP    GPE_I   carolina</span></a></code></pre></div>
 <p>Part of speech filtering can then happen using <strong>dplyr</strong>:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">spacy_parse</span>(<span class="st">"The cat in the hat ate green eggs and ham."</span>, <span class="dt">pos =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">spacy_parse</span>(<span class="st">&quot;The cat in the hat ate green eggs and ham.&quot;</span>, <span class="dt">pos =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb22-2" title="2"><span class="st">    </span><span class="kw">unnest_tokens</span>(word, token) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb22-3" title="3"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">filter</span>(pos <span class="op">==</span><span class="st"> "NOUN"</span>)</a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">filter</span>(pos <span class="op">==</span><span class="st"> &quot;NOUN&quot;</span>)</a>
 <a class="sourceLine" id="cb22-4" title="4"><span class="co">##   doc_id sentence_id token_id lemma  pos entity word</span></a>
 <a class="sourceLine" id="cb22-5" title="5"><span class="co">## 1  text1           1        2   cat NOUN         cat</span></a>
 <a class="sourceLine" id="cb22-6" title="6"><span class="co">## 2  text1           1        5   hat NOUN         hat</span></a>
@@ -828,7 +739,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </div>
 <div id="finishing-a-session" class="section level2">
 <h2>Finishing a session</h2>
-<p>When <code>spacy_initialize()</code> is executed, a background process of spaCy is attached in python space. This can take up a significant size of memory especially when a larger language model is used (e.g.&nbsp;<a href="https://spacy.io/models/en#en_core_web_lg">en_core_web_lg</a>). When you do not need the connection to spaCy any longer, you can remove the spaCy object by calling the <code>spacy_finalize()</code> function.</p>
+<p>When <code>spacy_initialize()</code> is executed, a background process of spaCy is attached in python space. This can take up a significant size of memory especially when a larger language model is used (e.g. <a href="https://spacy.io/models/en#en_core_web_lg">en_core_web_lg</a>). When you do not need the connection to spaCy any longer, you can remove the spaCy object by calling the <code>spacy_finalize()</code> function.</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">spacy_finalize</span>()</a></code></pre></div>
 <p>By calling <code>spacy_initialize()</code> again, you can reattach the backend spaCy.</p>
 </div>
@@ -845,6 +756,5 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
   })();
 </script>
 
-
-
-</body></html>
+</body>
+</html>
