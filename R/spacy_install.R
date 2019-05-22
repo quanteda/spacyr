@@ -560,7 +560,7 @@ spacy_upgrade  <- function(conda = "auto",
                                                  version = "latest_v1",
                                                  lang_models = lang_models,
                                                  python_version = "3.6",
-                                                 prompt = FALSE, 
+                                                 prompt = FALSE,
                                                  pip = pip)
             }
         }
@@ -581,7 +581,7 @@ spacy_upgrade  <- function(conda = "auto",
                                              version = "latest",
                                              lang_models = lang_models,
                                              python_version = "3.6",
-                                             prompt = FALSE, 
+                                             prompt = FALSE,
                                              pip = pip)
             message("\nSuccessfully upgraded\n",
                     sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
@@ -633,22 +633,20 @@ pip_get_version <- function(cmd, major_version) {
 
 conda_get_version <- function(major_version = NA, conda, envname) {
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && conda search spacy -c conda-forge",
+    cmd <- sprintf("%s%s %s && conda search spacy -c conda-forge%s",
                    ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
                    shQuote(path.expand(condaenv_bin("activate"))),
-                   envname)
+                   envname,
+                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
     regex <- "^(\\w+)\\s?(.*)$"
     cmd1 <- sub(regex, "\\1", cmd)
     cmd2 <- sub(regex, "\\2", cmd)
     oldw <- getOption("warn")
     result <- system2(cmd1, cmd2, stdout = TRUE, stderr = TRUE)
     result <- sub("\\S+\\s+(\\S+)\\s.+", "\\1", result)
-    if(!is.na(major_version)) {
+    if (!is.na(major_version)) {
         result <- grep(paste0("^", major_version, "\\."), result, value = T)
     }
-    
     #version_check_regex <- sprintf(".+(%s.\\d+\\.\\d+).+", major_version)
     return(result[length(result)])
 }
-
-
