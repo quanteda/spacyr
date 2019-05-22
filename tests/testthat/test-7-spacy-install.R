@@ -33,7 +33,7 @@ test_that("spacy_install specific version of spacy works", {
     # expect_message(spacy_install(envname = "test_specific_version", version = "2.0.1",
     #                              prompt = FALSE),
     #                "Installation complete")
-    expect_message(spacy_install(envname = "test_specific_version_v1", version = "1.10.1",
+    expect_message(spacy_install(envname = "test_specific_version_v1", version = "1.9.0",
                                  prompt = FALSE),
                    "Installation complete")
 })
@@ -45,7 +45,7 @@ test_that("spacy_upgrade works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
-    expect_message(spacy_upgrade(prompt = FALSE),
+    expect_message(spacy_upgrade(envname = "test_latest", prompt = FALSE),
                    "Your spaCy version is the latest available")
     # expect_message(spacy_upgrade(envname = "test_specific_version",
     #                              prompt = FALSE),

@@ -104,7 +104,7 @@ spacy_install <- function(conda = "auto",
             }
 
             # process the installation of spacy
-            process_spacy_installation_conda(conda, version, lang_models, 
+            process_spacy_installation_conda(conda, version, lang_models,
                                              python_version, prompt,
                                              envname = envname, pip = pip)
 
@@ -129,7 +129,7 @@ spacy_install <- function(conda = "auto",
         }
 
         # process the installation of spacy
-        process_spacy_installation_conda(conda, version, lang_models, 
+        process_spacy_installation_conda(conda, version, lang_models,
                                          python_version, prompt,
                                          envname = envname, pip = pip)
 
@@ -305,7 +305,6 @@ process_spacy_installation_conda <- function(conda, version, lang_models, python
                        ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
         pip_get_version(cmd = cmd, major_version = major_version)
     }
-    
     # install base spaCy using pip
     if (version == "latest_v1") {
         version <- ifelse(pip, pip_get_version_conda(1),
@@ -538,7 +537,7 @@ spacy_upgrade  <- function(conda = "auto",
             message("\nSuccessfully upgraded\n",
                     sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
         } else {
-            if(pip){
+            if (pip == TRUE) {
                 cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
                                ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
                                shQuote(path.expand(condaenv_bin("activate"))),
@@ -546,17 +545,14 @@ spacy_upgrade  <- function(conda = "auto",
                                "--ignore-installed",
                                paste(shQuote("spacy==random"), collapse = " "),
                                ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-                
                 latest_spacy_v1 <- pip_get_version(cmd, major_version = 1)
             } else {
                 latest_spacy_v1 <- conda_get_version(major_version = 1, conda, envname)
             }
-            
             if (latest_spacy_v1 == installed_spacy){
                 message("your spaCy is the latest v1")
                 return(invisible(NULL))
             } else {
-
                 cat(sprintf("A new version of spaCy v1 (%s) will be installed (installed version: %s)\n",
                             latest_spacy_v1, installed_spacy))
                 process_spacy_installation_conda(conda = conda,
