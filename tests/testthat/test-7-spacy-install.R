@@ -96,7 +96,6 @@ test_that("spacy_install etc with pip still works", {
     expect_output(spacy_uninstall(envname = "test_old_pip",
                                   prompt = FALSE),
                   "Uninstallation complete")
-    
 })
 
 test_that("spacy_install_virtualenv works", {
