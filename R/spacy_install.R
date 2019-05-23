@@ -618,7 +618,7 @@ install_miniconda <- function() {
 }
 
 pip_get_version <- function(cmd, major_version) {
-    regex <- "^(\\w+)\\s?(.*)$"
+    regex <- "^(\\S+)\\s?(.*)$"
     cmd1 <- sub(regex, "\\1", cmd)
     cmd2 <- sub(regex, "\\2", cmd)
     oldw <- getOption("warn")
@@ -638,7 +638,7 @@ conda_get_version <- function(major_version = NA, conda, envname) {
                    shQuote(path.expand(condaenv_bin("activate"))),
                    envname,
                    ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-    regex <- "^(\\w+)\\s?(.*)$"
+    regex <- "^(\\S+)\\s?(.*)$"
     cmd1 <- sub(regex, "\\1", cmd)
     cmd2 <- sub(regex, "\\2", cmd)
     oldw <- getOption("warn")
