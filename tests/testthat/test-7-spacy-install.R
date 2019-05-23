@@ -74,7 +74,6 @@ test_that("spacy_uninstall works", {
     expect_output(spacy_uninstall(envname = "test_latest",
                                   prompt = FALSE),
                   "Uninstallation complete")
-    
 })
 
 test_that("spacy_install etc with pip still works", {
@@ -83,7 +82,6 @@ test_that("spacy_install etc with pip still works", {
     skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
-    
     expect_message(spacy_install(envname = "test_latest_pip", prompt = FALSE, pip = TRUE),
                    "Installation complete")
     expect_message(spacy_install(envname = "test_old_pip", version = "2.0.4",
@@ -101,7 +99,6 @@ test_that("spacy_install etc with pip still works", {
     
 })
 
-
 test_that("spacy_install_virtualenv works", {
     skip("not tested for the time being")
     skip_on_appveyor()
@@ -113,6 +110,4 @@ test_that("spacy_install_virtualenv works", {
                                             python = paste0(path.expand("~"),
                                                             "/miniconda/bin/python")),
                    "Installation complete")
-    
 })
-
