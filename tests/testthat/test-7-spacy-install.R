@@ -21,6 +21,8 @@ test_that("spacy_install works", {
                    "Installation complete")
 })
 
+
+
 test_that("spacy_install specific version of spacy works", {
     skip_on_cran()
     skip_on_appveyor()
@@ -69,6 +71,33 @@ test_that("spacy_uninstall works", {
     expect_output(spacy_uninstall(envname = "test_specific_version_v1",
                                   prompt = FALSE),
                   "Uninstallation complete")
+    expect_output(spacy_uninstall(envname = "test_latest",
+                                  prompt = FALSE),
+                  "Uninstallation complete")
+    
+})
+
+test_that("spacy_install etc with pip still works", {
+    skip_on_cran()
+    skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    expect_message(spacy_install(envname = "test_latest_pip", prompt = FALSE, pip = TRUE),
+                   "Installation complete")
+    expect_message(spacy_install(envname = "test_old_pip", version = "2.0.4",
+                                 prompt = FALSE, pip = TRUE),
+                   "Installation complete")
+    expect_message(spacy_upgrade(envname = "test_old_pip", pip = TRUE,
+                                 prompt = FALSE),
+                   "Successfully upgraded")
+    expect_output(spacy_uninstall(envname = "test_latest_pip",
+                                  prompt = FALSE),
+                  "Uninstallation complete")
+    expect_output(spacy_uninstall(envname = "test_old_pip",
+                                  prompt = FALSE),
+                  "Uninstallation complete")
+    
 })
 
 
@@ -83,4 +112,6 @@ test_that("spacy_install_virtualenv works", {
                                             python = paste0(path.expand("~"),
                                                             "/miniconda/bin/python")),
                    "Installation complete")
+    
 })
+
