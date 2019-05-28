@@ -6,7 +6,7 @@
 \title{Install spaCy in conda or virtualenv environment}
 \usage{
 spacy_install(conda = "auto", version = "latest", lang_models = "en",
-  python_version = "3.6", envname = "spacy_condaenv",
+  python_version = "3.6", envname = "spacy_condaenv", pip = FALSE,
   python_path = NULL, prompt = TRUE)
 
 spacy_install_virtualenv(version = "latest", lang_models = "en",
@@ -33,6 +33,9 @@ installation. 3.5 and 3.6 are available.}
 
 \item{envname}{character; name of the conda-environment to install spaCy. 
 Default is "spacy_condaenv".}
+
+\item{pip}{\code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
+package manager with conda-forge channel will be used for installing spacy.}
 
 \item{python_path}{character; path to Python in virtualenv installation}
 

@@ -2,10 +2,10 @@
 % Please edit documentation in R/spacy_install.R
 \name{spacy_upgrade}
 \alias{spacy_upgrade}
-\title{Install spaCy in conda environment}
+\title{Upgrade spaCy in conda environment}
 \usage{
 spacy_upgrade(conda = "auto", envname = "spacy_condaenv",
-  prompt = TRUE, lang_models = "en")
+  prompt = TRUE, pip = FALSE, lang_models = "en")
 }
 \arguments{
 \item{conda}{Path to conda executable. Default "auto" which automatically
@@ -15,9 +15,12 @@ find the path}
 
 \item{prompt}{logical; ask whether to proceed during the installation}
 
+\item{pip}{\code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
+package manager with conda-forge channel will be used for installing spacy.}
+
 \item{lang_models}{Language models to be upgraded. Default NULL (No upgrade). 
 A vector of multiple model names can be used (e.g. \code{c("en", "de")})}
 }
 \description{
-Install spaCy in conda environment
+Upgrade spaCy in conda environment
 }

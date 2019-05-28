@@ -28,6 +28,8 @@
 #' @inheritParams reticulate::conda_list
 #' @param conda character; path to conda executable. Default "auto" which
 #'   automatically find the path
+#' @param pip \code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
+#' package manager with conda-forge channel will be used for installing spacy.
 #' @param lang_models character; language models to be installed. Default
 #'   \code{en} (English model). A vector of multiple model names can be used
 #'   (e.g. \code{c("en", "de")}).  A list of available language models and their
@@ -59,6 +61,7 @@ spacy_install <- function(conda = "auto",
                           lang_models = "en",
                           python_version = "3.6",
                           envname = "spacy_condaenv",
+                          pip = FALSE,
                           python_path = NULL,
                           prompt = TRUE) {
     # verify os
@@ -100,9 +103,10 @@ spacy_install <- function(conda = "auto",
                 } else stop("Conda environment installation failed (no conda binary found)\n", call. = FALSE)
             }
 
-            # do install
-            process_spacy_installation_conda(conda, version, lang_models, python_version, prompt,
-                                             envname = envname)
+            # process the installation of spacy
+            process_spacy_installation_conda(conda, version, lang_models,
+                                             python_version, prompt,
+                                             envname = envname, pip = pip)
 
     # windows installation
     } else {
@@ -124,9 +128,10 @@ spacy_install <- function(conda = "auto",
                  call. = FALSE)
         }
 
-        # do the install
-        process_spacy_installation_conda(conda, version, lang_models, python_version, prompt,
-                                         envname = envname)
+        # process the installation of spacy
+        process_spacy_installation_conda(conda, version, lang_models,
+                                         python_version, prompt,
+                                         envname = envname, pip = pip)
 
     }
     message("\nInstallation complete.\n",
@@ -232,21 +237,24 @@ spacy_install_virtualenv <- function(version = "latest",
 
 process_spacy_installation_conda <- function(conda, version, lang_models, python_version,
                                              prompt = TRUE,
-                                             envname = "spacy_condaenv") {
+                                             envname = "spacy_condaenv",
+                                             pip = FALSE) {
 
     conda_envs <- reticulate::conda_list(conda = conda)
-    cat("A new conda environment", paste0('"', envname, '"'), "will be created and \nspaCy and language model(s):",
-        paste(lang_models, collapse = ", "), "will be installed.  ")
     if (prompt) {
         ans <- utils::menu(c("No", "Yes"), title = "Proceed?")
         if (ans == 1) stop("condaenv setup is cancelled by user", call. = FALSE)
     }
     conda_env <- subset(conda_envs, conda_envs$name == envname)
     if (nrow(conda_env) == 1) {
-        cat("Using", envname, "conda environment for spaCy installation\n")
+        cat("Using existing conda environment ", envname, " for spaCy installation\n.",
+            "\nspaCy and language model(s):",
+            paste(lang_models, collapse = ", "), "will be installed.  ")
         python <- conda_env$python
     }
     else {
+        cat("A new conda environment", paste0('"', envname, '"'), "will be created and \nspaCy and language model(s):",
+            paste(lang_models, collapse = ", "), "will be installed.  ")
         cat("Creating", envname, "conda environment for spaCy installation...\n")
         python_packages <- ifelse(is.null(python_version), "python=3.6",
                                   sprintf("python=%s", python_version))
@@ -297,18 +305,18 @@ process_spacy_installation_conda <- function(conda, version, lang_models, python
                        ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
         pip_get_version(cmd = cmd, major_version = major_version)
     }
-
     # install base spaCy using pip
     if (version == "latest_v1") {
-        version <- pip_get_version_conda(1)
+        version <- ifelse(pip, pip_get_version_conda(1),
+                          conda_get_version(1, conda, envname))
         cat("Option \"version = version_v1\" is supplied, spaCy", version, "will be installed\n")
     }
     cat("Installing spaCy...\n")
     packages <- spacy_pkgs(version)
-    reticulate::conda_install(envname, packages, pip = TRUE, conda = conda)
+    reticulate::conda_install(envname, packages, pip = pip, conda = conda)
 
     for (model in lang_models) spacy_download_langmodel(model = model, conda = conda,
-                                                       envname = envname)
+                                                        envname = envname)
 
 }
 
@@ -473,11 +481,14 @@ spacy_uninstall <- function(conda = "auto",
 }
 
 
-#' Install spaCy in conda environment
+#' Upgrade spaCy in conda environment
 #'
 #' @inheritParams reticulate::conda_list
 #' @param conda Path to conda executable. Default "auto" which automatically
 #'   find the path
+#' @param pip \code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
+#' package manager with conda-forge channel will be used for installing spacy.
+
 #' @param lang_models Language models to be upgraded. Default NULL (No upgrade). 
 #'   A vector of multiple model names can be used (e.g. \code{c("en", "de")})
 #' @param prompt logical; ask whether to proceed during the installation
@@ -486,13 +497,13 @@ spacy_uninstall <- function(conda = "auto",
 spacy_upgrade  <- function(conda = "auto",
                            envname = "spacy_condaenv",
                            prompt = TRUE,
+                           pip = FALSE,
                            lang_models = "en") {
 
     message("checking spaCy version")
     conda <- reticulate::conda_binary(conda)
     if (!(envname %in% reticulate::conda_list(conda = conda)$name)) {
         message("Conda evnronment", envname, "does not exist")
-
     }
 
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
@@ -505,6 +516,9 @@ spacy_upgrade  <- function(conda = "auto",
     spacy_index <- grep("^spacy \\(", result)
     latest_spacy <- sub("spacy \\((.+?)\\).+", "\\1", result[spacy_index])
     installed_spacy <- sub(".+?(\\d.+\\d).*", "\\1", result[spacy_index + 1])
+    if (!pip) {
+        latest_spacy <- conda_get_version(major_version = NA, conda, envname)
+    }
     if (latest_spacy == installed_spacy) {
         message("Your spaCy version is the latest available.")
         return(invisible(NULL))
@@ -523,20 +537,22 @@ spacy_upgrade  <- function(conda = "auto",
             message("\nSuccessfully upgraded\n",
                     sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
         } else {
-            cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
-                           ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                           shQuote(path.expand(condaenv_bin("activate"))),
-                           envname,
-                           "--ignore-installed",
-                           paste(shQuote("spacy==random"), collapse = " "),
-                           ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-
-            latest_spacy_v1 <- pip_get_version(cmd, major_version = 1)
+            if (pip == TRUE) {
+                cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
+                               ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
+                               shQuote(path.expand(condaenv_bin("activate"))),
+                               envname,
+                               "--ignore-installed",
+                               paste(shQuote("spacy==random"), collapse = " "),
+                               ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
+                latest_spacy_v1 <- pip_get_version(cmd, major_version = 1)
+            } else {
+                latest_spacy_v1 <- conda_get_version(major_version = 1, conda, envname)
+            }
             if (latest_spacy_v1 == installed_spacy){
                 message("your spaCy is the latest v1")
                 return(invisible(NULL))
             } else {
-
                 cat(sprintf("A new version of spaCy v1 (%s) will be installed (installed version: %s)\n",
                             latest_spacy_v1, installed_spacy))
                 process_spacy_installation_conda(conda = conda,
@@ -544,7 +560,8 @@ spacy_upgrade  <- function(conda = "auto",
                                                  version = "latest_v1",
                                                  lang_models = lang_models,
                                                  python_version = "3.6",
-                                                 prompt = FALSE)
+                                                 prompt = FALSE,
+                                                 pip = pip)
             }
         }
     } else {
@@ -564,7 +581,8 @@ spacy_upgrade  <- function(conda = "auto",
                                              version = "latest",
                                              lang_models = lang_models,
                                              python_version = "3.6",
-                                             prompt = FALSE)
+                                             prompt = FALSE,
+                                             pip = pip)
             message("\nSuccessfully upgraded\n",
                     sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
 
@@ -600,7 +618,7 @@ install_miniconda <- function() {
 }
 
 pip_get_version <- function(cmd, major_version) {
-    regex <- "^(\\w+)\\s?(.*)$"
+    regex <- "^(\\S+)\\s?(.*)$"
     cmd1 <- sub(regex, "\\1", cmd)
     cmd2 <- sub(regex, "\\2", cmd)
     oldw <- getOption("warn")
@@ -610,4 +628,25 @@ pip_get_version <- function(cmd, major_version) {
     options(warn = oldw)
     version_check_regex <- sprintf(".+(%s.\\d+\\.\\d+).+", major_version)
     return(sub(version_check_regex, "\\1", result))
+}
+
+
+conda_get_version <- function(major_version = NA, conda, envname) {
+    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
+    cmd <- sprintf("%s%s %s && conda search spacy -c conda-forge%s",
+                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
+                   shQuote(path.expand(condaenv_bin("activate"))),
+                   envname,
+                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
+    regex <- "^(\\S+)\\s?(.*)$"
+    cmd1 <- sub(regex, "\\1", cmd)
+    cmd2 <- sub(regex, "\\2", cmd)
+    oldw <- getOption("warn")
+    result <- system2(cmd1, cmd2, stdout = TRUE, stderr = TRUE)
+    result <- sub("\\S+\\s+(\\S+)\\s.+", "\\1", result)
+    if (!is.na(major_version)) {
+        result <- grep(paste0("^", major_version, "\\."), result, value = T)
+    }
+    #version_check_regex <- sprintf(".+(%s.\\d+\\.\\d+).+", major_version)
+    return(result[length(result)])
 }

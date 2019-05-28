@@ -1,3 +1,8 @@
+
+# spacyr v1.1.1
+
+* Added an option for using conda package manager instead of `pip` in `spacy_install()` and `spacy_upgrade()`. 
+
 # spacyr v1.1
 
 * Fixed a bug in `spacy_parse(x, nounphrase = TRUE)` that occurred when no noun phrases were found in the text.  (#153)
