@@ -73,7 +73,7 @@ consisting of the concatenated elements of the multi-word entities." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2</span>
       </span>
     </div>
 
@@ -172,7 +172,7 @@ named entities</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='spacy_initialize.html'>spacy_initialize</a></span>()</div><div class='output co'>#&gt; <span class='message'>Found 'spacy_condaenv'. spacyr will use this environment</span></div><div class='output co'>#&gt; <span class='message'>successfully initialized (spaCy Version: 2.0.10, language model: en)</span></div><div class='output co'>#&gt; <span class='message'>(python options: type = "condaenv", value = "spacy_condaenv")</span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'><a href='spacy_initialize.html'>spacy_initialize</a></span>()</div><div class='output co'>#&gt; <span class='message'>Found 'spacy_condaenv'. spacyr will use this environment</span></div><div class='output co'>#&gt; <span class='message'>successfully initialized (spaCy Version: 2.1.4, language model: en)</span></div><div class='output co'>#&gt; <span class='message'>(python options: type = "condaenv", value = "spacy_condaenv")</span></div><div class='input'>
 <span class='co'># entity extraction</span>
 <span class='no'>txt</span> <span class='kw'>&lt;-</span> <span class='st'>"Mr. Smith of moved to San Francisco in December."</span>
 <span class='no'>parsed</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='spacy_parse.html'>spacy_parse</a></span>(<span class='no'>txt</span>, <span class='kw'>entity</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
@@ -194,13 +194,13 @@ named entities</p></td>
 #&gt; 7  text1           1        7                 South_Dakota
 #&gt; 8  text1           1        8                            .
 #&gt;                          lemma    pos entity_type
-#&gt; 1 the_house_of_representatives ENTITY         ORG
+#&gt; 1 the_House_of_Representatives ENTITY         ORG
 #&gt; 2                         vote   VERB            
 #&gt; 3                           to   PART            
 #&gt; 4                      suspend   VERB            
 #&gt; 5                          aid   NOUN            
 #&gt; 6                           to    ADP            
-#&gt; 7                 south_dakota ENTITY         GPE
+#&gt; 7                 South_Dakota ENTITY         GPE
 #&gt; 8                            .  PUNCT            </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

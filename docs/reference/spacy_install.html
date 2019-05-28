@@ -81,7 +81,7 @@ If you wish to install Python ion a &quot;virtualenv&quot;, use the
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2</span>
       </span>
     </div>
 
@@ -145,7 +145,7 @@ If you wish to install Python ion a &quot;virtualenv&quot;, use the
     </div>
 
     <pre class="usage"><span class='fu'>spacy_install</span>(<span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='st'>"latest"</span>, <span class='kw'>lang_models</span> <span class='kw'>=</span> <span class='st'>"en"</span>,
-  <span class='kw'>python_version</span> <span class='kw'>=</span> <span class='st'>"3.6"</span>, <span class='kw'>envname</span> <span class='kw'>=</span> <span class='st'>"spacy_condaenv"</span>,
+  <span class='kw'>python_version</span> <span class='kw'>=</span> <span class='st'>"3.6"</span>, <span class='kw'>envname</span> <span class='kw'>=</span> <span class='st'>"spacy_condaenv"</span>, <span class='kw'>pip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>python_path</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='fu'>spacy_install_virtualenv</span>(<span class='kw'>version</span> <span class='kw'>=</span> <span class='st'>"latest"</span>, <span class='kw'>lang_models</span> <span class='kw'>=</span> <span class='st'>"en"</span>,
@@ -183,6 +183,11 @@ installation. 3.5 and 3.6 are available.</p></td>
       <th>envname</th>
       <td><p>character; name of the conda-environment to install spaCy. 
 Default is "spacy_condaenv".</p></td>
+    </tr>
+    <tr>
+      <th>pip</th>
+      <td><p><code>TRUE</code> to use pip for installing spacy. If <code>FALSE</code>, conda 
+package manager with conda-forge channel will be used for installing spacy.</p></td>
     </tr>
     <tr>
       <th>python_path</th>

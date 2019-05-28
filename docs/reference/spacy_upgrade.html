@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Install spaCy in conda environment — spacy_upgrade • spacyr</title>
+<title>Upgrade spaCy in conda environment — spacy_upgrade • spacyr</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -38,9 +38,9 @@
 
   <link href="../extra.css" rel="stylesheet">
   
-<meta property="og:title" content="Install spaCy in conda environment — spacy_upgrade" />
+<meta property="og:title" content="Upgrade spaCy in conda environment — spacy_upgrade" />
 
-<meta property="og:description" content="Install spaCy in conda environment" />
+<meta property="og:description" content="Upgrade spaCy in conda environment" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2</span>
       </span>
     </div>
 
@@ -113,19 +113,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Install spaCy in conda environment</h1>
+    <h1>Upgrade spaCy in conda environment</h1>
     
     <div class="hidden name"><code>spacy_upgrade.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Install spaCy in conda environment</p>
+    <p>Upgrade spaCy in conda environment</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>spacy_upgrade</span>(<span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>, <span class='kw'>envname</span> <span class='kw'>=</span> <span class='st'>"spacy_condaenv"</span>,
-  <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lang_models</span> <span class='kw'>=</span> <span class='st'>"en"</span>)</pre>
+  <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>lang_models</span> <span class='kw'>=</span> <span class='st'>"en"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -142,6 +142,11 @@ find the path</p></td>
     <tr>
       <th>prompt</th>
       <td><p>logical; ask whether to proceed during the installation</p></td>
+    </tr>
+    <tr>
+      <th>pip</th>
+      <td><p><code>TRUE</code> to use pip for installing spacy. If <code>FALSE</code>, conda 
+package manager with conda-forge channel will be used for installing spacy.</p></td>
     </tr>
     <tr>
       <th>lang_models</th>
