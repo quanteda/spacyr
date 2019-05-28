@@ -1,5 +1,5 @@
 
-# spacyr v1.1.1
+# spacyr v1.2
 
 * Added an option for using conda package manager instead of `pip` in `spacy_install()` and `spacy_upgrade()`. 
 
