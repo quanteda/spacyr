@@ -20,6 +20,7 @@
 #'   website (\url{https://spacy.io/api/annotation}).
 #' @param lemma logical; include lemmatized tokens in the output (lemmatization
 #'   may not work properly for non-English models)
+#' @param vector logica; PLACE HOLDER
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param multithread logical; If \code{TRUE}, the processing is parallelized
 #'   using pipe functionality of spaCy (\url{https://spacy.io/api/pipe})
@@ -64,6 +65,7 @@ spacy_parse <- function(x,
                         dependency = FALSE,
                         nounphrase = FALSE,
                         multithread = TRUE,
+                        vector = FALSE,
                         additional_attributes = NULL,
                         ...) {
     UseMethod("spacy_parse")
@@ -80,10 +82,23 @@ spacy_parse.character <- function(x,
                                   dependency = FALSE,
                                   nounphrase = FALSE,
                                   multithread = TRUE,
+                                  vector = FALSE,
                                   additional_attributes = NULL,
                                   ...) {
 
     `:=` <- `.` <- `.N` <- NULL
+    
+    if (vector == TRUE) {
+        spacyr_pyexec("mod_name = nlp.meta['name']")
+        mod_name <-spacyr_pyget("mod_name")
+        if (! mod_name %in% c("core_web_lg", "core_web_md")) {
+            warning(paste0("vector option is on, but the model name ('",
+                           mod_name,
+                           "') suggest that vector might not be available for this model.",
+                           " we recommend to use 'core_web_lg' or 'core_web_md'"))
+        }
+    }
+    
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
