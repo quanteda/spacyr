@@ -397,3 +397,13 @@ class spacyr:
                     head_ids.append(w.head.i)
             all_head_ids.extend(head_ids)
         return all_head_ids
+
+    def get_vector(self, timestamps):
+        all_vector = []
+        if isinstance(timestamps, list) == False:
+            timestamps = [timestamps]
+        for ts in timestamps:
+            c_document = self.documents[ts]
+            for w in c_document:
+                all_vector.append(w.vector)
+        return all_vector
