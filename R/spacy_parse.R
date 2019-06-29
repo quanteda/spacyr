@@ -89,6 +89,11 @@ spacy_parse.character <- function(x,
     `:=` <- `.` <- `.N` <- NULL
     
     if (vector == TRUE) {
+        if (is.null(options("spacy_initialized")$spacy_initialized)) {
+            stop("spaCy is not initialized. run spacy_initialize() with ",
+                 "an appropriate model")
+        }
+            
         spacyr_pyexec("mod_name = nlp.meta['name']")
         mod_name <-spacyr_pyget("mod_name")
         if (! mod_name %in% c("core_web_lg", "core_web_md")) {
@@ -186,6 +191,10 @@ spacy_parse.character <- function(x,
 
     dt <- as.data.frame(dt)
     class(dt) <- c("spacyr_parsed", class(dt))
+    
+    if (vector == TRUE) {
+        attr(dt, "vector_matrix") <- t(simplify2array(get_vector(spacy_out)))
+    }
     return(dt)
 }
 
