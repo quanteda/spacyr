@@ -6,7 +6,8 @@
 \usage{
 spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE,
   entity = TRUE, dependency = FALSE, nounphrase = FALSE,
-  multithread = TRUE, additional_attributes = NULL, ...)
+  multithread = TRUE, vector = FALSE, additional_attributes = NULL,
+  ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -34,6 +35,8 @@ tags}
 
 \item{multithread}{logical; If \code{TRUE}, the processing is parallelized
 using spaCy's architecture (\url{https://spacy.io/api})}
+
+\item{vector}{logica; PLACE HOLDER}
 
 \item{additional_attributes}{a character vector; this option is for
 extracting additional attributes of tokens from spaCy. When the names of
