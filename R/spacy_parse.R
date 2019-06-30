@@ -105,7 +105,7 @@ spacy_parse.character <- function(x,
 
         spacyr_pyexec("mod_name = nlp.meta['name']")
         mod_name <- spacyr_pyget("mod_name")
-        if (! mod_name %in% c("core_web_lg", "core_web_md")) {
+        if (grepl("_sm$", mod_name)) {
             warning("embedding is TRUE, but the model name ('",
                     mod_name,
                     "') suggests that embedding might not be available for this model.",
