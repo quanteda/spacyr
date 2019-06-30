@@ -6,8 +6,8 @@
 \usage{
 spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE,
   entity = TRUE, dependency = FALSE, nounphrase = FALSE,
-  multithread = TRUE, vector = FALSE, additional_attributes = NULL,
-  ...)
+  multithread = TRUE, embedding = FALSE,
+  additional_attributes = NULL, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -36,7 +36,16 @@ tags}
 \item{multithread}{logical; If \code{TRUE}, the processing is parallelized
 using pipe functionality of spaCy (\url{https://spacy.io/api/pipe})}
 
-\item{vector}{logica; PLACE HOLDER}
+\item{embedding}{logical; If \code{TRUE}, the result includes a matrix 
+comprised of pre-trained word embedding vector for each token. The resulting 
+object is accessible by \code{attr(result_object, "embedding")}. The number
+of rows of this object should match with the number of rows of the main
+data.frame, and each row corresponds with each token. 
+The details of embedding vector is available at
+(\url{https://spacy.io/usage/vectors-similarity}). 
+The small language models provided by spaCy do not include proper embedding
+vectors. Use larger models (e.g. for English \code{en_core_web_md} or
+\code{en_core_web_lg}) instead.}
 
 \item{additional_attributes}{a character vector; this option is for
 extracting additional attributes of tokens from spaCy. When the names of
