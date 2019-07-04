@@ -18,3 +18,4 @@ config.R
 R/unused
 src/spacyr.dll
 CRAN-RELEASE
+revdep
