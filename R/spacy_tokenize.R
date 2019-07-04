@@ -19,8 +19,7 @@
 #'   previously existed. This is useful if a positional match is needed between 
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
 #'   needs to be computed.
-#' @param multithread logical; If true, the processing is parallelized using pipe 
-#'   functionality of spaCy (\url{https://spacy.io/api/pipe}).
+#' @inheritParams spacy_parse
 #' @param output type of returning object. Either \code{list} or \code{data.frame}. 
 #' @param ... not used directly
 #' @return either \code{list} or \code{data.frame} of tokens

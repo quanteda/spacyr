@@ -33,7 +33,7 @@ may not work properly for non-English models)}
 tags}
 
 \item{multithread}{logical; If \code{TRUE}, the processing is parallelized
-using pipe functionality of spaCy (\url{https://spacy.io/api/pipe})}
+using spaCy's architecture (\url{https://spacy.io/api})}
 
 \item{additional_attributes}{a character vector; this option is for
 extracting additional attributes of tokens from spaCy. When the names of

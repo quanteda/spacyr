@@ -22,7 +22,7 @@
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param multithread logical; If \code{TRUE}, the processing is parallelized
-#'   using pipe functionality of spaCy (\url{https://spacy.io/api/pipe})
+#'   using spaCy's architecture (\url{https://spacy.io/api})
 #' @param dependency logical; if \code{TRUE}, analyse and tag dependencies
 #' @param nounphrase logical; if \code{TRUE}, analyse and tag noun phrases
 #'   tags

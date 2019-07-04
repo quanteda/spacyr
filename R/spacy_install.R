@@ -11,7 +11,7 @@
 #'   install one if none exists.  
 #'   
 #'   For Windows, automatic installation of miniconda installation is not currently
-#'   available, so the user will need to \href{https://conda.io/docs/user-guide/install/windows.html}{miniconda (or Anaconda) manually}.
+#'   available, so the user will need to \href{https://conda.io/projects/conda/en/latest/user-guide/install/index.html}{miniconda (or Anaconda) manually}.
 #'
 #' @section spaCy Version Issues:
 #' 

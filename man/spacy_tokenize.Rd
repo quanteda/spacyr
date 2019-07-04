@@ -35,8 +35,8 @@ previously existed. This is useful if a positional match is needed between
 the pre- and post-selected tokens, for instance if a window of adjacency 
 needs to be computed.}
 
-\item{multithread}{logical; If true, the processing is parallelized using pipe 
-functionality of spaCy (\url{https://spacy.io/api/pipe}).}
+\item{multithread}{logical; If \code{TRUE}, the processing is parallelized
+using spaCy's architecture (\url{https://spacy.io/api})}
 
 \item{output}{type of returning object. Either \code{list} or \code{data.frame}.}
 

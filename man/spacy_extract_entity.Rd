@@ -19,8 +19,8 @@ corpus data.frame (see \url{https://github.com/ropensci/tif})}
 \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
 details.}
 
-\item{multithread}{logical; If true, the processing is parallelized using pipe 
-functionality of spaCy (\url{https://spacy.io/api/pipe}).}
+\item{multithread}{logical; If \code{TRUE}, the processing is parallelized
+using spaCy's architecture (\url{https://spacy.io/api})}
 
 \item{...}{unused}
 }
