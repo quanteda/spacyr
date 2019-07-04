@@ -18,6 +18,7 @@ Imports:
     data.table,
     reticulate (>= 1.6)
 Suggests:
+    dplyr,
     knitr,
     lintr,
     quanteda, 
@@ -25,10 +26,11 @@ Suggests:
     rmarkdown,
     spelling,
     testthat,
+    tidytext,
     tibble
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
 RoxygenNote: 6.1.1
 Language: en-GB
-VignetteBuilder: knitr
+VignetteBuilder: R.rsp
