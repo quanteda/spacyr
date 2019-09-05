@@ -76,7 +76,7 @@ spacy_tokenize.character <- function(x,
 
 
     if (all(!duplicated(docnames)) == FALSE) {
-        stop("Docmanes are duplicated.")
+        stop("Docnames are duplicated.")
     } else if (all(nchar(docnames) > 0L) == FALSE) {
         stop("Some docnames are missing.")
     }
