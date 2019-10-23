@@ -15,12 +15,12 @@ test_that("spacy_extract_nounphrases data.frame works", {
     expect_equal(
         noun_phrases$text,
         c("The history", "natural language processing", "the 1950s",
-          "work", "earlier periods", "Alan Turing", "an article", "what",
+          "work", "earlier periods", "Alan Turing", "an article", "which", "what",
           "a criterion", "intelligence"))
     expect_equal(
         noun_phrases$root_text,
         c("history", "processing", "1950s", "work", "periods", "Turing",
-          "article", "what", "criterion", "intelligence"))
+          "article", "which", "what", "criterion", "intelligence"))
 
     expect_error(
         spacy_extract_nounphrases(c(doc1 = "Hello", doc1 = "world"), output = "data.frame"),
@@ -124,7 +124,7 @@ test_that("spacy_extract_nounphrases list works", {
     expect_equal(
         noun_phrases,
         list(doc1 = c("The history", "natural language processing", "the 1950s", "work", "earlier periods"),
-             doc2 = c("Alan Turing", "an article", "what", "a criterion", "intelligence")))
+             doc2 = c("Alan Turing", "an article", "which", "what", "a criterion", "intelligence")))
 
     expect_silent(spacy_finalize())
 })
@@ -194,7 +194,7 @@ test_that("spacy_parse nounphrase = TRUE works", {
     )
     expect_identical(
         sum(grepl("beg", parsed$nounphrase)),
-        10L
+        11L
     )
 
 

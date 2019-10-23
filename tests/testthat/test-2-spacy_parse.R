@@ -174,7 +174,7 @@ test_that("spacy_parse handles numbers/tibbles correctly", {
             sentence_id = rep(1, 4),
             token_id = c(1, 1, 2, 1),
             token = c("bug", "one", "love", "838383838"),
-            pos = c("NOUN", "NUM", "NOUN", "NUM"),
+            pos = c("PROPN", "NUM", "NOUN", "NUM"),
             stringsAsFactors = FALSE)
     )
 })

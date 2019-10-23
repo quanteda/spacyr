@@ -97,7 +97,7 @@ test_that("spacy_tokenize remove_symbols argument work as expected", {
     )
     expect_equivalent(
         spacy_tokenize(txt, remove_symbols = TRUE, padding = FALSE),
-        list(c("This", ":", "=",  "GBP", "!", "15", "%", "not", "!",
+        list(c("This", ":", "GBP", "!", "15", "%", "not", "!",
                ">", "20", "percent", "?"))
     )
 })
@@ -226,26 +226,18 @@ test_that("spacy_tokenize what = 'sentence' works as expected", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
-    txt <- "Sentence one!  This: is a test.\n\nYeah, right.  What, Mr. Jones?"
+    txt <- "Sentence one!  This: is a test.\n\nYes, right.  What, Mr. Jones?"
     expect_equivalent(
         spacy_tokenize(txt, what = "sentence", remove_punct = TRUE,
                        remove_separators = TRUE),
-        list(c(
-            "Sentence one!",
-            "This: is a test.",
-            "Yeah, right.",
-            "What, Mr. Jones?"
-        ))
+        list(c("Sentence one!", "This: is a test.", "Yes, right.",
+               "What, Mr. Jones?"))
     )
     expect_equivalent(
         spacy_tokenize(txt, what = "sentence", remove_punct = TRUE,
                        remove_separators = FALSE),
-        list(c(
-            "Sentence one!  ",
-            "This: is a test.\n\n",
-            "Yeah, right.  ",
-            "What, Mr. Jones?"
-        ))
+        list(c("Sentence one!  ", "This: is a test.\n\n", "Yes, right.  ",
+               "What, Mr. Jones?"))
     )
     expect_equivalent(
         spacy_tokenize(txt, what = "sentence", remove_separators = TRUE),

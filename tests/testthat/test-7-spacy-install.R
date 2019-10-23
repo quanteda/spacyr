@@ -27,7 +27,7 @@ test_that("spacy_download_langmodel demands full model name", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
-    expect_error(spacy_install(model = "de"),
+    expect_error(spacy_download_langmodel(model = "de"),
                    "a full model name")
 })
 
