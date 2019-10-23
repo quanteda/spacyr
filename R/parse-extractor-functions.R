@@ -180,15 +180,3 @@ get_ntokens_by_sent <- function(spacy_out){
     return(ntok_by_sent)
 }
 
-
-#' @param spacy_out a spacy_out object
-#' @return \code{get_vector} returns a list of word embedding vectors
-#' @export
-#' @name get-functions
-#' @keywords internal
-get_vector <- function(spacy_out) {
-    spacyr_pyassign("timestamps", spacy_out$timestamps)
-    spacyr_pyexec("vector_list = spobj.get_vector(timestamps)")
-    vector_list <- spacyr_pyget("vector_list")
-    return(vector_list)
-}

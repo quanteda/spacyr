@@ -20,16 +20,6 @@
 #'   website (\url{https://spacy.io/api/annotation}).
 #' @param lemma logical; include lemmatized tokens in the output (lemmatization
 #'   may not work properly for non-English models)
-#' @param embedding logical; If \code{TRUE}, the result includes a matrix 
-#'   comprised of pre-trained word embedding vector for each token. The resulting 
-#'   object is accessible by \code{attr(result_object, "embedding")}. The number
-#'   of rows of this object should match with the number of rows of the main
-#'   data.frame, and each row corresponds with each token. 
-#'   The details of embedding vector is available at
-#'   (\url{https://spacy.io/usage/vectors-similarity}). 
-#'   The small language models provided by spaCy do not include proper embedding
-#'   vectors. Use larger models (e.g. for English \code{en_core_web_md} or
-#'   \code{en_core_web_lg}) instead.
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param multithread logical; If \code{TRUE}, the processing is parallelized
 #'   using spaCy's architecture (\url{https://spacy.io/api})
@@ -74,7 +64,6 @@ spacy_parse <- function(x,
                         dependency = FALSE,
                         nounphrase = FALSE,
                         multithread = TRUE,
-                        embedding = FALSE,
                         additional_attributes = NULL,
                         ...) {
     UseMethod("spacy_parse")
@@ -91,28 +80,10 @@ spacy_parse.character <- function(x,
                                   dependency = FALSE,
                                   nounphrase = FALSE,
                                   multithread = TRUE,
-                                  embedding = FALSE,
                                   additional_attributes = NULL,
                                   ...) {
 
     `:=` <- `.` <- `.N` <- NULL
-
-    if (embedding == TRUE) {
-        if (is.null(options("spacy_initialized")$spacy_initialized)) {
-            stop("spaCy is not initialized. run spacy_initialize() with ",
-                 "an appropriate model")
-        }
-
-        spacyr_pyexec("mod_name = nlp.meta['name']")
-        mod_name <- spacyr_pyget("mod_name")
-        if (grepl("_sm$", mod_name)) {
-            warning("embedding is TRUE, but the model name ('",
-                    mod_name,
-                    "') suggests that embedding might not be available for this model.",
-                    " Using 'core_web_lg' or 'core_web_md' is recommended.",
-                    call. = FALSE)
-        }
-    }
 
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
@@ -202,9 +173,6 @@ spacy_parse.character <- function(x,
     dt <- as.data.frame(dt)
     class(dt) <- c("spacyr_parsed", class(dt))
 
-    if (embedding == TRUE) {
-        attr(dt, "embedding") <- t(simplify2array(get_vector(spacy_out)))
-    }
     return(dt)
 }
 

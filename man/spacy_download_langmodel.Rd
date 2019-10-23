@@ -5,10 +5,10 @@
 \alias{spacy_download_langmodel_virtualenv}
 \title{Install a language model in a conda or virtual environment}
 \usage{
-spacy_download_langmodel(model = "en", envname = "spacy_condaenv",
-  conda = "auto")
+spacy_download_langmodel(model = "en_core_web_sm",
+  envname = "spacy_condaenv", conda = "auto")
 
-spacy_download_langmodel_virtualenv(model = "en",
+spacy_download_langmodel_virtualenv(model = "en_core_web_sm",
   envname = "spacy_virtualenv", virtualenv_root = NULL)
 }
 \arguments{

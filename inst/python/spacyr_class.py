@@ -398,12 +398,7 @@ class spacyr:
             all_head_ids.extend(head_ids)
         return all_head_ids
 
-    def get_vector(self, timestamps):
-        all_vector = []
-        if isinstance(timestamps, list) == False:
-            timestamps = [timestamps]
-        for ts in timestamps:
-            c_document = self.documents[ts]
-            for w in c_document:
-                all_vector.append(w.vector)
-        return all_vector
+    def wordvectors_lookup(self, vocab_list):
+        vectors = [self.nlp.vocab.get_vector(voc) for voc in vocab_list]
+        return vectors
+

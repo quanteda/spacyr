@@ -4,14 +4,14 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy}
 \usage{
-spacy_initialize(model = "en", python_executable = NULL,
+spacy_initialize(model = "en_core_web_sm", python_executable = NULL,
   virtualenv = NULL, condaenv = NULL, ask = FALSE,
   refresh_settings = FALSE, save_profile = FALSE, check_env = TRUE,
   entity = TRUE)
 }
 \arguments{
-\item{model}{Language package for loading spaCy. Example: \code{en} (English) and
-\code{de} (German). Default is \code{en}.}
+\item{model}{Language package for loading spaCy. Example: \code{en_core_web_sm} (English) and
+\code{de_core_web_sm} (German). Default is \code{en_core_web_sm}.}
 
 \item{python_executable}{the full path to the Python executable, for which
 spaCy is installed}

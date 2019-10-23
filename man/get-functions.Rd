@@ -10,7 +10,6 @@
 \alias{get_noun_phrases}
 \alias{get_ntokens}
 \alias{get_ntokens_by_sent}
-\alias{get_vector}
 \title{get functions for spaCy}
 \usage{
 get_tokens(spacy_out)
@@ -28,8 +27,6 @@ get_noun_phrases(spacy_out)
 get_ntokens(spacy_out)
 
 get_ntokens_by_sent(spacy_out)
-
-get_vector(spacy_out)
 }
 \arguments{
 \item{spacy_out}{a spacy_out object}
@@ -39,8 +36,6 @@ or \code{"detailed"} to use the simplified Google tagset, or the more detailed
 scheme from the Penn Treebank (or the German Text Archive in case of German language model).}
 
 \item{attr_name}{name of spaCy token attributes to extract}
-
-\item{spacy_out}{a spacy_out object}
 }
 \value{
 \code{get_tokens} returns a data.frame of tokens from spaCy.
@@ -61,8 +56,6 @@ Options exist for using either the Google or Detailed tagsets. See
 
 \code{get_ntokens_by_sent} returns a data.frame of dependency
   relations, by sentence
-
-\code{get_vector} returns a list of word embedding vectors
 }
 \description{
 A collection of get methods for spacyr return objects (of \code{spacy_out} class).
