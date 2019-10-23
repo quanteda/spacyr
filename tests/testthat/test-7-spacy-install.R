@@ -7,7 +7,7 @@ test_that("lanugage model download works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
-    expect_message(spacy_download_langmodel("de"), "successfully")
+    expect_message(spacy_download_langmodel("de_core_web_sm"), "successfully")
 })
 
 
@@ -21,6 +21,25 @@ test_that("spacy_install works", {
                    "Installation complete")
 })
 
+test_that("spacy_download_langmodel demands full model name", {
+    skip_on_cran()
+    skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+
+    expect_error(spacy_install(model = "de"),
+                   "a full model name")
+})
+
+test_that("spacy_install demands full model name", {
+    skip_on_cran()
+    skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+    
+    expect_error(spacy_install(envname = "test_dummy", lang_models = "en", prompt = FALSE),
+                 "a full model name")
+})
 
 
 test_that("spacy_install specific version of spacy works", {
