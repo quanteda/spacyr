@@ -32,7 +32,7 @@
 #' package manager with conda-forge channel will be used for installing spacy.
 #' @param lang_models character; language models to be installed. Default
 #'   \code{en_core_web_sm} (English model). A vector of multiple model names can be used
-#'   (e.g. \code{c("en_core_web_sm", "de_core_web_sm")}).  A list of available language models and their
+#'   (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}).  A list of available language models and their
 #'   names is available from the \href{https://spacy.io/usage/models}{spaCy
 #'   language models} page.
 #' @param version character; spaCy version to install. Specify \code{"latest"}
@@ -49,7 +49,7 @@
 #' @examples 
 #' \dontrun{
 #' # install spaCy in a miniconda environment (macOS and Linux)
-#' spacy_install(lang_models = c("en_core_web_sm", "de_core_web_sm"), prompt = FALSE)
+#' spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"), prompt = FALSE)
 #' 
 #' # install spaCy to an existing conda environment
 #' spacy_install(conda = "~/anaconda/bin/")
@@ -75,7 +75,7 @@ spacy_install <- function(conda = "auto",
             lang_models[lang_models %in%
                             c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt') == TRUE][1]
         stop('An abbreviation of the model name, "', model, '", is provided.\n',
-             '  Please use a full model name (e.g. "', model, '_core_web_sm").\n')
+             '  Please use a full model name (e.g. "', model, '_core_', ifelse(model == 'en', 'web', 'news'),'_sm").\n')
     }
 
     # verify 64-bit

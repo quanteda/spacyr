@@ -41,7 +41,7 @@ before_script:
   - conda info -a
   - R CMD INSTALL .
   - R -e 'spacyr::spacy_install(prompt=FALSE, pip=TRUE)'
-  - R -e 'spacyr::spacy_download_langmodel(model="de")'
+  - R -e 'spacyr::spacy_download_langmodel(model="de_core_news_sm")'
 
 env:
   global:

@@ -7,7 +7,7 @@ test_that("lanugage model download works", {
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
 
-    expect_message(spacy_download_langmodel("de_core_web_sm"), "successfully")
+    expect_message(spacy_download_langmodel("de_core_news_sm"), "successfully")
 })
 
 
