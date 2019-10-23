@@ -9,9 +9,15 @@
 #'   language models and their names is available from the
 #'   \href{https://spacy.io/usage/models}{spaCy language models} page.
 #' @export
-spacy_download_langmodel <- function(model = "en",
+spacy_download_langmodel <- function(model = "en_core_web_sm",
                                      envname = "spacy_condaenv",
                                      conda = "auto") {
+    
+    if (model %in% c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt')) {
+        stop('An abbreviation of the model name, "', model, '", is provided.\n',
+             '  Please use a full model name (e.g. "', model, '_core_web_sm").\n')
+    }
+
     message(sprintf("Installing model \"%s\"\n", model))
     # resolve conda binary
     conda <- reticulate::conda_binary(conda)
@@ -40,9 +46,14 @@ spacy_download_langmodel <- function(model = "en",
 #'   language model. If \code{NULL}, the default path \code{"~/.virtualenvs"}
 #'   will be used.
 #' @export
-spacy_download_langmodel_virtualenv <- function(model = "en",
+spacy_download_langmodel_virtualenv <- function(model = "en_core_web_sm",
                                                 envname = "spacy_virtualenv",
                                                 virtualenv_root = NULL) {
+    if (model %in% c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt')) {
+        stop('An abbreviation of the model name, "', model, '", is provided.\n',
+             '  Please use a full model name (e.g. "', model, '_core_web_sm").\n')
+    }
+    
     message(sprintf("installing model \"%s\"\n", model))
     if (is.null(virtualenv_root)) {
         virtualenv_root <- "~/.virtualenvs"

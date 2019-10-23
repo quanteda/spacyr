@@ -46,10 +46,9 @@ spacy_initialize <- function(model = "en_core_web_sm",
     # model name check
     if (model %in% c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt')) {
         message('An abbreviation of the model name, "', model, '", is provided.\n',
-                'We recommend to use full model name e.g.  "', model, '_core_web_sm".\n')
+                'We recommend to use a full model name (e.g. "', model, '_core_web_sm").\n')
     }
 
-    
     # once python is initialized, you cannot change the python executables
     if (!is.null(options("python_initialized")$python_initialized)) {
         message("Python space is already attached.  If you want to switch to a different Python, please restart R.")

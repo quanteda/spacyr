@@ -69,6 +69,15 @@ spacy_install <- function(conda = "auto",
         stop("This function is available only for Windows, Mac, and Linux")
     }
 
+    # model name check
+    if (any(lang_models %in% c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt') == TRUE)) {
+        model <-
+            lang_models[lang_models %in%
+                            c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt') == TRUE][1]
+        stop('An abbreviation of the model name, "', model, '", is provided.\n',
+             '  Please use a full model name (e.g. "', model, '_core_web_sm").\n')
+    }
+
     # verify 64-bit
     # if (.Machine$sizeof.pointer != 8) {
     #     stop("Unable to install TensorFlow on this platform.",
