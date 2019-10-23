@@ -2,8 +2,8 @@
 #' 
 #' Initialize spaCy to call from R. 
 #' @return NULL
-#' @param model Language package for loading spaCy. Example: \code{en} (English) and
-#' \code{de} (German). Default is \code{en}.
+#' @param model Language package for loading spaCy. Example: \code{en_core_web_sm} (English) and
+#' \code{de_core_web_sm} (German). Default is \code{en_core_web_sm}.
 #' @param python_executable the full path to the Python executable, for which
 #'   spaCy is installed
 #' @param ask logical; if \code{FALSE}, use the first spaCy installation found;
@@ -27,7 +27,7 @@
 #'   be saved for the future use.
 #' @export
 #' @author Akitaka Matsuo
-spacy_initialize <- function(model = "en",
+spacy_initialize <- function(model = "en_core_web_sm",
                              python_executable = NULL,
                              virtualenv = NULL,
                              condaenv = NULL,
@@ -43,6 +43,13 @@ spacy_initialize <- function(model = "en",
         return(NULL)
     }
 
+    # model name check
+    if (model %in% c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt')) {
+        message('An abbreviation of the model name, "', model, '", is provided.\n',
+                'We recommend to use full model name e.g.  "', model, '_core_web_sm".\n')
+    }
+
+    
     # once python is initialized, you cannot change the python executables
     if (!is.null(options("python_initialized")$python_initialized)) {
         message("Python space is already attached.  If you want to switch to a different Python, please restart R.")
@@ -129,7 +136,7 @@ spacy_finalize <- function() {
 #'  
 #' @keywords internal
 #' @importFrom data.table data.table
-find_spacy <- function(model = "en", ask){
+find_spacy <- function(model = "en_core_web_sm", ask){
     spacy_found <- `:=` <- NA
     spacy_python <- NULL
     options(warn = -1)
