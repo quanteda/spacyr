@@ -1,20 +1,24 @@
-#' Vector look up
+#' Word vector lookup
 #' 
 #' To be written
-#' @param x a data.frame generated from spacy_parse() or from spacy_tokenize() or 
+#' @param x a data.frame generated from spacy_parse() or 
 #'     a vocabulary vector (a character vector with unique elements)
 #' @return a list of word vectors, named by tokens
+#' @details This function looks up the word vector tables pre-trained and shipped with spacyr language models. Since "small" models
+#'   do not come with word vectors, this function will give a warning when spaCy is initialized with a model with a name "_sm" at 
+#'   the end. 
+#'   When a lookup table in a spaCy language model does not have a key provided as a token, 
+#'   the returned vector for the non-existent token is a vector of zeros.
 #' @export
 #' @examples
 #' \donttest{
-#' spacy_initialize()
-#' txt <- "And now for something completely different."
-#' spacy_tokenize(txt)
+#' spacy_initialize(model = "en_core_web_md")
 #' 
 #' txt2 <- c(doc1 = "The fast cat catches mice.\\nThe quick brown dog jumped.", 
 #'           doc2 = "This is the second document.",
 #'           doc3 = "This is a \\\"quoted\\\" text." )
-#' spacy_tokenize(txt2)
+#' spacy_output <- spacy_parse(txt2)
+#' word_vectors <- spacy_wordvectors_lookup(spacy_output)
 #' }
 spacy_wordvectors_lookup <- function(x, ...) {
     UseMethod("spacy_wordvectors_lookup")
@@ -23,7 +27,7 @@ spacy_wordvectors_lookup <- function(x, ...) {
 #' @export
 spacy_wordvectors_lookup.character <- function(x, ...) {
     if(length(x) != length(unique(x))) {
-        warning("The word vector contains non-unique elements. dupulcated elements will be removed")
+        warning("The word vector contains non-unique elements. duplicated elements will be removed")
         x <- unique(x)
     }
 
@@ -40,6 +44,7 @@ spacy_wordvectors_lookup.character <- function(x, ...) {
     spacyr_pyexec("wordvectors = spobj.wordvectors_lookup(tokens_vec)")
     wordvectors <- spacyr_pyget("wordvectors")
     names(wordvectors) <- x
+    class(wordvectors) <- c("spacy_wordvectors", class(wordvectors))
     return(wordvectors)
 }
 

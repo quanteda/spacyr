@@ -2,12 +2,12 @@
 % Please edit documentation in R/spacy_wordvector_lookup.R
 \name{spacy_wordvectors_lookup}
 \alias{spacy_wordvectors_lookup}
-\title{Vector look up}
+\title{Word vector lookup}
 \usage{
 spacy_wordvectors_lookup(x, ...)
 }
 \arguments{
-\item{x}{a data.frame generated from spacy_parse() or from spacy_tokenize() or 
+\item{x}{a data.frame generated from spacy_parse() or 
 a vocabulary vector (a character vector with unique elements)}
 }
 \value{
@@ -16,15 +16,21 @@ a list of word vectors, named by tokens
 \description{
 To be written
 }
+\details{
+This function looks up the word vector tables pre-trained and shipped with spacyr language models. Since "small" models
+  do not come with word vectors, this function will give a warning when spaCy is initialized with a model with a name "_sm" at 
+  the end. 
+  When a lookup table in a spaCy language model does not have a key provided as a token, 
+  the returned vector for the non-existent token is a vector of zeros.
+}
 \examples{
 \donttest{
-spacy_initialize()
-txt <- "And now for something completely different."
-spacy_tokenize(txt)
+spacy_initialize(model = "en_core_web_md")
 
 txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.", 
           doc2 = "This is the second document.",
           doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
-spacy_tokenize(txt2)
+spacy_output <- spacy_parse(txt2)
+word_vectors <- spacy_wordvectors_lookup(spacy_output)
 }
 }
