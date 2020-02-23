@@ -4,10 +4,19 @@
 \alias{spacy_tokenize}
 \title{Tokenize text with spaCy}
 \usage{
-spacy_tokenize(x, what = c("word", "sentence"), remove_punct = FALSE,
-  remove_url = FALSE, remove_numbers = FALSE,
-  remove_separators = TRUE, remove_symbols = FALSE, padding = FALSE,
-  multithread = TRUE, output = c("list", "data.frame"), ...)
+spacy_tokenize(
+  x,
+  what = c("word", "sentence"),
+  remove_punct = FALSE,
+  remove_url = FALSE,
+  remove_numbers = FALSE,
+  remove_separators = TRUE,
+  remove_symbols = FALSE,
+  padding = FALSE,
+  multithread = TRUE,
+  output = c("list", "data.frame"),
+  ...
+)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -57,7 +66,7 @@ spacy_tokenize(txt)
 
 txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.", 
           doc2 = "This is the second document.",
-          doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
+          doc3 = "This is a \\\\\"quoted\\\\\" text." )
 spacy_tokenize(txt2)
 }
 }

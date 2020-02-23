@@ -4,10 +4,17 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy}
 \usage{
-spacy_initialize(model = "en", python_executable = NULL,
-  virtualenv = NULL, condaenv = NULL, ask = FALSE,
-  refresh_settings = FALSE, save_profile = FALSE, check_env = TRUE,
-  entity = TRUE)
+spacy_initialize(
+  model = "en",
+  python_executable = NULL,
+  virtualenv = NULL,
+  condaenv = NULL,
+  ask = FALSE,
+  refresh_settings = FALSE,
+  save_profile = FALSE,
+  check_env = TRUE,
+  entity = TRUE
+)
 }
 \arguments{
 \item{model}{Language package for loading spaCy. Example: \code{en} (English) and

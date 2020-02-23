@@ -4,8 +4,13 @@
 \alias{spacy_extract_entity}
 \title{Extract named entities from texts using spaCy}
 \usage{
-spacy_extract_entity(x, output = c("data.frame", "list"),
-  type = c("all", "named", "extended"), multithread = TRUE, ...)
+spacy_extract_entity(
+  x,
+  output = c("data.frame", "list"),
+  type = c("all", "named", "extended"),
+  multithread = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant

@@ -62,6 +62,7 @@ spacy_tokenize.character <- function(x,
                                      multithread = TRUE,
                                      output = c("list", "data.frame"),
                                      ...) {
+    x <- as.character(x)
     output <- match.arg(output)
     what <- match.arg(what)
 
