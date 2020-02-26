@@ -4,8 +4,13 @@
 \alias{spacy_upgrade}
 \title{Upgrade spaCy in conda environment}
 \usage{
-spacy_upgrade(conda = "auto", envname = "spacy_condaenv",
-  prompt = TRUE, pip = FALSE, lang_models = "en")
+spacy_upgrade(
+  conda = "auto",
+  envname = "spacy_condaenv",
+  prompt = TRUE,
+  pip = FALSE,
+  lang_models = "en_core_web_sm"
+)
 }
 \arguments{
 \item{conda}{Path to conda executable. Default "auto" which automatically
@@ -19,7 +24,7 @@ find the path}
 package manager with conda-forge channel will be used for installing spacy.}
 
 \item{lang_models}{Language models to be upgraded. Default NULL (No upgrade). 
-A vector of multiple model names can be used (e.g. \code{c("en", "de")})}
+A vector of multiple model names can be used (e.g. \code{c("en_core_web_sm", "de_core_web_sm")})}
 }
 \description{
 Upgrade spaCy in conda environment

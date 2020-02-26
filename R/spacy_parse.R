@@ -82,7 +82,7 @@ spacy_parse.character <- function(x,
                                   multithread = TRUE,
                                   additional_attributes = NULL,
                                   ...) {
-
+    x <- structure(as.character(x), names = names(x))
     `:=` <- `.` <- `.N` <- NULL
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {

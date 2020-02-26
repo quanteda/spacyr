@@ -5,12 +5,24 @@
 \alias{spacy_install_virtualenv}
 \title{Install spaCy in conda or virtualenv environment}
 \usage{
-spacy_install(conda = "auto", version = "latest", lang_models = "en",
-  python_version = "3.6", envname = "spacy_condaenv", pip = FALSE,
-  python_path = NULL, prompt = TRUE)
+spacy_install(
+  conda = "auto",
+  version = "latest",
+  lang_models = "en_core_web_sm",
+  python_version = "3.6",
+  envname = "spacy_condaenv",
+  pip = FALSE,
+  python_path = NULL,
+  prompt = TRUE
+)
 
-spacy_install_virtualenv(version = "latest", lang_models = "en",
-  python_version = "3.6", python_path = NULL, prompt = TRUE)
+spacy_install_virtualenv(
+  version = "latest",
+  lang_models = "en_core_web_sm",
+  python_version = "3.6",
+  python_path = NULL,
+  prompt = TRUE
+)
 }
 \arguments{
 \item{conda}{character; path to conda executable. Default "auto" which
@@ -23,8 +35,8 @@ automatically find the path}
   You can also provide a full major.minor.patch specification (e.g. "1.1.0")}
 
 \item{lang_models}{character; language models to be installed. Default
-\code{en} (English model). A vector of multiple model names can be used
-(e.g. \code{c("en", "de")}).  A list of available language models and their
+\code{en_core_web_sm} (English model). A vector of multiple model names can be used
+(e.g. \code{c("en_core_web_sm", "de_core_news_sm")}).  A list of available language models and their
 names is available from the \href{https://spacy.io/usage/models}{spaCy
 language models} page.}
 
@@ -73,7 +85,7 @@ If you wish to install Python ion a "virtualenv", use the
 \examples{
 \dontrun{
 # install spaCy in a miniconda environment (macOS and Linux)
-spacy_install(lang_models = c("en", "de"), prompt = FALSE)
+spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"), prompt = FALSE)
 
 # install spaCy to an existing conda environment
 spacy_install(conda = "~/anaconda/bin/")
@@ -81,6 +93,6 @@ spacy_install(conda = "~/anaconda/bin/")
 
 \dontrun{
 # install spaCy in a virtualenv environment
-spacy_install_virtualenv(lang_models = c("en"))
+spacy_install_virtualenv(lang_models = c("en_core_web_sm"))
 }
 }

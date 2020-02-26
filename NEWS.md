@@ -1,7 +1,8 @@
 
 # spacyr v1.2
 
-* Added an option for using conda package manager instead of `pip` in `spacy_install()` and `spacy_upgrade()`. 
+* Added an option for using conda package manager instead of `pip` in `spacy_install()` and `spacy_upgrade()`.
+* (1.21) All character inputs to `spacy_parse()` and `spacy_tokenize()` are now coerced to `character`, which allows them to work directly with **quanteda** v2 corpus objects (which are based on the `character` class but with special attributed), without special methods.
 
 # spacyr v1.1
 

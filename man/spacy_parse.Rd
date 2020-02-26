@@ -4,9 +4,18 @@
 \alias{spacy_parse}
 \title{Parse a text using spaCy}
 \usage{
-spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE,
-  entity = TRUE, dependency = FALSE, nounphrase = FALSE,
-  multithread = TRUE, additional_attributes = NULL, ...)
+spacy_parse(
+  x,
+  pos = TRUE,
+  tag = FALSE,
+  lemma = TRUE,
+  entity = TRUE,
+  dependency = FALSE,
+  nounphrase = FALSE,
+  multithread = TRUE,
+  additional_attributes = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -70,7 +79,7 @@ spacy_parse(txt, dependency = TRUE)
 
 txt2 <- c(doc1 = "The fast cat catches mice.\\\\nThe quick brown dog jumped.", 
           doc2 = "This is the second document.",
-          doc3 = "This is a \\\\\\"quoted\\\\\\" text." )
+          doc3 = "This is a \\\\\"quoted\\\\\" text." )
 spacy_parse(txt2, entity = TRUE, dependency = TRUE)
 
 txt3 <- "We analyzed the Supreme Court with three natural language processing tools." 

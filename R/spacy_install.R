@@ -25,14 +25,13 @@
 #'   automatically install the latest version of spaCy v1.*, using \code{version
 #'   = "latest_v1"}.
 #'   
-#' @inheritParams reticulate::conda_list
 #' @param conda character; path to conda executable. Default "auto" which
 #'   automatically find the path
 #' @param pip \code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
 #' package manager with conda-forge channel will be used for installing spacy.
 #' @param lang_models character; language models to be installed. Default
-#'   \code{en} (English model). A vector of multiple model names can be used
-#'   (e.g. \code{c("en", "de")}).  A list of available language models and their
+#'   \code{en_core_web_sm} (English model). A vector of multiple model names can be used
+#'   (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}).  A list of available language models and their
 #'   names is available from the \href{https://spacy.io/usage/models}{spaCy
 #'   language models} page.
 #' @param version character; spaCy version to install. Specify \code{"latest"}
@@ -49,7 +48,7 @@
 #' @examples 
 #' \dontrun{
 #' # install spaCy in a miniconda environment (macOS and Linux)
-#' spacy_install(lang_models = c("en", "de"), prompt = FALSE)
+#' spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"), prompt = FALSE)
 #' 
 #' # install spaCy to an existing conda environment
 #' spacy_install(conda = "~/anaconda/bin/")
@@ -58,7 +57,7 @@
 #' @export
 spacy_install <- function(conda = "auto",
                           version = "latest",
-                          lang_models = "en",
+                          lang_models = "en_core_web_sm",
                           python_version = "3.6",
                           envname = "spacy_condaenv",
                           pip = FALSE,
@@ -67,6 +66,15 @@ spacy_install <- function(conda = "auto",
     # verify os
     if (!is_windows() && !is_osx() && !is_linux()) {
         stop("This function is available only for Windows, Mac, and Linux")
+    }
+
+    # model name check
+    if (any(lang_models %in% c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt') == TRUE)) {
+        model <-
+            lang_models[lang_models %in%
+                            c('en', 'de', 'es', 'pt', 'fr', 'it', 'nl', 'el', 'nb', 'lt') == TRUE][1]
+        stop('An abbreviation of the model name, "', model, '", is provided.\n',
+             '  Please use a full model name (e.g. "', model, '_core_', ifelse(model == 'en', 'web', 'news'),'_sm").\n')
     }
 
     # verify 64-bit
@@ -146,11 +154,11 @@ spacy_install <- function(conda = "auto",
 #' @examples
 #' \dontrun{
 #' # install spaCy in a virtualenv environment
-#' spacy_install_virtualenv(lang_models = c("en"))
+#' spacy_install_virtualenv(lang_models = c("en_core_web_sm"))
 #' }
 #' @export
 spacy_install_virtualenv <- function(version = "latest",
-                                     lang_models = "en",
+                                     lang_models = "en_core_web_sm",
                                      python_version = "3.6",
                                      python_path = NULL,
                                      prompt = TRUE) {
@@ -450,8 +458,7 @@ spacy_pkgs <- function(version, packages = NULL) {
 #' Uninstall spaCy conda environment
 #'
 #' Removes the conda environment created by spacy_install()
-#' @inheritParams reticulate::conda_list
-#' @param conda Path to conda executable, default to "auto" which automatically
+#' @param conda path to conda executable, default to "auto" which automatically
 #'   finds the path
 #' @param prompt logical; ask whether to proceed during the installation
 #' @param envname character; name of conda environment to remove
@@ -483,14 +490,13 @@ spacy_uninstall <- function(conda = "auto",
 
 #' Upgrade spaCy in conda environment
 #'
-#' @inheritParams reticulate::conda_list
 #' @param conda Path to conda executable. Default "auto" which automatically
 #'   find the path
 #' @param pip \code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
 #' package manager with conda-forge channel will be used for installing spacy.
 
 #' @param lang_models Language models to be upgraded. Default NULL (No upgrade). 
-#'   A vector of multiple model names can be used (e.g. \code{c("en", "de")})
+#'   A vector of multiple model names can be used (e.g. \code{c("en_core_web_sm", "de_core_web_sm")})
 #' @param prompt logical; ask whether to proceed during the installation
 #' @param envname character; name of conda environment to upgrade spaCy
 #' @export
@@ -498,7 +504,7 @@ spacy_upgrade  <- function(conda = "auto",
                            envname = "spacy_condaenv",
                            prompt = TRUE,
                            pip = FALSE,
-                           lang_models = "en") {
+                           lang_models = "en_core_web_sm") {
 
     message("checking spaCy version")
     conda <- reticulate::conda_binary(conda)

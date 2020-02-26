@@ -63,7 +63,7 @@ A collection of get methods for spacyr return objects (of \code{spacy_out} class
 \examples{
 \donttest{
 # get_tags examples
-txt <- c(text1 = "This is the first sentence.\\nHere is the second sentence.", 
+txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
          text2 = "This is the second document.")
 results <- spacy_parse(txt)
 tokens <- tokens(results)

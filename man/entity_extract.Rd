@@ -5,8 +5,7 @@
 \alias{entity_consolidate}
 \title{Extract or consolidate entities from parsed documents}
 \usage{
-entity_extract(x, type = c("named", "extended", "all"),
-  concatenator = "_")
+entity_extract(x, type = c("named", "extended", "all"), concatenator = "_")
 
 entity_consolidate(x, concatenator = "_")
 }
