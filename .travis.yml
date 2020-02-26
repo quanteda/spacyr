@@ -40,7 +40,7 @@ before_script:
   # Useful for debugging any issues with conda
   - conda info -a
   - R CMD INSTALL .
-  - R -e 'spacyr::spacy_install(prompt=FALSE, model = "en")'
+  - R -e 'spacyr::spacy_install(prompt=FALSE, lang_models = "en")'
   - R -e 'spacyr::spacy_download_langmodel(model="de")'
 
 env:

@@ -40,6 +40,8 @@ build_script:
   # - "%PYTHON%\\python.exe -m spacy download en"
   - activate spacy_condaenv 
   - python -m spacy download en
+  # following line is from: https://github.com/numpy/numpy/issues/14747
+  - pip install --upgrade --force-reinstall numpy 
   - deactivate
   - travis-tool.sh install_deps
 
