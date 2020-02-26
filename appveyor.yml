@@ -40,7 +40,7 @@ build_script:
   # - "%PYTHON%\\python.exe -m spacy download en"
   - activate spacy_condaenv 
   - python -m spacy download en
-  - conda deactivate
+  - deactivate
   - travis-tool.sh install_deps
 
 test_script:
