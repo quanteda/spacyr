@@ -40,7 +40,11 @@ before_script:
   # Useful for debugging any issues with conda
   - conda info -a
   - R CMD INSTALL .
-  - R -e 'spacyr::spacy_install(prompt=FALSE, pip=TRUE)'
+  - R -e 'spacyr::spacy_install(prompt=FALSE)'
+  # The following lines will be removed once issue-171 is merged
+  - conda activate spacy_condaenv
+  - python -m spacy link en_core_web_sm en
+  - conda deactivate
   - R -e 'spacyr::spacy_download_langmodel(model="de")'
 
 env:
