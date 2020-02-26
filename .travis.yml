@@ -46,6 +46,7 @@ before_script:
   # - conda activate spacy_condaenv
   # - python -m spacy link en_core_web_sm en
   # - conda deactivate
+  - conda install -n spacy_condaenv -c omgarcia gcc-6 # https://github.com/conda/conda/issues/8415
   - R -e 'spacyr::spacy_download_langmodel(model="en")' # create a link 'en'
   - R -e 'spacyr::spacy_download_langmodel(model="de")'
 
