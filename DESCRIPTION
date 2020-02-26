@@ -20,7 +20,6 @@ Imports:
 Suggests:
     dplyr,
     knitr,
-    lintr,
     quanteda, 
     R.rsp,
     rmarkdown,
