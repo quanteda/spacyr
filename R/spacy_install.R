@@ -451,7 +451,7 @@ python_version <- function(python) {
 spacy_pkgs <- function(version, packages = NULL) {
     if (is.null(packages))
         packages <- sprintf("spacy%s",
-                            ifelse(version == "latest", "", paste0("==", version)))
+                            ifelse(version == "latest", "", paste0("=", version)))
     return(packages)
 }
 
@@ -536,7 +536,7 @@ spacy_upgrade  <- function(conda = "auto",
             cat("spaCy will be upgraded to version", latest_spacy, "\n")
             process_spacy_installation_conda(conda = conda,
                                              envname = envname,
-                                             version = "latest",
+                                             version = latest_spacy,
                                              lang_models = lang_models,
                                              python_version = "3.6",
                                              prompt = FALSE)
@@ -584,7 +584,7 @@ spacy_upgrade  <- function(conda = "auto",
             }
             process_spacy_installation_conda(conda = conda,
                                              envname = envname,
-                                             version = "latest",
+                                             version = latest_spacy,
                                              lang_models = lang_models,
                                              python_version = "3.6",
                                              prompt = FALSE,
