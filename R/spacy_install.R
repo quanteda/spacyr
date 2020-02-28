@@ -669,25 +669,3 @@ conda_get_version <- function(major_version = NA, conda, envname) {
     return(result[length(result)])
 }
 
-
-conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
-    
-    # resolve conda binary
-    conda <- conda_binary(conda)
-    
-    # resolve environment name
-    envname <- condaenv_resolve(envname)
-    
-    # create the environment
-    args <- conda_args("create", envname, packages)
-    result <- system2(conda, shQuote(args))
-    if (result != 0L) {
-        stop("Error ", result, " occurred creating conda environment ", envname,
-             call. = FALSE)
-    }
-    
-    # return the path to the python binary
-    conda_python(envname = envname, conda = conda)
-    
-}
-
