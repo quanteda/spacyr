@@ -541,7 +541,8 @@ spacy_upgrade  <- function(conda = "auto",
                                              python_version = "3.6",
                                              prompt = FALSE)
             message("\nSuccessfully upgraded\n",
-                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
+                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n",
+                    "For the upgrade to take effect, please restart R session")
         } else {
             if (pip == TRUE) {
                 cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
@@ -590,7 +591,8 @@ spacy_upgrade  <- function(conda = "auto",
                                              prompt = FALSE,
                                              pip = pip)
             message("\nSuccessfully upgraded\n",
-                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
+                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n",
+                    "For the upgrade to take effect, please restart R session")
 
         } else {
             message("No upgrade is chosen")
