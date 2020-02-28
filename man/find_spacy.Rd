@@ -4,7 +4,7 @@
 \alias{find_spacy}
 \title{Find spaCy}
 \usage{
-find_spacy(model = "en", ask)
+find_spacy(model = "en_core_web_sm", ask)
 }
 \arguments{
 \item{model}{name of the language model}
