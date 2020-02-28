@@ -499,19 +499,29 @@ spacy_uninstall <- function(conda = "auto",
 #'   A vector of multiple model names can be used (e.g. \code{c("en_core_web_sm", "de_core_web_sm")})
 #' @param prompt logical; ask whether to proceed during the installation
 #' @param envname character; name of conda environment to upgrade spaCy
+#' @param update_conda logical; If \code{true}, the conda binary for the system will be updated to the latest version. 
+#'  Default \code{FALSE}.
 #' @export
 spacy_upgrade  <- function(conda = "auto",
                            envname = "spacy_condaenv",
                            prompt = TRUE,
                            pip = FALSE,
+                           update_conda = FALSE,
                            lang_models = "en_core_web_sm") {
 
-    message("checking spaCy version")
     conda <- reticulate::conda_binary(conda)
     if (!(envname %in% reticulate::conda_list(conda = conda)$name)) {
         message("Conda evnronment", envname, "does not exist")
     }
-
+    
+    if (update_conda == TRUE) {
+        message("Update conda binary")
+        args <- reticulate:::conda_args("update", "root", "conda")
+        result <- system2(conda, shQuote(args))
+        message("Conda is updated\n")
+    }
+    
+    message("checking spaCy version")
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
     cmd <- sprintf("%s%s %s && pip search spacy%s",
                    ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
@@ -658,3 +668,4 @@ conda_get_version <- function(major_version = NA, conda, envname) {
     #version_check_regex <- sprintf(".+(%s.\\d+\\.\\d+).+", major_version)
     return(result[length(result)])
 }
+
