@@ -451,7 +451,7 @@ python_version <- function(python) {
 spacy_pkgs <- function(version, packages = NULL) {
     if (is.null(packages))
         packages <- sprintf("spacy%s",
-                            ifelse(version == "latest", "", paste0("==", version)))
+                            ifelse(version == "latest", "", paste0("=", version)))
     return(packages)
 }
 
@@ -536,12 +536,13 @@ spacy_upgrade  <- function(conda = "auto",
             cat("spaCy will be upgraded to version", latest_spacy, "\n")
             process_spacy_installation_conda(conda = conda,
                                              envname = envname,
-                                             version = "latest",
+                                             version = latest_spacy,
                                              lang_models = lang_models,
                                              python_version = "3.6",
                                              prompt = FALSE)
             message("\nSuccessfully upgraded\n",
-                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
+                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n",
+                    "For the upgrade to take effect, please restart R session")
         } else {
             if (pip == TRUE) {
                 cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
@@ -584,13 +585,14 @@ spacy_upgrade  <- function(conda = "auto",
             }
             process_spacy_installation_conda(conda = conda,
                                              envname = envname,
-                                             version = "latest",
+                                             version = latest_spacy,
                                              lang_models = lang_models,
                                              python_version = "3.6",
                                              prompt = FALSE,
                                              pip = pip)
             message("\nSuccessfully upgraded\n",
-                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n")
+                    sprintf("Condaenv: %s; Langage model(s): ", envname), lang_models, "\n",
+                    "For the upgrade to take effect, please restart R session")
 
         } else {
             message("No upgrade is chosen")

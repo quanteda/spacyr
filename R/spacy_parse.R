@@ -108,7 +108,7 @@ spacy_parse.character <- function(x,
     if (lemma) {
         model <- spacyr_pyget("model")
         dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
-        if (model != "en"){
+        if (substr(model, 0, 2) != "en"){
             warning("lemmatization may not work properly in model '", model, "'")
         }
     }

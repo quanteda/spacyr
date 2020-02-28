@@ -2,8 +2,8 @@
 #' 
 #' Initialize spaCy to call from R. 
 #' @return NULL
-#' @param model Language package for loading spaCy. Example: \code{en} (English) and
-#' \code{de} (German). Default is \code{en}.
+#' @param model Language package for loading spaCy. Example: \code{en_core_web_sm} (English) and
+#' \code{de_core_web_sm} (German). Default is \code{en_core_web_sm}.
 #' @param python_executable the full path to the Python executable, for which
 #'   spaCy is installed
 #' @param ask logical; if \code{FALSE}, use the first spaCy installation found;
@@ -27,7 +27,7 @@
 #'   be saved for the future use.
 #' @export
 #' @author Akitaka Matsuo
-spacy_initialize <- function(model = "en",
+spacy_initialize <- function(model = "en_core_web_sm",
                              python_executable = NULL,
                              virtualenv = NULL,
                              condaenv = NULL,
@@ -129,7 +129,7 @@ spacy_finalize <- function() {
 #'  
 #' @keywords internal
 #' @importFrom data.table data.table
-find_spacy <- function(model = "en", ask){
+find_spacy <- function(model = "en_core_web_sm", ask){
     spacy_found <- `:=` <- NA
     spacy_python <- NULL
     options(warn = -1)
