@@ -9,6 +9,7 @@ spacy_upgrade(
   envname = "spacy_condaenv",
   prompt = TRUE,
   pip = FALSE,
+  update_conda = FALSE,
   lang_models = "en_core_web_sm"
 )
 }
@@ -22,6 +23,9 @@ find the path}
 
 \item{pip}{\code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
 package manager with conda-forge channel will be used for installing spacy.}
+
+\item{update_conda}{logical; If \code{true}, the conda binary for the system will be updated to the latest version. 
+Default \code{FALSE}.}
 
 \item{lang_models}{Language models to be upgraded. Default NULL (No upgrade). 
 A vector of multiple model names can be used (e.g. \code{c("en_core_web_sm", "de_core_web_sm")})}
