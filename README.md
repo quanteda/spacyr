@@ -2,6 +2,7 @@
 
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
+[![](https://img.shields.io/badge/devel%20version-1.21-royalblue.svg)](https://github.com/quanteda/spacyr)
 [![Travis-CI Build
 Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
 [![Appveyor Build

@@ -11,11 +11,15 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
+```{r echo = FALSE, results = "hide", message = FALSE}
+library("badger")
+```
 
 # [![spacyr: an R wrapper for
 spaCy](https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg)](https://spacyr.quanteda.io)
 
 [![CRAN Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
+`r badge_devel("quanteda/spacyr", "royalblue")`
 [![Travis-CI Build Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/kbenoit/spacyr/branch/master)
 [![codecov.io](https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master)](https://codecov.io/gh/quanteda/spacyr/branch/master)
