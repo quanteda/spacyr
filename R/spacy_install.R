@@ -1,5 +1,7 @@
 # copied and modified from tensorflow::install.R, https://github.com/rstudio/tensorflow/blob/master/R/install.R
 
+conda_args <- reticulate:::conda_args
+
 #' Install spaCy in conda or virtualenv environment
 #'
 #' @description Install spaCy in a self-contained environment, including
@@ -516,7 +518,7 @@ spacy_upgrade  <- function(conda = "auto",
     
     if (update_conda == TRUE) {
         message("Update conda binary")
-        args <- reticulate:::conda_args("update", "root", "conda")
+        args <- conda_args("update", "root", "conda")
         result <- system2(conda, shQuote(args))
         message("Conda is updated\n")
     }

@@ -162,6 +162,7 @@ test_that("spacy_parse can handle data.frame properly", {
 
 # see https://stackoverflow.com/questions/55518184/how-to-feed-a-tibble-to-spacyr
 test_that("spacy_parse handles numbers/tibbles correctly", {
+    skip_on_cran()
     skip_on_os("solaris")
     skip_if_no_python_or_no_spacy()
     skip_if_not_installed("tibble")
