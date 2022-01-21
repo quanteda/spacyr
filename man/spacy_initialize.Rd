@@ -27,7 +27,7 @@ spaCy is installed}
 installed Example: \code{virtualenv = "~/myenv"}}
 
 \item{condaenv}{set a path to the anaconda virtual environment with spaCy
-installed Example: \code{condalenv = "myenv"}}
+installed Example: \code{condaenv = "myenv"}}
 
 \item{ask}{logical; if \code{FALSE}, use the first spaCy installation found;
 if \code{TRUE}, list available spaCy installations and prompt the user for

@@ -4,7 +4,9 @@
 \name{data_char_paragraph}
 \alias{data_char_paragraph}
 \title{A short paragraph of text for testing}
-\format{An object of class \code{character} of length 1.}
+\format{
+An object of class \code{character} of length 1.
+}
 \usage{
 data_char_paragraph
 }
