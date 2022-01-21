@@ -13,7 +13,7 @@
 #' @param virtualenv set a path to the Python virtual environment with spaCy
 #'   installed Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy
-#'   installed Example: \code{condalenv = "myenv"}
+#'   installed Example: \code{condaenv = "myenv"}
 #' @param entity logical; if \code{FALSE} is selected, named entity recognition
 #'   is turned off in spaCy. This will speed up the parsing as it will exclude
 #'   \code{ner} from the pipeline. For details of spaCy pipeline, see

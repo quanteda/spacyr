@@ -6,23 +6,25 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wrapper to the spaCy NLP Library • spacyr</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/readable/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><!-- docsearch --><script src="docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/readable/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
+<script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="pkgdown.js"></script><!-- docsearch --><script src="docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
 <link href="docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><link href="extra.css" rel="stylesheet">
 <meta property="og:title" content="Wrapper to the spaCy NLP Library">
 <meta property="og:description" content="An R wrapper to the Python spaCy NLP library,
     from &lt;http://spacy.io&gt;.">
-<meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -35,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.1</span>
       </span>
     </div>
 
@@ -53,7 +55,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/quanteda/spacyr">
+  <a href="https://github.com/quanteda/spacyr" class="external-link">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -76,20 +78,20 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="spacyr-an-r-wrapper-for-spacy" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#spacyr-an-r-wrapper-for-spacy" class="anchor"></a>spacyr: an R wrapper for spaCy</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="spacyr-an-r-wrapper-for-spacy">spacyr: an R wrapper for spaCy<a class="anchor" aria-label="anchor" href="#spacyr-an-r-wrapper-for-spacy"></a>
+</h1></div>
 
-<p>An R wrapper to the spaCy “industrial strength natural language processing”" Python library from <a href="https://spacy.io" class="uri">https://spacy.io</a>.</p>
-<div id="installing-the-package" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installing-the-package" class="anchor"></a>Installing the package</h2>
-<ol>
+<p>An R wrapper to the spaCy “industrial strength natural language processing”” Python library from <a href="https://spacy.io" class="external-link uri">https://spacy.io</a>.</p>
+<div class="section level2">
+<h2 id="installing-the-package">Installing the package<a class="anchor" aria-label="anchor" href="#installing-the-package"></a>
+</h2>
+<ol style="list-style-type: decimal">
 <li>
 <p>Install miniconda</p>
-<p>The easiest way to install spaCy and <strong>spacyr</strong> is through the <strong>spacyr</strong> function <code><a href="reference/spacy_install.html">spacy_install()</a></code>. This function by default creates a new conda environment called <code>spacy_condaenv</code>, as long as some version of conda is installed on the user’s the system. You can install miniconda from <a href="https://conda.io/miniconda.html" class="uri">https://conda.io/miniconda.html</a>. (Choose the 64-bit version, or alternatively, run to the computer store now and purchase a 64-bit system to replace your ancient 32-bit platform.)</p>
+<p>The easiest way to install spaCy and <strong>spacyr</strong> is through the <strong>spacyr</strong> function <code><a href="reference/spacy_install.html">spacy_install()</a></code>. This function by default creates a new conda environment called <code>spacy_condaenv</code>, as long as some version of conda is installed on the user’s the system. You can install miniconda from <a href="https://conda.io/miniconda.html" class="external-link uri">https://conda.io/miniconda.html</a>. (Choose the 64-bit version, or alternatively, run to the computer store now and purchase a 64-bit system to replace your ancient 32-bit platform.)</p>
 <p>If you already have any version of conda, you can skip this step. You can check it by entering <code>conda --version</code> in the Terminal.</p>
-<p>For a Windows-based system, Visual C++ Build Tools or Visual Studio Express must be installed to compile spaCy for pip installation. The version of Visual Studio required for the installation of spaCy is found <a href="https://spacy.io/usage/#source-windows">here</a> and the default python version used in our installation method is 3.6.x.</p>
+<p>For a Windows-based system, Visual C++ Build Tools or Visual Studio Express must be installed to compile spaCy for pip installation. The version of Visual Studio required for the installation of spaCy is found <a href="https://spacy.io/usage/#source-windows" class="external-link">here</a> and the default python version used in our installation method is 3.6.x.</p>
 </li>
 <li>
 <p>Install the <strong>spacyr</strong> R package:</p>
@@ -99,11 +101,13 @@
 <p>To install the latest package from source, you can simply run the following.</p>
 </li>
 </ul>
-<!-- end list --><div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"quanteda/spacyr"</span>, <span class="dt">build_vignettes =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<!-- end list --><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"quanteda/spacyr"</span>, build_vignettes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <ul>
 <li>From CRAN:</li>
 </ul>
-<!-- end list --><div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"spacyr"</span>)</a></code></pre></div>
+<!-- end list --><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"spacyr"</span><span class="op">)</span></code></pre></div>
 </li>
 <li>
 <p>Install spaCy in a conda environment</p>
@@ -111,90 +115,107 @@
 <li><p>For Windows, you need to run R as an administrator to make installation work properly. To do so, right click the RStudio icon (or R desktop icon) and select “Run as administrator” when launching R.</p></li>
 <li><p>To install spaCy, you can simply run</p></li>
 </ul>
-<!-- end list --><div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"spacyr"</span>)</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw"><a href="reference/spacy_install.html">spacy_install</a></span>()</a></code></pre></div>
+<!-- end list --><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://spacyr.quanteda.io" class="external-link">"spacyr"</a></span><span class="op">)</span>
+<span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>This will create a stand-alone conda environment including a python executable separate from your system Python (or anaconda python), install the latest version of spaCy (and its required packages), and download English language model. After installation, you can initialize spaCy in R with</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>This will return the following message if spaCy was installed with this method.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co">## Found 'spacy_condaenv'. spacyr will use this environment</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">## Found 'spacy_condaenv'. spacyr will use this environment</span>
+<span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span>
+<span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></code></pre></div>
 </li>
 <li>
 <p>(optional) Add more language models</p>
 <p>For spaCy installed by <code><a href="reference/spacy_install.html">spacy_install()</a></code>, <strong>spacyr</strong> provides a useful helper function to install additional language models. For instance, to install German language model</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span>(<span class="st">"de"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span><span class="op">(</span><span class="st">"de"</span><span class="op">)</span></code></pre></div>
 <p>(Again, Windows users have to run this command as an administrator. Otherwise, he symlink (alias) to the language model will fail.)</p>
 </li>
 </ol>
-<div id="permanently-setting-the-default-python" class="section level3">
-<h3 class="hasAnchor">
-<a href="#permanently-setting-the-default-python" class="anchor"></a>Permanently setting the default Python</h3>
+<div class="section level3">
+<h3 id="permanently-setting-the-default-python">Permanently setting the default Python<a class="anchor" aria-label="anchor" href="#permanently-setting-the-default-python"></a>
+</h3>
 <p>If you are using the same setting for spaCy (e.g. condaenv or python path) every time and want to reduce the time for initialization, you can fixate the setting by specifying it in an R-startup file (For Mac/Linux, the file is <code>~/.Rprofile</code>), which is read every time a new <code>R</code> is launched. You can set the option permanently when you call <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw"><a href="reference/spacy_initialize.html">spacy_initialize</a></span>(<span class="dt">save_profile =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span>save_profile <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>Once this is appropriately set up, the message from <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code> changes to something like:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co">## spacy python option is already set, spacyr will use:</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="co">##  condaenv = "spacy_condaenv"</span></a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></a>
-<a class="sourceLine" id="cb8-4" title="4"><span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## spacy python option is already set, spacyr will use:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  condaenv = "spacy_condaenv"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="do">## (python options: type = "condaenv", value = "spacy_condaenv")</span></span></code></pre></div>
 <p>To ignore the permanently set options, you can initialize spacy with <code>refresh_settings = TRUE</code>.</p>
 </div>
 </div>
-<div id="comments-and-feedback" class="section level2">
-<h2 class="hasAnchor">
-<a href="#comments-and-feedback" class="anchor"></a>Comments and feedback</h2>
-<p>We welcome your comments and feedback. Please file issues on the <a href="https://github.com/quanteda/spacyr/issues">issues</a> page, and/or send us comments at <a href="mailto:kbenoit@lse.ac.uk" class="email">kbenoit@lse.ac.uk</a> and <a href="mailto:A.Matsuo@lse.ac.uk" class="email">A.Matsuo@lse.ac.uk</a>.</p>
+<div class="section level2">
+<h2 id="comments-and-feedback">Comments and feedback<a class="anchor" aria-label="anchor" href="#comments-and-feedback"></a>
+</h2>
+<p>We welcome your comments and feedback. Please file issues on the <a href="https://github.com/quanteda/spacyr/issues" class="external-link">issues</a> page, and/or send us comments at <a href="mailto:kbenoit@lse.ac.uk" class="email">kbenoit@lse.ac.uk</a> and <a href="mailto:A.Matsuo@lse.ac.uk" class="email">A.Matsuo@lse.ac.uk</a>.</p>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=spacyr">https://​cloud.r-project.org/​package=spacyr</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/quanteda/spacyr/issues">https://​github.com/​quanteda/​spacyr/​issues</a>
-</li>
-</ul>
-</div>
-<div class="license">
-<h2>License</h2>
-<ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>Kenneth Benoit <br><small class="roles"> Maintainer, author, copyright holder </small> <a href="https://orcid.org/0000-0002-0797-564X" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
-<li>Akitaka Matsuo <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-3323-6330" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
-<li>European Research Council <br><small class="roles"> Funder </small>  <br><small>(ERC-2011-StG 283794-QUANTESS)</small>
-</li>
+<li><a href="https://cloud.r-project.org/package=spacyr" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/quanteda/spacyr/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/quanteda/spacyr/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="license">
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=spacyr"><img src="https://www.r-pkg.org/badges/version/spacyr" alt="CRAN Version"></a></li>
-<li><a href="https://travis-ci.org/quanteda/spacyr"><img src="https://travis-ci.org/quanteda/spacyr.svg?branch=master" alt="Travis-CI Build Status"></a></li>
-<li><a href="https://ci.appveyor.com/project/kbenoit/spacyr/branch/master"><img src="https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true" alt="Appveyor Build status"></a></li>
-<li><a href="https://codecov.io/gh/quanteda/spacyr/branch/master"><img src="https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master" alt="codecov.io"></a></li>
-<li><a href="https://CRAN.R-project.org/package=spacyr"><img src="https://cranlogs.r-pkg.org/badges/spacyr" alt="Downloads"></a></li>
-<li><a href="https://CRAN.R-project.org/package=spacyr"><img src="https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange" alt="Total Downloads"></a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing spacyr</a></li>
+</ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Kenneth Benoit <br><small class="roles"> Maintainer, author, copyright holder </small> <a href="https://orcid.org/0000-0002-0797-564X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Akitaka Matsuo <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-3323-6330" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>European Research Council <br><small class="roles"> Funder </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://www.r-pkg.org/badges/version/spacyr" alt="CRAN Version"></a></li>
+<li><a href="https://travis-ci.org/quanteda/spacyr" class="external-link"><img src="https://travis-ci.org/quanteda/spacyr.svg?branch=master" alt="Travis-CI Build Status"></a></li>
+<li><a href="https://ci.appveyor.com/project/kbenoit/spacyr/branch/master" class="external-link"><img src="https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true" alt="Appveyor Build status"></a></li>
+<li><a href="https://codecov.io/gh/quanteda/spacyr/branch/master" class="external-link"><img src="https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master" alt="codecov.io"></a></li>
+<li><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/spacyr" alt="Downloads"></a></li>
+<li><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange" alt="Total Downloads"></a></li>
+</ul>
+</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Kenneth Benoit, Akitaka Matsuo, European Research Council.</p>
+  <p></p>
+<p>Developed by Kenneth Benoit, Akitaka Matsuo, European Research Council.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
