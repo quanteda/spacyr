@@ -41,7 +41,7 @@ settings in the profile and initiate a search of new settings.}
 be saved for the future use.}
 
 \item{check_env}{logical; check whether conda/virtual environment generated
-by \code{spacyr_istall()} exists}
+by \code{spacyr_install()} exists}
 
 \item{entity}{logical; if \code{FALSE} is selected, named entity recognition
 is turned off in spaCy. This will speed up the parsing as it will exclude

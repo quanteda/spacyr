@@ -20,7 +20,7 @@
 #'   \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE}
 #'   is available only for spaCy version 2.0.0 or higher.
 #' @param check_env logical; check whether conda/virtual environment generated
-#'   by \code{spacyr_istall()} exists
+#'   by \code{spacyr_install()} exists
 #' @param refresh_settings logical; if \code{TRUE}, spacyr will ignore the saved
 #'   settings in the profile and initiate a search of new settings.
 #' @param save_profile logical; if \code{TRUE}, the current spaCy setting will
