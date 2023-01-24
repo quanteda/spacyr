@@ -9,7 +9,7 @@ spacy_install(
   conda = "auto",
   version = "latest",
   lang_models = "en_core_web_sm",
-  python_version = "3.6",
+  python_version = "auto",
   envname = "spacy_condaenv",
   pip = FALSE,
   python_path = NULL,
@@ -19,7 +19,7 @@ spacy_install(
 spacy_install_virtualenv(
   version = "latest",
   lang_models = "en_core_web_sm",
-  python_version = "3.6",
+  python_version = "auto",
   python_path = NULL,
   prompt = TRUE
 )
