@@ -44,8 +44,7 @@ spacy_install <- function(version = "latest",
                           force = FALSE,
                           ...) {
   
-  dots <- list(...)
-  if (length(dots) > 0) 
+  if (length(list(...)) > 0) 
     warning("Note that we have deprecated a number of parameters to simplify this function")
   
   # 1. check if there is a Python available
@@ -53,8 +52,8 @@ spacy_install <- function(version = "latest",
   # 3. check if "r-spacyr" exists (name is suggested by reticulate convention)
   # 4. install missing packages to environment
   # 5. install missing model(s) to environment
-  
-  if (!reticulate::py_available()) {
+
+  if (!reticulate::py_available(initialize = TRUE)) {
     if (ask) {
       choice <- utils::menu(
         c("No", "Yes"), 
