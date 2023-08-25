@@ -10,6 +10,8 @@
 #'   \code{ner} from the pipeline. For details of spaCy pipeline, see
 #'   \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE}
 #'   is available only for spaCy version 2.0.0 or higher.
+#' @param ... not used.
+#' 
 #' @export
 #' @author Akitaka Matsuo, Johannes B. Gruber
 spacy_initialize <- function(model = "en_core_web_sm",

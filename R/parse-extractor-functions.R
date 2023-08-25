@@ -43,7 +43,7 @@ get_tokens <- function(spacy_out) {
 #'   scheme from the Penn Treebank (or the German Text Archive in case of German language model).  
 #' @export 
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # get_tags examples
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")

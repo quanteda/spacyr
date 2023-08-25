@@ -23,6 +23,9 @@ language models} page.}
 
 \item{ask}{logical; ask whether to proceed during the installation. By
 default, questions are only asked in interactive sessions.}
+
+\item{force}{ignore if spaCy/the lang_models is already present and install
+it anyway.}
 }
 \description{
 Upgrade spaCy (to a specific version).

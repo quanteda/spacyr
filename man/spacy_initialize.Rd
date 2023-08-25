@@ -15,6 +15,8 @@ is turned off in spaCy. This will speed up the parsing as it will exclude
 \code{ner} from the pipeline. For details of spaCy pipeline, see
 \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE}
 is available only for spaCy version 2.0.0 or higher.}
+
+\item{...}{not used.}
 }
 \description{
 Initialize spaCy to call from R.
