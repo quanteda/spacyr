@@ -2,34 +2,57 @@
 % Please edit documentation in R/spacy_install.R
 \name{spacy_upgrade}
 \alias{spacy_upgrade}
-\title{Upgrade spaCy in conda environment}
+\title{Shorthand function to upgrade spaCy}
 \usage{
 spacy_upgrade(
-  conda = "auto",
-  envname = "spacy_condaenv",
-  prompt = TRUE,
-  pip = FALSE,
-  update_conda = FALSE,
-  lang_models = "en_core_web_sm"
+  version = "latest",
+  lang_models = NULL,
+  ask = interactive(),
+  force = TRUE
 )
 }
 \arguments{
-\item{conda}{Path to conda executable. Default "auto" which automatically
-find the path}
+\item{version}{character; spaCy version to install (see details).}
 
-\item{envname}{character; name of conda environment to upgrade spaCy}
+\item{lang_models}{character; language models to be installed. Defaults
+\code{en_core_web_sm} (English model). A vector of multiple model names can
+be used (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}). A list of
+available language models and their
+names is available from the \href{https://spacy.io/usage/models}{spaCy
+language models} page.}
 
-\item{prompt}{logical; ask whether to proceed during the installation}
-
-\item{pip}{\code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
-package manager with conda-forge channel will be used for installing spacy.}
-
-\item{update_conda}{logical; If \code{true}, the conda binary for the system will be updated to the latest version. 
-Default \code{FALSE}.}
-
-\item{lang_models}{Language models to be upgraded. Default NULL (No upgrade). 
-A vector of multiple model names can be used (e.g. \code{c("en_core_web_sm", "de_core_web_sm")})}
+\item{ask}{logical; ask whether to proceed during the installation. By
+default, questions are only asked in interactive sessions.}
 }
 \description{
-Upgrade spaCy in conda environment
+Upgrade spaCy (to a specific version).
+}
+\examples{
+\dontrun{
+# install the latest version of spaCy
+spacy_install()
+
+# update spaCy
+spacy_install(force = TRUE)
+
+# install an older version
+spacy_install("3.1.0")
+
+# install with GPU enabled
+spacy_install("cuda-autodetect")
+
+# install on Apple ARM processors
+spacy_install("apple")
+
+# install several models with spaCy
+spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
+
+# install spaCy to an existing virtual environment
+Sys.setenv(RETICULATE_PYTHON = "path/to/python")
+spacy_install()
+}
+
+}
+\seealso{
+\code{\link{spacy_install_model}}
 }
