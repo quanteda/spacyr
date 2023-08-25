@@ -100,8 +100,9 @@ spacy_install <- function(version = "latest",
   
   if (py_check_installed("spacy") &
       !force) {
-    warning("Skipping installation. Use `force` to force installation or update.")
-    invisible(NULL)
+    warning("Skipping installation. Use `force` to force installation or update. ",
+            "Or use `spacy_download_langmodel()` if you just want to install a model.")
+    return(invisible(NULL))
   }
   
   reticulate::py_install(spacy_pkg, "r-spacyr")
