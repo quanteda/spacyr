@@ -11,32 +11,38 @@
 #'   language models} page.
 #' @param ask logical; ask whether to proceed during the installation. By
 #'   default, questions are only asked in interactive sessions.
-#' @seealso \code{\link{spacy_install_model}}
-#' @examples 
+#' @param force ignore if spaCy/the lang_models is already present and install
+#'   it anyway.
+#' @seealso \code{\link{spacy_download_langmodel}}
+#' @examples
 #' \dontrun{
 #' # install the latest version of spaCy
 #' spacy_install()
-#' 
+#'
 #' # update spaCy
 #' spacy_install(force = TRUE)
-#' 
+#'
 #' # install an older version
 #' spacy_install("3.1.0")
-#' 
+#'
 #' # install with GPU enabled
 #' spacy_install("cuda-autodetect")
-#' 
+#'
 #' # install on Apple ARM processors
 #' spacy_install("apple")
-#' 
+#'
+#' # install an old custom version
+#' spacy_install("[cuda-autodetect]==3.2.0")
+#'
 #' # install several models with spaCy
 #' spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
-#' 
+#'
+#'
 #' # install spaCy to an existing virtual environment
 #' Sys.setenv(RETICULATE_PYTHON = "path/to/python")
 #' spacy_install()
 #' }
-#' 
+#'
 #' @export
 spacy_install <- function(version = "latest",
                           lang_models = "en_core_web_sm",
@@ -46,32 +52,33 @@ spacy_install <- function(version = "latest",
   
   if (length(list(...)) > 0) 
     warning("Note that we have deprecated a number of parameters to simplify this function")
-  
-  # 1. check if there is a Python available
-  # 2. check if RETICULATE_PYTHON is set, which should take precedence over other selections
-  # 3. check if "r-spacyr" exists (name is suggested by reticulate convention)
-  # 4. install missing packages to environment
-  # 5. install missing model(s) to environment
 
-  if (!reticulate::py_available(initialize = TRUE)) {
-    if (ask) {
-      choice <- utils::menu(
-        c("No", "Yes"), 
-        title = paste0("No Python was found on your system. ",
-                       "Do you want to run `reticulate::install_python()` to install one?")
-      )
-    } else {
-      choice <- 2
-    }
-    switch (choice,
-      stop("Aborted by user"),
-      reticulate::install_python()
-    )
-  } else if (nchar(Sys.getenv("RETICULATE_PYTHON")) > 0) {
+  if (nchar(Sys.getenv("RETICULATE_PYTHON")) > 0) {
     message("You provided a custom RETICULATE_PYTHON, so we assume you know what you ",
             "are doing managing your virtual environments. Good luck!")
   } else if (!reticulate::virtualenv_exists("r-spacyr")) {
-    reticulate::virtualenv_create("r-spacyr")
+    # this has turned out to be the easiest way to test if a suitable Python 
+    # version is present. All other methods load Python, which creates
+    # some headache.
+    t <- try(reticulate::virtualenv_create("r-spacyr"), silent = TRUE)
+    if (methods::is(t, "try-error")) {
+      permission <- TRUE
+      if (ask) {
+        permission <- utils::askYesNo(paste0(
+          "No suitable Python installation was found on your system. ",
+          "Do you want to run `reticulate::install_python()` to install it?"
+        ))
+      }
+      
+      if (permission) {
+        if (utils::packageVersion("reticulate") < "1.19") 
+          stop("Your version or reticulate is too old for this action. Please update")
+        reticulate::install_python()
+        reticulate::virtualenv_create("r-spacyr")
+      } else {
+        stop("Aborted by user")
+      }
+    }
     reticulate::use_virtualenv("r-spacyr")
   } else if (reticulate::virtualenv_exists("r-spacyr")) {
     reticulate::use_virtualenv("r-spacyr")
@@ -81,7 +88,7 @@ spacy_install <- function(version = "latest",
     if (grepl("^v*[1-9]\\.\\d{1,2}\\.\\d{1,2}$", version)) {
       version <- regmatches(version, regexpr("[1-9]\\.\\d{1,2}\\.\\d{1,2}\\b", version))
       spacy_pkg <- paste0("spacy==", version)
-    } else if (grepl("^[A-z,]+$", version)) {
+    } else if (grepl("^[A-z,-]+$", version)) {
       spacy_pkg <- paste0("spacy[", version, "]")
     } else {
       spacy_pkg <- paste0("spacy", version)
@@ -90,14 +97,14 @@ spacy_install <- function(version = "latest",
     spacy_pkg <- "spacy"
   }
   
-  if ("spacy" %in% reticulate::py_list_packages("r-spacyr")$package &
+  if (py_check_installed("spacy") &
       !force) {
     stop("Spacy is already installed. Use `force` to force installation or update.",
-         "Or use `spacy_install_model()` if you just want to install a model.")
+         "Or use `spacy_download_langmodel()` if you just want to install a model.")
   }
   
   reticulate::py_install(spacy_pkg, "r-spacyr")
-  spacy_install_model(lang_models)
+  spacy_download_langmodel(lang_models)
   
   message("Installation complete.")
   
@@ -119,37 +126,6 @@ spacy_upgrade <- function(version = "latest",
 }
 
 
-#' Install spaCy language models
-#'
-#' @inheritParams spacy_install
-#' 
-#' @return Invisibly returns the installation log.
-#' 
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # install medium sized model
-#' spacy_install_model("en_core_web_md")
-#' 
-#' #' # install several models with spaCy
-#' spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
-#' 
-#' # install transformer based model
-#' spacy_install_model("en_core_web_trf")
-#' }
-spacy_install_model <- function(lang_models = "en_core_web_sm") {
-  
-  bin <- reticulate::virtualenv_python("r-spacyr")
-  args <- c("-m", "spacy", "download")
-  
-  invisible(lapply(lang_models, function(m) {
-    message("Executing command:\n", paste(c(bin, args, m), collapse = " "))
-    system2(bin, args = c(args, m))
-  }))
-  
-}
-
 #' @title Install spaCy to a virtual environment
 #' 
 #' @description
@@ -164,6 +140,7 @@ spacy_install_virtualenv <- function(...) {
   
 }
 
+
 #' Uninstall the spaCy environment
 #'
 #' Removes the virtual environment created by spacy_install()
@@ -175,4 +152,3 @@ spacy_uninstall <- function() {
   
   invisible(NULL)
 }
-

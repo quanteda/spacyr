@@ -46,8 +46,12 @@ spacy_install("cuda-autodetect")
 # install on Apple ARM processors
 spacy_install("apple")
 
+# install an old custom version
+spacy_install("[cuda-autodetect]==3.2.0")
+
 # install several models with spaCy
 spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
+
 
 # install spaCy to an existing virtual environment
 Sys.setenv(RETICULATE_PYTHON = "path/to/python")
@@ -56,5 +60,5 @@ spacy_install()
 
 }
 \seealso{
-\code{\link{spacy_install_model}}
+\code{\link{spacy_download_langmodel}}
 }
