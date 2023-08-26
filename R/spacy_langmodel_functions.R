@@ -25,7 +25,10 @@ spacy_download_langmodel <- function(lang_models = "en_core_web_sm",
     return(invisible(NULL))
   }
   
-  bin <- reticulate::virtualenv_python("r-spacyr")
+  
+  bin <- Sys.getenv("RETICULATE_PYTHON", unset = reticulate::virtualenv_python(
+    Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")
+  ))
   args <- c("-m", "spacy", "download")
   
   invisible(lapply(lang_models, function(m) {

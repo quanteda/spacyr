@@ -27,14 +27,14 @@ spacy_initialize <- function(model = "en_core_web_sm",
   }
   
   if (!nchar(Sys.getenv("RETICULATE_PYTHON")) > 0) {
-    if (!reticulate::virtualenv_exists("r-spacyr")) 
+    if (!reticulate::virtualenv_exists(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))) 
       stop("No spaCy environment found. Use `spacy_install()` to get started.")
     
-    if (!"spacy" %in% reticulate::py_list_packages("r-spacyr")$package) 
+    if (!"spacy" %in% reticulate::py_list_packages(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))$package) 
       stop("spaCy was not found in your environment. Use `spacy_install()`",
            "to get started.")
     
-    reticulate::use_virtualenv("r-spacyr")
+    reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
   spacyr_pyexec(pyfile = system.file("python", "spacyr_class.py",
