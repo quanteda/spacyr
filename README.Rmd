@@ -29,3 +29,7 @@ spaCy](https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.sv
 
 ```{r child = "installation.Rmd"}
 ```
+
+## Comments and feedback
+
+We welcome your comments and feedback.  Please file issues on the [issues](https://github.com/quanteda/spacyr/issues) page, and/or send us comments at kbenoit@lse.ac.uk and A.Matsuo@lse.ac.uk.

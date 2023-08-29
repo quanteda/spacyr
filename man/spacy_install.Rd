@@ -34,6 +34,18 @@ it anyway.}
 Install spaCy in a self-contained environment, including
   specified language models.
 }
+\details{
+The function checks whether a suitable installation of Python is
+  present on the system and installs one via
+  \code{\link[reticulate]{install_python}} otherwise. It then creates a
+  virtual environment with the necessary packages in the default location
+  chosen by \code{\link[reticulate]{virtualenv_root}}.
+
+  If you want to install a different version of Python than the default, you
+  should call \code{\link[reticulate]{install_python}} directly. If you want
+  to create or use a different virtual environment, you can use, e.g.,
+  \code{Sys.setenv(SPACY_PYTHON = "path/to/directory")}.
+}
 \examples{
 \dontrun{
 # install the latest version of spaCy
@@ -43,16 +55,16 @@ spacy_install()
 spacy_install(force = TRUE)
 
 # install an older version
-spacy_install("3.1.0")
+spacy_install(version = "3.1.0")
 
 # install with GPU enabled
-spacy_install("cuda-autodetect")
+spacy_install(version = "cuda-autodetect")
 
 # install on Apple ARM processors
-spacy_install("apple")
+spacy_install(version = "apple")
 
 # install an old custom version
-spacy_install("[cuda-autodetect]==3.2.0")
+spacy_install(version = "[cuda-autodetect]==3.2.0")
 
 # install several models with spaCy
 spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
