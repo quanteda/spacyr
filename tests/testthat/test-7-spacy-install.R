@@ -1,112 +1,75 @@
 context("spacy install")
 source("utils.R")
 
-test_that("lanugage model download works", {
-    skip_on_cran()
-    skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
+tmp <- tempfile(pattern = "test-env")
 
-    expect_message(spacy_download_langmodel("de"), "successfully")
+test_that("lanugage model download works", {
+  skip_on_cran()
+  skip_on_appveyor()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+  
+  expect_warning({
+    spacy_download_langmodel("de_core_news_sm")
+    spacy_download_langmodel("de_core_news_sm")
+  }, "Skipping installation")
 })
 
 
-test_that("spacy_install works", {
-    skip_on_cran()
-    skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-
-    expect_message(spacy_install(envname = "test_latest", prompt = FALSE),
-                   "Installation complete")
+test_that("spacy_install worked", {
+  skip_on_cran()
+  skip_on_appveyor()
+  skip_on_os("solaris")
+  
+  expect_warning({
+    spacy_install()
+    spacy_install()
+  }, "Skipping installation")
 })
 
 
 
 test_that("spacy_install specific version of spacy works", {
-    skip_on_cran()
-    skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-
-    expect_error(spacy_install(envname = "test_wrong_version", version = "1.10.1a",
-                                 prompt = FALSE),
-                   "major.minor.patch specification")
-    # expect_message(spacy_install(envname = "test_specific_version", version = "2.0.1",
-    #                              prompt = FALSE),
-    #                "Installation complete")
-    expect_message(spacy_install(envname = "test_specific_version_v1", version = "1.9.0",
-                                 prompt = FALSE),
-                   "Installation complete")
+  skip_on_cran()
+  skip_on_appveyor()
+  skip_on_os("solaris")
+  
+  expect_error(spacy_install(version = "1.10.1a"),
+               "spacy1.10.1a")
+  
+  Sys.setenv("SPACY_PYTHON" = tmp)
+  
+  expect_message(spacy_install(version = "2.3.9"),
+                 "Installation of spaCy version 2.3.9 complete.")
+  
+  on.exit(Sys.unsetenv("SPACY_PYTHON"), add = TRUE, after = FALSE)
 })
 
 
 test_that("spacy_upgrade works", {
-    skip_on_cran()
-    skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-
-    expect_message(spacy_upgrade(envname = "test_latest", prompt = FALSE),
-                   "Your spaCy version is the latest available")
-    # expect_message(spacy_upgrade(envname = "test_specific_version",
-    #                              prompt = FALSE),
-    #                "Successfully upgraded")
-    expect_message(spacy_upgrade(envname = "test_specific_version_v1",
-                                 prompt = FALSE),
-                   "Successfully upgraded")
-
+  skip_on_cran()
+  skip_on_appveyor()
+  skip_on_os("solaris")
+  
+  Sys.setenv("SPACY_PYTHON" = tmp)
+  
+  expect_message(spacy_upgrade(),
+                 "Upgraded to spaCy version")
+  
+  on.exit(Sys.unsetenv("SPACY_PYTHON"), add = TRUE, after = FALSE)
 })
 
 
 test_that("spacy_uninstall works", {
-    skip_on_cran()
-    skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-
-    # expect_output(spacy_uninstall(envname = "test_specific_version",
-    #                                prompt = FALSE),
-    #                "Uninstallation complete")
-    expect_output(spacy_uninstall(envname = "test_specific_version_v1",
-                                  prompt = FALSE),
-                  "Uninstallation complete")
-    expect_output(spacy_uninstall(envname = "test_latest",
-                                  prompt = FALSE),
-                  "Uninstallation complete")
+  skip_on_cran()
+  skip_on_appveyor()
+  skip_on_os("solaris")
+  
+  Sys.setenv("SPACY_PYTHON" = tmp)
+  
+  expect_message(spacy_uninstall(confirm = FALSE),
+                 "Deinstallation complete")
+  
+  on.exit(Sys.unsetenv("SPACY_PYTHON"), add = TRUE, after = FALSE)
 })
 
-test_that("spacy_install etc with pip still works", {
-    skip("takes too much time and triggers timeout...")
-    skip_on_cran()
-    skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-    expect_message(spacy_install(envname = "test_latest_pip", prompt = FALSE, pip = TRUE),
-                   "Installation complete")
-    expect_message(spacy_install(envname = "test_old_pip", version = "2.0.4",
-                                 prompt = FALSE, pip = TRUE),
-                   "Installation complete")
-    expect_message(spacy_upgrade(envname = "test_old_pip", pip = TRUE,
-                                 prompt = FALSE),
-                   "Successfully upgraded")
-    expect_output(spacy_uninstall(envname = "test_latest_pip",
-                                  prompt = FALSE),
-                  "Uninstallation complete")
-    expect_output(spacy_uninstall(envname = "test_old_pip",
-                                  prompt = FALSE),
-                  "Uninstallation complete")
-})
-
-test_that("spacy_install_virtualenv works", {
-    skip("not tested for the time being")
-    skip_on_appveyor()
-    skip_on_os("solaris")
-    skip_on_os("mac") # this test is travis only
-    skip_if_no_python_or_no_spacy()
-
-    expect_message(spacy_install_virtualenv(prompt = FALSE,
-                                            python = paste0(path.expand("~"),
-                                                            "/miniconda/bin/python")),
-                   "Installation complete")
-})

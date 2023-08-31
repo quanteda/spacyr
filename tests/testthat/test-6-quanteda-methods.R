@@ -6,7 +6,7 @@ test_that("quanteda functions work", {
     # skip_on_appveyor()
     skip_on_os("solaris")
     skip_if_not_installed("quanteda")
-    skip_if_no_python_or_no_spacy()
+  try_spacy_initialize()
 
     library("quanteda")
     spacy_initialize()
@@ -41,3 +41,4 @@ test_that("quanteda functions work", {
     )
     spacy_finalize()
 })
+
