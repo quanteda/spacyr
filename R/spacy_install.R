@@ -95,7 +95,7 @@ spacy_install <- function(version = "latest",
       }
     }
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
-  } else if (reticulate::virtualenv_exists(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))) {
+  } else {
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
@@ -112,16 +112,18 @@ spacy_install <- function(version = "latest",
     spacy_pkg <- "spacy"
   }
   
-  if (py_check_installed(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")) & !force) {
+  if (py_check_installed(spacy_pkg) & !force) {
     warning("Skipping installation. Use `force` to force installation or update. ",
             "Or use `spacy_download_langmodel()` if you just want to install a model.")
     return(invisible(NULL))
   }
   
-  reticulate::py_install(spacy_pkg, Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
+  reticulate::py_install(spacy_pkg, envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   spacy_download_langmodel(lang_models)
   
-  message("Installation complete.")
+  message("Installation of spaCy version ", 
+          py_check_version("spacy", envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")), 
+          " complete.")
   
   invisible(NULL)
 }
@@ -147,6 +149,8 @@ spacy_upgrade <- function(version = "latest",
                 force = force,
                 ...)
   
+  message("Upgraded to spaCy version ", py_check_version("spacy", envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")), ".")
+  
 }
 
 
@@ -170,9 +174,11 @@ spacy_install_virtualenv <- function(...) {
 #' Removes the virtual environment created by spacy_install()
 #' 
 #' @export
-spacy_uninstall <- function() {
+spacy_uninstall <- function(confirm = interactive()) {
   
-  reticulate::virtualenv_remove(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
+  reticulate::virtualenv_remove(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"),
+                                confirm = confirm)
   
+  message("Deinstallation complete.")
   invisible(NULL)
 }
