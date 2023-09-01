@@ -5,6 +5,8 @@ Version: 1.2.1
 Authors@R: c(
     person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role = c("cre", "aut", "cph"), comment = c(ORCID = "0000-0002-0797-564X")), 
     person("Akitaka", "Matsuo", email = "a.matsuo@lse.ac.uk", role = "aut", comment = c(ORCID = "0000-0002-3323-6330")),
+    person("Johannes", "Gruber", , "JohannesB.Gruber@gmail.com", role = "ctb",
+           comment = c(ORCID = "0000-0001-9177-1772")),
     person("European Research Council", role = "fnd", comment = "ERC-2011-StG 283794-QUANTESS")
     )
 Description: An R wrapper to the 'Python' 'spaCy' 'NLP' library,
