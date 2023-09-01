@@ -1,6 +1,4 @@
-# \[\![spacyr: an R wrapper for
-
-spaCy\](<https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg>)\](<https://spacyr.quanteda.io>)
+# [![spacyr: an R wrapper for spaCy](https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg)](https://spacyr.quanteda.io)
 
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
@@ -79,84 +77,98 @@ environment in which spaCy is installed. Virtual environments are the
 recommended way to install Python applications, as the lack of central
 dependency conflict control (which is performed by CRAN in the
 `R`-world) means that conflicts between packages are a lot more common.
-Hence each Python package and its dependencies are installed in their
-own folder. Usually, none of this should concern you. However,
-experience shows that some systems run into problems during installation
-that are hard to foresee by developers. Below, we therefore explain how
-you can perform the steps in `spacy_install()` manually, to debug any
-problems that might occur. Please only file a GitHub issue after you
-have tried to manually run through the steps, so we can provide you with
-more targeted help.
+Hence each Python package and its dependencies are usually installed in
+their own folder.
+
+Usually, none of this should concern you. However, experience shows that
+some systems run into problems during installation that are hard to
+foresee by developers. Below, we therefore explain how you can perform
+the steps in `spacy_install()` manually, to debug any problems that
+might occur. Please only file a GitHub issue after you have tried to
+manually run through the steps, so we can provide you with more targeted
+help.
 
 1.  Install Python
 
-You can use your own installation of Python for the steps below. By
-default, `spacy_install()` downloads and installs a minimal Python
-version in the default directory used by the `reticulate` package for
-simplicity. This can be done with a single command:
+    You can use your own installation of Python for the steps below. By
+    default, `spacy_install()` downloads and installs a minimal Python
+    version in the default directory used by the `reticulate` package
+    for simplicity. This can be done with a single command:
 
-``` r
-python_exe <- reticulate::install_python()
-```
+    ``` r
+    python_exe <- reticulate::install_python()
+    ```
 
-The function returns the path to the Python executable file. You can run
-this again at any time to get that path (the installation is skipped if
-the files are already present). If you prefer to use a specific version
-of Python, you can use this function to install it and it will be picked
-up by `spacyr`.
+    The function returns the path to the Python executable file. You can
+    run this again at any time to get that path (the installation is
+    skipped if the files are already present). If you prefer to use a
+    specific version of Python, you can use this function to install it
+    and it will be picked up by `spacyr`.
 
 2.  Set up a virtual environment
 
-By default, `spacyr` uses an environment called “r-spacyr”, which is
-located in a directory managed by `reticulate`. We can create it with:
+    By default, `spacyr` uses an environment called “r-spacyr”, which is
+    located in a directory managed by `reticulate`. We can create it
+    with:
 
-``` r
-reticulate::virtualenv_create("r-spacyr", python = python_exe)
-```
+    ``` r
+    reticulate::virtualenv_create("r-spacyr", python = python_exe)
+    ```
 
-If this causes trouble for some reason, you can install the environment
-in any location that is convenient for you like so:
+    If this causes trouble for some reason, you can install the
+    environment in any location that is convenient for you like so:
 
-``` r
-reticulate::virtualenv_create("path/to/directory", python = python_exe)
-```
+    ``` r
+    reticulate::virtualenv_create("path/to/directory", python = python_exe)
+    ```
 
-Note, that `spacyr` does not know of the existence of this environment
-unless you tell it through the environment variable `SPACY_PYTHON`. You
-can do that either in each session with:
+    Note, that `spacyr` does not know of the existence of this
+    environment unless you tell it through the environment variable
+    `SPACY_PYTHON`. You can do that either in each session with:
 
-``` r
-Sys.setenv(SPACY_PYTHON = "path/to/directory")
-```
+    ``` r
+    Sys.setenv(SPACY_PYTHON = "path/to/directory")
+    ```
 
-or you put it into your `.Renviron` file. You can use this little helper
-function to make the change permanent:
+    or you put it into your `.Renviron` file. You can use this little
+    helper function to make the change permanent:
 
-``` r
-usethis::edit_r_environ(scope = "user")
-```
+    ``` r
+    usethis::edit_r_environ(scope = "user")
+    ```
 
-We also need to tell `reticulate` that it should use this environment
-from now on.
+    We also need to tell `reticulate` that it should use this
+    environment from now on.
 
-``` r
-reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
-```
+    ``` r
+    reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
+    ```
 
-We use `Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")` to check if
-`SPACY_PYTHON` is set and use the default otherwise.
+    We use `Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")` to check if
+    `SPACY_PYTHON` is set and use the default otherwise.
 
 3.  Install spaCy
 
-``` r
-reticulate::py_install("spacy", envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
-```
+    Installing `spaCy` and its dependencies is again done through
+    `reticulate`. We check again if SPACY_PYTHON is set, in case you
+    chose a non-default folder.
+
+    ``` r
+    reticulate::py_install("spacy", envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
+    ```
 
 4.  Install spaCy language models
 
-``` r
-reticulate::py_install("en_core_web_sm", envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
-```
+    The language models are installed in the same way.
+
+    ``` r
+    reticulate::py_install("en_core_web_sm", envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
+    ```
+
+If any of those steps fail, please file an
+[issue](https://github.com/quanteda/spacyr/issues) (after checking if
+one already exists for your error). You can also use the individual
+commands to customise your setup.
 
 ## Comments and feedback
 
