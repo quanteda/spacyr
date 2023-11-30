@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -61,17 +61,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">spacy_initialize</span><span class="op">(</span>
-  model <span class="op">=</span> <span class="st">"en_core_web_sm"</span>,
-  python_executable <span class="op">=</span> <span class="cn">NULL</span>,
-  virtualenv <span class="op">=</span> <span class="cn">NULL</span>,
-  condaenv <span class="op">=</span> <span class="cn">NULL</span>,
-  ask <span class="op">=</span> <span class="cn">FALSE</span>,
-  refresh_settings <span class="op">=</span> <span class="cn">FALSE</span>,
-  save_profile <span class="op">=</span> <span class="cn">FALSE</span>,
-  check_env <span class="op">=</span> <span class="cn">TRUE</span>,
-  entity <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">spacy_initialize</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"en_core_web_sm"</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -79,39 +69,23 @@
     <dl><dt>model</dt>
 <dd><p>Language package for loading spaCy. Example: <code>en_core_web_sm</code> (English) and
 <code>de_core_web_sm</code> (German). Default is <code>en_core_web_sm</code>.</p></dd>
-<dt>python_executable</dt>
-<dd><p>the full path to the Python executable, for which
-spaCy is installed</p></dd>
-<dt>virtualenv</dt>
-<dd><p>set a path to the Python virtual environment with spaCy
-installed Example: <code>virtualenv = "~/myenv"</code></p></dd>
-<dt>condaenv</dt>
-<dd><p>set a path to the anaconda virtual environment with spaCy
-installed Example: <code>condaenv = "myenv"</code></p></dd>
-<dt>ask</dt>
-<dd><p>logical; if <code>FALSE</code>, use the first spaCy installation found;
-if <code>TRUE</code>, list available spaCy installations and prompt the user for
-which to use. If another (e.g. <code>python_executable</code>) is set, then this
-value will always be treated as <code>FALSE</code>.</p></dd>
-<dt>refresh_settings</dt>
-<dd><p>logical; if <code>TRUE</code>, spacyr will ignore the saved
-settings in the profile and initiate a search of new settings.</p></dd>
-<dt>save_profile</dt>
-<dd><p>logical; if <code>TRUE</code>, the current spaCy setting will
-be saved for the future use.</p></dd>
-<dt>check_env</dt>
-<dd><p>logical; check whether conda/virtual environment generated
-by <code>spacyr_istall()</code> exists</p></dd>
+
+
 <dt>entity</dt>
 <dd><p>logical; if <code>FALSE</code> is selected, named entity recognition
 is turned off in spaCy. This will speed up the parsing as it will exclude
 <code>ner</code> from the pipeline. For details of spaCy pipeline, see
 <a href="https://spacy.io/usage/processing-pipelines" class="external-link">https://spacy.io/usage/processing-pipelines</a>. The option <code>FALSE</code>
 is available only for spaCy version 2.0.0 or higher.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>not used.</p></dd>
+
 </dl></div>
     <div id="author">
     <h2>Author</h2>
-    <p>Akitaka Matsuo</p>
+    <p>Akitaka Matsuo, Johannes B. Gruber</p>
     </div>
 
   </div>
@@ -126,7 +100,7 @@ is available only for spaCy version 2.0.0 or higher.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

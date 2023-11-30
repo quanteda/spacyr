@@ -20,7 +20,7 @@ noun phrases.'><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/li
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -67,23 +67,30 @@ noun phrases.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">nounphrase_extract</span><span class="op">(</span><span class="va">x</span>, concatenator <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span>
-
-<span class="fu">nounphrase_consolidate</span><span class="op">(</span><span class="va">x</span>, concatenator <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">nounphrase_extract</span><span class="op">(</span><span class="va">x</span>, concatenator <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">nounphrase_consolidate</span><span class="op">(</span><span class="va">x</span>, concatenator <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>output from <code><a href="spacy_parse.html">spacy_parse</a></code></p></dd>
+
+
 <dt>concatenator</dt>
 <dd><p>the character(s) used to join elements of multi-word
 noun phrases</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>noun</code> returns a <code>data.frame</code> of all named
-  entities, containing the following fields:</p><ul><li><p><code>doc_id</code> name of the document containing the noun phrase</p></li>
+    
+
+<p><code>noun</code> returns a <code>data.frame</code> of all named
+  entities, containing the following fields:</p>
+<p></p>
+<ul><li><p><code>doc_id</code> name of the document containing the noun phrase</p></li>
 <li><p><code>sentence_id</code> the sentence ID containing the noun phrase,
   within the document</p></li>
 <li><p><code>nounphrase</code>the noun phrase</p></li>
@@ -96,24 +103,24 @@ noun phrases</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> spaCy is already initialized</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># entity extraction</span></span>
-<span class="r-in"><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"Mr. Smith of moved to San Francisco in December."</span></span>
-<span class="r-in"><span class="va">parsed</span> <span class="op">&lt;-</span> <span class="fu"><a href="spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="entity_extract.html">entity_extract</a></span><span class="op">(</span><span class="va">parsed</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># entity extraction</span></span></span>
+<span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"Mr. Smith of moved to San Francisco in December."</span></span></span>
+<span class="r-in"><span><span class="va">parsed</span> <span class="op">&lt;-</span> <span class="fu"><a href="spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="entity_extract.html">entity_extract</a></span><span class="op">(</span><span class="va">parsed</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id        entity entity_type</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1         Smith      PERSON</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1 San_Francisco         GPE</span>
-<span class="r-in"><span class="co"># }</span></span>
-<span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="co"># consolidating multi-word noun phrases</span></span>
-<span class="r-in"><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"The House of Representatives voted to suspend aid to South Dakota."</span></span>
-<span class="r-in"><span class="va">parsed</span> <span class="op">&lt;-</span> <span class="fu"><a href="spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">nounphrase_consolidate</span><span class="op">(</span><span class="va">parsed</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># consolidating multi-word noun phrases</span></span></span>
+<span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"The House of Representatives voted to suspend aid to South Dakota."</span></span></span>
+<span class="r-in"><span><span class="va">parsed</span> <span class="op">&lt;-</span> <span class="fu"><a href="spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">nounphrase_consolidate</span><span class="op">(</span><span class="va">parsed</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id           token           lemma        pos</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1       The_House       the_House nounphrase</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   text1           1        2              of              of        ADP</span>
@@ -125,7 +132,7 @@ noun phrases</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8   text1           1        8              to              to        ADP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9   text1           1        9    South_Dakota    South_Dakota nounphrase</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10  text1           1       10               .               .      PUNCT</span>
-<span class="r-in"><span class="co"># }</span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -140,7 +147,7 @@ noun phrases</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

@@ -23,7 +23,7 @@ most extensive list of the parsing results from spaCy.'><!-- mathjax --><script 
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -73,18 +73,18 @@ most extensive list of the parsing results from spaCy.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">spacy_parse</span><span class="op">(</span>
-  <span class="va">x</span>,
-  pos <span class="op">=</span> <span class="cn">TRUE</span>,
-  tag <span class="op">=</span> <span class="cn">FALSE</span>,
-  lemma <span class="op">=</span> <span class="cn">TRUE</span>,
-  entity <span class="op">=</span> <span class="cn">TRUE</span>,
-  dependency <span class="op">=</span> <span class="cn">FALSE</span>,
-  nounphrase <span class="op">=</span> <span class="cn">FALSE</span>,
-  multithread <span class="op">=</span> <span class="cn">TRUE</span>,
-  additional_attributes <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">spacy_parse</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  pos <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  tag <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  lemma <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  entity <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  dependency <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  nounphrase <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  multithread <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  additional_attributes <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -92,9 +92,13 @@ most extensive list of the parsing results from spaCy.</p>
     <dl><dt>x</dt>
 <dd><p>a character object, a <span class="pkg">quanteda</span> corpus, or a TIF-compliant
 corpus data.frame (see <a href="https://github.com/ropensci/tif" class="external-link">https://github.com/ropensci/tif</a>)</p></dd>
+
+
 <dt>pos</dt>
 <dd><p>logical whether to return universal dependency POS tagset
 <a href="http://universaldependencies.org/u/pos/" class="external-link">http://universaldependencies.org/u/pos/</a>)</p></dd>
+
+
 <dt>tag</dt>
 <dd><p>logical whether to return detailed part-of-speech tags, for the
 language model <code>en</code>, it uses the OntoNotes 5 version of the Penn
@@ -102,19 +106,31 @@ Treebank tag set
 (<a href="https://spacy.io/docs/usage/pos-tagging#pos-schemes" class="external-link">https://spacy.io/docs/usage/pos-tagging#pos-schemes</a>). Annotation
 specifications for other available languages are available on the spaCy
 website (<a href="https://spacy.io/api/annotation" class="external-link">https://spacy.io/api/annotation</a>).</p></dd>
+
+
 <dt>lemma</dt>
 <dd><p>logical; include lemmatized tokens in the output (lemmatization
 may not work properly for non-English models)</p></dd>
+
+
 <dt>entity</dt>
 <dd><p>logical; if <code>TRUE</code>, report named entities</p></dd>
+
+
 <dt>dependency</dt>
 <dd><p>logical; if <code>TRUE</code>, analyse and tag dependencies</p></dd>
+
+
 <dt>nounphrase</dt>
 <dd><p>logical; if <code>TRUE</code>, analyse and tag noun phrases
 tags</p></dd>
+
+
 <dt>multithread</dt>
 <dd><p>logical; If <code>TRUE</code>, the processing is parallelized
 using spaCy's architecture (<a href="https://spacy.io/api" class="external-link">https://spacy.io/api</a>)</p></dd>
+
+
 <dt>additional_attributes</dt>
 <dd><p>a character vector; this option is for
 extracting additional attributes of tokens from spaCy. When the names of
@@ -125,23 +141,28 @@ additional variable named <code>is_punct</code>, which is a Boolean (in R,
 logical) variable indicating whether  the token is a punctuation. A full
 list of available attributes is available from
 <a href="https://spacy.io/api/token#attributes" class="external-link">https://spacy.io/api/token#attributes</a>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>not used directly</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a <code>data.frame</code> of tokenized, parsed, and annotated tokens</p>
+    
+
+<p>a <code>data.frame</code> of tokenized, parsed, and annotated tokens</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> spaCy is already initialized</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-in"><span class="co"># See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html</span></span>
-<span class="r-in"><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"And now for something completely different."</span></span>
-<span class="r-in"><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="co"># See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html</span></span></span>
+<span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"And now for something completely different."</span></span></span>
+<span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id token_id      token      lemma   pos entity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1        1        And        and CCONJ       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1        2        now        now   ADV       </span>
@@ -150,7 +171,7 @@ list of available attributes is available from
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  text1           1        5 completely completely   ADV       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6  text1           1        6  different  different   ADJ       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7  text1           1        7          .          . PUNCT       </span>
-<span class="r-in"><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span>, pos <span class="op">=</span> <span class="cn">TRUE</span>, tag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span>, pos <span class="op">=</span> <span class="cn">TRUE</span>, tag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id token_id      token      lemma   pos tag entity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1        1        And        and CCONJ  CC       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1        2        now        now   ADV  RB       </span>
@@ -159,7 +180,7 @@ list of available attributes is available from
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  text1           1        5 completely completely   ADV  RB       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6  text1           1        6  different  different   ADJ  JJ       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7  text1           1        7          .          . PUNCT   .       </span>
-<span class="r-in"><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id token_id      token      lemma   pos head_token_id dep_rel</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1        1        And        and CCONJ             3      cc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1        2        now        now   ADV             3  advmod</span>
@@ -176,39 +197,39 @@ list of available attributes is available from
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7       </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">txt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>doc1 <span class="op">=</span> <span class="st">"The fast cat catches mice.\\nThe quick brown dog jumped."</span>, </span>
-<span class="r-in">          doc2 <span class="op">=</span> <span class="st">"This is the second document."</span>,</span>
-<span class="r-in">          doc3 <span class="op">=</span> <span class="st">"This is a \\\"quoted\\\" text."</span> <span class="op">)</span></span>
-<span class="r-in"><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt2</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id    token    lemma   pos head_token_id  dep_rel</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    doc1           1        1      The      the   DET             3      det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    doc1           1        2     fast     fast   ADJ             3     amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    doc1           1        3      cat      cat  NOUN             4    nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    doc1           1        4  catches    catch  VERB             5 compound</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    doc1           1        5     mice    mouse  NOUN             5     ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    doc1           1        6        .        . PUNCT             5    punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    doc1           1        7       \n       \n SPACE             6         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8    doc1           2        1      The      the   DET             4      det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9    doc1           2        2    quick    quick   ADJ             4     amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10   doc1           2        3    brown    brown   ADJ             4     amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11   doc1           2        4      dog      dog  NOUN             5    nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12   doc1           2        5   jumped     jump  VERB             5     ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13   doc1           2        6        .        . PUNCT             5    punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14   doc2           1        1     This     this   DET             2    nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15   doc2           1        2       is       be   AUX             2     ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16   doc2           1        3      the      the   DET             5      det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17   doc2           1        4   second   second   ADJ             5     amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18   doc2           1        5 document document  NOUN             2     attr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19   doc2           1        6        .        . PUNCT             2    punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20   doc3           1        1     This     this   DET             2    nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21   doc3           1        2       is       be   AUX             2     ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22   doc3           1        3        a        a   DET             7      det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23   doc3           1        4        "        " PUNCT             7    punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24   doc3           1        5   quoted    quote  VERB             7     amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25   doc3           1        6        "        " PUNCT             7    punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26   doc3           1        7     text     text  NOUN             2     attr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27   doc3           1        8        .        . PUNCT             2    punct</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">txt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>doc1 <span class="op">=</span> <span class="st">"The fast cat catches mice.\\nThe quick brown dog jumped."</span>, </span></span>
+<span class="r-in"><span>          doc2 <span class="op">=</span> <span class="st">"This is the second document."</span>,</span></span>
+<span class="r-in"><span>          doc3 <span class="op">=</span> <span class="st">"This is a \\\"quoted\\\" text."</span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt2</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id    token    lemma   pos head_token_id dep_rel</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    doc1           1        1      The      the   DET             3     det</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    doc1           1        2     fast     fast   ADJ             3    amod</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    doc1           1        3      cat      cat  NOUN             4   nsubj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    doc1           1        4  catches    catch  VERB             4    ROOT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    doc1           1        5     mice    mouse  NOUN             4    dobj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    doc1           1        6        .        . PUNCT             4   punct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    doc1           1        7       \n       \n SPACE             6     dep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    doc1           2        1      The      the   DET             4     det</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    doc1           2        2    quick    quick   ADJ             4    amod</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   doc1           2        3    brown    brown   ADJ             4    amod</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11   doc1           2        4      dog      dog  NOUN             5   nsubj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12   doc1           2        5   jumped     jump  VERB             5    ROOT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13   doc1           2        6        .        . PUNCT             5   punct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14   doc2           1        1     This     this  PRON             2   nsubj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15   doc2           1        2       is       be   AUX             2    ROOT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16   doc2           1        3      the      the   DET             5     det</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17   doc2           1        4   second   second   ADJ             5    amod</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18   doc2           1        5 document document  NOUN             2    attr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19   doc2           1        6        .        . PUNCT             2   punct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20   doc3           1        1     This     this  PRON             2   nsubj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21   doc3           1        2       is       be   AUX             2    ROOT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22   doc3           1        3        a        a   DET             7     det</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23   doc3           1        4        "        " PUNCT             7   punct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24   doc3           1        5   quoted    quote  VERB             7    amod</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25   doc3           1        6        "        " PUNCT             7   punct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26   doc3           1        7     text     text  NOUN             2    attr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27   doc3           1        8        .        . PUNCT             2   punct</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       entity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2           </span>
@@ -237,11 +258,11 @@ list of available attributes is available from
 <span class="r-out co"><span class="r-pr">#&gt;</span> 25          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 26          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 27          </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">txt3</span> <span class="op">&lt;-</span> <span class="st">"We analyzed the Supreme Court with three natural language processing tools."</span> </span>
-<span class="r-in"><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">txt3</span> <span class="op">&lt;-</span> <span class="st">"We analyzed the Supreme Court with three natural language processing tools."</span> </span></span>
+<span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id      token      lemma   pos     entity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1         We     -PRON-  PRON           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1         We         we  PRON           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   text1           1        2   analyzed    analyze  VERB           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   text1           1        3        the        the   DET      ORG_B</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4   text1           1        4    Supreme    Supreme PROPN      ORG_I</span>
@@ -266,9 +287,9 @@ list of available attributes is available from
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10        mid       TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11   end_root      FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12                 FALSE</span>
-<span class="r-in"><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, additional_attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"like_num"</span>, <span class="st">"is_punct"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, additional_attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"like_num"</span>, <span class="st">"is_punct"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id      token      lemma   pos     entity like_num</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1         We     -PRON-  PRON               FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1         We         we  PRON               FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   text1           1        2   analyzed    analyze  VERB               FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   text1           1        3        the        the   DET      ORG_B    FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4   text1           1        4    Supreme    Supreme PROPN      ORG_I    FALSE</span>
@@ -293,7 +314,7 @@ list of available attributes is available from
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10    FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11    FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12     TRUE</span>
-<span class="r-in"><span class="co"># }</span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -308,7 +329,7 @@ list of available attributes is available from
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

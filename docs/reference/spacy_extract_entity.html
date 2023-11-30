@@ -19,7 +19,7 @@ https://spacy.io/usage/linguistic-features#section-named-entities)."><!-- mathja
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -65,13 +65,13 @@ https://spacy.io/usage/linguistic-features#section-named-entities)."><!-- mathja
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">spacy_extract_entity</span><span class="op">(</span>
-  <span class="va">x</span>,
-  output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"data.frame"</span>, <span class="st">"list"</span><span class="op">)</span>,
-  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"named"</span>, <span class="st">"extended"</span><span class="op">)</span>,
-  multithread <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">spacy_extract_entity</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"data.frame"</span>, <span class="st">"list"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"named"</span>, <span class="st">"extended"</span><span class="op">)</span>,</span>
+<span>  multithread <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -79,23 +79,34 @@ https://spacy.io/usage/linguistic-features#section-named-entities)."><!-- mathja
     <dl><dt>x</dt>
 <dd><p>a character object or a TIF-compliant
 corpus data.frame (see <a href="https://github.com/ropensci/tif" class="external-link">https://github.com/ropensci/tif</a>)</p></dd>
+
+
 <dt>output</dt>
 <dd><p>type of returned object, either <code>"list"</code> or
 <code>"data.frame"</code>.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>type of named entities, either <code>named</code>, <code>extended</code>, or 
 <code>all</code>.  See 
 <a href="https://spacy.io/docs/usage/entity-recognition#entity-types" class="external-link">https://spacy.io/docs/usage/entity-recognition#entity-types</a> for 
 details.</p></dd>
+
+
 <dt>multithread</dt>
 <dd><p>logical; If <code>TRUE</code>, the processing is parallelized
 using spaCy's architecture (<a href="https://spacy.io/api" class="external-link">https://spacy.io/api</a>)</p></dd>
+
+
 <dt>...</dt>
 <dd><p>unused</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>either a <code>list</code> or <code>data.frame</code> of tokens</p>
+    
+
+<p>either a <code>list</code> or <code>data.frame</code> of tokens</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -116,27 +127,27 @@ using spaCy's architecture (<a href="https://spacy.io/api" class="external-link"
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> spaCy is already initialized</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">txt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>doc1 <span class="op">=</span> <span class="st">"The Supreme Court is located in Washington D.C."</span>,</span>
-<span class="r-in">         doc2 <span class="op">=</span> <span class="st">"Paul earned a postgraduate degree from MIT."</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">spacy_extract_entity</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>doc1 <span class="op">=</span> <span class="st">"The Supreme Court is located in Washington D.C."</span>,</span></span>
+<span class="r-in"><span>         doc2 <span class="op">=</span> <span class="st">"Paul earned a postgraduate degree from MIT."</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">spacy_extract_entity</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id              text ent_type start_id length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   doc1 The Supreme Court      ORG        1      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   doc1        Washington      GPE        7      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   doc1   Washington D.C.      GPE        7      2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   doc2              Paul   PERSON        1      1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4   doc2               MIT      ORG        7      1</span>
-<span class="r-in"><span class="fu">spacy_extract_entity</span><span class="op">(</span><span class="va">txt</span>, output <span class="op">=</span> <span class="st">"list"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">spacy_extract_entity</span><span class="op">(</span><span class="va">txt</span>, output <span class="op">=</span> <span class="st">"list"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $doc1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The Supreme Court" "Washington"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The Supreme Court" "Washington D.C."  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $doc2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Paul" "MIT" </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span class="co"># }</span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -151,7 +162,7 @@ using spaCy's architecture (<a href="https://spacy.io/api" class="external-link"
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

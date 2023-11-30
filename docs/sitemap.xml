@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://spacyr.quanteda.io/404.html</loc>
+  </url>
+  <url>
+    <loc>http://spacyr.quanteda.io/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>http://spacyr.quanteda.io/articles/using_spacyr.html</loc>
+  </url>
+  <url>
+    <loc>http://spacyr.quanteda.io/authors.html</loc>
+  </url>
+  <url>
     <loc>http://spacyr.quanteda.io/index.html</loc>
+  </url>
+  <url>
+    <loc>http://spacyr.quanteda.io/news/index.html</loc>
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/data_char_paragraph.html</loc>
@@ -22,6 +37,9 @@
     <loc>http://spacyr.quanteda.io/reference/get-functions.html</loc>
   </url>
   <url>
+    <loc>http://spacyr.quanteda.io/reference/index.html</loc>
+  </url>
+  <url>
     <loc>http://spacyr.quanteda.io/reference/nounphrase_extract.html</loc>
   </url>
   <url>
@@ -29,6 +47,9 @@
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_download_langmodel.html</loc>
+  </url>
+  <url>
+    <loc>http://spacyr.quanteda.io/reference/spacy_download_langmodel_virtualenv.html</loc>
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_extract_entity.html</loc>
@@ -46,6 +67,9 @@
     <loc>http://spacyr.quanteda.io/reference/spacy_install.html</loc>
   </url>
   <url>
+    <loc>http://spacyr.quanteda.io/reference/spacy_install_virtualenv.html</loc>
+  </url>
+  <url>
     <loc>http://spacyr.quanteda.io/reference/spacy_parse.html</loc>
   </url>
   <url>
@@ -59,8 +83,5 @@
   </url>
   <url>
     <loc>http://spacyr.quanteda.io/reference/spacyr-package.html</loc>
-  </url>
-  <url>
-    <loc>http://spacyr.quanteda.io/articles/using_spacyr.html</loc>
   </url>
 </urlset>

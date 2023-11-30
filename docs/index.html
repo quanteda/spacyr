@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">spacyr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -81,78 +81,96 @@
 <div class="section level1">
 <div class="page-header"><h1 id="spacyr-an-r-wrapper-for-spacy">spacyr: an R wrapper for spaCy<a class="anchor" aria-label="anchor" href="#spacyr-an-r-wrapper-for-spacy"></a>
 </h1></div>
-
-<p>An R wrapper to the spaCy “industrial strength natural language processing”” Python library from <a href="https://spacy.io" class="external-link uri">https://spacy.io</a>.</p>
+<p><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://www.r-pkg.org/badges/version/spacyr" alt="CRAN Version"></a> <a href="https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/quanteda/spacyr?branch=master" class="external-link"><img src="https://codecov.io/gh/quanteda/spacyr/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/spacyr" alt="Downloads"></a> <a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange" alt="Total Downloads"></a></p>
+<p>An R wrapper to the spaCy “industrial strength natural language processing” Python library from <a href="https://spacy.io" class="external-link uri">https://spacy.io</a>.</p>
 <div class="section level2">
 <h2 id="installing-the-package">Installing the package<a class="anchor" aria-label="anchor" href="#installing-the-package"></a>
 </h2>
 <ol style="list-style-type: decimal">
 <li>
-<p>Install miniconda</p>
-<p>The easiest way to install spaCy and <strong>spacyr</strong> is through the <strong>spacyr</strong> function <code><a href="reference/spacy_install.html">spacy_install()</a></code>. This function by default creates a new conda environment called <code>spacy_condaenv</code>, as long as some version of conda is installed on the user’s the system. You can install miniconda from <a href="https://conda.io/miniconda.html" class="external-link uri">https://conda.io/miniconda.html</a>. (Choose the 64-bit version, or alternatively, run to the computer store now and purchase a 64-bit system to replace your ancient 32-bit platform.)</p>
-<p>If you already have any version of conda, you can skip this step. You can check it by entering <code>conda --version</code> in the Terminal.</p>
-<p>For a Windows-based system, Visual C++ Build Tools or Visual Studio Express must be installed to compile spaCy for pip installation. The version of Visual Studio required for the installation of spaCy is found <a href="https://spacy.io/usage/#source-windows" class="external-link">here</a> and the default python version used in our installation method is 3.6.x.</p>
-</li>
-<li>
 <p>Install the <strong>spacyr</strong> R package:</p>
+<ul>
+<li>From CRAN:</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"spacyr"</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
 <p>From GitHub:</p>
 <p>To install the latest package from source, you can simply run the following.</p>
 </li>
 </ul>
-<!-- end list --><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"quanteda/spacyr"</span>, build_vignettes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<ul>
-<li>From CRAN:</li>
-</ul>
-<!-- end list --><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"spacyr"</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"quanteda/spacyr"</span><span class="op">)</span></span></code></pre></div>
 </li>
 <li>
-<p>Install spaCy in a conda environment</p>
-<ul>
-<li><p>For Windows, you need to run R as an administrator to make installation work properly. To do so, right click the RStudio icon (or R desktop icon) and select “Run as administrator” when launching R.</p></li>
-<li><p>To install spaCy, you can simply run</p></li>
-</ul>
-<!-- end list --><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://spacyr.quanteda.io" class="external-link">"spacyr"</a></span><span class="op">)</span>
-<span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>This will create a stand-alone conda environment including a python executable separate from your system Python (or anaconda python), install the latest version of spaCy (and its required packages), and download English language model. After installation, you can initialize spaCy in R with</p>
+<p>Install spaCy and requirements</p>
+<p>Simply run:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spacyr.quanteda.io" class="external-link">spacyr</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>If you want to install a specific version, simply add it to the install command:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>This will return the following message if spaCy was installed with this method.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## Found 'spacy_condaenv'. spacyr will use this environment</span>
-<span class="co">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span>
-<span class="co">## (python options: type = "condaenv", value = "spacy_condaenv")</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spacyr.quanteda.io" class="external-link">spacyr</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"apple"</span><span class="op">)</span></span></code></pre></div>
+<p>Check the helpful version tool on <a href="https://spacy.io/usage" class="external-link uri">https://spacy.io/usage</a> and to see what is available.</p>
 </li>
 <li>
 <p>(optional) Add more language models</p>
-<p>For spaCy installed by <code><a href="reference/spacy_install.html">spacy_install()</a></code>, <strong>spacyr</strong> provides a useful helper function to install additional language models. For instance, to install German language model</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span><span class="op">(</span><span class="st">"de"</span><span class="op">)</span></code></pre></div>
-<p>(Again, Windows users have to run this command as an administrator. Otherwise, he symlink (alias) to the language model will fail.)</p>
+<p>If left unchanged, <code><a href="reference/spacy_install.html">spacy_install()</a></code> adds the default “en_core_web_sm” model. You can add more language models with <code><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel()</a></code>. For instance, to install a small and efficient German language model:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Check out available models at <a href="https://spacy.io/usage/models" class="external-link uri">https://spacy.io/usage/models</a>.</p>
 </li>
 </ol>
+<p>If you run into any problems, you can try the manual installation path described below.</p>
 <div class="section level3">
-<h3 id="permanently-setting-the-default-python">Permanently setting the default Python<a class="anchor" aria-label="anchor" href="#permanently-setting-the-default-python"></a>
+<h3 id="manual-installation-and-troubleshooting">Manual installation and troubleshooting<a class="anchor" aria-label="anchor" href="#manual-installation-and-troubleshooting"></a>
 </h3>
-<p>If you are using the same setting for spaCy (e.g. condaenv or python path) every time and want to reduce the time for initialization, you can fixate the setting by specifying it in an R-startup file (For Mac/Linux, the file is <code>~/.Rprofile</code>), which is read every time a new <code>R</code> is launched. You can set the option permanently when you call <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code>:</p>
+<p><code><a href="reference/spacy_install.html">spacy_install()</a></code> performs a number of tasks to set up a virtual environment in which spaCy is installed. Virtual environments are the recommended way to install Python applications, as the lack of central dependency conflict control (which is performed by CRAN in the <code>R</code>-world) means that conflicts between packages are a lot more common. Hence each Python package and its dependencies are usually installed in their own folder.</p>
+<p>Usually, none of this should concern you. However, experience shows that some systems run into problems during installation that are hard to foresee by developers. Below, we therefore explain how you can perform the steps in <code><a href="reference/spacy_install.html">spacy_install()</a></code> manually, to debug any problems that might occur. Please only file a GitHub issue after you have tried to manually run through the steps, so we can provide you with more targeted help.</p>
+<ol style="list-style-type: decimal">
+<li>
+<p>Install Python</p>
+<p>You can use your own installation of Python for the steps below. By default, <code><a href="reference/spacy_install.html">spacy_install()</a></code> downloads and installs a minimal Python version in the default directory used by the <code>reticulate</code> package for simplicity. This can be done with a single command:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">python_exe</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">install_python</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The function returns the path to the Python executable file. You can run this again at any time to get that path (the installation is skipped if the files are already present). If you prefer to use a specific version of Python, you can use this function to install it and it will be picked up by <code>spacyr</code>.</p>
+</li>
+<li>
+<p>Set up a virtual environment</p>
+<p>By default, <code>spacyr</code> uses an environment called “r-spacyr”, which is located in a directory managed by <code>reticulate</code>. We can create it with:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span>save_profile <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<p>Once this is appropriately set up, the message from <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code> changes to something like:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## spacy python option is already set, spacyr will use:</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  condaenv = "spacy_condaenv"</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 2.0.18, language model: en)</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="do">## (python options: type = "condaenv", value = "spacy_condaenv")</span></span></code></pre></div>
-<p>To ignore the permanently set options, you can initialize spacy with <code>refresh_settings = TRUE</code>.</p>
+<code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/virtualenv-tools.html" class="external-link">virtualenv_create</a></span><span class="op">(</span><span class="st">"r-spacyr"</span>, python <span class="op">=</span> <span class="va">python_exe</span><span class="op">)</span></span></code></pre></div>
+<p>If this causes trouble for some reason, you can install the environment in any location that is convenient for you like so:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/virtualenv-tools.html" class="external-link">virtualenv_create</a></span><span class="op">(</span><span class="st">"path/to/directory"</span>, python <span class="op">=</span> <span class="va">python_exe</span><span class="op">)</span></span></code></pre></div>
+<p>Note, that <code>spacyr</code> does not know of the existence of this environment unless you tell it through the environment variable <code>SPACY_PYTHON</code>. You can do that either in each session with:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>SPACY_PYTHON <span class="op">=</span> <span class="st">"path/to/directory"</span><span class="op">)</span></span></code></pre></div>
+<p>or you put it into your <code>.Renviron</code> file. You can use this little helper function to make the change permanent:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html" class="external-link">edit_r_environ</a></span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"user"</span><span class="op">)</span></span></code></pre></div>
+<p>We also need to tell <code>reticulate</code> that it should use this environment from now on.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/use_python.html" class="external-link">use_virtualenv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SPACY_PYTHON"</span>, unset <span class="op">=</span> <span class="st">"r-spacyr"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We use <code>Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")</code> to check if <code>SPACY_PYTHON</code> is set and use the default otherwise.</p>
+</li>
+<li>
+<p>Install spaCy</p>
+<p>Installing <code>spaCy</code> and its dependencies is again done through <code>reticulate</code>. We check again if SPACY_PYTHON is set, in case you chose a non-default folder.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/py_install.html" class="external-link">py_install</a></span><span class="op">(</span><span class="st">"spacy"</span>, envname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SPACY_PYTHON"</span>, unset <span class="op">=</span> <span class="st">"r-spacyr"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</li>
+<li>
+<p>Install spaCy language models</p>
+<p>The language models are installed in the same way.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/py_install.html" class="external-link">py_install</a></span><span class="op">(</span><span class="st">"en_core_web_sm"</span>, envname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SPACY_PYTHON"</span>, unset <span class="op">=</span> <span class="st">"r-spacyr"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</li>
+</ol>
+<p>If any of those steps fail, please file an <a href="https://github.com/quanteda/spacyr/issues" class="external-link">issue</a> (after checking if one already exists for your error). You can also use the individual commands to customise your setup.</p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="comments-and-feedback">Comments and feedback<a class="anchor" aria-label="anchor" href="#comments-and-feedback"></a>
-</h2>
-<p>We welcome your comments and feedback. Please file issues on the <a href="https://github.com/quanteda/spacyr/issues" class="external-link">issues</a> page, and/or send us comments at <a href="mailto:kbenoit@lse.ac.uk" class="email">kbenoit@lse.ac.uk</a> and <a href="mailto:A.Matsuo@lse.ac.uk" class="email">A.Matsuo@lse.ac.uk</a>.</p>
 </div>
 </div>
   </div>
@@ -192,17 +210,7 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://www.r-pkg.org/badges/version/spacyr" alt="CRAN Version"></a></li>
-<li><a href="https://travis-ci.org/quanteda/spacyr" class="external-link"><img src="https://travis-ci.org/quanteda/spacyr.svg?branch=master" alt="Travis-CI Build Status"></a></li>
-<li><a href="https://ci.appveyor.com/project/kbenoit/spacyr/branch/master" class="external-link"><img src="https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true" alt="Appveyor Build status"></a></li>
-<li><a href="https://codecov.io/gh/quanteda/spacyr/branch/master" class="external-link"><img src="https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master" alt="codecov.io"></a></li>
-<li><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/spacyr" alt="Downloads"></a></li>
-<li><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange" alt="Total Downloads"></a></li>
-</ul>
-</div>
+
 
   </div>
 </div>
@@ -215,7 +223,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
