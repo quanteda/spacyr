@@ -6,6 +6,7 @@ codecov
 conda
 condaenv
 Cython
+CMD
 dplyr
 env
 equivalencies

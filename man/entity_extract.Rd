@@ -42,7 +42,7 @@ separate object, or convert the multi-word entities into single "token"
 consisting of the concatenated elements of the multi-word entities.
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 # entity extraction

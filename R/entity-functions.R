@@ -19,7 +19,7 @@
 #'   }
 #' @importFrom data.table data.table as.data.table
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' 
 #' # entity extraction
