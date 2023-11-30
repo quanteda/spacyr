@@ -2,11 +2,9 @@
 
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
-[![Travis-CI Build
-Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
-[![Appveyor Build
-status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/kbenoit/spacyr/branch/master)
-[![codecov.io](https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master)](https://codecov.io/gh/quanteda/spacyr/branch/master)
+[![R-CMD-check](https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/quanteda/spacyr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/quanteda/spacyr?branch=master)
 [![Downloads](https://cranlogs.r-pkg.org/badges/spacyr)](https://CRAN.R-project.org/package=spacyr)
 [![Total
 Downloads](https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange)](https://CRAN.R-project.org/package=spacyr)

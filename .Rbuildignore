@@ -31,3 +31,5 @@ installation.Rmd
 installation.md
 \.pem$
 
+^\.github$
+^codecov\.yml$
