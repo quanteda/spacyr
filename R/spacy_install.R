@@ -65,7 +65,7 @@ spacy_install <- function(version = "latest",
                           ...) {
   
   if (length(list(...)) > 0) 
-    warning("Note that we have deprecated a number of parameters to simplify this function")
+    warning("spacyr 1.3 removed a number of arguments to simplify this function.")
 
   if (nchar(Sys.getenv("RETICULATE_PYTHON")) > 0) {
     message("You provided a custom RETICULATE_PYTHON, so we assume you know what you ",
@@ -172,6 +172,8 @@ spacy_install_virtualenv <- function(...) {
 #' Uninstall the spaCy environment
 #'
 #' Removes the virtual environment created by spacy_install()
+#' 
+#' @param confirm logical; confirm before uninstalling spaCy?
 #' 
 #' @export
 spacy_uninstall <- function(confirm = interactive()) {

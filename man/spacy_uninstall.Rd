@@ -4,7 +4,10 @@
 \alias{spacy_uninstall}
 \title{Uninstall the spaCy environment}
 \usage{
-spacy_uninstall()
+spacy_uninstall(confirm = interactive())
+}
+\arguments{
+\item{confirm}{logical; confirm before uninstalling spaCy?}
 }
 \description{
 Removes the virtual environment created by spacy_install()
