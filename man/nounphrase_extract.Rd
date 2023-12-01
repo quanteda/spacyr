@@ -19,11 +19,10 @@ noun phrases}
 \code{noun} returns a \code{data.frame} of all named
 entities, containing the following fields:
 \itemize{
-\item{\code{doc_id}}{ name of the document containing the noun phrase}
-\item{\code{sentence_id}}{ the sentence ID containing the noun phrase,
-within the document}
-\item{\code{nounphrase}}{the noun phrase}
-\item{\code{root}}{ the root token of the noun phrase}
+\item \code{doc_id} name of the document containing the noun phrase
+\item \code{sentence_id} the sentence ID containing the noun phrase, within the document
+\item \code{nounphrase} the noun phrase
+\item \code{root} the root token of the noun phrase
 }
 
 \code{nounphrase_consolidate} returns a modified \code{data.frame} of

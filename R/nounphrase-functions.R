@@ -9,13 +9,10 @@
 #'   noun phrases
 #' @return `noun` returns a `data.frame` of all named
 #'   entities, containing the following fields: 
-#'   \itemize{
-#'   \item{`doc_id`}{ name of the document containing the noun phrase}
-#'   \item{`sentence_id`}{ the sentence ID containing the noun phrase,
-#'   within the document}
-#'   \item{`nounphrase`}{the noun phrase}
-#'   \item{`root`}{ the root token of the noun phrase}
-#'   }
+#'   * `doc_id` name of the document containing the noun phrase
+#'   * `sentence_id` the sentence ID containing the noun phrase, within the document
+#'   * `nounphrase` the noun phrase
+#'   * `root` the root token of the noun phrase
 #' @importFrom data.table data.table as.data.table
 #' @examples
 #' \donttest{

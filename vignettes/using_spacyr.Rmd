@@ -66,7 +66,7 @@ parsedtxt <- spacy_parse(txt)
 parsedtxt
 ```
 
-Two fields are available for part-of-speech tags.  The `pos` field returned is the [Universal tagset for parts-of-speech](http://universaldependencies.org/u/pos/all.html), a general scheme that most users will find serves their needs, and also that provides equivalencies across languages.   **spacyr** also provides a more detailed tagset, defined in each spaCy language model.  For English, this is the [OntoNotes 5 version of the Penn Treebank tag set](https://spacy.io/docs/usage/pos-tagging#pos-tagging-english).
+Two fields are available for part-of-speech tags.  The `pos` field returned is the [Universal tagset for parts-of-speech](https://universaldependencies.org/u/pos/all.html), a general scheme that most users will find serves their needs, and also that provides equivalencies across languages.   **spacyr** also provides a more detailed tagset, defined in each spaCy language model.  For English, this is the [OntoNotes 5 version of the Penn Treebank tag set](https://spacy.io/docs/usage/pos-tagging#pos-tagging-english).
 
 ```{r}
 spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)

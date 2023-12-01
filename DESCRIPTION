@@ -10,7 +10,7 @@ Authors@R: c(
     person("European Research Council", role = "fnd", comment = "ERC-2011-StG 283794-QUANTESS")
     )
 Description: An R wrapper to the 'Python' 'spaCy' 'NLP' library,
-    from <http://spacy.io>.
+    from <https://spacy.io>.
 License: GPL-3
 LazyData: TRUE
 Depends:
