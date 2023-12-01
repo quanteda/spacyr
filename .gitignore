@@ -19,3 +19,5 @@ R/unused
 src/spacyr.dll
 CRAN-RELEASE
 revdep
+/doc/
+/Meta/

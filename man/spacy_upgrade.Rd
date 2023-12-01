@@ -19,8 +19,7 @@ spacy_upgrade(
 \code{en_core_web_sm} (English model). A vector of multiple model names can
 be used (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}). A list of
 available language models and their
-names is available from the \href{https://spacy.io/usage/models}{spaCy
-language models} page.}
+names is available from the \href{https://spacy.io/usage/models}{spaCy language models} page.}
 
 \item{ask}{logical; ask whether to proceed during the installation. By
 default, questions are only asked in interactive sessions.}
@@ -28,22 +27,22 @@ default, questions are only asked in interactive sessions.}
 \item{force}{ignore if spaCy/the lang_models is already present and install
 it anyway.}
 
-\item{...}{passed on to \code{\link{spacy_install}}}
+\item{...}{passed on to \code{\link[=spacy_install]{spacy_install()}}}
 }
 \description{
 Upgrade spaCy (to a specific version).
 }
 \details{
 The function checks whether a suitable installation of Python is
-  present on the system and installs one via
-  \code{\link[reticulate]{install_python}} otherwise. It then creates a
-  virtual environment with the necessary packages in the default location
-  chosen by \code{\link[reticulate]{virtualenv_root}}.
+present on the system and installs one via
+\code{\link[reticulate:install_python]{reticulate::install_python()}} otherwise. It then creates a
+virtual environment with the necessary packages in the default location
+chosen by \code{\link[reticulate:virtualenv-tools]{reticulate::virtualenv_root()}}.
 
-  If you want to install a different version of Python than the default, you
-  should call \code{\link[reticulate]{install_python}} directly. If you want
-  to create or use a different virtual environment, you can use, e.g.,
-  \code{Sys.setenv(SPACY_PYTHON = "path/to/directory")}.
+If you want to install a different version of Python than the default, you
+should call \code{\link[reticulate:install_python]{reticulate::install_python()}} directly. If you want
+to create or use a different virtual environment, you can use, e.g.,
+\code{Sys.setenv(SPACY_PYTHON = "path/to/directory")}.
 }
 \examples{
 \dontrun{
@@ -76,5 +75,5 @@ spacy_install()
 
 }
 \seealso{
-\code{\link{spacy_download_langmodel}}
+\code{\link[=spacy_download_langmodel]{spacy_download_langmodel()}}
 }

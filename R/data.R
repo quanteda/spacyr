@@ -1,12 +1,12 @@
 #' An R wrapper to the spaCy NLP system
 #' 
 #' An R wrapper to the Python (Cython) spaCy NLP system, from
-#' \url{http://spacy.io}. Nicely integrated with \pkg{quanteda}.  \pkg{spacyr}
+#' <https://spacy.io>. Nicely integrated with \pkg{quanteda}.  \pkg{spacyr}
 #' is designed to provide easy access to the powerful functionality of spaCy, in
 #' a simple format.
 #' 
 #' 
-#' @references \url{https://spacy.io}, \url{https://spacyr.quanteda.io}.
+#' @references <https://spacy.io>, <https://spacyr.quanteda.io>.
 #' @author Ken Benoit and Akitaka Matsuo
 "_PACKAGE"
 

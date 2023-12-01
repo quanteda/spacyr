@@ -1,20 +1,20 @@
 #' Extract or consolidate noun phrases from parsed documents
 #' 
-#' From an object parsed by \code{\link{spacy_parse}}, extract the multi-word
+#' From an object parsed by [spacy_parse()], extract the multi-word
 #' noun phrases as a separate object, or convert the multi-word noun phrases
 #' into single "token" consisting of the concatenated elements of the multi-word
 #' noun phrases.
-#' @param x output from \code{\link{spacy_parse}}
+#' @param x output from [spacy_parse()]
 #' @param concatenator the character(s) used to join elements of multi-word
 #'   noun phrases
-#' @return \code{noun} returns a \code{data.frame} of all named
+#' @return `noun` returns a `data.frame` of all named
 #'   entities, containing the following fields: 
 #'   \itemize{
-#'   \item{\code{doc_id}}{ name of the document containing the noun phrase}
-#'   \item{\code{sentence_id}}{ the sentence ID containing the noun phrase,
+#'   \item{`doc_id`}{ name of the document containing the noun phrase}
+#'   \item{`sentence_id`}{ the sentence ID containing the noun phrase,
 #'   within the document}
-#'   \item{\code{nounphrase}}{the noun phrase}
-#'   \item{\code{root}}{ the root token of the noun phrase}
+#'   \item{`nounphrase`}{the noun phrase}
+#'   \item{`root`}{ the root token of the noun phrase}
 #'   }
 #' @importFrom data.table data.table as.data.table
 #' @examples
@@ -66,7 +66,7 @@ nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
 
 
 #' @rdname nounphrase_extract
-#' @return \code{nounphrase_consolidate} returns a modified \code{data.frame} of
+#' @return `nounphrase_consolidate` returns a modified `data.frame` of
 #'   parsed results, where the noun phrases have been combined into a single
 #'   "token".  Currently, dependency parsing is removed when this consolidation
 #'   occurs.

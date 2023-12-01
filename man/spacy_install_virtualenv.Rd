@@ -10,5 +10,5 @@ spacy_install_virtualenv(...)
 \item{...}{not used}
 }
 \description{
-Deprecated. `spacy_install` now installs to a virtual environment by default.
+Deprecated. \code{spacy_install} now installs to a virtual environment by default.
 }

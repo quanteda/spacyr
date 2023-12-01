@@ -19,10 +19,10 @@ spacy_parse(
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropensci/tif})}
+corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
 
 \item{pos}{logical whether to return universal dependency POS tagset
-\url{http://universaldependencies.org/u/pos/})}
+\url{https://universaldependencies.org/u/pos/})}
 
 \item{tag}{logical whether to return detailed part-of-speech tags, for the
 language model \code{en}, it uses the OntoNotes 5 version of the Penn

@@ -35,3 +35,4 @@ BugReports: https://github.com/quanteda/spacyr/issues
 RoxygenNote: 7.2.3
 Language: en-GB
 VignetteBuilder: R.rsp
+Roxygen: list(markdown = TRUE)

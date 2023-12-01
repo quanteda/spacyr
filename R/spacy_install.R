@@ -4,28 +4,28 @@
 #'   specified language models.
 #' @param version character; spaCy version to install (see details).
 #' @param lang_models character; language models to be installed. Defaults
-#'   \code{en_core_web_sm} (English model). A vector of multiple model names can
-#'   be used (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}). A list of
+#'   `en_core_web_sm` (English model). A vector of multiple model names can
+#'   be used (e.g. `c("en_core_web_sm", "de_core_news_sm")`). A list of
 #'   available language models and their
-#'   names is available from the \href{https://spacy.io/usage/models}{spaCy
-#'   language models} page.
+#'   names is available from the [spaCy
+#'   language models](https://spacy.io/usage/models) page.
 #' @param ask logical; ask whether to proceed during the installation. By
 #'   default, questions are only asked in interactive sessions.
 #' @param force ignore if spaCy/the lang_models is already present and install
 #'   it anyway.
 #' @param ... not used.
-#' @seealso \code{\link{spacy_download_langmodel}}
+#' @seealso [spacy_download_langmodel()]
 #'
 #' @details The function checks whether a suitable installation of Python is
 #'   present on the system and installs one via
-#'   \code{\link[reticulate]{install_python}} otherwise. It then creates a
+#'   [reticulate::install_python()] otherwise. It then creates a
 #'   virtual environment with the necessary packages in the default location
-#'   chosen by \code{\link[reticulate]{virtualenv_root}}.
+#'   chosen by [reticulate::virtualenv_root()].
 #'
 #'   If you want to install a different version of Python than the default, you
-#'   should call \code{\link[reticulate]{install_python}} directly. If you want
+#'   should call [reticulate::install_python()] directly. If you want
 #'   to create or use a different virtual environment, you can use, e.g.,
-#'   \code{Sys.setenv(SPACY_PYTHON = "path/to/directory")}.
+#'   `Sys.setenv(SPACY_PYTHON = "path/to/directory")`.
 #'
 #'
 #' @examples
@@ -133,7 +133,7 @@ spacy_install <- function(version = "latest",
 #' 
 #' Upgrade spaCy (to a specific version).
 #' 
-#' @param ... passed on to \code{\link{spacy_install}}
+#' @param ... passed on to [spacy_install()]
 #' 
 #' @inherit spacy_install
 #' @export

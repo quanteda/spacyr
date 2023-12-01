@@ -11,5 +11,5 @@ spacy_download_langmodel_virtualenv(...)
 }
 \description{
 Deprecated. \code{spacyr} now always uses a virtual environment,
-  making this function redundant.
+making this function redundant.
 }

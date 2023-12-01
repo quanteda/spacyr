@@ -3,12 +3,12 @@
 #' Initialize spaCy to call from R. 
 #' 
 #' @return NULL
-#' @param model Language package for loading spaCy. Example: \code{en_core_web_sm} (English) and
-#' \code{de_core_web_sm} (German). Default is \code{en_core_web_sm}.
-#' @param entity logical; if \code{FALSE} is selected, named entity recognition
+#' @param model Language package for loading spaCy. Example: `en_core_web_sm` (English) and
+#' `de_core_web_sm` (German). Default is `en_core_web_sm`.
+#' @param entity logical; if `FALSE` is selected, named entity recognition
 #'   is turned off in spaCy. This will speed up the parsing as it will exclude
-#'   \code{ner} from the pipeline. For details of spaCy pipeline, see
-#'   \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE}
+#'   `ner` from the pipeline. For details of spaCy pipeline, see
+#'   <https://spacy.io/usage/processing-pipelines>. The option `FALSE`
 #'   is available only for spaCy version 2.0.0 or higher.
 #' @param ... not used.
 #' 
@@ -60,7 +60,7 @@ spacy_initialize <- function(model = "en_core_web_sm",
 #' 
 #' While running spaCy on Python through R, a Python process is always running
 #' in the background and Rsession will take up a lot of memory (typically over
-#' 1.5GB). \code{spacy_finalize()} terminates the Python process and frees up
+#' 1.5GB). `spacy_finalize()` terminates the Python process and frees up
 #' the memory it was using.
 #' @return NULL
 #' @export
@@ -80,10 +80,10 @@ spacy_finalize <- function() {
 #' @return spacy_python
 #' @export
 #' @param model name of the language model
-#' @param ask logical; if \code{FALSE}, use the first spaCy installation found; 
-#'   if \code{TRUE}, list available spaCy installations and prompt the user 
-#'   for which to use. If another (e.g. \code{python_executable}) is set, then 
-#'   this value will always be treated as \code{FALSE}.
+#' @param ask logical; if `FALSE`, use the first spaCy installation found; 
+#'   if `TRUE`, list available spaCy installations and prompt the user 
+#'   for which to use. If another (e.g. `python_executable`) is set, then 
+#'   this value will always be treated as `FALSE`.
 #'  
 #' @keywords internal
 #' @importFrom data.table data.table

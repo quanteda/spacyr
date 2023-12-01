@@ -11,8 +11,7 @@ spacy_download_langmodel(lang_models = "en_core_web_sm", force = FALSE)
 \code{en_core_web_sm} (English model). A vector of multiple model names can
 be used (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}). A list of
 available language models and their
-names is available from the \href{https://spacy.io/usage/models}{spaCy
-language models} page.}
+names is available from the \href{https://spacy.io/usage/models}{spaCy language models} page.}
 
 \item{force}{ignore if spaCy/the lang_models is already present and install
 it anyway.}

@@ -41,7 +41,7 @@ spacy_download_langmodel <- function(lang_models = "en_core_web_sm",
 
 #' Install a language model in a conda or virtual environment
 #'
-#' @description Deprecated. \code{spacyr} now always uses a virtual environment,
+#' @description Deprecated. `spacyr` now always uses a virtual environment,
 #'   making this function redundant.
 #'
 #' @param ... not used
