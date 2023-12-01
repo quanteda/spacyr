@@ -52,7 +52,7 @@ spacy_initialize(model = "en_core_web_sm")
 
 ## Tokenizing and tagging texts
 
-The `spacy_parse()` function is **spacyr**'s main workhorse.  It calls spaCy both to tokenize and tag the texts.  It provides two options for part of speech tagging, plus options to return word lemmas, recognize names entities or noun phrases recognition, and identify grammatical structures features by parsing syntactic dependencies.  It returns a `data.frame` corresponding to the emerging [*text interchange format*](https://github.com/ropensci/tif) for token data.frames.
+The `spacy_parse()` function is **spacyr**'s main workhorse.  It calls spaCy both to tokenize and tag the texts.  It provides two options for part of speech tagging, plus options to return word lemmas, recognize names entities or noun phrases recognition, and identify grammatical structures features by parsing syntactic dependencies.  It returns a `data.frame` corresponding to the emerging [*text interchange format*](https://github.com/ropenscilabs/tif) for token data.frames.
 
 The tokenization approach taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.
 
@@ -255,7 +255,7 @@ spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
 
 ### Adherence to the "TIF" standard
 
-**spacyr**'s output was designed to conform to the [Text Interchange Format](https://github.com/ropensci/tif), a cooperatively agreed standard structure for text package objects in R, such as corpus and token objects.  `spacy_initialize()` can take a TIF corpus data.frame or character object as a valid input.  Moreover, the data.frames returned by `spacy_parse()` and `entity_consolidate()` conform to the TIF tokens standard for data.frame tokens objects.  This will make it easier to use with any text analysis package for R that works with TIF standard objects.
+**spacyr**'s output was designed to conform to the [Text Interchange Format](https://github.com/ropenscilabs/tif), a cooperatively agreed standard structure for text package objects in R, such as corpus and token objects.  `spacy_initialize()` can take a TIF corpus data.frame or character object as a valid input.  Moreover, the data.frames returned by `spacy_parse()` and `entity_consolidate()` conform to the TIF tokens standard for data.frame tokens objects.  This will make it easier to use with any text analysis package for R that works with TIF standard objects.
 
 
 ## Finishing a session
