@@ -73,7 +73,7 @@ entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")
 #'   occurs.
 #' @importFrom data.table data.table
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # consolidating multi-word entities 
 #' txt <- "The House of Representatives voted to suspend aid to South Dakota."
 #' parsed <- spacy_parse(txt, entity = TRUE)

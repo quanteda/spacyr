@@ -50,7 +50,7 @@ parsed <- spacy_parse(txt, entity = TRUE)
 entity_extract(parsed)
 entity_extract(parsed, type = "all")
 }
-\donttest{
+\dontrun{
 # consolidating multi-word entities 
 txt <- "The House of Representatives voted to suspend aid to South Dakota."
 parsed <- spacy_parse(txt, entity = TRUE)
