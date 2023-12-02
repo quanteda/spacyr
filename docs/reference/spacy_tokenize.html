@@ -82,13 +82,13 @@ lemmatization, or named entity recognition) of texts using spaCy.</p>
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>a character object, a <span class="pkg">quanteda</span> corpus, or a TIF-compliant
-corpus data.frame (see <a href="https://github.com/ropensci/tif" class="external-link">https://github.com/ropensci/tif</a>)</p></dd>
+corpus data.frame (see <a href="https://github.com/ropenscilabs/tif" class="external-link">https://github.com/ropenscilabs/tif</a>)</p></dd>
 
 
 <dt>what</dt>
 <dd><p>the unit for splitting the text, available alternatives are:</p><dl><dt><code>"word"</code></dt>
 <dd><p>word segmenter</p></dd>
- 
+
 <dt><code>"sentence"</code></dt>
 <dd><p>sentence segmenter</p></dd>
 
@@ -109,7 +109,7 @@ corpus data.frame (see <a href="https://github.com/ropensci/tif" class="external
 
 <dt>remove_separators</dt>
 <dd><p>remove spaces as separators when
-all other remove functionalities (e.g. <code>remove_punct</code>) have to be set to <code>FALSE</code>. 
+all other remove functionalities (e.g. <code>remove_punct</code>) have to be set to <code>FALSE</code>.
 When <code>what = "sentence"</code>, this option will remove trailing spaces if <code>TRUE</code>.</p></dd>
 
 
@@ -119,9 +119,9 @@ field, or currency symbols.</p></dd>
 
 
 <dt>padding</dt>
-<dd><p>if <code>TRUE</code>, leave an empty string where the removed tokens 
-previously existed. This is useful if a positional match is needed between 
-the pre- and post-selected tokens, for instance if a window of adjacency 
+<dd><p>if <code>TRUE</code>, leave an empty string where the removed tokens
+previously existed. This is useful if a positional match is needed between
+the pre- and post-selected tokens, for instance if a window of adjacency
 needs to be computed.</p></dd>
 
 

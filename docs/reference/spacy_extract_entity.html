@@ -78,7 +78,7 @@ https://spacy.io/usage/linguistic-features#section-named-entities)."><!-- mathja
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>a character object or a TIF-compliant
-corpus data.frame (see <a href="https://github.com/ropensci/tif" class="external-link">https://github.com/ropensci/tif</a>)</p></dd>
+corpus data.frame (see <a href="https://github.com/ropenscilabs/tif" class="external-link">https://github.com/ropenscilabs/tif</a>)</p></dd>
 
 
 <dt>output</dt>
@@ -87,9 +87,9 @@ corpus data.frame (see <a href="https://github.com/ropensci/tif" class="external
 
 
 <dt>type</dt>
-<dd><p>type of named entities, either <code>named</code>, <code>extended</code>, or 
-<code>all</code>.  See 
-<a href="https://spacy.io/docs/usage/entity-recognition#entity-types" class="external-link">https://spacy.io/docs/usage/entity-recognition#entity-types</a> for 
+<dd><p>type of named entities, either <code>named</code>, <code>extended</code>, or
+<code>all</code>.  See
+<a href="https://spacy.io/docs/usage/entity-recognition#entity-types" class="external-link">https://spacy.io/docs/usage/entity-recognition#entity-types</a> for
 details.</p></dd>
 
 
@@ -111,17 +111,17 @@ using spaCy's architecture (<a href="https://spacy.io/api" class="external-link"
     <div id="details">
     <h2>Details</h2>
     <p>When the option <code>output = "data.frame"</code> is selected, the
-  function returns a <code>data.frame</code> with the following fields.</p><dl><dt><code>entity_type</code></dt>
+function returns a <code>data.frame</code> with the following fields.</p><dl><dt><code>entity_type</code></dt>
 <dd><p>type of entity (e.g. <code>ORG</code> for
-  organizations)</p></dd>
+organizations)</p></dd>
  <dt><code>start_id</code></dt>
 <dd><p>serial number ID of starting token.
-  This number corresponds with the number of <code>data.frame</code> returned from
-  <code>spacy_tokenize(x)</code> with default options.</p></dd>
+This number corresponds with the number of <code>data.frame</code> returned from
+<code>spacy_tokenize(x)</code> with default options.</p></dd>
  <dt><code>length</code></dt>
 <dd><p>number
-  of words (tokens) included in a named entity (e.g. for an entity, "New York
-  Stock Exchange"", <code>length = 4</code>)</p></dd>
+of words (tokens) included in a named entity (e.g. for an entity, "New York
+Stock Exchange"", <code>length = 4</code>)</p></dd>
 
 </dl></div>
 

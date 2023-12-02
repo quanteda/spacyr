@@ -81,8 +81,7 @@
 <code>en_core_web_sm</code> (English model). A vector of multiple model names can
 be used (e.g. <code>c("en_core_web_sm", "de_core_news_sm")</code>). A list of
 available language models and their
-names is available from the <a href="https://spacy.io/usage/models" class="external-link">spaCy
-language models</a> page.</p></dd>
+names is available from the <a href="https://spacy.io/usage/models" class="external-link">spaCy language models</a> page.</p></dd>
 
 
 <dt>ask</dt>
@@ -96,24 +95,24 @@ it anyway.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>passed on to <code><a href="spacy_install.html">spacy_install</a></code></p></dd>
+<dd><p>passed on to <code><a href="spacy_install.html">spacy_install()</a></code></p></dd>
 
 </dl></div>
     <div id="details">
     <h2>Details</h2>
     <p>The function checks whether a suitable installation of Python is
-  present on the system and installs one via
-  <code><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">install_python</a></code> otherwise. It then creates a
-  virtual environment with the necessary packages in the default location
-  chosen by <code><a href="https://rstudio.github.io/reticulate/reference/virtualenv-tools.html" class="external-link">virtualenv_root</a></code>.</p>
+present on the system and installs one via
+<code><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">reticulate::install_python()</a></code> otherwise. It then creates a
+virtual environment with the necessary packages in the default location
+chosen by <code><a href="https://rstudio.github.io/reticulate/reference/virtualenv-tools.html" class="external-link">reticulate::virtualenv_root()</a></code>.</p>
 <p>If you want to install a different version of Python than the default, you
-  should call <code><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">install_python</a></code> directly. If you want
-  to create or use a different virtual environment, you can use, e.g.,
-  <code>Sys.setenv(SPACY_PYTHON = "path/to/directory")</code>.</p>
+should call <code><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">reticulate::install_python()</a></code> directly. If you want
+to create or use a different virtual environment, you can use, e.g.,
+<code>Sys.setenv(SPACY_PYTHON = "path/to/directory")</code>.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="spacy_download_langmodel.html">spacy_download_langmodel</a></code></p></div>
+    <div class="dont-index"><p><code><a href="spacy_download_langmodel.html">spacy_download_langmodel()</a></code></p></div>
     </div>
 
     <div id="ref-examples">

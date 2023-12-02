@@ -1,5 +1,5 @@
 ---
-title: "A Guide to Using spacyr"
+title: "Using spacyr"
 author: "Kenneth Benoit and Akitaka Matsuo"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
