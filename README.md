@@ -63,7 +63,7 @@ processing” Python library from <https://spacy.io>.
     efficient German language model:
 
     ``` r
-    spacy_download_langmodel()
+    spacy_download_langmodel("de_core_news_sm")
     ```
 
     Check out available models at <https://spacy.io/usage/models>.

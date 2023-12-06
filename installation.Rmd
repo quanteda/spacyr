@@ -42,7 +42,7 @@ An R wrapper to the spaCy "industrial strength natural language processing" Pyth
     If left unchanged, `spacy_install()` adds the default "en_core_web_sm" model. You can add more language models with `spacy_download_langmodel()`. For instance, to install a small and efficient German language model:
 
     ```{r, eval = FALSE}
-    spacy_download_langmodel()
+    spacy_download_langmodel("de_core_news_sm")
     ```
 
     Check out available models at <https://spacy.io/usage/models>.
