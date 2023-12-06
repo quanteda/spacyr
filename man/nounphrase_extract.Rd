@@ -10,35 +10,34 @@ nounphrase_extract(x, concatenator = "_")
 nounphrase_consolidate(x, concatenator = "_")
 }
 \arguments{
-\item{x}{output from \code{\link{spacy_parse}}}
+\item{x}{output from \code{\link[=spacy_parse]{spacy_parse()}}}
 
 \item{concatenator}{the character(s) used to join elements of multi-word
 noun phrases}
 }
 \value{
 \code{noun} returns a \code{data.frame} of all named
-  entities, containing the following fields: 
-  \itemize{
-  \item{\code{doc_id}}{ name of the document containing the noun phrase}
-  \item{\code{sentence_id}}{ the sentence ID containing the noun phrase,
-  within the document}
-  \item{\code{nounphrase}}{the noun phrase}
-  \item{\code{root}}{ the root token of the noun phrase}
-  }
+entities, containing the following fields:
+\itemize{
+\item \code{doc_id} name of the document containing the noun phrase
+\item \code{sentence_id} the sentence ID containing the noun phrase, within the document
+\item \code{nounphrase} the noun phrase
+\item \code{root} the root token of the noun phrase
+}
 
 \code{nounphrase_consolidate} returns a modified \code{data.frame} of
-  parsed results, where the noun phrases have been combined into a single
-  "token".  Currently, dependency parsing is removed when this consolidation
-  occurs.
+parsed results, where the noun phrases have been combined into a single
+"token".  Currently, dependency parsing is removed when this consolidation
+occurs.
 }
 \description{
-From an object parsed by \code{\link{spacy_parse}}, extract the multi-word
+From an object parsed by \code{\link[=spacy_parse]{spacy_parse()}}, extract the multi-word
 noun phrases as a separate object, or convert the multi-word noun phrases
 into single "token" consisting of the concatenated elements of the multi-word
 noun phrases.
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 # entity extraction
@@ -46,7 +45,7 @@ txt <- "Mr. Smith of moved to San Francisco in December."
 parsed <- spacy_parse(txt, nounphrase = TRUE)
 entity_extract(parsed)
 }
-\donttest{
+\dontrun{
 # consolidating multi-word noun phrases
 txt <- "The House of Representatives voted to suspend aid to South Dakota."
 parsed <- spacy_parse(txt, nounphrase = TRUE)

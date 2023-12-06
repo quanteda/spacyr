@@ -2,36 +2,35 @@
 % Please edit documentation in R/spacy_langmodel_functions.R
 \name{spacy_download_langmodel}
 \alias{spacy_download_langmodel}
-\alias{spacy_download_langmodel_virtualenv}
-\title{Install a language model in a conda or virtual environment}
+\title{Download spaCy language models}
 \usage{
-spacy_download_langmodel(
-  model = "en",
-  envname = "spacy_condaenv",
-  conda = "auto"
-)
-
-spacy_download_langmodel_virtualenv(
-  model = "en",
-  envname = "spacy_virtualenv",
-  virtualenv_root = NULL
-)
+spacy_download_langmodel(lang_models = "en_core_web_sm", force = FALSE)
 }
 \arguments{
-\item{model}{name of the language model to be installed.  A list of available
-language models and their names is available from the
-\href{https://spacy.io/usage/models}{spaCy language models} page.}
+\item{lang_models}{character; language models to be installed. Defaults
+\code{en_core_web_sm} (English model). A vector of multiple model names can
+be used (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}). A list of
+available language models and their
+names is available from the \href{https://spacy.io/usage/models}{spaCy language models} page.}
 
-\item{envname}{name of the virtual environment}
-
-\item{conda}{Path to conda executable.  Default \code{"auto"} which
-automatically finds the path.}
-
-\item{virtualenv_root}{path to the virtualenv environment to install spaCy
-language model. If \code{NULL}, the default path \code{"~/.virtualenvs"}
-will be used.}
+\item{force}{ignore if spaCy/the lang_models is already present and install
+it anyway.}
+}
+\value{
+Invisibly returns the installation log.
 }
 \description{
-Installs one or more language models in a conda or virtualenv Python virtual
-environment as installed by \code{\link{spacy_install}}.
+Download spaCy language models
+}
+\examples{
+\dontrun{
+# install medium sized model
+spacy_download_langmodel("en_core_web_md")
+
+#' # install several models with spaCy
+spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
+
+# install transformer based model
+spacy_download_langmodel("en_core_web_trf")
+}
 }

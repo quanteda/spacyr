@@ -10,39 +10,38 @@ entity_extract(x, type = c("named", "extended", "all"), concatenator = "_")
 entity_consolidate(x, concatenator = "_")
 }
 \arguments{
-\item{x}{output from \code{\link{spacy_parse}}.}
+\item{x}{output from \code{\link[=spacy_parse]{spacy_parse()}}.}
 
-\item{type}{type of named entities, either \code{named}, \code{extended}, or 
-\code{all}.  See 
-\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
+\item{type}{type of named entities, either \code{named}, \code{extended}, or
+\code{all}.  See
+\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for
 details.}
 
 \item{concatenator}{the character(s) used to join the elements of multi-word
 named entities}
 }
 \value{
-\code{entity_extract} returns a \code{data.frame} of all named
-  entities, containing the following fields: 
-  \itemize{
-  \item{\code{doc_id}}{ name of the document containing the entity} 
-  \item{\code{sentence_id}}{ the sentence ID containing the entity, within the document}
-  \item{\code{entity}}{ the named entity}
-  \item{\code{entity_type}}{ type of named entities (e.g. PERSON, ORG, PERCENT,
-  etc.)} 
-  }
+\code{entity_extract()} returns a data.frame of all named
+entities, containing the following fields:
+\itemize{
+\item \code{doc_id} name of the document containing the entity
+\item \code{sentence_id} the sentence ID containing the entity, within the document
+\item \code{entity} the named entity
+\item \code{entity_type} the type of named entities (e.g. PERSON, ORG, PERCENT, etc.)
+}
 
 \code{entity_consolidate} returns a modified \code{data.frame} of
-  parsed results, where the named entities have been combined into a single
-  "token".  Currently, dependency parsing is removed when this consolidation
-  occurs.
+parsed results, where the named entities have been combined into a single
+"token".  Currently, dependency parsing is removed when this consolidation
+occurs.
 }
 \description{
-From an object parsed by \code{\link{spacy_parse}}, extract the entities as a
+From an object parsed by \code{\link[=spacy_parse]{spacy_parse()}}, extract the entities as a
 separate object, or convert the multi-word entities into single "token"
 consisting of the concatenated elements of the multi-word entities.
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 # entity extraction
@@ -51,7 +50,7 @@ parsed <- spacy_parse(txt, entity = TRUE)
 entity_extract(parsed)
 entity_extract(parsed, type = "all")
 }
-\donttest{
+\dontrun{
 # consolidating multi-word entities 
 txt <- "The House of Representatives voted to suspend aid to South Dakota."
 parsed <- spacy_parse(txt, entity = TRUE)

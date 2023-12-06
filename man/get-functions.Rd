@@ -31,8 +31,8 @@ get_ntokens_by_sent(spacy_out)
 \arguments{
 \item{spacy_out}{a spacy_out object}
 
-\item{tagset}{character label for the tagset to use, either \code{"google"} 
-or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
+\item{tagset}{character label for the tagset to use, either \code{"google"}
+or \code{"detailed"} to use the simplified Google tagset, or the more detailed
 scheme from the Penn Treebank (or the German Text Archive in case of German language model).}
 
 \item{attr_name}{name of spaCy token attributes to extract}
@@ -41,8 +41,8 @@ scheme from the Penn Treebank (or the German Text Archive in case of German lang
 \code{get_tokens} returns a data.frame of tokens from spaCy.
 
 \code{get_tags} returns a tokenized text object with part-of-speech tags.
-Options exist for using either the Google or Detailed tagsets. See 
-\url{http://spacy.io}.
+Options exist for using either the Google or Detailed tagsets. See
+\url{https://spacy.io}.
 
 \code{get_attrs} returns a list of attributes from spaCy output
 
@@ -55,13 +55,13 @@ Options exist for using either the Google or Detailed tagsets. See
 \code{get_ntokens} returns a data.frame of dependency relations
 
 \code{get_ntokens_by_sent} returns a data.frame of dependency
-  relations, by sentence
+relations, by sentence
 }
 \description{
 A collection of get methods for spacyr return objects (of \code{spacy_out} class).
 }
 \examples{
-\donttest{
+\dontrun{
 # get_tags examples
 txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
          text2 = "This is the second document.")

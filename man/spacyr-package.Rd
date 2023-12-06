@@ -7,7 +7,7 @@
 \title{An R wrapper to the spaCy NLP system}
 \description{
 An R wrapper to the Python (Cython) spaCy NLP system, from
-\url{http://spacy.io}. Nicely integrated with \pkg{quanteda}.  \pkg{spacyr}
+\url{https://spacy.io}. Nicely integrated with \pkg{quanteda}.  \pkg{spacyr}
 is designed to provide easy access to the powerful functionality of spaCy, in
 a simple format.
 }

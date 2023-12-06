@@ -1,45 +1,45 @@
 #' Parse a text using spaCy
 #' 
-#' The \code{spacy_parse()} function calls spaCy to both tokenize and tag the
+#' The `spacy_parse()` function calls spaCy to both tokenize and tag the
 #' texts, and returns a data.table of the results. The function provides options
-#' on the types of tagsets (\code{tagset_} options) either  \code{"google"} or
-#' \code{"detailed"}, as well as lemmatization (\code{lemma}). It provides a
+#' on the types of tagsets (`tagset_` options) either  `"google"` or
+#' `"detailed"`, as well as lemmatization (`lemma`). It provides a
 #' functionalities of dependency parsing and named entity recognition as an
-#' option. If \code{"full_parse = TRUE"} is provided, the function returns the
+#' option. If `"full_parse = TRUE"` is provided, the function returns the
 #' most extensive list of the parsing results from spaCy.
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-#'   corpus data.frame (see \url{https://github.com/ropensci/tif})
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
 #' @param pos logical whether to return universal dependency POS tagset
-#'   \url{http://universaldependencies.org/u/pos/})
+#'   <https://universaldependencies.org/u/pos/>)
 #' @param tag logical whether to return detailed part-of-speech tags, for the
-#'   language model \code{en}, it uses the OntoNotes 5 version of the Penn
+#'   language model `en`, it uses the OntoNotes 5 version of the Penn
 #'   Treebank tag set
-#'   (\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). Annotation
+#'   (<https://spacy.io/docs/usage/pos-tagging#pos-schemes>). Annotation
 #'   specifications for other available languages are available on the spaCy
-#'   website (\url{https://spacy.io/api/annotation}).
+#'   website (<https://spacy.io/api/annotation>).
 #' @param lemma logical; include lemmatized tokens in the output (lemmatization
 #'   may not work properly for non-English models)
-#' @param entity logical; if \code{TRUE}, report named entities
-#' @param multithread logical; If \code{TRUE}, the processing is parallelized
-#'   using spaCy's architecture (\url{https://spacy.io/api})
-#' @param dependency logical; if \code{TRUE}, analyse and tag dependencies
-#' @param nounphrase logical; if \code{TRUE}, analyse and tag noun phrases
+#' @param entity logical; if `TRUE`, report named entities
+#' @param multithread logical; If `TRUE`, the processing is parallelized
+#'   using spaCy's architecture (<https://spacy.io/api>)
+#' @param dependency logical; if `TRUE`, analyse and tag dependencies
+#' @param nounphrase logical; if `TRUE`, analyse and tag noun phrases
 #'   tags
 #' @param additional_attributes a character vector; this option is for
 #'   extracting additional attributes of tokens from spaCy. When the names of
 #'   attributes are supplied, the output data.frame will contain additional
 #'   variables corresponding to the names of the attributes. For instance, when
-#'   \code{additional_attributes = c("is_punct")}, the output will include an
-#'   additional variable named \code{is_punct}, which is a Boolean (in R,
+#'   `additional_attributes = c("is_punct")`, the output will include an
+#'   additional variable named `is_punct`, which is a Boolean (in R,
 #'   logical) variable indicating whether  the token is a punctuation. A full
 #'   list of available attributes is available from
-#'   \url{https://spacy.io/api/token#attributes}.
+#'   <https://spacy.io/api/token#attributes>.
 #' @param ... not used directly
-#' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
+#' @return a `data.frame` of tokenized, parsed, and annotated tokens
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' # See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html
 #' txt <- "And now for something completely different."
@@ -191,12 +191,12 @@ spacy_parse.data.frame <- function(x, ...) {
 #' Tokenize text using spaCy
 #' 
 #' Tokenize text using spaCy. The results of tokenization is stored as a Python
-#' object. To obtain the tokens results in R, use \code{get_tokens()}.
-#' \url{http://spacy.io}.
+#' object. To obtain the tokens results in R, use `get_tokens()`.
+#' <https://spacy.io>.
 #' @param x input text
 #' functionalities including the tagging, named entity recognition, dependency 
 #' analysis. 
-#' This slows down \code{spacy_parse()} but speeds up the later parsing. 
+#' This slows down `spacy_parse()` but speeds up the later parsing. 
 #' If FALSE, tagging, entity recognition, and dependency analysis when 
 #' relevant functions are called.
 #' @param multithread logical;
@@ -204,7 +204,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' @return result marker object
 #' @importFrom methods new
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' # the result has to be "tag() is ready to run" to run the following
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 

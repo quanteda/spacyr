@@ -14,14 +14,14 @@ spacy_extract_entity(
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropensci/tif})}
+corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
 
 \item{output}{type of returned object, either \code{"list"} or
 \code{"data.frame"}.}
 
-\item{type}{type of named entities, either \code{named}, \code{extended}, or 
-\code{all}.  See 
-\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
+\item{type}{type of named entities, either \code{named}, \code{extended}, or
+\code{all}.  See
+\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for
 details.}
 
 \item{multithread}{logical; If \code{TRUE}, the processing is parallelized
@@ -39,17 +39,17 @@ This function extracts named entities from texts, based on the entity tag
 }
 \details{
 When the option \code{output = "data.frame"} is selected, the
-  function returns a \code{data.frame} with the following fields.
-  \describe{\item{\code{text}}{contents of entity}
-  \item{\code{entity_type}}{type of entity (e.g. \code{ORG} for
-  organizations)} \item{\code{start_id}}{serial number ID of starting token.
-  This number corresponds with the number of \code{data.frame} returned from
-  \code{spacy_tokenize(x)} with default options.} \item{\code{length}}{number
-  of words (tokens) included in a named entity (e.g. for an entity, "New York
-  Stock Exchange"", \code{length = 4})}}
+function returns a \code{data.frame} with the following fields.
+\describe{\item{\code{text}}{contents of entity}
+\item{\code{entity_type}}{type of entity (e.g. \code{ORG} for
+organizations)} \item{\code{start_id}}{serial number ID of starting token.
+This number corresponds with the number of \code{data.frame} returned from
+\code{spacy_tokenize(x)} with default options.} \item{\code{length}}{number
+of words (tokens) included in a named entity (e.g. for an entity, "New York
+Stock Exchange"", \code{length = 4})}}
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 txt <- c(doc1 = "The Supreme Court is located in Washington D.C.",

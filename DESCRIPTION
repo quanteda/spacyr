@@ -1,14 +1,16 @@
 Package: spacyr
 Type: Package
 Title: Wrapper to the 'spaCy' 'NLP' Library
-Version: 1.2.1
+Version: 1.3.0
 Authors@R: c(
     person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role = c("cre", "aut", "cph"), comment = c(ORCID = "0000-0002-0797-564X")), 
     person("Akitaka", "Matsuo", email = "a.matsuo@lse.ac.uk", role = "aut", comment = c(ORCID = "0000-0002-3323-6330")),
+    person("Johannes", "Gruber", , "JohannesB.Gruber@gmail.com", role = "ctb",
+           comment = c(ORCID = "0000-0001-9177-1772")),
     person("European Research Council", role = "fnd", comment = "ERC-2011-StG 283794-QUANTESS")
     )
 Description: An R wrapper to the 'Python' 'spaCy' 'NLP' library,
-    from <http://spacy.io>.
+    from <https://spacy.io>.
 License: GPL-3
 LazyData: TRUE
 Depends:
@@ -30,6 +32,7 @@ Suggests:
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Language: en-GB
 VignetteBuilder: R.rsp
+Roxygen: list(markdown = TRUE)

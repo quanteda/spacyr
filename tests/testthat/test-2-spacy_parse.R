@@ -5,8 +5,7 @@ test_that("spacy_parse handles newlines and tabs ok", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-    expect_message(spacy_initialize(), "successfully")
+    try_spacy_initialize()
 
     txt1 <- c(doc1 = "Sentence one.\nSentence two.",
               doc2 = "Sentence\tthree.")
@@ -39,8 +38,7 @@ test_that("spacy_parse handles quotes ok", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
-    expect_message(spacy_initialize(), "successfully")
+    try_spacy_initialize()
 
     txt1 <- c(doc1 = "Sentence \"quoted\" one.",
               doc2 = "Sentence \'quoted\' two.")
@@ -71,11 +69,11 @@ test_that("spacy_parse returns the same regardless of the value of 'entity' opti
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
+    try_spacy_initialize()
 
     txt1 <- c(doc1 = "Sentence one.\nSentence two.",
               doc2 = "Sentence\tthree.")
-    expect_message(spacy_initialize(entity = TRUE), "successfully")
+    
     data_not_omit_entity <- spacy_parse(txt1, entity = FALSE)
     expect_silent(spacy_finalize())
 
@@ -94,11 +92,13 @@ test_that("spacy_parse returns the message if 'entity' option is not consistent 
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
+    try_spacy_initialize()
 
     txt1 <- c(doc1 = "Sentence one.\nSentence two.",
               doc2 = "Sentence\tthree.")
-    expect_message(spacy_initialize(entity = FALSE), "successfully")
+    
+    expect_silent(spacy_finalize())
+    expect_message(spacy_initialize(entity = FALSE), "successfully|already")
     expect_message(spacy_parse(txt1, entity = TRUE), "entity == TRUE is ignored")
 
     expect_silent(spacy_finalize())
@@ -112,9 +112,9 @@ test_that("spacy_parse additional_attributes option works as intended", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
+    try_spacy_initialize()
 
-    expect_message(spacy_initialize(), "successfully")
+    expect_message(spacy_initialize(), "successfully|already")
 
     txt1 <- c(doc1 = "I would have accepted without question the information that Gatsby sprang from the swamps of Louisiana or from the lower East Side of New York.",
               doc2 = "I graduated from New Haven in 1915, just a quarter of a century after my father, and a little later I participated in that delayed Teutonic migration known as the Great War.")
@@ -140,9 +140,9 @@ test_that("spacy_parse can handle data.frame properly", {
     skip_on_cran()
     # skip_on_appveyor()
     skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
+    try_spacy_initialize()
 
-    expect_message(spacy_initialize(), "successfully")
+    expect_message(spacy_initialize(), "successfully|already")
 
     df <- data.frame(doc_id = paste0("doc", seq(2)),
                      text = c("Sentence one.\nSentence two.",
@@ -164,7 +164,7 @@ test_that("spacy_parse can handle data.frame properly", {
 test_that("spacy_parse handles numbers/tibbles correctly", {
     skip_on_cran()
     skip_on_os("solaris")
-    skip_if_no_python_or_no_spacy()
+    try_spacy_initialize()
     skip_if_not_installed("tibble")
     bogustib <- tibble::tibble(doc_id = c(1, 2, 3),
                                text = c("bug", "one love", "838383838"))

@@ -1,3 +1,7 @@
+# spacyr v1.3
+
+* Overhauled the `spacy_install()` and `spacy_uninstall()` functions to provide a more modern and robust installation procedure.
+
 
 # spacyr v1.2
 

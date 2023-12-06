@@ -19,10 +19,10 @@ spacy_parse(
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropensci/tif})}
+corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
 
 \item{pos}{logical whether to return universal dependency POS tagset
-\url{http://universaldependencies.org/u/pos/})}
+\url{https://universaldependencies.org/u/pos/})}
 
 \item{tag}{logical whether to return detailed part-of-speech tags, for the
 language model \code{en}, it uses the OntoNotes 5 version of the Penn
@@ -69,7 +69,7 @@ option. If \code{"full_parse = TRUE"} is provided, the function returns the
 most extensive list of the parsing results from spaCy.
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 # See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html
 txt <- "And now for something completely different."

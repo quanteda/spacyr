@@ -2,97 +2,79 @@
 % Please edit documentation in R/spacy_install.R
 \name{spacy_install}
 \alias{spacy_install}
-\alias{spacy_install_virtualenv}
 \title{Install spaCy in conda or virtualenv environment}
 \usage{
 spacy_install(
-  conda = "auto",
   version = "latest",
   lang_models = "en_core_web_sm",
-  python_version = "3.6",
-  envname = "spacy_condaenv",
-  pip = FALSE,
-  python_path = NULL,
-  prompt = TRUE
-)
-
-spacy_install_virtualenv(
-  version = "latest",
-  lang_models = "en_core_web_sm",
-  python_version = "3.6",
-  python_path = NULL,
-  prompt = TRUE
+  ask = interactive(),
+  force = FALSE,
+  ...
 )
 }
 \arguments{
-\item{conda}{character; path to conda executable. Default "auto" which
-automatically find the path}
+\item{version}{character; spaCy version to install (see details).}
 
-\item{version}{character; spaCy version to install. Specify \code{"latest"}
-  to install the latest release, or \code{"latest_v1"} to install the latest 
-  release of spaCy v1.*.  See spaCy Version Issues.
+\item{lang_models}{character; language models to be installed. Defaults
+\code{en_core_web_sm} (English model). A vector of multiple model names can
+be used (e.g. \code{c("en_core_web_sm", "de_core_news_sm")}). A list of
+available language models and their
+names is available from the \href{https://spacy.io/usage/models}{spaCy language models} page.}
 
-  You can also provide a full major.minor.patch specification (e.g. "1.1.0")}
+\item{ask}{logical; ask whether to proceed during the installation. By
+default, questions are only asked in interactive sessions.}
 
-\item{lang_models}{character; language models to be installed. Default
-\code{en_core_web_sm} (English model). A vector of multiple model names can be used
-(e.g. \code{c("en_core_web_sm", "de_core_news_sm")}).  A list of available language models and their
-names is available from the \href{https://spacy.io/usage/models}{spaCy
-language models} page.}
+\item{force}{ignore if spaCy/the lang_models is already present and install
+it anyway.}
 
-\item{python_version}{character; determine Python version for condaenv
-installation. 3.5 and 3.6 are available.}
-
-\item{envname}{character; name of the conda-environment to install spaCy. 
-Default is "spacy_condaenv".}
-
-\item{pip}{\code{TRUE} to use pip for installing spacy. If \code{FALSE}, conda 
-package manager with conda-forge channel will be used for installing spacy.}
-
-\item{python_path}{character; path to Python in virtualenv installation}
-
-\item{prompt}{logical; ask whether to proceed during the installation}
+\item{...}{not used.}
 }
 \description{
 Install spaCy in a self-contained environment, including
-  specified language models.  For macOS and Linux-based systems, this will
-  also install Python itself via a "miniconda" environment, for
-  \code{spacy_install}.  Alternatively, an existing conda installation may be
-  used, by specifying its path.  The default setting of \code{"auto"} will
-  locate and use an existing installation automatically, or download and
-  install one if none exists.  
-  
-  For Windows, automatic installation of miniconda installation is not currently
-  available, so the user will need to \href{https://conda.io/projects/conda/en/latest/user-guide/install/index.html}{miniconda (or Anaconda) manually}.
-
-If you wish to install Python ion a "virtualenv", use the
-  \code{spacy_install_virtualenv} function.
+specified language models.
 }
-\section{spaCy Version Issues}{
+\details{
+The function checks whether a suitable installation of Python is
+present on the system and installs one via
+\code{\link[reticulate:install_python]{reticulate::install_python()}} otherwise. It then creates a
+virtual environment with the necessary packages in the default location
+chosen by \code{\link[reticulate:virtualenv-tools]{reticulate::virtualenv_root()}}.
 
-
-  The version options currently default to the latest spaCy v2 (\code{version
-  = "latest"}). As of 2018-04, however,
-  \href{https://github.com/explosion/spaCy/issues/1508}{some performance
-  issues} affect the speed of the spaCy pipeline for spaCy v2.x relative to
-  v1.x.   This can  enormously affect the performance of
-  \code{spacy_parse()}, especially when a large number of small texts are
-  parsed. For this reason, the \pkg{spacyr} provides an option to
-  automatically install the latest version of spaCy v1.*, using \code{version
-  = "latest_v1"}.
+If you want to install a different version of Python than the default, you
+should call \code{\link[reticulate:install_python]{reticulate::install_python()}} directly. If you want
+to create or use a different virtual environment, you can use, e.g.,
+\code{Sys.setenv(SPACY_PYTHON = "path/to/directory")}.
 }
-
 \examples{
 \dontrun{
-# install spaCy in a miniconda environment (macOS and Linux)
-spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"), prompt = FALSE)
+# install the latest version of spaCy
+spacy_install()
 
-# install spaCy to an existing conda environment
-spacy_install(conda = "~/anaconda/bin/")
+# update spaCy
+spacy_install(force = TRUE)
+
+# install an older version
+spacy_install(version = "3.1.0")
+
+# install with GPU enabled
+spacy_install(version = "cuda-autodetect")
+
+# install on Apple ARM processors
+spacy_install(version = "apple")
+
+# install an old custom version
+spacy_install(version = "[cuda-autodetect]==3.2.0")
+
+# install several models with spaCy
+spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
+
+
+# install spaCy to an existing virtual environment
+Sys.setenv(RETICULATE_PYTHON = "path/to/python")
+spacy_install()
 }
 
-\dontrun{
-# install spaCy in a virtualenv environment
-spacy_install_virtualenv(lang_models = c("en_core_web_sm"))
 }
+\seealso{
+\code{\link[=spacy_download_langmodel]{spacy_download_langmodel()}}
 }

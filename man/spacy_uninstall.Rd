@@ -2,18 +2,13 @@
 % Please edit documentation in R/spacy_install.R
 \name{spacy_uninstall}
 \alias{spacy_uninstall}
-\title{Uninstall spaCy conda environment}
+\title{Uninstall the spaCy environment}
 \usage{
-spacy_uninstall(conda = "auto", prompt = TRUE, envname = "spacy_condaenv")
+spacy_uninstall(confirm = interactive())
 }
 \arguments{
-\item{conda}{path to conda executable, default to "auto" which automatically
-finds the path}
-
-\item{prompt}{logical; ask whether to proceed during the installation}
-
-\item{envname}{character; name of conda environment to remove}
+\item{confirm}{logical; confirm before uninstalling spaCy?}
 }
 \description{
-Removes the conda environment created by spacy_install()
+Removes the virtual environment created by spacy_install()
 }

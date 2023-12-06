@@ -6,14 +6,17 @@ codecov
 conda
 condaenv
 Cython
+CMD
 dplyr
 env
 equivalencies
 etc
 gfm
+Gruber
 io
 kbenoit
 knitr
+lang
 lemmatizing
 lse
 macOS
@@ -34,6 +37,8 @@ spacy
 spacyr
 spaCy
 spaCy's
+SPACY
+sm
 symlink
 tokenize
 tagset

@@ -13,7 +13,7 @@ spacy_extract_nounphrases(
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant corpus data.frame (see
-\url{https://github.com/ropensci/tif})}
+\url{https://github.com/ropenscilabs/tif})}
 
 \item{output}{type of returned object, either \code{"data.frame"} or
 \code{"list"}}
@@ -33,7 +33,7 @@ This function extracts noun phrases from documents, based on the
 }
 \details{
 When the option \code{output = "data.frame"} is selected, the
-  function returns a \code{data.frame} with the following fields.
+function returns a \code{data.frame} with the following fields.
 \describe{\item{\code{text}}{contents of noun-phrase}
 \item{\code{root_text}}{contents of root token}
 \item{\code{start_id}}{serial number ID of starting token. This number
@@ -44,7 +44,7 @@ corresponds with the number of \code{data.frame} returned from
 for a noun-phrase, "individual car owners", \code{length = 3})}}
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 txt <- c(doc1 = "Natural language processing is a branch of computer science.",

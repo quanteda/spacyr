@@ -1,74 +1,54 @@
-#' Install a language model in a conda or virtual environment
+#' Download spaCy language models
+#'
+#' @inheritParams spacy_install
 #' 
-#' Installs one or more language models in a conda or virtualenv Python virtual
-#' environment as installed by \code{\link{spacy_install}}.
-#' @param envname name of the virtual environment
-#' @param conda Path to conda executable.  Default \code{"auto"} which
-#'   automatically finds the path.
-#' @param model name of the language model to be installed.  A list of available
-#'   language models and their names is available from the
-#'   \href{https://spacy.io/usage/models}{spaCy language models} page.
+#' @return Invisibly returns the installation log.
+#' 
 #' @export
-spacy_download_langmodel <- function(model = "en",
-                                     envname = "spacy_condaenv",
-                                     conda = "auto") {
-    message(sprintf("Installing model \"%s\"\n", model))
-    # resolve conda binary
-    conda <- reticulate::conda_binary(conda)
-
-    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && python -m spacy download %s%s",
-                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                   shQuote(path.expand(condaenv_bin("activate"))),
-                   envname,
-                   model,
-                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-    result <- system(cmd)
-
-    # check for errors
-    if (result != 0L) {
-        stop("Error ", result, " occurred installing packages into conda environment ",
-             envname, call. = FALSE)
-    }
-    message(sprintf("Language model \"%s\" is successfully installed\n", model))
-    invisible(NULL)
+#'
+#' @examples
+#' \dontrun{
+#' # install medium sized model
+#' spacy_download_langmodel("en_core_web_md")
+#' 
+#' #' # install several models with spaCy
+#' spacy_install(lang_models = c("en_core_web_sm", "de_core_news_sm"))
+#' 
+#' # install transformer based model
+#' spacy_download_langmodel("en_core_web_trf")
+#' }
+spacy_download_langmodel <- function(lang_models = "en_core_web_sm",
+                                     force = FALSE) {
+  
+  if (!force & py_check_installed(lang_models)) {
+    warning("Skipping installation. Use `force` to force installation or update.")
+    return(invisible(NULL))
+  }
+  
+  
+  bin <- Sys.getenv("RETICULATE_PYTHON", unset = reticulate::virtualenv_python(
+    Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")
+  ))
+  args <- c("-m", "spacy", "download")
+  
+  invisible(lapply(lang_models, function(m) {
+    message("Executing command:\n", paste(c(bin, args, m), collapse = " "))
+    system2(bin, args = c(args, m))
+  }))
+  
 }
 
 
-#' @rdname spacy_download_langmodel
-#' @param virtualenv_root path to the virtualenv environment to install spaCy
-#'   language model. If \code{NULL}, the default path \code{"~/.virtualenvs"}
-#'   will be used.
+#' Install a language model in a conda or virtual environment
+#'
+#' @description Deprecated. `spacyr` now always uses a virtual environment,
+#'   making this function redundant.
+#'
+#' @param ... not used
+#'
 #' @export
-spacy_download_langmodel_virtualenv <- function(model = "en",
-                                                envname = "spacy_virtualenv",
-                                                virtualenv_root = NULL) {
-    message(sprintf("installing model \"%s\"\n", model))
-    if (is.null(virtualenv_root)) {
-        virtualenv_root <- "~/.virtualenvs"
-    }
-    virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
-
-    # create virtualenv if necessary
-    virtualenv_path <- file.path(virtualenv_root, "spacy_virtualenv")
-
-    if (!file.exists(virtualenv_path) || !file.exists(virtualenv_bin("activate"))) {
-        stop("The virtual environemnt ", virtualenv_path, " does not exist\n")
-    }
-
-    cmd <- sprintf("%s%s && python -m spacy download %s%s",
-                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                   shQuote(path.expand(virtualenv_bin("activate"))),
-                   model,
-                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-    result <- system(cmd)
-
-    # check for errors
-    if (result != 0L) {
-        stop("Error ", result, " occurred installing packages into virtual environment ",
-             envname, call. = FALSE)
-    }
-    message(sprintf("Language model \"%s\" is successfully installed\n", model))
-
-    invisible(NULL)
+spacy_download_langmodel_virtualenv <- function(...) {
+  
+  .Deprecated(new = "spacy_download_langmodel")
+  
 }

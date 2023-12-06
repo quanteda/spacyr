@@ -21,9 +21,9 @@ spacy_out <- setRefClass(
 
 #' get functions for spaCy
 #' 
-#' A collection of get methods for spacyr return objects (of \code{spacy_out} class).
+#' A collection of get methods for spacyr return objects (of `spacy_out` class).
 #' @param spacy_out a spacy_out object
-#' @return \code{get_tokens} returns a data.frame of tokens from spaCy.
+#' @return `get_tokens` returns a data.frame of tokens from spaCy.
 #' @export
 #' @name get-functions
 #' @keywords internal
@@ -35,15 +35,15 @@ get_tokens <- function(spacy_out) {
 }
 
 #' @rdname get-functions
-#' @return \code{get_tags} returns a tokenized text object with part-of-speech tags.
+#' @return `get_tags` returns a tokenized text object with part-of-speech tags.
 #' Options exist for using either the Google or Detailed tagsets. See 
-#' \url{http://spacy.io}.
-#' @param tagset character label for the tagset to use, either \code{"google"} 
-#'   or \code{"detailed"} to use the simplified Google tagset, or the more detailed 
+#' <https://spacy.io>.
+#' @param tagset character label for the tagset to use, either `"google"` 
+#'   or `"detailed"` to use the simplified Google tagset, or the more detailed 
 #'   scheme from the Penn Treebank (or the German Text Archive in case of German language model).  
 #' @export 
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # get_tags examples
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
 #'          text2 = "This is the second document.")
@@ -69,7 +69,7 @@ get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
 
 #' @rdname get-functions
 #' @param attr_name name of spaCy token attributes to extract
-#' @return \code{get_attrs} returns a list of attributes from spaCy output
+#' @return `get_attrs` returns a list of attributes from spaCy output
 #' @export
 #' @keywords internal
 get_attrs <- function(spacy_out, attr_name, deal_utf8 = FALSE) {
@@ -82,7 +82,7 @@ get_attrs <- function(spacy_out, attr_name, deal_utf8 = FALSE) {
 }
 
 #' @rdname get-functions
-#' @return \code{get_named_entities} returns a list of named entities in texts
+#' @return `get_named_entities` returns a list of named entities in texts
 #' @export
 #' @keywords internal
 get_named_entities <- function(spacy_out){
@@ -104,7 +104,7 @@ get_named_entities <- function(spacy_out){
 
 
 #' @rdname get-functions
-#' @return \code{get_dependency} returns a data.frame of dependency relations.
+#' @return `get_dependency` returns a data.frame of dependency relations.
 #' @export
 #' @keywords internal
 get_dependency <- function(spacy_out) {
@@ -123,7 +123,7 @@ get_dependency <- function(spacy_out) {
 
 
 #' @rdname get-functions
-#' @return \code{get_noun_phrases} returns a data.frame of noun phrases.
+#' @return `get_noun_phrases` returns a data.frame of noun phrases.
 #' @export
 #' @keywords internal
 get_noun_phrases <- function(spacy_out) {
@@ -156,7 +156,7 @@ get_noun_phrases <- function(spacy_out) {
 }
 
 #' @rdname get-functions
-#' @return \code{get_ntokens} returns a data.frame of dependency relations
+#' @return `get_ntokens` returns a data.frame of dependency relations
 #' @export
 #' @keywords internal
 get_ntokens <- function(spacy_out){
@@ -168,7 +168,7 @@ get_ntokens <- function(spacy_out){
 }
 
 #' @rdname get-functions
-#' @return \code{get_ntokens_by_sent} returns a data.frame of dependency
+#' @return `get_ntokens_by_sent` returns a data.frame of dependency
 #'   relations, by sentence
 #' @export
 #' @keywords internal

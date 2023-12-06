@@ -29,3 +29,7 @@ index.Rmd
 index.md
 installation.Rmd
 installation.md
+\.pem$
+
+^\.github$
+^codecov\.yml$

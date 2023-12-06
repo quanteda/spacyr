@@ -1,30 +1,30 @@
 #' Extract noun phrases from texts using spaCy
 #' 
 #' This function extracts noun phrases from documents, based on the
-#' \code{noun_chunks} attributes of documents objects parsed by spaCy (see
-#' \url{https://spacy.io/usage/linguistic-features#noun-chunks}).
+#' `noun_chunks` attributes of documents objects parsed by spaCy (see
+#' <https://spacy.io/usage/linguistic-features#noun-chunks>).
 #' 
 #' @param x a character object or a TIF-compliant corpus data.frame (see
-#'   \url{https://github.com/ropensci/tif})
+#'   <https://github.com/ropenscilabs/tif>)
 #' @inheritParams spacy_parse
-#' @param output type of returned object, either \code{"data.frame"} or
-#'   \code{"list"}
+#' @param output type of returned object, either `"data.frame"` or
+#'   `"list"`
 #' @param ... unused
-#' @details When the option \code{output = "data.frame"} is selected, the
-#'   function returns a \code{data.frame} with the following fields.
-#' \describe{\item{\code{text}}{contents of noun-phrase}
-#' \item{\code{root_text}}{contents of root token}
-#' \item{\code{start_id}}{serial number ID of starting token. This number
-#' corresponds with the number of \code{data.frame} returned from
-#' \code{spacy_tokenize(x)} with default options.}
-#' \item{\code{root_id}}{serial number ID of root token}
-#' \item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g.
-#' for a noun-phrase, "individual car owners", \code{length = 3})}}
+#' @details When the option `output = "data.frame"` is selected, the
+#'   function returns a `data.frame` with the following fields.
+#' \describe{\item{`text`}{contents of noun-phrase}
+#' \item{`root_text`}{contents of root token}
+#' \item{`start_id`}{serial number ID of starting token. This number
+#' corresponds with the number of `data.frame` returned from
+#' `spacy_tokenize(x)` with default options.}
+#' \item{`root_id`}{serial number ID of root token}
+#' \item{`length`}{number of words (tokens) included in a noun-phrase (e.g.
+#' for a noun-phrase, "individual car owners", `length = 3`)}}
 #' 
-#' @return either a \code{list} or \code{data.frame} of tokens
+#' @return either a `list` or `data.frame` of tokens
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' 
 #' txt <- c(doc1 = "Natural language processing is a branch of computer science.",

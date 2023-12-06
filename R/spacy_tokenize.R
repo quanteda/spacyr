@@ -3,29 +3,29 @@
 #' Efficient tokenization (without POS tagging, dependency parsing,
 #' lemmatization, or named entity recognition) of texts using spaCy.
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-#'   corpus data.frame (see \url{https://github.com/ropensci/tif}) 
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>) 
 #' @param what the unit for splitting the text, available alternatives are: 
-#'   \describe{ \item{\code{"word"}}{word segmenter} 
-#'   \item{\code{"sentence"}}{sentence segmenter }}
+#'   \describe{ \item{`"word"`}{word segmenter} 
+#'   \item{`"sentence"`}{sentence segmenter }}
 #' @param remove_punct remove punctuation tokens.
 #' @param remove_numbers remove tokens that look like a number (e.g. "334", "3.1415", "fifty").
 #' @param remove_url remove tokens that look like a url or email address.
 #' @param remove_separators remove spaces as separators when
-#'  all other remove functionalities (e.g. \code{remove_punct}) have to be set to \code{FALSE}. 
-#'  When \code{what = "sentence"}, this option will remove trailing spaces if \code{TRUE}.
-#' @param remove_symbols remove symbols. The symbols are either \code{SYM} in \code{pos}
+#'  all other remove functionalities (e.g. `remove_punct`) have to be set to `FALSE`. 
+#'  When `what = "sentence"`, this option will remove trailing spaces if `TRUE`.
+#' @param remove_symbols remove symbols. The symbols are either `SYM` in `pos`
 #'   field, or currency symbols.
-#' @param padding if \code{TRUE}, leave an empty string where the removed tokens 
+#' @param padding if `TRUE`, leave an empty string where the removed tokens 
 #'   previously existed. This is useful if a positional match is needed between 
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
 #'   needs to be computed.
 #' @inheritParams spacy_parse
-#' @param output type of returning object. Either \code{list} or \code{data.frame}. 
+#' @param output type of returning object. Either `list` or `data.frame`. 
 #' @param ... not used directly
-#' @return either \code{list} or \code{data.frame} of tokens
+#' @return either `list` or `data.frame` of tokens
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' txt <- "And now for something completely different."
 #' spacy_tokenize(txt)

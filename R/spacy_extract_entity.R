@@ -1,33 +1,33 @@
 #' Extract named entities from texts using spaCy
 #' 
 #' This function extracts named entities from texts, based on the entity tag
-#' \code{ent} attributes of documents objects parsed by spaCy (see
-#' \url{https://spacy.io/usage/linguistic-features#section-named-entities}).
+#' `ent` attributes of documents objects parsed by spaCy (see
+#' <https://spacy.io/usage/linguistic-features#section-named-entities>).
 #' 
 #' @param x a character object or a TIF-compliant
-#'   corpus data.frame (see \url{https://github.com/ropensci/tif})
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
 #' @inheritParams spacy_parse
-#' @param output type of returned object, either \code{"list"} or
-#'   \code{"data.frame"}.
-#' @param type type of named entities, either \code{named}, \code{extended}, or 
-#'   \code{all}.  See 
-#'   \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
+#' @param output type of returned object, either `"list"` or
+#'   `"data.frame"`.
+#' @param type type of named entities, either `named`, `extended`, or 
+#'   `all`.  See 
+#'   <https://spacy.io/docs/usage/entity-recognition#entity-types> for 
 #'   details.
 #' @param ... unused
-#' @details When the option \code{output = "data.frame"} is selected, the
-#'   function returns a \code{data.frame} with the following fields.
-#'   \describe{\item{\code{text}}{contents of entity}
-#'   \item{\code{entity_type}}{type of entity (e.g. \code{ORG} for
-#'   organizations)} \item{\code{start_id}}{serial number ID of starting token.
-#'   This number corresponds with the number of \code{data.frame} returned from
-#'   \code{spacy_tokenize(x)} with default options.} \item{\code{length}}{number
+#' @details When the option `output = "data.frame"` is selected, the
+#'   function returns a `data.frame` with the following fields.
+#'   \describe{\item{`text`}{contents of entity}
+#'   \item{`entity_type`}{type of entity (e.g. `ORG` for
+#'   organizations)} \item{`start_id`}{serial number ID of starting token.
+#'   This number corresponds with the number of `data.frame` returned from
+#'   `spacy_tokenize(x)` with default options.} \item{`length`}{number
 #'   of words (tokens) included in a named entity (e.g. for an entity, "New York
-#'   Stock Exchange"", \code{length = 4})}}
+#'   Stock Exchange"", `length = 4`)}}
 #' 
-#' @return either a \code{list} or \code{data.frame} of tokens
+#' @return either a `list` or `data.frame` of tokens
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' 
 #' txt <- c(doc1 = "The Supreme Court is located in Washington D.C.",

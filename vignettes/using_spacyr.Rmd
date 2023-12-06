@@ -1,5 +1,5 @@
 ---
-title: "A Guide to Using spacyr"
+title: "Using spacyr"
 author: "Kenneth Benoit and Akitaka Matsuo"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 )
 library("quanteda")
 ```
-
 
 
 ## Introduction
@@ -53,7 +52,7 @@ spacy_initialize(model = "en_core_web_sm")
 
 ## Tokenizing and tagging texts
 
-The `spacy_parse()` function is **spacyr**'s main workhorse.  It calls spaCy both to tokenize and tag the texts.  It provides two options for part of speech tagging, plus options to return word lemmas, recognize names entities or noun phrases recognition, and identify grammatical structures features by parsing syntactic dependencies.  It returns a `data.frame` corresponding to the emerging [*text interchange format*](https://github.com/ropensci/tif) for token data.frames.
+The `spacy_parse()` function is **spacyr**'s main workhorse.  It calls spaCy both to tokenize and tag the texts.  It provides two options for part of speech tagging, plus options to return word lemmas, recognize names entities or noun phrases recognition, and identify grammatical structures features by parsing syntactic dependencies.  It returns a `data.frame` corresponding to the emerging [*text interchange format*](https://github.com/ropenscilabs/tif) for token data.frames.
 
 The tokenization approach taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.
 
@@ -67,7 +66,8 @@ parsedtxt <- spacy_parse(txt)
 parsedtxt
 ```
 
-Two fields are available for part-of-speech tags.  The `pos` field returned is the [Universal tagset for parts-of-speech](http://universaldependencies.org/u/pos/all.html), a general scheme that most users will find serves their needs, and also that provides equivalencies across languages.   **spacyr** also provides a more detailed tagset, defined in each spaCy language model.  For English, this is the [OntoNotes 5 version of the Penn Treebank tag set](https://spacy.io/docs/usage/pos-tagging#pos-tagging-english).
+Two fields are available for part-of-speech tags.  The `pos` field returned is the [Universal tagset for parts-of-speech](https://universaldependencies.org/u/pos/all.html), a general scheme that most users will find serves their needs, and also that provides equivalencies across languages.   **spacyr** also provides a more detailed tagset, defined in each spaCy language model.  For English, this is the [OntoNotes 5 version of the Penn Treebank tag set](https://spacy.io/docs/usage/pos-tagging#pos-tagging-english).
+
 ```{r}
 spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
 ```
@@ -75,10 +75,13 @@ spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
 The Penn Treebank is specific to English parts of speech.  For other language models, the detailed tagset will be based on a different scheme.  In the German language model, for instance, the universal tagset (`pos`) remains the same, but the detailed tagset (`tag`) is based on the [TIGER Treebank](https://spacy.io/docs/usage/pos-tagging#pos-tagging-german) scheme.  Full details are available from the [spaCy models web page](https://spacy.io/models/).
 
 Direct parsing of texts is also possible, using **spacy_tokenize()**.  The options are designed to match those in the [`tokens()` function](https://quanteda.io/reference/tokens.html) from the **quanteda** package.  By default this returns a named list (where the document name is the list element name):
+
 ```{r}
 spacy_tokenize(txt)
 ```
+
 but it can also output a data.frame:
+
 ```{r}
 spacy_tokenize(txt, remove_punct = TRUE, output = "data.frame") %>%
     tail()
@@ -89,17 +92,20 @@ spacy_tokenize(txt, remove_punct = TRUE, output = "data.frame") %>%
 ### Entity and noun phrase recognition
 
 **spacyr** can extract entities, either named or ["extended"](https://spacy.io/api/annotation#named-entities) from the output of `spacy_parse()`.
+
 ```{r}
 parsedtxt <- spacy_parse(txt, lemma = FALSE, entity = TRUE, nounphrase = TRUE)
 entity_extract(parsedtxt)
 ```
 
 "Extended" entities including entities such as dates, events, and cardinal or ordinal quantities.
+
 ```{r}
 entity_extract(parsedtxt, type = "all")
 ```
 
 One very useful feature is to use the consolidation functions to compound multi-word entities into single "tokens" (as they would in a language like German):
+
 ```{r}
 entity_consolidate(parsedtxt) %>%
     tail()
@@ -112,11 +118,13 @@ nounphrase_extract(parsedtxt)
 ```
 
 Just as with entities, noun phrases can also be consolidated into single "tokens":
+
 ```{r}
 nounphrase_consolidate(parsedtxt)
 ```
 
 If a user's only goal is entity or noun phrase extraction, then two functions make this easy without first parsing the entire text:
+
 ```{r}
 spacy_extract_entity(txt)
 spacy_extract_nounphrases(txt)
@@ -132,6 +140,7 @@ spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
 ### Extracting additional token attributes
 
 It is also possible to extract additional [attributes of spaCy tokens](https://spacy.io/api/token#attributes) with the `additional_attributes` option.  For example, detecting numbers and email addresses:
+
 ```{r}
 spacy_parse("I have six email addresses, including me@mymail.com.", 
             additional_attributes = c("like_num", "like_email"),
@@ -145,13 +154,14 @@ By default, **spacyr** loads an English language model. You also can load spaCy'
 
 ```{r echo = FALSE}
 knitr::kable(data.frame(Language = c("German", "Spanish", "Portuguese",  "French", "Italian", "Dutch"),
-           ModelName = c("`de`", "`es`", "`pt`", "`fr`", "`it`", "`nl`")) )
+                        ModelName = c("`de`", "`es`", "`pt`", "`fr`", "`it`", "`nl`")) )
 ```
 
 
 This is an example of parsing German texts.
+
 ```{r}
-## first finalize the spacy if it's loaded
+## first finalize the old instance of spaCy if it's loaded
 spacy_finalize()
 spacy_initialize(model = "de_core_news_sm")
 
@@ -161,7 +171,8 @@ results_german <- spacy_parse(txt_german, dependency = FALSE, lemma = FALSE, tag
 results_german
 spacy_finalize()
 ```
-Note that the additional language models must first be installed in spaCy. When spaCy has been installed through `spacy_install()`, installation of additional language models is very simple. For example, the German language model can be installed (`spacy_download_langmodel('de')`). In other environments, you can install the model by entering `python -m spacy download de` in the console.
+
+Note that the additional language models must first be installed in spaCy. When spaCy has been installed through `spacy_install()`, installation of additional language models is very simple. For example, the German language model can be installed (`spacy_download_langmodel("de_core_news_sm")`). In other environments, you can install the model by entering `python -m spacy download de` in the console.
 
 ## Integrating **spacyr** with other text analysis packages
 
@@ -170,6 +181,7 @@ Note that the additional language models must first be installed in spaCy. When 
 The outputs and formats of **spacyr** are designed to integrate directly with the **quanteda** package.
 
 For instance, many of its functions operate directly on **spacyr** objects, such as a parsed text.  
+
 ```{r}
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 docnames(parsedtxt)
@@ -179,6 +191,7 @@ ntype(parsedtxt)
 ```
 
 Conversion of tokens is easily performed, and the tokenizers in **spacyr** tend to be smarter than the purely syntactic pattern-based parsers used by **quanteda**.
+
 ```{r}
 spacy_initialize(model = "en_core_web_sm")
 parsedtxt <- spacy_parse(txt, pos = TRUE, tag = TRUE)
@@ -188,6 +201,7 @@ as.tokens(parsedtxt, include_pos = "tag")
 ```
 
 The latter is useful for say, selecting only nouns, using "glob" pattern matching with **quanteda**'s `tokens_select()` function:
+
 ```{r}
 spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
     as.tokens(include_pos = "pos") %>%
@@ -195,28 +209,33 @@ spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
 ```
 
 Direct conversion of just the spaCy-based tokens is also possible:
+
 ```{r}
 spacy_tokenize(txt) %>%
     as.tokens()
 ```
+
 including for sentences, for which spaCy's recognition is very smart:
+
 ```{r}
 txt2 <- "A Ph.D. in Washington D.C.  Mr. Smith went to Washington."
 spacy_tokenize(txt2, what = "sentence") %>%
     as.tokens()
 ```
 
-
 This also works well with entity recognition, e.g.
+
 ```{r}
 spacy_parse(txt, entity = TRUE) %>%
     entity_consolidate() %>%
     as.tokens() %>% 
     head(1)
 ```
+
 ### With **tidytext**
 
 If you prefer a tidy approach to text analysis, **spacyr** works nicely because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects. 
+
 ```{r}
 if (!requireNamespace("tidytext", quietly = TRUE))
   install.packages("tidytext", repos = "https://cran.rstudio.com/")
@@ -226,6 +245,7 @@ unnest_tokens(parsedtxt, word, token) %>%
 ```
 
 Part of speech filtering can then happen using **dplyr**:
+
 ```{r}
 spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
     unnest_tokens(word, token) %>%
@@ -233,10 +253,9 @@ spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
 ```
 
 
-
 ### Adherence to the "TIF" standard
 
-**spacyr**'s output was designed to conform to the [Text Interchange Format](https://github.com/ropensci/tif), a cooperatively agreed standard structure for text package objects in R, such as corpus and token objects.  `spacy_initialize()` can take a TIF corpus data.frame or character object as a valid input.  Moreover, the data.frames returned by `spacy_parse()` and `entity_consolidate()` conform to the TIF tokens standard for data.frame tokens objects.  This will make it easier to use with any text analysis package for R that works with TIF standard objects.
+**spacyr**'s output was designed to conform to the [Text Interchange Format](https://github.com/ropenscilabs/tif), a cooperatively agreed standard structure for text package objects in R, such as corpus and token objects.  `spacy_initialize()` can take a TIF corpus data.frame or character object as a valid input.  Moreover, the data.frames returned by `spacy_parse()` and `entity_consolidate()` conform to the TIF tokens standard for data.frame tokens objects.  This will make it easier to use with any text analysis package for R that works with TIF standard objects.
 
 
 ## Finishing a session
@@ -246,5 +265,6 @@ When `spacy_initialize()` is executed, a background process of spaCy is attached
 ```{r, eval = FALSE}
 spacy_finalize()
 ```
+
 By calling `spacy_initialize()` again, you can reattach the backend spaCy.
 

@@ -1,25 +1,22 @@
 #' Extract or consolidate entities from parsed documents
 #' 
-#' From an object parsed by \code{\link{spacy_parse}}, extract the entities as a
+#' From an object parsed by [spacy_parse()], extract the entities as a
 #' separate object, or convert the multi-word entities into single "token"
 #' consisting of the concatenated elements of the multi-word entities.
-#' @param x output from \code{\link{spacy_parse}}.
-#' @param type type of named entities, either \code{named}, \code{extended}, or 
-#'   \code{all}.  See 
-#'   \url{https://spacy.io/docs/usage/entity-recognition#entity-types} for 
+#' @param x output from [spacy_parse()].
+#' @param type type of named entities, either `named`, `extended`, or 
+#'   `all`.  See 
+#'   <https://spacy.io/docs/usage/entity-recognition#entity-types> for 
 #'   details.
-#' @return \code{entity_extract} returns a \code{data.frame} of all named
+#' @returns `entity_extract()` returns a data.frame of all named
 #'   entities, containing the following fields: 
-#'   \itemize{
-#'   \item{\code{doc_id}}{ name of the document containing the entity} 
-#'   \item{\code{sentence_id}}{ the sentence ID containing the entity, within the document}
-#'   \item{\code{entity}}{ the named entity}
-#'   \item{\code{entity_type}}{ type of named entities (e.g. PERSON, ORG, PERCENT,
-#'   etc.)} 
-#'   }
+#'   * `doc_id` name of the document containing the entity
+#'   * `sentence_id` the sentence ID containing the entity, within the document
+#'   * `entity` the named entity
+#'   * `entity_type` the type of named entities (e.g. PERSON, ORG, PERCENT, etc.)
 #' @importFrom data.table data.table as.data.table
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' 
 #' # entity extraction
@@ -70,13 +67,13 @@ entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")
 #' @rdname entity_extract
 #' @param concatenator the character(s) used to join the elements of multi-word
 #'   named entities
-#' @return \code{entity_consolidate} returns a modified \code{data.frame} of
+#' @return `entity_consolidate` returns a modified `data.frame` of
 #'   parsed results, where the named entities have been combined into a single
 #'   "token".  Currently, dependency parsing is removed when this consolidation
 #'   occurs.
 #' @importFrom data.table data.table
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # consolidating multi-word entities 
 #' txt <- "The House of Representatives voted to suspend aid to South Dakota."
 #' parsed <- spacy_parse(txt, entity = TRUE)
