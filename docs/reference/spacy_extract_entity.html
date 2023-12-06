@@ -127,27 +127,14 @@ Stock Exchange"", <code>length = 4</code>)</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> spaCy is already initialized</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>doc1 <span class="op">=</span> <span class="st">"The Supreme Court is located in Washington D.C."</span>,</span></span>
 <span class="r-in"><span>         doc2 <span class="op">=</span> <span class="st">"Paul earned a postgraduate degree from MIT."</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">spacy_extract_entity</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id              text ent_type start_id length</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   doc1 The Supreme Court      ORG        1      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   doc1   Washington D.C.      GPE        7      2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   doc2              Paul   PERSON        1      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   doc2               MIT      ORG        7      1</span>
 <span class="r-in"><span><span class="fu">spacy_extract_entity</span><span class="op">(</span><span class="va">txt</span>, output <span class="op">=</span> <span class="st">"list"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $doc1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The Supreme Court" "Washington D.C."  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $doc2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Paul" "MIT" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>

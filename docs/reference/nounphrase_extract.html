@@ -100,35 +100,20 @@ occurs.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> successfully initialized (spaCy Version: 3.7.2, language model: en_core_web_sm)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># entity extraction</span></span></span>
 <span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"Mr. Smith of moved to San Francisco in December."</span></span></span>
 <span class="r-in"><span><span class="va">parsed</span> <span class="op">&lt;-</span> <span class="fu"><a href="spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="entity_extract.html">entity_extract</a></span><span class="op">(</span><span class="va">parsed</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id        entity entity_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1         Smith      PERSON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1 San_Francisco         GPE</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="co"># consolidating multi-word noun phrases</span></span></span>
 <span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"The House of Representatives voted to suspend aid to South Dakota."</span></span></span>
 <span class="r-in"><span><span class="va">parsed</span> <span class="op">&lt;-</span> <span class="fu"><a href="spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">nounphrase_consolidate</span><span class="op">(</span><span class="va">parsed</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id           token           lemma        pos</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1       The_House       the_House nounphrase</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   text1           1        2              of              of        ADP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   text1           1        3 Representatives Representatives nounphrase</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   text1           1        4           voted            vote       VERB</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   text1           1        5              to              to       PART</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   text1           1        6         suspend         suspend       VERB</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7   text1           1        7             aid             aid nounphrase</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   text1           1        8              to              to        ADP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   text1           1        9    South_Dakota    South_Dakota nounphrase</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10  text1           1       10               .               .      PUNCT</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>

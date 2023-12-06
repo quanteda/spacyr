@@ -156,165 +156,23 @@ list of available attributes is available from
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> spaCy is already initialized</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span><span class="co"># See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html</span></span></span>
 <span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"And now for something completely different."</span></span></span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id token_id      token      lemma   pos entity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1        1        And        and CCONJ       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1        2        now        now   ADV       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  text1           1        3        for        for   ADP       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  text1           1        4  something  something  PRON       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  text1           1        5 completely completely   ADV       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  text1           1        6  different  different   ADJ       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  text1           1        7          .          . PUNCT       </span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span>, pos <span class="op">=</span> <span class="cn">TRUE</span>, tag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id token_id      token      lemma   pos tag entity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1        1        And        and CCONJ  CC       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1        2        now        now   ADV  RB       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  text1           1        3        for        for   ADP  IN       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  text1           1        4  something  something  PRON  NN       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  text1           1        5 completely completely   ADV  RB       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  text1           1        6  different  different   ADJ  JJ       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  text1           1        7          .          . PUNCT   .       </span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   doc_id sentence_id token_id      token      lemma   pos head_token_id dep_rel</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  text1           1        1        And        and CCONJ             3      cc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  text1           1        2        now        now   ADV             3  advmod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  text1           1        3        for        for   ADP             3    ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  text1           1        4  something  something  PRON             3    pobj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  text1           1        5 completely completely   ADV             6  advmod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  text1           1        6  different  different   ADJ             4    amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  text1           1        7          .          . PUNCT             3   punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   entity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7       </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">txt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>doc1 <span class="op">=</span> <span class="st">"The fast cat catches mice.\\nThe quick brown dog jumped."</span>, </span></span>
 <span class="r-in"><span>          doc2 <span class="op">=</span> <span class="st">"This is the second document."</span>,</span></span>
 <span class="r-in"><span>          doc3 <span class="op">=</span> <span class="st">"This is a \\\"quoted\\\" text."</span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt2</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id    token    lemma   pos head_token_id dep_rel</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    doc1           1        1      The      the   DET             3     det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    doc1           1        2     fast     fast   ADJ             3    amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    doc1           1        3      cat      cat  NOUN             4   nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    doc1           1        4  catches    catch  VERB             4    ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    doc1           1        5     mice    mouse  NOUN             4    dobj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    doc1           1        6        .        . PUNCT             4   punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    doc1           1        7       \n       \n SPACE             6     dep</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8    doc1           2        1      The      the   DET             4     det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9    doc1           2        2    quick    quick   ADJ             4    amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10   doc1           2        3    brown    brown   ADJ             4    amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11   doc1           2        4      dog      dog  NOUN             5   nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12   doc1           2        5   jumped     jump  VERB             5    ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13   doc1           2        6        .        . PUNCT             5   punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14   doc2           1        1     This     this  PRON             2   nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15   doc2           1        2       is       be   AUX             2    ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16   doc2           1        3      the      the   DET             5     det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17   doc2           1        4   second   second   ADJ             5    amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18   doc2           1        5 document document  NOUN             2    attr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19   doc2           1        6        .        . PUNCT             2   punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20   doc3           1        1     This     this  PRON             2   nsubj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21   doc3           1        2       is       be   AUX             2    ROOT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22   doc3           1        3        a        a   DET             7     det</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23   doc3           1        4        "        " PUNCT             7   punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24   doc3           1        5   quoted    quote  VERB             7    amod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25   doc3           1        6        "        " PUNCT             7   punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26   doc3           1        7     text     text  NOUN             2    attr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27   doc3           1        8        .        . PUNCT             2   punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       entity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 ORDINAL_B</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27          </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">txt3</span> <span class="op">&lt;-</span> <span class="st">"We analyzed the Supreme Court with three natural language processing tools."</span> </span></span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id      token      lemma   pos     entity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1         We         we  PRON           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   text1           1        2   analyzed    analyze  VERB           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   text1           1        3        the        the   DET      ORG_B</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   text1           1        4    Supreme    Supreme PROPN      ORG_I</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   text1           1        5      Court      Court PROPN      ORG_I</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   text1           1        6       with       with   ADP           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7   text1           1        7      three      three   NUM CARDINAL_B</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   text1           1        8    natural    natural   ADJ           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   text1           1        9   language   language  NOUN           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10  text1           1       10 processing processing  NOUN           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11  text1           1       11      tools       tool  NOUN           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12  text1           1       12          .          . PUNCT           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    nounphrase whitespace</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    beg_root       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                   TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3         beg       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4         mid       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    end_root       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                   TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7         beg       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8         mid       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9         mid       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10        mid       TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11   end_root      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12                 FALSE</span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, additional_attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"like_num"</span>, <span class="st">"is_punct"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    doc_id sentence_id token_id      token      lemma   pos     entity like_num</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   text1           1        1         We         we  PRON               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   text1           1        2   analyzed    analyze  VERB               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   text1           1        3        the        the   DET      ORG_B    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   text1           1        4    Supreme    Supreme PROPN      ORG_I    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   text1           1        5      Court      Court PROPN      ORG_I    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   text1           1        6       with       with   ADP               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7   text1           1        7      three      three   NUM CARDINAL_B     TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   text1           1        8    natural    natural   ADJ               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   text1           1        9   language   language  NOUN               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10  text1           1       10 processing processing  NOUN               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11  text1           1       11      tools       tool  NOUN               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12  text1           1       12          .          . PUNCT               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    is_punct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12     TRUE</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>

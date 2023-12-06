@@ -147,32 +147,16 @@ using spaCy's architecture (<a href="https://spacy.io/api" class="external-link"
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> spaCy is already initialized</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="st">"And now for something completely different."</span></span></span>
 <span class="r-in"><span><span class="fu">spacy_tokenize</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $text1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "And"        "now"        "for"        "something"  "completely"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6] "different"  "."         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">txt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>doc1 <span class="op">=</span> <span class="st">"The fast cat catches mice.\\nThe quick brown dog jumped."</span>, </span></span>
 <span class="r-in"><span>          doc2 <span class="op">=</span> <span class="st">"This is the second document."</span>,</span></span>
 <span class="r-in"><span>          doc3 <span class="op">=</span> <span class="st">"This is a \\\"quoted\\\" text."</span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">spacy_tokenize</span><span class="op">(</span><span class="va">txt2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $doc1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "The"     "fast"    "cat"     "catches" "mice"    "."       "The"    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "quick"   "brown"   "dog"     "jumped"  "."      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $doc2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This"     "is"       "the"      "second"   "document" "."       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $doc3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This"   "is"     "a"      "\""     "quoted" "\""     "text"   "."     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
