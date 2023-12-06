@@ -37,7 +37,7 @@ into single "token" consisting of the concatenated elements of the multi-word
 noun phrases.
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 # entity extraction
@@ -45,7 +45,7 @@ txt <- "Mr. Smith of moved to San Francisco in December."
 parsed <- spacy_parse(txt, nounphrase = TRUE)
 entity_extract(parsed)
 }
-\donttest{
+\dontrun{
 # consolidating multi-word noun phrases
 txt <- "The House of Representatives voted to suspend aid to South Dakota."
 parsed <- spacy_parse(txt, nounphrase = TRUE)

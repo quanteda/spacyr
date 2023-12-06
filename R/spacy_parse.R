@@ -39,7 +39,7 @@
 #' @return a `data.frame` of tokenized, parsed, and annotated tokens
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' # See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html
 #' txt <- "And now for something completely different."
@@ -204,7 +204,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' @return result marker object
 #' @importFrom methods new
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' # the result has to be "tag() is ready to run" to run the following
 #' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 

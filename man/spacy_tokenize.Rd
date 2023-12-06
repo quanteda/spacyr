@@ -59,7 +59,7 @@ Efficient tokenization (without POS tagging, dependency parsing,
 lemmatization, or named entity recognition) of texts using spaCy.
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 txt <- "And now for something completely different."
 spacy_tokenize(txt)

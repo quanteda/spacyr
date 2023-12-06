@@ -49,7 +49,7 @@ of words (tokens) included in a named entity (e.g. for an entity, "New York
 Stock Exchange"", \code{length = 4})}}
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 txt <- c(doc1 = "The Supreme Court is located in Washington D.C.",

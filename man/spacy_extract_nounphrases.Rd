@@ -44,7 +44,7 @@ corresponds with the number of \code{data.frame} returned from
 for a noun-phrase, "individual car owners", \code{length = 3})}}
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 
 txt <- c(doc1 = "Natural language processing is a branch of computer science.",

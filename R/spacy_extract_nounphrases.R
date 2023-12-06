@@ -24,7 +24,7 @@
 #' @return either a `list` or `data.frame` of tokens
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' 
 #' txt <- c(doc1 = "Natural language processing is a branch of computer science.",

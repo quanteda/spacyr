@@ -25,7 +25,7 @@
 #' @return either `list` or `data.frame` of tokens
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' txt <- "And now for something completely different."
 #' spacy_tokenize(txt)

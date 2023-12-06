@@ -69,7 +69,7 @@ option. If \code{"full_parse = TRUE"} is provided, the function returns the
 most extensive list of the parsing results from spaCy.
 }
 \examples{
-\donttest{
+\dontrun{
 spacy_initialize()
 # See Chap 5.1 of the NLTK book, http://www.nltk.org/book/ch05.html
 txt <- "And now for something completely different."

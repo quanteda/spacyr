@@ -15,7 +15,7 @@
 #'   * `root` the root token of the noun phrase
 #' @importFrom data.table data.table as.data.table
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' spacy_initialize()
 #' 
 #' # entity extraction
@@ -69,7 +69,7 @@ nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
 #'   occurs.
 #' @importFrom data.table data.table
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # consolidating multi-word noun phrases
 #' txt <- "The House of Representatives voted to suspend aid to South Dakota."
 #' parsed <- spacy_parse(txt, nounphrase = TRUE)
