@@ -33,3 +33,4 @@ installation.md
 
 ^\.github$
 ^codecov\.yml$
+^CRAN-SUBMISSION$
