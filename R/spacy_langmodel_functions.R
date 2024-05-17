@@ -20,11 +20,13 @@
 spacy_download_langmodel <- function(lang_models = "en_core_web_sm",
                                      force = FALSE) {
   
-  if (!force & py_check_installed(lang_models)) {
+  if (!force & all(py_check_installed(lang_models))) {
     warning("Skipping installation. Use `force` to force installation or update.")
     return(invisible(NULL))
+  } else if (!force & any(py_check_installed(lang_models))) {
+    warning("Skipping installation of one or more models. Use `force` to force installation or update.")
+    lang_models <- lang_models[!py_check_installed(lang_models)]
   }
-  
   
   bin <- Sys.getenv("RETICULATE_PYTHON", unset = reticulate::virtualenv_python(
     Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")
