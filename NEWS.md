@@ -1,3 +1,7 @@
+# spacyr v1.3.1
+
+* Fixed a bug in `spacy_download_langmodel()` that prevented installing multiple models in one function call (#249)
+
 # spacyr v1.3
 
 * Overhauled the `spacy_install()` and `spacy_uninstall()` functions to provide a more modern and robust installation procedure.
