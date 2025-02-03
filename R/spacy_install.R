@@ -86,7 +86,7 @@ spacy_install <- function(version = "latest",
       
       if (permission) {
         if (utils::packageVersion("reticulate") < "1.19") 
-          stop("Your version or reticulate is too old for this action. Please update")
+          stop("Your version of reticulate is too old for this action. Please update")
         python <- reticulate::install_python()
         reticulate::virtualenv_create(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"),
                                       python = python)
