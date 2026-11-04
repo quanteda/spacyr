@@ -35,9 +35,18 @@ Upgrade spaCy (to a specific version).
 \details{
 The function checks whether a suitable installation of Python is
 present on the system and installs one via
-\code{\link[reticulate:install_python]{reticulate::install_python()}} otherwise. It then creates a
-virtual environment with the necessary packages in the default location
-chosen by \code{\link[reticulate:virtualenv-tools]{reticulate::virtualenv_root()}}.
+\code{\link[reticulate:install_python]{reticulate::install_python()}} otherwise. "Suitable" means a version of
+Python supported by the spaCy release being installed, as declared on
+PyPI (if PyPI cannot be reached, any Python found is used). It then
+creates a virtual environment with the necessary packages in the default
+location chosen by \code{\link[reticulate:virtualenv-tools]{reticulate::virtualenv_root()}}.
+For a spaCy version range, pip selects a release compatible with the
+environment's Python.
+
+An existing environment keeps the Python version it was created with. If
+that version is not supported by the spaCy release being installed,
+\code{spacy_install()} stops with an error; run \code{\link[=spacy_uninstall]{spacy_uninstall()}} and then
+\code{spacy_install()} to recreate the environment with a suitable Python.
 
 If you want to install a different version of Python than the default, you
 should call \code{\link[reticulate:install_python]{reticulate::install_python()}} directly. If you want

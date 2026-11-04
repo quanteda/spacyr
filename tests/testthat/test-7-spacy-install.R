@@ -1,6 +1,11 @@
 context("spacy install")
 source("utils.R")
 
+# these tests install packages and models, including into the default
+# environment, so they only run when requested (as on CI)
+skip_if_not(identical(Sys.getenv("SPACYR_TEST_INSTALL"), "true"),
+            "set SPACYR_TEST_INSTALL=true to run installation tests")
+
 tmp <- tempfile(pattern = "test-env")
 
 test_that("lanugage model download works", {

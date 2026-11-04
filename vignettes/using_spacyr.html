@@ -12,7 +12,7 @@
 
 <meta name="author" content="Kenneth Benoit and Akitaka Matsuo" />
 
-<meta name="date" content="2023-12-01" />
+<meta name="date" content="2026-11-04" />
 
 <title>A Guide to Using spacyr</title>
 
@@ -50,6 +50,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -340,7 +341,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">A Guide to Using spacyr</h1>
 <h4 class="author">Kenneth Benoit and Akitaka Matsuo</h4>
-<h4 class="date">2023-12-01</h4>
+<h4 class="date">2026-11-04</h4>
 
 
 
@@ -360,9 +361,9 @@ named entities or noun phrases.</li>
 <p>It also allows a user to request additional token-level attributes
 directly from spaCy.</p>
 <p><strong>spacyr</strong> also takes care of the installation of not
-only spaCy but also Python itself, in a self-contained miniconda or
-virtualenv environment, and can install additional language models or
-upgrade spaCy as new models and versions become available.</p>
+only spaCy but also Python itself, in a self-contained virtual
+environment, and can install additional language models or upgrade spaCy
+as new models and versions become available.</p>
 <p>Finally, <strong>spacyr</strong> works seamlessly with the <a href="https://quanteda.io"><strong>quanteda</strong></a> package,
 although such use is optional.</p>
 </div>
@@ -374,28 +375,19 @@ underlying Python functionality, <strong>spacyr</strong> must open a
 connection by being initialized within your R session.</p>
 <p>We provide a function for this, <code>spacy_initialize()</code>,
 which attempts to make this process as painless as possible. When spaCy
-has been installed in a conda environment with
-<code>spacy_install()</code> (and see <a href="https://spacyr.quanteda.io" class="uri">https://spacyr.quanteda.io</a> for detailed instructions on
-this setup), <code>spacy_initialize()</code> automatically detects it
-and initializes spaCy. If spaCy is installed in a normal environment
-(i.e. not in a condaenv or virtualenv), <code>spacy_initialize()</code>
-searches your system for Python executables, and testing which have
-spaCy installed.</p>
-<p>For power users with a specialized setup of spaCy (i.e. users who
-have a conda environment already set up for spaCy), it is possible to
-specify which environment or python executable to be used through one of
-the following methods:</p>
-<ol style="list-style-type: decimal">
-<li><code>condaenv</code> argument: supplying the name of conda
-environment</li>
-<li><code>virtualenv</code> argument: supplying the path to the python
-virtual environment</li>
-<li><code>python_executable</code> argument: supplying the path to the
-python</li>
-</ol>
+has been installed with <code>spacy_install()</code> (see <a href="https://spacyr.quanteda.io" class="uri">https://spacyr.quanteda.io</a> for detailed instructions),
+<code>spacy_initialize()</code> uses the virtual environment it created.
+<code>spacy_installed()</code> checks whether that environment, and any
+language models you need, are ready.</p>
+<p>Users with their own setup of spaCy, for instance in a conda
+environment, can instead point <strong>spacyr</strong> to the Python
+executable of that environment by setting the
+<code>RETICULATE_PYTHON</code> environment variable before calling
+<code>spacy_initialize()</code>,
+e.g. <code>Sys.setenv(RETICULATE_PYTHON = reticulate::conda_python(&quot;my-spacy-env&quot;))</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;spacyr&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">spacy_initialize</span>(<span class="at">model =</span> <span class="st">&quot;en_core_web_sm&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 3.7.2, language model: en_core_web_sm)</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)</span></span></code></pre></div>
 </div>
 <div id="tokenizing-and-tagging-texts" class="section level2">
 <h2>Tokenizing and tagging texts</h2>
@@ -418,7 +410,7 @@ symbols.</p>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>parsedtxt <span class="ot">&lt;-</span> <span class="fu">spacy_parse</span>(txt)</span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>parsedtxt</span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="do">##    doc_id sentence_id token_id      token      lemma   pos   entity</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="do">## 1      d1           1        1      spaCy      spacy  INTJ         </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="do">## 1      d1           1        1      spaCy      spacy   NUM         </span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="do">## 2      d1           1        2         is         be   AUX         </span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="do">## 3      d1           1        3      great      great   ADJ         </span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="do">## 4      d1           1        4         at         at   ADP         </span></span>
@@ -445,7 +437,7 @@ defined in each spaCy language model. For English, this is the <a href="https://
 5 version of the Penn Treebank tag set</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">spacy_parse</span>(txt, <span class="at">tag =</span> <span class="cn">TRUE</span>, <span class="at">entity =</span> <span class="cn">FALSE</span>, <span class="at">lemma =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="do">##    doc_id sentence_id token_id      token   pos tag</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="do">## 1      d1           1        1      spaCy  INTJ  UH</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="do">## 1      d1           1        1      spaCy   NUM  CD</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="do">## 2      d1           1        2         is   AUX VBZ</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="do">## 3      d1           1        3      great   ADJ  JJ</span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="do">## 4      d1           1        4         at   ADP  IN</span></span>
@@ -537,7 +529,7 @@ chunks</em></a>).</p>
 single “tokens”:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">nounphrase_consolidate</span>(parsedtxt)</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="do">##    doc_id sentence_id token_id                            token        pos</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="do">## 1      d1           1        1                            spaCy       INTJ</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="do">## 1      d1           1        1                            spaCy        NUM</span></span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="do">## 2      d1           1        2                               is        AUX</span></span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="do">## 3      d1           1        3                            great        ADJ</span></span>
 <span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="do">## 4      d1           1        4                               at        ADP</span></span>
@@ -655,7 +647,7 @@ successfully tested following language models with spaCy version
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="do">## first finalize the old instance of spaCy if it&#39;s loaded</span></span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">spacy_finalize</span>()</span>
 <span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">spacy_initialize</span>(<span class="at">model =</span> <span class="st">&quot;de_core_news_sm&quot;</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 3.7.2, language model: de_core_news_sm)</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 3.8.18, language model: de_core_news_sm)</span></span>
 <span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a></span>
 <span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>txt_german <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">R =</span> <span class="st">&quot;R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.&quot;</span>,</span>
 <span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>               <span class="at">python =</span> <span class="st">&quot;Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.&quot;</span>)</span>
@@ -676,7 +668,7 @@ successfully tested following language models with spaCy version
 <span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="do">## 12      R           2        1                Sie  PRON  PPER       </span></span>
 <span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="do">## 13      R           2        2              wurde   AUX VAFIN       </span></span>
 <span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a><span class="do">## 14      R           2        3                von   ADP  APPR       </span></span>
-<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a><span class="do">## 15      R           2        4       Statistikern  NOUN    NN       </span></span>
+<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a><span class="do">## 15      R           2        4       Statistikern  NOUN    NN MISC_B</span></span>
 <span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a><span class="do">## 16      R           2        5                für   ADP  APPR       </span></span>
 <span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a><span class="do">## 17      R           2        6           Anwender  NOUN    NN       </span></span>
 <span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a><span class="do">## 18      R           2        7                mit   ADP  APPR       </span></span>
@@ -684,7 +676,7 @@ successfully tested following language models with spaCy version
 <span id="cb14-30"><a href="#cb14-30" tabindex="-1"></a><span class="do">## 20      R           2        9           Aufgaben  NOUN    NN       </span></span>
 <span id="cb14-31"><a href="#cb14-31" tabindex="-1"></a><span class="do">## 21      R           2       10         entwickelt  VERB  VVPP       </span></span>
 <span id="cb14-32"><a href="#cb14-32" tabindex="-1"></a><span class="do">## 22      R           2       11                  . PUNCT    $.       </span></span>
-<span id="cb14-33"><a href="#cb14-33" tabindex="-1"></a><span class="do">## 23 python           1        1             Python  NOUN    NN MISC_B</span></span>
+<span id="cb14-33"><a href="#cb14-33" tabindex="-1"></a><span class="do">## 23 python           1        1             Python  NOUN    NE MISC_B</span></span>
 <span id="cb14-34"><a href="#cb14-34" tabindex="-1"></a><span class="do">## 24 python           1        2                ist   AUX VAFIN       </span></span>
 <span id="cb14-35"><a href="#cb14-35" tabindex="-1"></a><span class="do">## 25 python           1        3               eine   DET   ART       </span></span>
 <span id="cb14-36"><a href="#cb14-36" tabindex="-1"></a><span class="do">## 26 python           1        4        universelle   ADJ  ADJA       </span></span>
@@ -701,7 +693,7 @@ successfully tested following language models with spaCy version
 <span id="cb14-47"><a href="#cb14-47" tabindex="-1"></a><span class="do">## 37 python           2        5           lesbaren   ADJ  ADJA       </span></span>
 <span id="cb14-48"><a href="#cb14-48" tabindex="-1"></a><span class="do">## 38 python           2        6                  , PUNCT    $,       </span></span>
 <span id="cb14-49"><a href="#cb14-49" tabindex="-1"></a><span class="do">## 39 python           2        7            knappen   ADJ  ADJA       </span></span>
-<span id="cb14-50"><a href="#cb14-50" tabindex="-1"></a><span class="do">## 40 python           2        8    Programmierstil  NOUN    NN       </span></span>
+<span id="cb14-50"><a href="#cb14-50" tabindex="-1"></a><span class="do">## 40 python           2        8    Programmierstil  NOUN    NE       </span></span>
 <span id="cb14-51"><a href="#cb14-51" tabindex="-1"></a><span class="do">## 41 python           2        9            fördern  VERB VVINF       </span></span>
 <span id="cb14-52"><a href="#cb14-52" tabindex="-1"></a><span class="do">## 42 python           2       10                  . PUNCT    $.</span></span>
 <span id="cb14-53"><a href="#cb14-53" tabindex="-1"></a><span class="fu">spacy_finalize</span>()</span></code></pre></div>
@@ -737,10 +729,10 @@ integrate directly with the <strong>quanteda</strong> package.</p>
 <strong>spacyr</strong> tend to be smarter than the purely syntactic
 pattern-based parsers used by <strong>quanteda</strong>.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">spacy_initialize</span>(<span class="at">model =</span> <span class="st">&quot;en_core_web_sm&quot;</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 3.7.2, language model: en_core_web_sm)</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="do">## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)</span></span>
 <span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>parsedtxt <span class="ot">&lt;-</span> <span class="fu">spacy_parse</span>(txt, <span class="at">pos =</span> <span class="cn">TRUE</span>, <span class="at">tag =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="fu">as.tokens</span>(parsedtxt)</span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="do">## Tokens consisting of 2 documents.</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="do">## tokens of 2 documents (18 tokens, 17 types).</span></span>
 <span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="do">## d1 :</span></span>
 <span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="do">## [1] &quot;spaCy&quot;      &quot;is&quot;         &quot;great&quot;      &quot;at&quot;         &quot;fast&quot;      </span></span>
 <span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="do">## [6] &quot;natural&quot;    &quot;language&quot;   &quot;processing&quot; &quot;.&quot;         </span></span>
@@ -749,9 +741,9 @@ pattern-based parsers used by <strong>quanteda</strong>.</p>
 <span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="do">## [1] &quot;Mr.&quot;      &quot;Smith&quot;    &quot;spent&quot;    &quot;two&quot;      &quot;years&quot;    &quot;in&quot;       &quot;North&quot;   </span></span>
 <span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="do">## [8] &quot;Carolina&quot; &quot;.&quot;</span></span>
 <span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="fu">as.tokens</span>(parsedtxt, <span class="at">include_pos =</span> <span class="st">&quot;pos&quot;</span>)</span>
-<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="do">## Tokens consisting of 2 documents.</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="do">## tokens of 2 documents (18 tokens, 17 types).</span></span>
 <span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="do">## d1 :</span></span>
-<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="do">## [1] &quot;spaCy/INTJ&quot;      &quot;is/AUX&quot;          &quot;great/ADJ&quot;       &quot;at/ADP&quot;         </span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="do">## [1] &quot;spaCy/NUM&quot;       &quot;is/AUX&quot;          &quot;great/ADJ&quot;       &quot;at/ADP&quot;         </span></span>
 <span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="do">## [5] &quot;fast/ADJ&quot;        &quot;natural/ADJ&quot;     &quot;language/NOUN&quot;   &quot;processing/NOUN&quot;</span></span>
 <span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="do">## [9] &quot;./PUNCT&quot;        </span></span>
 <span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a><span class="do">## </span></span>
@@ -760,9 +752,9 @@ pattern-based parsers used by <strong>quanteda</strong>.</p>
 <span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a><span class="do">## [5] &quot;years/NOUN&quot;     &quot;in/ADP&quot;         &quot;North/PROPN&quot;    &quot;Carolina/PROPN&quot;</span></span>
 <span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a><span class="do">## [9] &quot;./PUNCT&quot;</span></span>
 <span id="cb16-24"><a href="#cb16-24" tabindex="-1"></a><span class="fu">as.tokens</span>(parsedtxt, <span class="at">include_pos =</span> <span class="st">&quot;tag&quot;</span>)</span>
-<span id="cb16-25"><a href="#cb16-25" tabindex="-1"></a><span class="do">## Tokens consisting of 2 documents.</span></span>
+<span id="cb16-25"><a href="#cb16-25" tabindex="-1"></a><span class="do">## tokens of 2 documents (18 tokens, 17 types).</span></span>
 <span id="cb16-26"><a href="#cb16-26" tabindex="-1"></a><span class="do">## d1 :</span></span>
-<span id="cb16-27"><a href="#cb16-27" tabindex="-1"></a><span class="do">## [1] &quot;spaCy/UH&quot;      &quot;is/VBZ&quot;        &quot;great/JJ&quot;      &quot;at/IN&quot;        </span></span>
+<span id="cb16-27"><a href="#cb16-27" tabindex="-1"></a><span class="do">## [1] &quot;spaCy/CD&quot;      &quot;is/VBZ&quot;        &quot;great/JJ&quot;      &quot;at/IN&quot;        </span></span>
 <span id="cb16-28"><a href="#cb16-28" tabindex="-1"></a><span class="do">## [5] &quot;fast/JJ&quot;       &quot;natural/JJ&quot;    &quot;language/NN&quot;   &quot;processing/NN&quot;</span></span>
 <span id="cb16-29"><a href="#cb16-29" tabindex="-1"></a><span class="do">## [9] &quot;./.&quot;          </span></span>
 <span id="cb16-30"><a href="#cb16-30" tabindex="-1"></a><span class="do">## </span></span>
@@ -775,14 +767,14 @@ pattern matching with <strong>quanteda</strong>’s
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">spacy_parse</span>(<span class="st">&quot;The cat in the hat ate green eggs and ham.&quot;</span>, <span class="at">pos =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>    <span class="fu">as.tokens</span>(<span class="at">include_pos =</span> <span class="st">&quot;pos&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>    <span class="fu">tokens_select</span>(<span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">&quot;*/NOUN&quot;</span>))</span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="do">## Tokens consisting of 1 document.</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="do">## tokens of 1 document (4 tokens, 4 types).</span></span>
 <span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="do">## text1 :</span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="do">## [1] &quot;cat/NOUN&quot;  &quot;hat/NOUN&quot;  &quot;eggs/NOUN&quot;</span></span></code></pre></div>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="do">## [1] &quot;cat/NOUN&quot;  &quot;hat/NOUN&quot;  &quot;eggs/NOUN&quot; &quot;ham/NOUN&quot;</span></span></code></pre></div>
 <p>Direct conversion of just the spaCy-based tokens is also
 possible:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">spacy_tokenize</span>(txt) <span class="sc">%&gt;%</span></span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>    <span class="fu">as.tokens</span>()</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="do">## Tokens consisting of 2 documents.</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="do">## tokens of 2 documents (18 tokens, 17 types).</span></span>
 <span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="do">## d1 :</span></span>
 <span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="do">## [1] &quot;spaCy&quot;      &quot;is&quot;         &quot;great&quot;      &quot;at&quot;         &quot;fast&quot;      </span></span>
 <span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="do">## [6] &quot;natural&quot;    &quot;language&quot;   &quot;processing&quot; &quot;.&quot;         </span></span>
@@ -795,7 +787,7 @@ smart:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>txt2 <span class="ot">&lt;-</span> <span class="st">&quot;A Ph.D. in Washington D.C.  Mr. Smith went to Washington.&quot;</span></span>
 <span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">spacy_tokenize</span>(txt2, <span class="at">what =</span> <span class="st">&quot;sentence&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>    <span class="fu">as.tokens</span>()</span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="do">## Tokens consisting of 1 document.</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="do">## tokens of 1 document (1 token, 1 type).</span></span>
 <span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="do">## text1 :</span></span>
 <span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="do">## [1] &quot;A Ph.D. in Washington D.C.  Mr. Smith went to Washington.&quot;</span></span></code></pre></div>
 <p>This also works well with entity recognition, e.g.</p>
@@ -803,7 +795,7 @@ smart:</p>
 <span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>    <span class="fu">entity_consolidate</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>    <span class="fu">as.tokens</span>() <span class="sc">%&gt;%</span> </span>
 <span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">1</span>)</span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="do">## Tokens consisting of 1 document.</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="do">## tokens of 1 document (9 tokens, 15 types).</span></span>
 <span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="do">## d1 :</span></span>
 <span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="do">## [1] &quot;spaCy&quot;      &quot;is&quot;         &quot;great&quot;      &quot;at&quot;         &quot;fast&quot;      </span></span>
 <span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="do">## [6] &quot;natural&quot;    &quot;language&quot;   &quot;processing&quot; &quot;.&quot;</span></span></code></pre></div>
@@ -820,7 +812,7 @@ smart:</p>
 <span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">anti_join</span>(stop_words)</span>
 <span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="do">## Joining with `by = join_by(word)`</span></span>
 <span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="do">##   doc_id sentence_id token_id      lemma   pos tag   entity       word</span></span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="do">## 1     d1           1        1      spacy  INTJ  UH               spacy</span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="do">## 1     d1           1        1      spacy   NUM  CD               spacy</span></span>
 <span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="do">## 2     d1           1        5       fast   ADJ  JJ                fast</span></span>
 <span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="do">## 3     d1           1        6    natural   ADJ  JJ             natural</span></span>
 <span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="do">## 4     d1           1        7   language  NOUN  NN            language</span></span>
@@ -837,7 +829,8 @@ smart:</p>
 <span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="do">##   doc_id sentence_id token_id lemma  pos entity word</span></span>
 <span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="do">## 1  text1           1        2   cat NOUN         cat</span></span>
 <span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="do">## 2  text1           1        5   hat NOUN         hat</span></span>
-<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="do">## 3  text1           1        8   egg NOUN        eggs</span></span></code></pre></div>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="do">## 3  text1           1        8   egg NOUN        eggs</span></span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="do">## 4  text1           1       10   ham NOUN         ham</span></span></code></pre></div>
 </div>
 <div id="adherence-to-the-tif-standard" class="section level3">
 <h3>Adherence to the “TIF” standard</h3>
