@@ -21,7 +21,8 @@ language models) is installed in the environment that \code{\link[=spacy_initial
 will use: the one set by \code{RETICULATE_PYTHON} if set, or otherwise the
 virtual environment named by \code{SPACY_PYTHON} (by default \code{"r-spacyr"}). This
 is useful, for instance, to skip examples or tests when spaCy is not
-available.
+available. If a different interpreter is already running in the R session
+and prevents use of the named virtual environment, returns \code{FALSE}.
 }
 \examples{
 spacy_installed()

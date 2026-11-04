@@ -23,6 +23,8 @@
 #'   PyPI (if PyPI cannot be reached, any Python found is used). It then
 #'   creates a virtual environment with the necessary packages in the default
 #'   location chosen by [reticulate::virtualenv_root()].
+#'   For a spaCy version range, pip selects a release compatible with the
+#'   environment's Python.
 #'
 #'   An existing environment keeps the Python version it was created with. If
 #'   that version is not supported by the spaCy release being installed,
@@ -76,18 +78,17 @@ spacy_install <- function(version = "latest",
 
   envname <- Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")
   spacy_pkg <- spacy_pkg_spec(version)
-  # Python versions supported by the spaCy release to be installed, or NULL;
-  # only looked up on PyPI when an environment is created or spaCy installed
-  python_req <- NULL
+  custom_python <- nzchar(Sys.getenv("RETICULATE_PYTHON"))
+  create_env <- !custom_python && !reticulate::virtualenv_exists(envname)
+  python_req <- if (create_env) spacy_python_requirement(version)
 
-  if (nchar(Sys.getenv("RETICULATE_PYTHON")) > 0) {
+  if (custom_python) {
     message("You provided a custom RETICULATE_PYTHON, so we assume you know what you ",
             "are doing managing your virtual environments. Good luck!")
-  } else if (!reticulate::virtualenv_exists(envname)) {
+  } else if (create_env) {
     # this has turned out to be the easiest way to test if a suitable Python 
     # version is present. All other methods load Python, which creates
     # some headache.
-    python_req <- spacy_python_requirement(spacy_pkg_version(version))
     t <- try(reticulate::virtualenv_create(envname, version = python_req), silent = TRUE)
     if (methods::is(t, "try-error")) {
       permission <- TRUE
@@ -100,7 +101,7 @@ spacy_install <- function(version = "latest",
       }
 
       if (permission) {
-        python <- reticulate::install_python()
+        python <- install_spacy_python(python_req)
         reticulate::virtualenv_create(envname, python = python)
       } else {
         stop("Aborted by user")
@@ -111,8 +112,7 @@ spacy_install <- function(version = "latest",
   # installation addresses the environment by name, so only bind the session to
   # it if Python is not running yet: once started, reticulate cannot switch
   # interpreters and use_virtualenv() errors for a different environment
-  if (nchar(Sys.getenv("RETICULATE_PYTHON")) == 0 &&
-      !reticulate::py_available(initialize = FALSE)) {
+  if (!custom_python && !reticulate::py_available(initialize = FALSE)) {
     reticulate::use_virtualenv(envname)
   }
   
@@ -123,10 +123,10 @@ spacy_install <- function(version = "latest",
   }
 
   # an existing environment keeps its Python, which may not suit this spaCy
-  if (is.null(python_req))
-    python_req <- spacy_python_requirement(spacy_pkg_version(version))
-  if (nchar(Sys.getenv("RETICULATE_PYTHON")) == 0)
+  if (!custom_python) {
+    if (!create_env) python_req <- spacy_python_requirement(version)
     check_env_python(envname, python_req)
+  }
   
   reticulate::py_install(spacy_pkg, envname = envname)
   spacy_download_langmodel(lang_models)
@@ -144,7 +144,7 @@ spacy_pkg_spec <- function(version) {
   if (identical(version, "latest")) {
     "spacy"
   } else if (grepl("^v*[1-9]\\.\\d{1,2}\\.\\d{1,2}$", version)) {
-    paste0("spacy==", spacy_pkg_version(version))
+    paste0("spacy==", sub("^v+", "", version))
   } else if (grepl("^[A-z,-]+$", version)) {
     paste0("spacy[", version, "]")
   } else {
@@ -152,20 +152,25 @@ spacy_pkg_spec <- function(version) {
   }
 }
 
-# exact spaCy version requested in spacy_install(), or NULL (latest or extras)
+# Extract a single pinned release from the version argument.
 spacy_pkg_version <- function(version) {
-  m <- regmatches(version, regexpr("[1-9]\\.\\d{1,2}\\.\\d{1,2}\\b", version))
-  if (length(m)) m else NULL
+  spacy_pkg <- spacy_pkg_spec(version)
+  exact_pin <- "^spacy(\\[[^]]+\\])?==\\s*([0-9]+(\\.[0-9]+)*)$"
+  if (grepl(exact_pin, spacy_pkg)) sub(exact_pin, "\\2", spacy_pkg) else NULL
 }
 
-# Python version requirement declared on PyPI for spaCy (the latest release
-# if version is NULL), e.g. "<3.16,>=3.10"; NULL if PyPI cannot be reached
-spacy_python_requirement <- function(version = NULL) {
-  url <- if (is.null(version)) {
-    "https://pypi.org/pypi/spacy/json"
-  } else {
-    paste0("https://pypi.org/pypi/spacy/", version, "/json")
-  }
+# Use PyPI metadata for a single release. Leave version ranges to pip.
+spacy_pypi_url <- function(version) {
+  if (grepl("^spacy(\\[[^]]+\\])?$", spacy_pkg_spec(version)))
+    return("https://pypi.org/pypi/spacy/json")
+
+  pin <- spacy_pkg_version(version)
+  if (!is.null(pin)) paste0("https://pypi.org/pypi/spacy/", pin, "/json")
+}
+
+spacy_python_requirement <- function(version) {
+  url <- spacy_pypi_url(version)
+  if (is.null(url)) return(NULL)
   json <- tryCatch(
     suppressWarnings(paste(readLines(url, warn = FALSE), collapse = "")),
     error = function(e) NULL
@@ -179,20 +184,43 @@ spacy_python_requirement <- function(version = NULL) {
 }
 
 # does a Python version satisfy a requirement such as "<3.16,>=3.10"?
-# specifiers that cannot be parsed (e.g. wildcards) are ignored
+# specifiers that cannot be parsed are ignored
 python_satisfies <- function(python_version, requirement) {
   v <- numeric_version(python_version)
   for (spec in trimws(strsplit(requirement, ",", fixed = TRUE)[[1]])) {
+    if (grepl("^(==|!=)\\s*[0-9]+(\\.[0-9]+)*\\.\\*$", spec)) {
+      prefix <- sub("^(==|!=)\\s*(.*)\\*$", "\\2", spec)
+      matches <- startsWith(paste0(python_version, "."), prefix)
+      if (matches != startsWith(spec, "==")) return(FALSE)
+      next
+    }
     m <- regmatches(spec, regexec("^(>=|<=|==|!=|~=|>|<)\\s*([0-9]+(\\.[0-9]+)*)$", spec))[[1]]
     if (!length(m)) next
     target <- numeric_version(m[3])
     ok <- switch(m[2],
-                 ">=" = v >= target, "~=" = v >= target, "<=" = v <= target,
+                 ">=" = v >= target, "<=" = v <= target,
                  ">" = v > target, "<" = v < target,
-                 "==" = v == target, "!=" = v != target)
+                 "==" = v == target, "!=" = v != target,
+                 "~=" = v >= target && startsWith(paste0(python_version, "."),
+                                                   sub("[0-9]+$", "", m[3])))
     if (!ok) return(FALSE)
   }
   TRUE
+}
+
+# reticulate's default Python can be outside spaCy's supported range
+install_spacy_python <- function(requirement) {
+  if (is.null(requirement)) return(reticulate::install_python())
+
+  versions <- reticulate::install_python(list = TRUE)
+  versions <- grep("^[0-9]+\\.[0-9]+\\.[0-9]+$", versions, value = TRUE)
+  compatible <- vapply(versions, python_satisfies, logical(1), requirement = requirement)
+  versions <- versions[compatible]
+  if (!length(versions))
+    stop("No Python version available through reticulate satisfies ", requirement,
+         ". Install a compatible Python and try again.", call. = FALSE)
+
+  reticulate::install_python(version = as.character(max(numeric_version(versions))))
 }
 
 # stop if the environment's Python does not satisfy spaCy's requirement
@@ -285,7 +313,8 @@ spacy_uninstall <- function(confirm = interactive()) {
 #' will use: the one set by `RETICULATE_PYTHON` if set, or otherwise the
 #' virtual environment named by `SPACY_PYTHON` (by default `"r-spacyr"`). This
 #' is useful, for instance, to skip examples or tests when spaCy is not
-#' available.
+#' available. If a different interpreter is already running in the R session
+#' and prevents use of the named virtual environment, returns `FALSE`.
 #'
 #' @param lang_models character; names of language models that must also be
 #'   installed, e.g. `"en_core_web_sm"`. If `NULL` (the default), only spaCy
@@ -298,9 +327,19 @@ spacy_uninstall <- function(confirm = interactive()) {
 #' spacy_installed("en_core_web_sm")
 #' @export
 spacy_installed <- function(lang_models = NULL) {
-  if (nchar(Sys.getenv("RETICULATE_PYTHON")) == 0 &&
-      !reticulate::virtualenv_exists(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")))
-    return(FALSE)
+  if (!nzchar(Sys.getenv("RETICULATE_PYTHON"))) {
+    envname <- Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")
+    if (!reticulate::virtualenv_exists(envname)) return(FALSE)
+
+    if (reticulate::py_available(initialize = FALSE)) {
+      active_env <- reticulate::py_config()$prefix
+      # The interpreter lives in bin/ or Scripts/ inside the virtualenv.
+      configured_env <- dirname(dirname(reticulate::virtualenv_python(envname)))
+      if (!identical(normalizePath(active_env, winslash = "/", mustWork = FALSE),
+                     normalizePath(configured_env, winslash = "/", mustWork = FALSE)))
+        return(FALSE)
+    }
+  }
   installed <- tryCatch(py_check_installed(c("spacy", lang_models)),
                         error = function(e) FALSE)
   all(installed)

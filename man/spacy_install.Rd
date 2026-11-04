@@ -41,6 +41,8 @@ Python supported by the spaCy release being installed, as declared on
 PyPI (if PyPI cannot be reached, any Python found is used). It then
 creates a virtual environment with the necessary packages in the default
 location chosen by \code{\link[reticulate:virtualenv-tools]{reticulate::virtualenv_root()}}.
+For a spaCy version range, pip selects a release compatible with the
+environment's Python.
 
 An existing environment keeps the Python version it was created with. If
 that version is not supported by the spaCy release being installed,
