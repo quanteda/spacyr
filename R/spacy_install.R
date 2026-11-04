@@ -1,4 +1,4 @@
-#' Install spaCy in conda or virtualenv environment
+#' Install spaCy in a virtual environment
 #'
 #' @description Install spaCy in a self-contained environment, including
 #'   specified language models.

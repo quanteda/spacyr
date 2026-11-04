@@ -4,12 +4,12 @@
 #' 
 #' @return NULL
 #' @param model Language package for loading spaCy. Example: `en_core_web_sm` (English) and
-#' `de_core_web_sm` (German). Default is `en_core_web_sm`.
+#' `de_core_news_sm` (German). Default is `en_core_web_sm`. This can also be
+#' the path to a model directory.
 #' @param entity logical; if `FALSE` is selected, named entity recognition
 #'   is turned off in spaCy. This will speed up the parsing as it will exclude
 #'   `ner` from the pipeline. For details of spaCy pipeline, see
-#'   <https://spacy.io/usage/processing-pipelines>. The option `FALSE`
-#'   is available only for spaCy version 2.0.0 or higher.
+#'   <https://spacy.io/usage/processing-pipelines>.
 #' @param max_length integer; the maximum number of characters in a single
 #'   document that spaCy will accept (`nlp.max_length`), a whole number no
 #'   larger than `.Machine$integer.max`. If `NULL` (the
@@ -84,10 +84,14 @@ spacy_initialize <- function(model = "en_core_web_sm",
 
 #' Finalize spaCy
 #' 
-#' While running spaCy on Python through R, a Python process is always running
-#' in the background and Rsession will take up a lot of memory (typically over
-#' 1.5GB). `spacy_finalize()` terminates the Python process and frees up
-#' the memory it was using.
+#' Removes the spaCy language model and any parsed documents from the Python
+#' session, so that their memory can be released, and allows
+#' [spacy_initialize()] to be called again, for instance with a different
+#' language model or options.
+#'
+#' Python itself remains loaded in the R session: once started, it cannot be
+#' shut down or switched to a different Python installation or environment
+#' without restarting R.
 #' @return NULL
 #' @export
 #' @author Akitaka Matsuo

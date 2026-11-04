@@ -2,7 +2,7 @@
 % Please edit documentation in R/spacy_install.R
 \name{spacy_install}
 \alias{spacy_install}
-\title{Install spaCy in conda or virtualenv environment}
+\title{Install spaCy in a virtual environment}
 \usage{
 spacy_install(
   version = "latest",

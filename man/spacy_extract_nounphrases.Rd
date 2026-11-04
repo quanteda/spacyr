@@ -18,8 +18,9 @@ spacy_extract_nounphrases(
 \item{output}{type of returned object, either \code{"data.frame"} or
 \code{"list"}}
 
-\item{multithread}{logical; If \code{TRUE}, the processing is parallelized
-using spaCy's architecture (\url{https://spacy.io/api})}
+\item{multithread}{logical; if \code{TRUE}, documents are processed in batches
+using spaCy's \code{nlp.pipe()}, which is usually faster for many documents.
+Despite the name, processing takes place in a single process.}
 
 \item{...}{unused}
 }

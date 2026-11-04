@@ -7,10 +7,15 @@
 spacy_finalize()
 }
 \description{
-While running spaCy on Python through R, a Python process is always running
-in the background and Rsession will take up a lot of memory (typically over
-1.5GB). \code{spacy_finalize()} terminates the Python process and frees up
-the memory it was using.
+Removes the spaCy language model and any parsed documents from the Python
+session, so that their memory can be released, and allows
+\code{\link[=spacy_initialize]{spacy_initialize()}} to be called again, for instance with a different
+language model or options.
+}
+\details{
+Python itself remains loaded in the R session: once started, it cannot be
+shut down or switched to a different Python installation or environment
+without restarting R.
 }
 \author{
 Akitaka Matsuo
