@@ -83,7 +83,7 @@ spacy_parse.character <- function(x,
                                   additional_attributes = NULL,
                                   ...) {
     x <- structure(as.character(x), names = names(x))
-    `:=` <- `.` <- `.N` <- NULL
+    `:=` <- `.` <- `.N` <- `.I` <- NULL
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
