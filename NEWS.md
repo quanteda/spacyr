@@ -1,6 +1,9 @@
 # spacyr v1.3.1
 
 * Fixed a bug in `spacy_download_langmodel()` that prevented installing multiple models in one function call (#249)
+* Fixed a `SyntaxWarning` about an invalid escape sequence on Python 3.12+ when initialising spacyr (#257, thanks to @thjbdvlt).
+* Fixed `spacy_download_langmodel()` and `spacy_install()` not detecting already-installed language models with recent versions of pip (#258).
+* `spacy_install()` and `spacy_upgrade()` no longer fail on Windows when installing into a different environment after Python has been initialised in the session (#258).
 
 # spacyr v1.3
 

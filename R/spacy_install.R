@@ -94,8 +94,13 @@ spacy_install <- function(version = "latest",
         stop("Aborted by user")
       }
     }
-    reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
-  } else {
+  }
+
+  # installation addresses the environment by name, so only bind the session to
+  # it if Python is not running yet: once started, reticulate cannot switch
+  # interpreters and use_virtualenv() errors for a different environment
+  if (nchar(Sys.getenv("RETICULATE_PYTHON")) == 0 &&
+      !reticulate::py_available(initialize = FALSE)) {
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
