@@ -18,11 +18,12 @@
 #'   (<https://spacy.io/docs/usage/pos-tagging#pos-schemes>). Annotation
 #'   specifications for other available languages are available on the spaCy
 #'   website (<https://spacy.io/api/annotation>).
-#' @param lemma logical; include lemmatized tokens in the output (lemmatization
-#'   may not work properly for non-English models)
+#' @param lemma logical; include lemmatized tokens in the output (the quality
+#'   of lemmatization depends on the language model)
 #' @param entity logical; if `TRUE`, report named entities
-#' @param multithread logical; If `TRUE`, the processing is parallelized
-#'   using spaCy's architecture (<https://spacy.io/api>)
+#' @param multithread logical; if `TRUE`, documents are processed in batches
+#'   using spaCy's `nlp.pipe()`, which is usually faster for many documents.
+#'   Despite the name, processing takes place in a single process.
 #' @param dependency logical; if `TRUE`, analyse and tag dependencies
 #' @param nounphrase logical; if `TRUE`, analyse and tag noun phrases
 #'   tags

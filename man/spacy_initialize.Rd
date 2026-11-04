@@ -13,13 +13,13 @@ spacy_initialize(
 }
 \arguments{
 \item{model}{Language package for loading spaCy. Example: \code{en_core_web_sm} (English) and
-\code{de_core_web_sm} (German). Default is \code{en_core_web_sm}.}
+\code{de_core_news_sm} (German). Default is \code{en_core_web_sm}. This can also be
+the path to a model directory.}
 
 \item{entity}{logical; if \code{FALSE} is selected, named entity recognition
 is turned off in spaCy. This will speed up the parsing as it will exclude
 \code{ner} from the pipeline. For details of spaCy pipeline, see
-\url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE}
-is available only for spaCy version 2.0.0 or higher.}
+\url{https://spacy.io/usage/processing-pipelines}.}
 
 \item{max_length}{integer; the maximum number of characters in a single
 document that spaCy will accept (\code{nlp.max_length}), a whole number no

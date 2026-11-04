@@ -44,8 +44,9 @@ previously existed. This is useful if a positional match is needed between
 the pre- and post-selected tokens, for instance if a window of adjacency
 needs to be computed.}
 
-\item{multithread}{logical; If \code{TRUE}, the processing is parallelized
-using spaCy's architecture (\url{https://spacy.io/api})}
+\item{multithread}{logical; if \code{TRUE}, documents are processed in batches
+using spaCy's \code{nlp.pipe()}, which is usually faster for many documents.
+Despite the name, processing takes place in a single process.}
 
 \item{output}{type of returning object. Either \code{list} or \code{data.frame}.}
 

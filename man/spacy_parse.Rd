@@ -31,8 +31,8 @@ Treebank tag set
 specifications for other available languages are available on the spaCy
 website (\url{https://spacy.io/api/annotation}).}
 
-\item{lemma}{logical; include lemmatized tokens in the output (lemmatization
-may not work properly for non-English models)}
+\item{lemma}{logical; include lemmatized tokens in the output (the quality
+of lemmatization depends on the language model)}
 
 \item{entity}{logical; if \code{TRUE}, report named entities}
 
@@ -41,8 +41,9 @@ may not work properly for non-English models)}
 \item{nounphrase}{logical; if \code{TRUE}, analyse and tag noun phrases
 tags}
 
-\item{multithread}{logical; If \code{TRUE}, the processing is parallelized
-using spaCy's architecture (\url{https://spacy.io/api})}
+\item{multithread}{logical; if \code{TRUE}, documents are processed in batches
+using spaCy's \code{nlp.pipe()}, which is usually faster for many documents.
+Despite the name, processing takes place in a single process.}
 
 \item{additional_attributes}{a character vector; this option is for
 extracting additional attributes of tokens from spaCy. When the names of
