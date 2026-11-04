@@ -204,3 +204,35 @@ test_that("spacy_parse does not warn about lemmatization for non-English models"
   spacy_finalize()
   expect_message(spacy_initialize(), "successfully")
 })
+
+test_that("spacy_parse nounphrase = TRUE keeps attributes aligned with tokens", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  txt <- c(z = "The big dog runs.", a = "Hi!")
+  plain <- spacy_parse(txt, entity = FALSE, additional_attributes = c("idx", "whitespace_"))
+  np <- spacy_parse(txt, entity = FALSE, nounphrase = TRUE,
+                    additional_attributes = c("idx", "whitespace_"))
+  expect_identical(np$doc_id, plain$doc_id)
+  expect_identical(np$token, plain$token)
+  expect_identical(np$idx, plain$idx)
+  expect_identical(np$whitespace, nchar(plain$whitespace_) > 0)
+  expect_identical(np$idx[np$doc_id == "a" & np$token == "!"], 2L)
+})
+
+test_that("spacy_parse returns a typed empty result when all documents are missing", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  empty <- spacy_parse(rep(NA_character_, 2), tag = TRUE, dependency = TRUE)
+  expect_s3_class(empty, "spacyr_parsed")
+  expect_identical(nrow(empty), 0L)
+  full <- spacy_parse("The dog runs.", tag = TRUE, dependency = TRUE)
+  expect_identical(names(empty), names(full))
+  expect_identical(vapply(empty, typeof, ""), vapply(full, typeof, ""))
+
+  expect_identical(names(spacy_parse(c(a = NA_character_, b = ""))),
+                   names(spacy_parse("The dog runs.")))
+})

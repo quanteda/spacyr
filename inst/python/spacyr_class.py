@@ -66,7 +66,11 @@ class spacyr:
         # disable the pipeline components for plain tokenization; the context
         # manager restores them even if tokenization fails
         if turn_off_pipes and remove_symbols == False:
-            pipes_context = self.nlp.select_pipes(disable = self.nlp.pipe_names)
+            if hasattr(self.nlp, "select_pipes"):
+                pipes_context = self.nlp.select_pipes(disable = self.nlp.pipe_names)
+            else:
+                # spaCy 2.x; its DisabledPipes also restores the pipes on exit
+                pipes_context = self.nlp.disable_pipes(*self.nlp.pipe_names)
         else:
             pipes_context = contextlib.nullcontext()
         with pipes_context:
@@ -162,7 +166,7 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for sent in doc.sents:
-                    sent_text = sent.text
+                    sent_text = sent.text_with_ws
                     if remove_separators:
                         sent_text = regex_trailspace.sub('', sent_text)
                     toks.append(sent_text)
@@ -173,7 +177,7 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for sent in doc.sents:
-                    sent_text =  sent.text
+                    sent_text = sent.text_with_ws
                     if remove_separators:
                         sent_text = regex_trailspace.sub('', sent_text)
                     toks.append(sent_text)

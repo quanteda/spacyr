@@ -312,3 +312,20 @@ test_that("spacy_tokenize what = 'sentence' does not depend on multithread", {
     c("One.  ", "Two.  ")
   )
 })
+
+test_that("spacy_tokenize what = 'sentence' keeps single trailing spaces", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  txt <- c(a = "One. Two. ", b = "Three.")
+  for (mt in c(TRUE, FALSE)) {
+    toks <- spacy_tokenize(txt, what = "sentence", remove_separators = FALSE, multithread = mt)
+    expect_identical(toks$a, c("One. ", "Two. "))
+    expect_identical(paste(toks$a, collapse = ""), unname(txt["a"]))
+    expect_identical(
+      spacy_tokenize(txt, what = "sentence", remove_separators = TRUE, multithread = mt)$a,
+      c("One.", "Two.")
+    )
+  }
+})

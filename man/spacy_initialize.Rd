@@ -22,7 +22,8 @@ is turned off in spaCy. This will speed up the parsing as it will exclude
 is available only for spaCy version 2.0.0 or higher.}
 
 \item{max_length}{integer; the maximum number of characters in a single
-document that spaCy will accept (\code{nlp.max_length}). If \code{NULL} (the
+document that spaCy will accept (\code{nlp.max_length}), a whole number no
+larger than \code{.Machine$integer.max}. If \code{NULL} (the
 default), spaCy's default of 1,000,000 is used. Larger values require
 roughly 1GB of temporary memory per 100,000 characters for the parser
 and entity recogniser.}
