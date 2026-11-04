@@ -1,20 +1,31 @@
-# spacyr v1.3.1
+# spacyr v1.4.0
 
-* Fixed a bug in `spacy_download_langmodel()` that prevented installing multiple models in one function call (#249)
-* Fixed a `SyntaxWarning` about an invalid escape sequence on Python 3.12+ when initialising spacyr (#257, thanks to @thjbdvlt).
-* Fixed `spacy_download_langmodel()` and `spacy_install()` not detecting already-installed language models with recent versions of pip (#258).
-* `spacy_install()` and `spacy_upgrade()` no longer fail on Windows when installing into a different environment after Python has been initialised in the session (#258).
-* `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` no longer alter the input text. Previously they deleted all backslashes and converted the literal sequences `\n` and `\t` into newlines and tabs, so that for instance `C:\Users` was tokenized as `C`, `:`, `Users`.
-* Fixed a bug where an error during `spacy_tokenize()`, such as a text exceeding spaCy's maximum length, left the spaCy pipeline disabled, so that later calls in the same session failed or silently returned no entities.
-* `spacy_tokenize(what = "sentence", remove_separators = FALSE)` now keeps trailing whitespace regardless of the value of `multithread`.
+## Changes that can affect results
+
+* `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` no longer alter the input text. Previously they deleted all backslashes and converted the literal sequences `\n` and `\t` into newlines and tabs, so that for instance `C:\Users` was tokenized as `C`, `:`, `Users`. Code that relied on literal `\n` being converted should now convert it in R before calling **spacyr**.
 * `NA` documents are now treated as empty documents, rather than as the text `"NA"`.
-* Added a `max_length` argument to `spacy_initialize()` to allow documents longer than spaCy's default limit of 1,000,000 characters (#218).
-* `spacy_parse()` no longer warns that lemmatization "may not work properly" for models whose name does not start with "en".
-* `spacy_install()` now creates its environment with a version of Python supported by the spaCy release being installed, as declared on PyPI, rather than whichever Python is found first. For an existing environment whose Python is not supported, it stops with an error explaining how to recreate the environment, instead of failing during installation.
+* `spacy_tokenize(what = "sentence", remove_separators = FALSE)` now keeps trailing whitespace regardless of the value of `multithread`.
+
+## New features
+
 * Added `spacy_installed()`, which checks without starting Python whether spaCy and, optionally, given language models are installed (#197).
+* Added a `max_length` argument to `spacy_initialize()` to allow documents longer than spaCy's default limit of 1,000,000 characters (#218).
+
+## Installation
+
+* `spacy_install()` now creates its environment with a version of Python supported by the spaCy release being installed, as declared on PyPI, rather than whichever Python is found first; if none is found, it offers to install a compatible one. For an existing environment whose Python is not supported, it stops with an error explaining how to recreate the environment, instead of failing during installation.
 * `spacy_initialize()` now explains how to install a language model that cannot be found.
-* Updated the installation instructions: language models are installed with `spacy_download_langmodel()` rather than with `pip` (#253), and new sections cover changing the Python version, using an existing Python or conda environment (#246), using local models (#180, #200) and the need for git on Windows (#245). The vignette no longer describes arguments that were removed from `spacy_initialize()`.
+* Fixed `spacy_download_langmodel()` and `spacy_install()` not detecting already-installed language models with recent versions of pip (#258).
+* Fixed a bug in `spacy_download_langmodel()` that prevented installing multiple models in one function call (#249).
+* `spacy_install()` and `spacy_upgrade()` no longer fail on Windows when installing into a different environment after Python has been initialised in the session (#258).
+* Updated the installation instructions: language models are installed with `spacy_download_langmodel()` rather than with `pip` (#253), and new sections cover changing the Python version, using an existing Python or conda environment (#246), using local models (#180) and the need for git on Windows (#245). The vignette no longer describes arguments that were removed from `spacy_initialize()`.
 * Requires **reticulate** >= 1.31.
+
+## Bug fixes
+
+* Fixed a bug where an error during `spacy_tokenize()`, such as a text exceeding spaCy's maximum length, left the spaCy pipeline disabled, so that later calls in the same session failed or silently returned no entities.
+* Fixed a `SyntaxWarning` about an invalid escape sequence on Python 3.12+ when initialising spacyr (#257, thanks to @thjbdvlt).
+* `spacy_parse()` no longer warns that lemmatization "may not work properly" for models whose name does not start with "en".
 
 # spacyr v1.3
 

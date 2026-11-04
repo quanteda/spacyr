@@ -78,7 +78,7 @@ processing” Python library from <https://spacy.io>.
 `spacy_install()` creates its environment with a version of Python
 supported by the spaCy release being installed, and offers to install
 one through `reticulate::install_python()` if none is found. On Windows,
-`install_python()` requires [git](https://git-scm.com/downloads) to be
+`install_python()` requires [git](https://git-scm.com/downloads/) to be
 installed and on your `PATH`.
 
 If you run into any problems, you can try the manual installation path
