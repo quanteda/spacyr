@@ -27,14 +27,15 @@ is_ubuntu <- function() {
 
 py_check_installed <- function(x) {
   if (is.null(x)) return(FALSE)
-  x <- gsub("_", "-", x) # for model names
+  # pip may list packages with "_" or "-" (e.g. model names), so normalise both
+  normalise <- function(p) tolower(gsub("_", "-", trimws(p)))
   if (nchar(Sys.getenv("RETICULATE_PYTHON")) > 0) {
-    return(x %in% reticulate::py_list_packages()$package)
+    installed <- reticulate::py_list_packages()$package
   } else {
-    return(x %in% trimws(reticulate::py_list_packages(
+    installed <- reticulate::py_list_packages(
       Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))$package
-    ))
   }
+  return(normalise(x) %in% normalise(installed))
 }
 
 py_check_version <- function(package, ...) {

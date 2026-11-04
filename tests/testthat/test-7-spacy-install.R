@@ -39,8 +39,8 @@ test_that("spacy_install specific version of spacy works", {
   
   Sys.setenv("SPACY_PYTHON" = tmp)
   
-  expect_message(spacy_install(version = "2.3.9"),
-                 "Installation of spaCy version 2.3.9 complete.")
+  expect_message(spacy_install(version = "3.7.5"),
+                 "Installation of spaCy version 3.7.5 complete.")
   
   on.exit(Sys.unsetenv("SPACY_PYTHON"), add = TRUE, after = FALSE)
 })
