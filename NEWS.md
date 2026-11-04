@@ -4,7 +4,8 @@
 
 * `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` no longer alter the input text. Previously they deleted all backslashes and converted the literal sequences `\n` and `\t` into newlines and tabs, so that for instance `C:\Users` was tokenized as `C`, `:`, `Users`. Code that relied on literal `\n` being converted should now convert it in R before calling **spacyr**.
 * `NA` documents are now treated as empty documents, rather than as the text `"NA"`.
-* `spacy_tokenize(what = "sentence", remove_separators = FALSE)` now keeps trailing whitespace regardless of the value of `multithread`.
+* `spacy_tokenize(what = "sentence", remove_separators = FALSE)` now keeps trailing whitespace regardless of the value of `multithread`, including a single space after a sentence, so that the sentences join back into the original text.
+* `spacy_parse(nounphrase = TRUE)` now returns rows in the order of the input documents, as it does without noun phrases, instead of sorted by document name. This fixes a bug where the `whitespace` column and any `additional_attributes` were assigned to the wrong tokens when the document names were not in alphabetical order.
 
 ## New features
 
@@ -26,6 +27,7 @@
 * Fixed a bug where an error during `spacy_tokenize()`, such as a text exceeding spaCy's maximum length, left the spaCy pipeline disabled, so that later calls in the same session failed or silently returned no entities.
 * Fixed a `SyntaxWarning` about an invalid escape sequence on Python 3.12+ when initialising spacyr (#257, thanks to @thjbdvlt).
 * `spacy_parse()` no longer warns that lemmatization "may not work properly" for models whose name does not start with "en".
+* `spacy_parse()` now returns a zero-row result with the usual columns and types when no document contains any tokens (for instance when all documents are `NA` or empty), instead of failing with `dependency = TRUE` or returning malformed columns.
 
 # spacyr v1.3
 

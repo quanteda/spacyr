@@ -11,7 +11,8 @@
 #'   <https://spacy.io/usage/processing-pipelines>. The option `FALSE`
 #'   is available only for spaCy version 2.0.0 or higher.
 #' @param max_length integer; the maximum number of characters in a single
-#'   document that spaCy will accept (`nlp.max_length`). If `NULL` (the
+#'   document that spaCy will accept (`nlp.max_length`), a whole number no
+#'   larger than `.Machine$integer.max`. If `NULL` (the
 #'   default), spaCy's default of 1,000,000 is used. Larger values require
 #'   roughly 1GB of temporary memory per 100,000 characters for the parser
 #'   and entity recogniser.
@@ -28,8 +29,9 @@ spacy_initialize <- function(model = "en_core_web_sm",
     warning("Note that we have deprecated a number of parameters to simplify this function")
   
   if (!is.null(max_length) &&
-      (!is.numeric(max_length) || length(max_length) != 1 || is.na(max_length) || max_length < 1))
-    stop("max_length must be a single positive number")
+      (!is.numeric(max_length) || length(max_length) != 1 || !is.finite(max_length) ||
+       max_length < 1 || max_length > .Machine$integer.max || max_length != round(max_length)))
+    stop("max_length must be a single whole number between 1 and ", .Machine$integer.max)
 
   if (!is.null(options("spacy_initialized")$spacy_initialized)) {
     message("spaCy is already initialized")

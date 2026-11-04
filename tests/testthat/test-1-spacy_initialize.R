@@ -20,7 +20,10 @@ test_that("spacy_initialize max_length works", {
   skip_on_os("solaris")
   try(spacy_finalize(), silent = TRUE)
 
-  expect_error(spacy_initialize(max_length = -1), "max_length")
+  for (bad in list(-1, 0, 1.5, Inf, NA_real_, 2^31, "a", c(1e6, 2e6))) {
+    expect_error(spacy_initialize(max_length = bad), "max_length")
+  }
+  expect_null(getOption("spacy_initialized"))
 
   expect_message(spacy_initialize(max_length = 2e6), "successfully")
   long_txt <- strrep("word ", 210000) # 1,050,000 characters
