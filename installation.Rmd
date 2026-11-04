@@ -47,7 +47,45 @@ An R wrapper to the spaCy "industrial strength natural language processing" Pyth
 
     Check out available models at <https://spacy.io/usage/models>.
 
+    You can check whether spaCy and a model are ready to use, without starting Python, with:
+
+    ```{r, eval = FALSE}
+    spacy_installed("en_core_web_sm")
+    ```
+
+`spacy_install()` creates its environment with a version of Python supported by the spaCy release being installed, and offers to install one through `reticulate::install_python()` if none is found. On Windows, `install_python()` requires [git](https://git-scm.com/downloads) to be installed and on your `PATH`.
+
 If you run into any problems, you can try the manual installation path described below.
+
+### Changing the Python version
+
+An existing environment keeps the version of Python it was created with. If that version is too old or too new for the spaCy release you want, `spacy_install()` stops with an error. To recreate the environment with a suitable Python, remove it and install again:
+
+```{r, eval = FALSE}
+spacy_uninstall()
+spacy_install()
+```
+
+To use a particular Python, create the environment yourself first (see step 2 of the manual installation below), then run `spacy_install()`.
+
+### Using an existing Python or conda environment
+
+If you already have a Python environment with spaCy installed, for instance a conda environment, point **spacyr** to its Python executable through the `RETICULATE_PYTHON` environment variable before calling `spacy_initialize()`:
+
+```{r, eval = FALSE}
+Sys.setenv(RETICULATE_PYTHON = reticulate::conda_python("my-spacy-env"))
+spacy_initialize(model = "en_core_web_sm")
+```
+
+You can also set `RETICULATE_PYTHON` in your `.Renviron` file. When it is set, **spacyr** uses that Python instead of its own environment.
+
+### Using local or custom language models
+
+Besides the names of installed models, `spacy_initialize()` accepts the path to a model directory, for instance a model you have trained or downloaded yourself:
+
+```{r, eval = FALSE}
+spacy_initialize(model = "path/to/my_model")
+```
 
 ### Manual installation and troubleshooting
 
@@ -122,10 +160,10 @@ Please only file a GitHub issue after you have tried to manually run through the
 
 4. Install spaCy language models
 
-    The language models are installed in the same way.
+    The language models are not available through `pip` by name, so they are installed with spaCy's own download command, which `spacy_download_langmodel()` runs for you:
 
     ```{r eval=FALSE}
-    reticulate::py_install("en_core_web_sm", envname = Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
+    spacyr::spacy_download_langmodel("en_core_web_sm")
     ```
 
 If any of those steps fail, please file an [issue](https://github.com/quanteda/spacyr/issues) (after checking if one already exists for your error).

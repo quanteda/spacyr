@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      SPACYR_TEST_INSTALL: true
 
     steps:
       - uses: actions/checkout@v4

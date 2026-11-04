@@ -40,8 +40,8 @@ spacy_initialize <- function(model = "en_core_web_sm",
     if (!reticulate::virtualenv_exists(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))) 
       stop("No spaCy environment found. Use `spacy_install()` to get started.")
     
-    if (!"spacy" %in% reticulate::py_list_packages(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))$package) 
-      stop("spaCy was not found in your environment. Use `spacy_install()`",
+    if (!py_check_installed("spacy")) 
+      stop("spaCy was not found in your environment. Use `spacy_install()` ",
            "to get started.")
     
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
@@ -53,8 +53,18 @@ spacy_initialize <- function(model = "en_core_web_sm",
   spacyr_pyassign("model", model)
   spacyr_pyassign("spacy_entity", entity)
   options("spacy_entity" = entity)
-  spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
-                                     package = "spacyr"))
+  tryCatch(
+    spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
+                                       package = "spacyr")),
+    error = function(e) {
+      if (grepl("E050", conditionMessage(e), fixed = TRUE)) {
+        stop("The language model '", model, "' is not installed. ",
+             "Install it with `spacy_download_langmodel(\"", model, "\")`, ",
+             "or supply the path to a model directory.", call. = FALSE)
+      }
+      stop(e)
+    }
+  )
   if (!is.null(max_length)) {
     spacyr_pyassign("max_length", as.integer(max_length))
     spacyr_pyexec("nlp.max_length = max_length")

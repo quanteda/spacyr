@@ -31,3 +31,23 @@ test_that("spacy_initialize max_length works", {
   expect_error(spacy_tokenize(long_txt), "E088")
   spacy_finalize()
 })
+
+test_that("spacy_installed() reports an installed spaCy and models", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  skip_if_not(spacy_installed(), "spaCy not installed")
+
+  expect_true(spacy_installed("en_core_web_sm"))
+  expect_false(spacy_installed("xx_no_such_model_sm"))
+})
+
+test_that("spacy_initialize gives a helpful error for a missing model", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+
+  expect_error(spacy_initialize(model = "xx_no_such_model_sm"),
+               "spacy_download_langmodel\\(\"xx_no_such_model_sm\"\\)")
+  expect_message(spacy_initialize(), "successfully")
+  spacy_finalize()
+})

@@ -10,6 +10,11 @@
 * `NA` documents are now treated as empty documents, rather than as the text `"NA"`.
 * Added a `max_length` argument to `spacy_initialize()` to allow documents longer than spaCy's default limit of 1,000,000 characters (#218).
 * `spacy_parse()` no longer warns that lemmatization "may not work properly" for models whose name does not start with "en".
+* `spacy_install()` now creates its environment with a version of Python supported by the spaCy release being installed, as declared on PyPI, rather than whichever Python is found first. For an existing environment whose Python is not supported, it stops with an error explaining how to recreate the environment, instead of failing during installation.
+* Added `spacy_installed()`, which checks without starting Python whether spaCy and, optionally, given language models are installed (#197).
+* `spacy_initialize()` now explains how to install a language model that cannot be found.
+* Updated the installation instructions: language models are installed with `spacy_download_langmodel()` rather than with `pip` (#253), and new sections cover changing the Python version, using an existing Python or conda environment (#246), using local models (#180, #200) and the need for git on Windows (#245). The vignette no longer describes arguments that were removed from `spacy_initialize()`.
+* Requires **reticulate** >= 1.31.
 
 # spacyr v1.3
 
