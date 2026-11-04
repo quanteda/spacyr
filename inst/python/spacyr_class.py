@@ -145,7 +145,7 @@ class spacyr:
             except NameError:
                 pass
         tokens_out = {}
-        regex_trailspace = re.compile('\s+$')
+        regex_trailspace = re.compile(r'\s+$')
         # this multithread solution is suggested by @honnibal
         # https://github.com/explosion/spaCy/issues/172
         if multithread == True:
