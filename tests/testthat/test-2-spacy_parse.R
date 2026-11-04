@@ -13,12 +13,12 @@ test_that("spacy_parse handles newlines and tabs ok", {
         dim(spacy_parse(txt1, dependency = TRUE)),
         c(11, 9)
     )
+    # escaped sequences are text, not whitespace: they are passed to spaCy unchanged
     txt2 <- c(doc1 = "Sentence one.\\nSentence two.",
               doc2 = "Sentence\\tthree.")
-    expect_equal(
-        dim(spacy_parse(txt2, dependency = TRUE)),
-        c(11, 9)
-    )
+    parsed2 <- spacy_parse(txt2, dependency = TRUE)
+    expect_false(any(grepl("^\\s+$", parsed2$token)))
+    expect_true(any(grepl("\\", parsed2$token, fixed = TRUE)))
 
     ## multiple tagsets
     expect_equal(
@@ -44,24 +44,13 @@ test_that("spacy_parse handles quotes ok", {
               doc2 = "Sentence \'quoted\' two.")
     expect_true("dep_rel" %in% names(spacy_parse(txt1, dependency = TRUE)))
 
-    txt2 <- c(doc1 = "Sentence \\\"quoted\\\" one.")
-    expect_equal(
-        dim(spacy_parse(txt2, dependency = TRUE)),
-        c(6, 9)
-    )
-
-    txt3 <- c(doc1 = "Second sentence \\\'quoted\\\' example.")
-    expect_equal(
-        dim(spacy_parse(txt3, dependency = TRUE)),
-        c(7, 9)
-    )
-
+    # backslash-escaped quotes keep their backslashes
     txt4 <- c(doc1 = "Sentence \\\"quoted\\\" one.",
               doc2 = "Sentence \\\'quoted\\\' two.")
-    expect_equal(
-        dim(spacy_parse(txt4, dependency = TRUE)),
-        c(12, 9)
-    )
+    parsed4 <- spacy_parse(txt4, dependency = TRUE)
+    expect_identical(unique(parsed4$doc_id), c("doc1", "doc2"))
+    expect_true(all(c("doc1", "doc2") %in%
+                      parsed4$doc_id[grepl("\\", parsed4$token, fixed = TRUE)]))
     expect_silent(spacy_finalize())
 })
 
@@ -178,4 +167,40 @@ test_that("spacy_parse handles numbers/tibbles correctly", {
             pos = c("NOUN", "NUM", "NOUN", "NUM"),
             stringsAsFactors = FALSE)
     )
+})
+
+test_that("spacy_parse and extractors do not alter backslashes in the input text", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  txt <- c(d1 = "Ken wrote \\alpha in C:\\Users and a literal \\n here.")
+  parsed <- spacy_parse(txt, entity = FALSE)
+  expect_true("\\alpha" %in% parsed$token)
+  expect_false(any(grepl("^\\s+$", parsed$token)))
+  expect_identical(
+    paste(spacy_tokenize(txt, remove_separators = FALSE)[[1]], collapse = ""),
+    unname(txt)
+  )
+})
+
+test_that("spacy_parse treats NA documents as empty", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  parsed <- spacy_parse(c(a = NA, b = "Hi there."), entity = FALSE)
+  expect_false("NA" %in% parsed$token)
+  expect_identical(unique(parsed$doc_id), "b")
+})
+
+test_that("spacy_parse does not warn about lemmatization for non-English models", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  skip_if_not(spacyr:::py_check_installed("de_core_news_sm"), "de_core_news_sm not installed")
+  try(spacy_finalize(), silent = TRUE)
+  expect_message(spacy_initialize(model = "de_core_news_sm"), "successfully")
+  expect_no_warning(spacy_parse("Ich bin hier."))
+  spacy_finalize()
+  expect_message(spacy_initialize(), "successfully")
 })

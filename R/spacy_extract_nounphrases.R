@@ -73,9 +73,8 @@ spacy_extract_nounphrases.character <- function(x,
     }
 
 
-    x <- gsub("\\\\n", "\\\n", x) # replace two quotes \\n with \n
-    x <- gsub("\\\\t", "\\\t", x) # replace two quotes \\t with \t
-    x <- gsub("\\\\", "", x) # delete unnecessary backslashes
+    x <- as.character(x)
+    x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
     ## send documents to python

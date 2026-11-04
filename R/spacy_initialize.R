@@ -10,17 +10,27 @@
 #'   `ner` from the pipeline. For details of spaCy pipeline, see
 #'   <https://spacy.io/usage/processing-pipelines>. The option `FALSE`
 #'   is available only for spaCy version 2.0.0 or higher.
+#' @param max_length integer; the maximum number of characters in a single
+#'   document that spaCy will accept (`nlp.max_length`). If `NULL` (the
+#'   default), spaCy's default of 1,000,000 is used. Larger values require
+#'   roughly 1GB of temporary memory per 100,000 characters for the parser
+#'   and entity recogniser.
 #' @param ... not used.
 #' 
 #' @export
 #' @author Akitaka Matsuo, Johannes B. Gruber
 spacy_initialize <- function(model = "en_core_web_sm",
                              entity = TRUE,
+                             max_length = NULL,
                              ...) {
   
   if (length(list(...)) > 0) 
     warning("Note that we have deprecated a number of parameters to simplify this function")
   
+  if (!is.null(max_length) &&
+      (!is.numeric(max_length) || length(max_length) != 1 || is.na(max_length) || max_length < 1))
+    stop("max_length must be a single positive number")
+
   if (!is.null(options("spacy_initialized")$spacy_initialized)) {
     message("spaCy is already initialized")
     return(NULL)
@@ -45,6 +55,10 @@ spacy_initialize <- function(model = "en_core_web_sm",
   options("spacy_entity" = entity)
   spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                      package = "spacyr"))
+  if (!is.null(max_length)) {
+    spacyr_pyassign("max_length", as.integer(max_length))
+    spacyr_pyexec("nlp.max_length = max_length")
+  }
   
   spacy_version <- spacyr_pyget("spacy_version")
   if (entity == FALSE && as.integer(substr(spacy_version, 1, 1)) < 2){

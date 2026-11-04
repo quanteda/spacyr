@@ -253,3 +253,62 @@ test_that("spacy_tokenize what = 'sentence' works as expected", {
     quanteda::tokens(txt, what = "sentence", remove_separators = TRUE) %>% as.list()
   )
 })
+
+test_that("spacy_tokenize does not alter backslashes in the input text", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  txt <- c(d1 = "See C:\\Users\\ken and \\alpha with \\d+ and a literal \\n here.")
+  toks <- spacy_tokenize(txt)[[1]]
+  expect_true(all(c("\\alpha", "\\d+") %in% toks))
+  expect_true(any(grepl("\\Users", toks, fixed = TRUE)))
+  expect_false("alpha" %in% toks)
+  expect_false("\n" %in% toks)
+})
+
+test_that("spacy_tokenize treats NA documents as empty", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  toks <- spacy_tokenize(c(a = NA, b = "Hi there."))
+  expect_identical(names(toks), c("a", "b"))
+  expect_length(toks$a, 0)
+  expect_identical(toks$b, c("Hi", "there", "."))
+})
+
+test_that("spacy_tokenize restores the pipeline after an error", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  # longer than spaCy's default max_length of 1,000,000 characters
+  expect_error(spacy_tokenize(strrep("word ", 210000)), "E088")
+  expect_equivalent(
+    spacy_tokenize("One sentence. Another one.", what = "sentence"),
+    list(c("One sentence.", "Another one."))
+  )
+  expect_identical(
+    spacy_extract_entity("Ken lives in London.", output = "list")[[1]],
+    c("Ken", "London")
+  )
+})
+
+test_that("spacy_tokenize what = 'sentence' does not depend on multithread", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  txt <- c(a = "One.  Two.  ", b = "Three.")
+  for (rs in c(TRUE, FALSE)) {
+    expect_identical(
+      spacy_tokenize(txt, what = "sentence", remove_separators = rs, multithread = TRUE),
+      spacy_tokenize(txt, what = "sentence", remove_separators = rs, multithread = FALSE)
+    )
+  }
+  expect_identical(
+    spacy_tokenize(txt, what = "sentence", remove_separators = FALSE)$a,
+    c("One.  ", "Two.  ")
+  )
+})
