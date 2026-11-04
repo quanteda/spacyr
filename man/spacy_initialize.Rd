@@ -4,7 +4,12 @@
 \alias{spacy_initialize}
 \title{Initialize spaCy}
 \usage{
-spacy_initialize(model = "en_core_web_sm", entity = TRUE, ...)
+spacy_initialize(
+  model = "en_core_web_sm",
+  entity = TRUE,
+  max_length = NULL,
+  ...
+)
 }
 \arguments{
 \item{model}{Language package for loading spaCy. Example: \code{en_core_web_sm} (English) and
@@ -15,6 +20,12 @@ is turned off in spaCy. This will speed up the parsing as it will exclude
 \code{ner} from the pipeline. For details of spaCy pipeline, see
 \url{https://spacy.io/usage/processing-pipelines}. The option \code{FALSE}
 is available only for spaCy version 2.0.0 or higher.}
+
+\item{max_length}{integer; the maximum number of characters in a single
+document that spaCy will accept (\code{nlp.max_length}). If \code{NULL} (the
+default), spaCy's default of 1,000,000 is used. Larger values require
+roughly 1GB of temporary memory per 100,000 characters for the parser
+and entity recogniser.}
 
 \item{...}{not used.}
 }

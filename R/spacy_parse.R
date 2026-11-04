@@ -92,7 +92,7 @@ spacy_parse.character <- function(x,
     ## check the omit_entity status
     if (entity == TRUE & getOption("spacy_entity") == FALSE) {
         message("entity == TRUE is ignored because spaCy model is initialized without Entity Recognizer")
-        message("In order to turn on entity recognition, run spacy_finalize(); spacy_initialize(entity = TURE)")
+        message("In order to turn on entity recognition, run spacy_finalize(); spacy_initialize(entity = TRUE)")
         entity <- FALSE
     }
 
@@ -106,11 +106,7 @@ spacy_parse.character <- function(x,
                      token = tokens)
 
     if (lemma) {
-        model <- spacyr_pyget("model")
         dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
-        if (substr(model, 0, 2) != "en"){
-            warning("lemmatization may not work properly in model '", model, "'")
-        }
     }
     if (pos) {
         dt[, "pos" := get_tags(spacy_out, "google")]
@@ -231,9 +227,7 @@ process_document <- function(x, multithread, ...) {
     spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
     spacyr_pyexec("texts = []")
 
-    x <- gsub("\\\\n", "\\\n", x) # replace two quotes \\n with \n
-    x <- gsub("\\\\t", "\\\t", x) # replace two quotes \\t with \t
-    x <- gsub("\\\\", "", x) # delete unnecessary backslashes
+    x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
     spacyr_pyassign("texts", x)

@@ -92,9 +92,7 @@ spacy_tokenize.character <- function(x,
     }
 
 
-    x <- gsub("\\\\n", "\\\n", x) # replace two quotes \\n with \n
-    x <- gsub("\\\\t", "\\\t", x) # replace two quotes \\t with \t
-    x <- gsub("\\\\", "", x) # delete unnecessary backslashes
+    x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
     ## send documents to python
@@ -117,7 +115,7 @@ spacy_tokenize.character <- function(x,
         turn_off_pipes <- if (all(!c(remove_punct, remove_url, remove_numbers))) TRUE else FALSE
         spacyr_pyassign("turn_off_pipes", turn_off_pipes)
         if (remove_separators == FALSE & turn_off_pipes == FALSE) {
-            stop("remove_separators = FALSE and remove_* = TURE are not compatible", call. = FALSE)
+            stop("remove_separators = FALSE and remove_* = TRUE are not compatible", call. = FALSE)
         }
         spacyr_pyassign("remove_separators", remove_separators)
 
