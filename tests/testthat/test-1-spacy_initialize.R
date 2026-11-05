@@ -54,3 +54,39 @@ test_that("spacy_initialize gives a helpful error for a missing model", {
   expect_message(spacy_initialize(), "successfully")
   spacy_finalize()
 })
+
+test_that("spacyr leaves no variables in Python's __main__", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  main_names <- function() names(reticulate::import_main(convert = FALSE))
+  before <- main_names()
+  txt <- c(d2 = "The European Central Bank is in Frankfurt.", d1 = "One more.")
+  spacy_parse(txt, dependency = TRUE, nounphrase = TRUE)
+  spacy_tokenize(txt, remove_punct = TRUE)
+  spacy_tokenize(txt, what = "sentence")
+  spacy_extract_entity(txt)
+  spacy_extract_nounphrases(txt, output = "list")
+  expect_identical(setdiff(main_names(), before), character())
+  expect_false(any(c("nlp", "spobj", "texts", "spacyr") %in% main_names()))
+  spacy_finalize()
+})
+
+test_that("spacy_initialize ignores a cached module with the same name", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  spacy_finalize()
+  # a module of the same name from elsewhere, e.g. another copy of spacyr
+  sys <- reticulate::import("sys", convert = FALSE)
+  types <- reticulate::import("types")
+  sys$modules$`__setitem__`("spacyr_bridge", types$ModuleType("spacyr_bridge"))
+  expect_message(spacy_initialize(), "successfully")
+  expect_identical(
+    normalizePath(reticulate::py_to_r(spacyr:::spacyr_env$module$`__file__`)),
+    normalizePath(system.file("python", "spacyr_bridge.py", package = "spacyr")))
+  expect_identical(nrow(spacy_parse("One two.")), 3L)
+  spacy_finalize()
+})
