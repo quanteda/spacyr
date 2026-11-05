@@ -11,7 +11,6 @@ import time
 import gc
 import string
 import random
-import itertools
 import contextlib
 import re
 
@@ -34,42 +33,119 @@ def spacy_version():
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-## generator function for itertools
-def gen_items(doc_id, texts):
-    for i in range(len(doc_id)):
-        yield (doc_id[i], texts[i])
+def _as_list(texts, docnames = None):
+    # a single text arrives from R as a string rather than a list
+    if isinstance(texts, list) == False:
+        texts = [texts]
+        if docnames is not None:
+            docnames = [docnames]
+    for i in range(len(texts)):
+        try:
+            if not isinstance(texts[i], unicode):
+                texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
+        except NameError:
+            pass
+    return texts, docnames
+
+## per-document processing, shared by both paths
+
+def doc_tokens(doc, padding, remove_separators, **remove):
+    toks = []
+    for w in doc:
+        text = w.text
+        if rem_check(w, remove_separators = remove_separators, **remove):
+            if padding:
+                text = ""
+            else:
+                continue
+        toks.append(text)
+        if remove_separators == False and w.whitespace_:
+            toks.append(w.whitespace_)
+    return toks
+
+def rem_check(w, remove_punct = False, remove_url = False,
+              remove_numbers = False, remove_separators = True,
+              remove_symbols = False):
+    # check whether the token should be removed by tokenize()
+    rem = False
+    if remove_punct and w.is_punct:
+        rem = True
+    if remove_url and (w.like_url or w.like_email):
+        rem = True
+    if remove_numbers and w.like_num:
+        rem = True
+    if remove_separators == True and w.is_space:
+        rem = True
+    if remove_symbols == True:
+        if w.is_currency:
+            rem = True
+        if  w.pos_ == "SYM":
+            rem = True
+    return(rem)
+
+_regex_trailspace = re.compile(r'\s+$')
+
+def doc_sentences(doc, remove_separators):
+    sents = []
+    for sent in doc.sents:
+        sent_text = sent.text_with_ws
+        if remove_separators:
+            sent_text = _regex_trailspace.sub('', sent_text)
+        sents.append(sent_text)
+    return sents
+
+_extended_list = ("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", "CARDINAL")
+
+def doc_span_texts(doc, what, ent_type_category = "all"):
+    items = []
+    for chunk in getattr(doc, what):
+        if what == "ents":
+            if ent_type_category == "extended" and not (chunk.label_ in _extended_list):
+                continue
+            elif ent_type_category == "named" and (chunk.label_ in _extended_list):
+                continue
+        items.append(chunk.text)
+    return items
+
+def doc_span_table(doc, what):
+    if what == "noun_chunks":
+        df_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
+    else:
+        df_doc = {"text": [], "ent_type": [], "start_id": [], "length": []}
+    for chunk in getattr(doc, what):
+        df_doc['text'].append(chunk.text)
+        df_doc['start_id'].append(chunk[0].i)
+        df_doc['length'].append(len(chunk))
+        if what == "noun_chunks":
+            df_doc['root_text'].append(chunk.root.text)
+            df_doc['root_id'].append(chunk.root.i)
+        else:
+            df_doc['ent_type'].append(chunk.label_)
+    return df_doc
 
 class spacyr:
     def __init__(self, nlp):
         self.nlp = nlp
         self.documents = {}
 
-    def parse(self, texts, multithread = True):
-        epoch_nanos = []
-        if isinstance(texts, list) == False:
-            texts = [texts]
-        for i in range(len(texts)):
-            try:
-                if not isinstance(texts[i], unicode):
-                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
-            except NameError:
-                pass
+    def docs(self, texts, multithread = True):
+        # Parse the texts, in order. With multithread, spaCy's nlp.pipe()
+        # processes them in batches and calls each component's pipe() method;
+        # otherwise each text is processed by nlp(), which calls each
+        # component on the single document. A custom component can behave
+        # differently in the two, so the choice is kept as it was in 1.4.0
+        # (see tests/testthat/test-pipeline-paths.R).
         if multithread == True:
-            for doc in self.nlp.pipe(texts):
-                epoch_nano = str(int(time.time() * 1000000)) + id_generator()
-                self.documents[epoch_nano] = doc
-                epoch_nanos.append(epoch_nano)
-        else:
-            for text in texts:
-                epoch_nano = str(int(time.time() * 1000000)) + id_generator()
-                # try:
-                #     if not isinstance(text, unicode):
-                #         text = unicode(text, "utf-8", errors = "ignore")
-                # except NameError:
-                #     pass
-                doc = self.nlp(text)
-                self.documents[epoch_nano] = doc
-                epoch_nanos.append(epoch_nano)
+            return self.nlp.pipe(texts)
+        return (self.nlp(text) for text in texts)
+
+    def parse(self, texts, multithread = True):
+        texts, _ = _as_list(texts)
+        epoch_nanos = []
+        for doc in self.docs(texts, multithread):
+            epoch_nano = str(int(time.time() * 1000000)) + id_generator()
+            self.documents[epoch_nano] = doc
+            epoch_nanos.append(epoch_nano)
         return epoch_nanos
 
     def tokenize(self, texts, docnames, turn_off_pipes = True,
@@ -90,124 +166,23 @@ class spacyr:
                 pipes_context = self.nlp.disable_pipes(*self.nlp.pipe_names)
         else:
             pipes_context = contextlib.nullcontext()
+        texts, docnames = _as_list(texts, docnames)
         with pipes_context:
-            return self._tokenize(texts, docnames, padding, multithread,
-                                  remove_punct = remove_punct,
-                                  remove_numbers = remove_numbers,
-                                  remove_url = remove_url,
-                                  remove_separators = remove_separators,
-                                  remove_symbols = remove_symbols)
-
-    def _tokenize(self, texts, docnames, padding, multithread, **remove):
-        remove_separators = remove["remove_separators"]
-        if isinstance(texts, list) == False:
-            texts = [texts]
-            docnames = [docnames]
-        for i in range(len(texts)):
-            try:
-                if not isinstance(texts[i], unicode):
-                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
-            except NameError:
-                pass
-        tokens_out = {}
-        # this multithread solution is suggested by @honnibal
-        # https://github.com/explosion/spaCy/issues/172
-        if multithread == True:
-            gen1, gen2 = itertools.tee(gen_items(docnames, texts))
-            ids = (id_ for (id_, text) in gen1)
-            texts = (text for (id_, text) in gen2)
-            docs = self.nlp.pipe(texts)
-            for id_, doc in zip(ids, docs):
-                toks = []
-                for w in doc:
-                    rem = self.rem_check(w, **remove)
-                    text = w.text
-                    if rem:
-                        if padding:
-                            text = ""
-                        else:
-                            continue
-                    toks.append(text)
-                    if remove_separators == False and w.whitespace_:
-                        toks.append(w.whitespace_)
-                tokens_out[id_] = toks
-        else:
-            for i in range(len(texts)):
-                text = texts[i]
-                doc = self.nlp(text)
-                toks = []
-                for w in doc:
-                    rem = self.rem_check(w, **remove)
-                    text = w.text
-                    if rem:
-                        if padding:
-                            text = ""
-                        else:
-                            continue
-                    toks.append(text)
-                    if remove_separators == False and w.whitespace_:
-                        toks.append(w.whitespace_)
-                tokens_out[docnames[i]] = toks
-        return tokens_out
-    
-    def rem_check(self, w, remove_punct = False, remove_url = False,
-                  remove_numbers = False, remove_separators = True,
-                  remove_symbols = False):
-        # part of tokenize(): check whether the token should be removed
-        rem = False
-        if remove_punct and w.is_punct:
-            rem = True
-        if remove_url and (w.like_url or w.like_email):
-            rem = True
-        if remove_numbers and w.like_num:
-            rem = True
-        if remove_separators == True and w.is_space:
-            rem = True
-        if remove_symbols == True:
-            if w.is_currency:
-                rem = True
-            if  w.pos_ == "SYM":
-                rem = True
-        return(rem)
+            tokens_out = {}
+            for id_, doc in zip(docnames, self.docs(texts, multithread)):
+                tokens_out[id_] = doc_tokens(doc, padding,
+                                             remove_separators = remove_separators,
+                                             remove_punct = remove_punct,
+                                             remove_numbers = remove_numbers,
+                                             remove_url = remove_url,
+                                             remove_symbols = remove_symbols)
+            return tokens_out
 
     def tokenize_sentence(self, texts, docnames, multithread = True, remove_separators = False):
-        if isinstance(texts, list) == False:
-            texts = [texts]
-            docnames = [docnames]
-        for i in range(len(texts)):
-            try:
-                if not isinstance(texts[i], unicode):
-                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
-            except NameError:
-                pass
+        texts, docnames = _as_list(texts, docnames)
         tokens_out = {}
-        regex_trailspace = re.compile(r'\s+$')
-        # this multithread solution is suggested by @honnibal
-        # https://github.com/explosion/spaCy/issues/172
-        if multithread == True:
-            gen1, gen2 = itertools.tee(gen_items(docnames, texts))
-            ids = (id_ for (id_, text) in gen1)
-            texts = (text for (id_, text) in gen2)
-            docs = self.nlp.pipe(texts)
-            for id_, doc in zip(ids, docs):
-                toks = []
-                for sent in doc.sents:
-                    sent_text = sent.text_with_ws
-                    if remove_separators:
-                        sent_text = regex_trailspace.sub('', sent_text)
-                    toks.append(sent_text)
-                tokens_out[id_] = toks
-        else:
-            for i in range(len(texts)):
-                text = texts[i]
-                doc = self.nlp(text)
-                toks = []
-                for sent in doc.sents:
-                    sent_text = sent.text_with_ws
-                    if remove_separators:
-                        sent_text = regex_trailspace.sub('', sent_text)
-                    toks.append(sent_text)
-                tokens_out[docnames[i]] = toks
+        for id_, doc in zip(docnames, self.docs(texts, multithread)):
+            tokens_out[id_] = doc_sentences(doc, remove_separators)
         return tokens_out
 
     def extract_nounphrases_list(self, texts, docnames, multithread = True):
@@ -217,47 +192,10 @@ class spacyr:
         return self.extract_np_ne_list(texts, docnames, multithread, what = "ents", ent_type_category = ent_type_category)
 
     def extract_np_ne_list(self, texts, docnames, multithread = True, what = "noun_chunks", ent_type_category = 'all'):
-        if isinstance(texts, list) == False:
-            texts = [texts]
-            docnames = [docnames]
-        for i in range(len(texts)):
-            try:
-                if not isinstance(texts[i], unicode):
-                    texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
-            except NameError:
-                pass
-        extended_list = ("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", "CARDINAL")
-        # this multithread solution is suggested by @honnibal
-        # https://github.com/explosion/spaCy/issues/172
+        texts, docnames = _as_list(texts, docnames)
         items = {}
-        if multithread == True:
-            gen1, gen2 = itertools.tee(gen_items(docnames, texts))
-            ids = (id_ for (id_, text) in gen1)
-            texts = (text for (id_, text) in gen2)
-            docs = self.nlp.pipe(texts)
-            for id_, doc in zip(ids, docs):
-                items_in_doc = []
-                for chunk in getattr(doc, what):
-                    if what == "ents":
-                        if ent_type_category == "extended" and not (chunk.label_ in extended_list):
-                            continue
-                        elif ent_type_category == "named" and (chunk.label_ in extended_list):
-                            continue
-                    items_in_doc.append(chunk.text)
-                items[id_] = items_in_doc
-        else:
-            for i in range(len(texts)):
-                text = texts[i]
-                doc = self.nlp(text)
-                items_in_doc = []
-                for chunk in getattr(doc, what):
-                    if what == "ents":
-                        if ent_type_category == "extended" and not (chunk.label_ in extended_list):
-                            continue
-                        elif ent_type_category == "named" and (chunk.label_ in extended_list):
-                            continue
-                    items_in_doc.append(chunk.text)
-                items[docnames[i]] = items_in_doc
+        for id_, doc in zip(docnames, self.docs(texts, multithread)):
+            items[id_] = doc_span_texts(doc, what, ent_type_category)
         return items
 
     def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = [], multithread = True):
@@ -268,68 +206,23 @@ class spacyr:
 
     def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], multithread = True, what = "noun_chunks"):
         if timestamps:
-            multithread = False
+            # documents already parsed by parse()
             if isinstance(timestamps, list) == False:
                 timestamps = [timestamps]
                 docnames = [docnames]
-            ndocs = len(timestamps)
+            docs = (self.documents[ts] for ts in timestamps)
+            multithread = False
         else:
-            if isinstance(texts, list) == False:
-                texts = [texts]
-                docnames = [docnames]
-            ndocs = len(texts)
-            for i in range(len(texts)):
-                try:
-                    if not isinstance(texts[i], unicode):
-                        texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
-                except NameError:
-                    pass
-        # this multithread solution is suggested by @honnibal
-        # https://github.com/explosion/spaCy/issues/172
+            texts, docnames = _as_list(texts, docnames)
+            docs = self.docs(texts, multithread)
         df_all = {}
-        if multithread == True:
-            gen1, gen2 = itertools.tee(gen_items(docnames, texts))
-            ids = (id_ for (id_, text) in gen1)
-            texts = (text for (id_, text) in gen2)
-            docs = self.nlp.pipe(texts)
-            for id_, doc in zip(ids, docs):
-                if what == "noun_chunks":
-                    df_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
-                else:
-                    df_doc = {"text": [], "ent_type": [], "start_id": [], "length": []}
-                for chunk in getattr(doc, what):
-                    df_doc['text'].append(chunk.text)
-                    df_doc['start_id'].append(chunk[0].i)
-                    df_doc['length'].append(len(chunk))
-                    if what == "noun_chunks":
-                        df_doc['root_text'].append(chunk.root.text)
-                        df_doc['root_id'].append(chunk.root.i)
-                    else:
-                        df_doc['ent_type'].append(chunk.label_)
-                if len(df_doc['text']) == 0:
-                    continue
-                df_all[id_] = df_doc
-        else:
-            for i in range(ndocs):
-                if timestamps:
-                    doc = self.documents[timestamps[i]]
-                else:
-                    text = texts[i]
-                    doc = self.nlp(text)
-                if what == "noun_chunks":
-                    df_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
-                else:
-                    df_doc = {"text": [], "ent_type": [], "start_id": [], "length": []}
-                for chunk in getattr(doc, what):
-                    df_doc['text'].append(chunk.text)
-                    df_doc['start_id'].append(chunk[0].i)
-                    df_doc['length'].append(len(chunk))
-                    if what == "noun_chunks":
-                        df_doc['root_text'].append(chunk.root.text)
-                        df_doc['root_id'].append(chunk.root.i)
-                    else:
-                        df_doc['ent_type'].append(chunk.label_)
-                df_all[docnames[i]] = df_doc
+        for id_, doc in zip(docnames, docs):
+            df_doc = doc_span_table(doc, what)
+            # as in 1.4.0, documents without spans are left out only with
+            # multithread; R drops them either way
+            if multithread == True and len(df_doc['text']) == 0:
+                continue
+            df_all[id_] = df_doc
         return df_all
 
     def ntokens(self, timestamps):
