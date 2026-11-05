@@ -17,7 +17,7 @@ b, strong, th {
 }
 
 .navbar-brand {
-    background-image: url(https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg);
+    background-image: url(https://cdn.jsdelivr.net/gh/quanteda/spacyr@main/images/spacyr_logo_small.svg);
     background-repeat: no-repeat;
     background-position: 12.5px 12.5px;
     background-size: 112px auto;

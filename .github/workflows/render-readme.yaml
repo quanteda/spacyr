@@ -1,0 +1,62 @@
+# Checks that README.md and index.md (the pkgdown home page) are what their
+# .Rmd sources render to. It cannot commit the result itself: main only takes
+# changes through pull requests, so a push from the workflow is rejected.
+# Knit locally with `make readme` instead.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'README.Rmd'
+      - 'README.md'
+      - 'index.Rmd'
+      - 'index.md'
+      - 'installation.Rmd'
+      - 'DESCRIPTION'
+      - '.github/workflows/render-readme.yaml'
+  pull_request:
+    paths:
+      - 'README.Rmd'
+      - 'README.md'
+      - 'index.Rmd'
+      - 'index.md'
+      - 'installation.Rmd'
+      - 'DESCRIPTION'
+      - '.github/workflows/render-readme.yaml'
+
+name: render-readme.yaml
+
+permissions:
+  contents: read
+
+jobs:
+  render-readme:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"hard"'
+          extra-packages: any::rmarkdown, any::badger
+
+      - name: Render README.md and index.md
+        run: |
+          rmarkdown::render("README.Rmd", quiet = TRUE)
+          rmarkdown::render("index.Rmd", quiet = TRUE)
+        shell: Rscript {0}
+
+      - name: Check README.md and index.md are up to date
+        run: |
+          if ! git diff --exit-code README.md index.md; then
+            echo "::error::README.md or index.md is out of date with its .Rmd source. Run \`make readme\` and commit the result."
+            exit 1
+          fi
