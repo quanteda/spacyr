@@ -11,17 +11,14 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
-```{r echo = FALSE, results = "hide", message = FALSE}
-library("badger")
-```
 
-# [![spacyr: an R wrapper for spaCy](https://cdn.rawgit.com/quanteda/spacyr/master/images/spacyr_logo_small.svg)](https://spacyr.quanteda.io)
+# [![spacyr: an R wrapper for spaCy](https://cdn.jsdelivr.net/gh/quanteda/spacyr@main/images/spacyr_logo_small.svg)](https://spacyr.quanteda.io)
 
 <!-- badges: start -->
 [![CRAN Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
-`r badge_devel("quanteda/spacyr", "royalblue")`
+`r badger::badge_custom("devel version", read.dcf("DESCRIPTION", "Version")[[1]], "royalblue", "https://github.com/quanteda/spacyr")`
 [![R-CMD-check](https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/quanteda/spacyr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/quanteda/spacyr?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/quanteda/spacyr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/quanteda/spacyr?branch=main)
 [![Downloads](https://cranlogs.r-pkg.org/badges/spacyr)](https://CRAN.R-project.org/package=spacyr)
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange)](https://CRAN.R-project.org/package=spacyr)
 <!-- badges: end -->
