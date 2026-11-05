@@ -64,39 +64,19 @@ spacy_extract_nounphrases.character <- function(x,
     }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
-    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
-    spacyr_pyexec("texts = []")
-
-    if (spacyr_pyget("py_version") != 3) {
-        message("multithreading for python 2 is not supported by spacy_tokenize()")
-        multithread <- FALSE
-    }
-
 
     x <- as.character(x)
     x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
-    ## send documents to python
-    spacyr_pyassign("texts", x)
-    spacyr_pyassign("docnames", docnames)
-    spacyr_pyassign("multithread", multithread)
-
-
     ## run noun phrase extraction
-    spacyr_pyexec("spobj = spacyr()")
+    spobj <- new_spobj()
     if (identical(output, "list")) {
-        command_str <- paste("noun_phrases = spobj.extract_nounphrases_list(texts = texts,",
-                             "docnames = docnames,",
-                             "multithread = multithread)")
-        spacyr_pyexec(command_str)
-        return(spacyr_pyget("noun_phrases"))
+        return(spobj$extract_nounphrases_list(texts = x, docnames = docnames,
+                                              multithread = multithread))
     } else {
-        command_str <- paste("noun_phrases = spobj.extract_nounphrases_dataframe(texts = texts,",
-                             "docnames = docnames,",
-                             "multithread = multithread)")
-        spacyr_pyexec(command_str)
-        noun_phrases <- spacyr_pyget("noun_phrases")
+        noun_phrases <- spobj$extract_nounphrases_dataframe(texts = x, docnames = docnames,
+                                                            multithread = multithread)
 
         doc_id <- names(noun_phrases)
         data_out <-

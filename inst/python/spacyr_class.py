@@ -13,6 +13,23 @@ import string
 import random
 import itertools
 import contextlib
+import re
+
+# This module is loaded by spacy_initialize() with reticulate::import_from_path().
+# It keeps no state of its own: R holds the pipeline returned by load_model()
+# and passes it, and all other values, as arguments.
+
+def load_model(model, entity = True, max_length = None):
+    if not entity:
+        nlp = spacy.load(model, disable = ['ner'])
+    else:
+        nlp = spacy.load(model)
+    if max_length is not None:
+        nlp.max_length = int(max_length)
+    return nlp
+
+def spacy_version():
+    return spacy.about.__version__
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -23,7 +40,7 @@ def gen_items(doc_id, texts):
         yield (doc_id[i], texts[i])
 
 class spacyr:
-    def __init__(self):
+    def __init__(self, nlp):
         self.nlp = nlp
         self.documents = {}
 
@@ -74,9 +91,15 @@ class spacyr:
         else:
             pipes_context = contextlib.nullcontext()
         with pipes_context:
-            return self._tokenize(texts, docnames, padding, remove_separators, multithread)
+            return self._tokenize(texts, docnames, padding, multithread,
+                                  remove_punct = remove_punct,
+                                  remove_numbers = remove_numbers,
+                                  remove_url = remove_url,
+                                  remove_separators = remove_separators,
+                                  remove_symbols = remove_symbols)
 
-    def _tokenize(self, texts, docnames, padding, remove_separators, multithread):
+    def _tokenize(self, texts, docnames, padding, multithread, **remove):
+        remove_separators = remove["remove_separators"]
         if isinstance(texts, list) == False:
             texts = [texts]
             docnames = [docnames]
@@ -97,7 +120,7 @@ class spacyr:
             for id_, doc in zip(ids, docs):
                 toks = []
                 for w in doc:
-                    rem = self.rem_check(w)
+                    rem = self.rem_check(w, **remove)
                     text = w.text
                     if rem:
                         if padding:
@@ -114,7 +137,7 @@ class spacyr:
                 doc = self.nlp(text)
                 toks = []
                 for w in doc:
-                    rem = self.rem_check(w)
+                    rem = self.rem_check(w, **remove)
                     text = w.text
                     if rem:
                         if padding:
@@ -127,7 +150,10 @@ class spacyr:
                 tokens_out[docnames[i]] = toks
         return tokens_out
     
-    def rem_check(self, w): # part of tokernize. Check if the token should be removed
+    def rem_check(self, w, remove_punct = False, remove_url = False,
+                  remove_numbers = False, remove_separators = True,
+                  remove_symbols = False):
+        # part of tokenize(): check whether the token should be removed
         rem = False
         if remove_punct and w.is_punct:
             rem = True

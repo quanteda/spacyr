@@ -49,15 +49,14 @@ spacy_initialize <- function(model = "en_core_web_sm",
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
-  spacyr_pyexec(pyfile = system.file("python", "spacyr_class.py",
-                                     package = "spacyr"))
+  spacyr_env$module <- reticulate::import_from_path(
+    "spacyr_class", path = system.file("python", package = "spacyr"))
   
-  spacyr_pyassign("model", model)
-  spacyr_pyassign("spacy_entity", entity)
   options("spacy_entity" = entity)
-  tryCatch(
-    spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
-                                       package = "spacyr")),
+  spacyr_env$nlp <- tryCatch(
+    spacyr_env$module$load_model(
+      model, entity,
+      if (is.null(max_length)) NULL else as.integer(max_length)),
     error = function(e) {
       if (grepl("E050", conditionMessage(e), fixed = TRUE)) {
         stop("The language model '", model, "' is not installed. ",
@@ -67,12 +66,7 @@ spacy_initialize <- function(model = "en_core_web_sm",
       stop(e)
     }
   )
-  if (!is.null(max_length)) {
-    spacyr_pyassign("max_length", as.integer(max_length))
-    spacyr_pyexec("nlp.max_length = max_length")
-  }
-  
-  spacy_version <- spacyr_pyget("spacy_version")
+  spacy_version <- spacyr_env$module$spacy_version()
   if (entity == FALSE && as.integer(substr(spacy_version, 1, 1)) < 2){
     message("entity == FALSE is only available for spaCy version 2.0.0 or higher")
     options("spacy_entity" = TRUE)
@@ -99,8 +93,12 @@ spacy_finalize <- function() {
   if (is.null(getOption("spacy_initialized"))) {
     stop("Nothing to finalize. spaCy is not initialized")
   }
-  spacyr_pyexec(pyfile = system.file("python", "finalize_spacyPython.py",
-                                     package = "spacyr"))
+  # drop the references to the parsed documents and the pipeline, then let
+  # Python release their memory
+  spacyr_env$spobj <- NULL
+  spacyr_env$nlp <- NULL
+  gc()
+  reticulate::import("gc")$collect()
   options("spacy_initialized" = NULL)
 }
 

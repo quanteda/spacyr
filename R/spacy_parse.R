@@ -235,19 +235,11 @@ process_document <- function(x, multithread, ...) {
     }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
-    spacyr_pyexec("try:\n del spobj\nexcept NameError:\n 1")
-    spacyr_pyexec("texts = []")
-
     x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
-    spacyr_pyassign("texts", x)
-    spacyr_pyassign("multithread", multithread)
-    spacyr_pyexec("spobj = spacyr()")
-
-    spacyr_pyexec("timestamps = spobj.parse(texts, multithread = multithread)")
-
-    timestamps <- as.character(spacyr_pyget("timestamps"))
+    spobj <- new_spobj()
+    timestamps <- as.character(spobj$parse(x, multithread = multithread))
     output <- spacy_out$new(docnames = docnames,
                             timestamps = timestamps)
     return(output)
