@@ -3,6 +3,7 @@
 ## Tests
 
 * Added saved-output tests that compare the results of `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()`, `spacy_extract_nounphrases()` and the `entity_*()` and `nounphrase_*()` functions with those of version 1.4.0, on a fixed set of texts that includes edge cases. The `entity_*()` and `nounphrase_*()` tests do not need Python, so they also run on CRAN.
+* The saved-output tests compare output only with the spaCy and language model versions it was recorded with. A new `saved-output` CI job installs exactly those versions and fails if any saved-output test is skipped. The 1.4.0 output is kept as a fixed baseline, and the accepted output is updated from a named, accepted revision (see `tests/testthat/fixtures/README.md`).
 
 # spacyr v1.4.0
 

@@ -35,3 +35,4 @@ installation.md
 ^codecov\.yml$
 ^CRAN-SUBMISSION$
 ^Makefile$
+^tests/testthat/fixtures/saved-output-1\.4\.0\.rds$

@@ -1,10 +1,11 @@
 context("saved output")
 source("utils.R")
 
-# Compare the output of the main functions with the output saved from
-# spacyr 1.4.0 (see helper-saved-output.R and fixtures/README.md). A difference
-# is a bug, unless the change is intended: then record the new output with
-# fixtures/record-saved-output.R and describe the change in NEWS.md.
+# Compare the output of the main functions with the accepted saved output in
+# fixtures/saved-output.rds (see helper-saved-output.R and fixtures/README.md).
+# A difference is a bug, unless the change is intended: then record the new
+# output of the affected cases with fixtures/record-saved-output.R and
+# describe the change in NEWS.md.
 
 saved <- readRDS(saved_output_file())
 
@@ -36,10 +37,16 @@ use_saved_output_model <- function(model) {
     suppressMessages(spacy_initialize(model = model))
     saved_model$current <- model
   }
-  installed <- python_package_version(model)
-  skip_if_not(identical(installed, saved$meta$models[[model]]),
-              paste0("output was saved with ", model, " ", saved$meta$models[[model]],
-                     ", but ", installed, " is installed"))
+  # the output depends on both spaCy and the model, so it is only compared
+  # with the versions it was recorded with; the saved-output CI job installs
+  # exactly these and fails if any case is skipped
+  for (package in c("spacy", model)) {
+    recorded <- if (package == "spacy") saved$meta$spacy_version else saved$meta$models[[model]]
+    installed <- python_package_version(package)
+    skip_if_not(identical(installed, recorded),
+                paste0("output was saved with ", package, " ", recorded,
+                       ", but ", installed, " is installed"))
+  }
 }
 
 for (case in saved_output_cases()) {
