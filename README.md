@@ -4,7 +4,7 @@
 
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
-[![](https://img.shields.io/badge/devel%20version-1.4.0-royalblue.svg)](https://github.com/quanteda/spacyr)
+[![](https://img.shields.io/badge/devel%20version-1.4.0.9000-royalblue.svg)](https://github.com/quanteda/spacyr)
 [![R-CMD-check](https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/quanteda/spacyr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/quanteda/spacyr?branch=main)
