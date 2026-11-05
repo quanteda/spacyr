@@ -1,3 +1,9 @@
+# spacyr (development version)
+
+## Tests
+
+* Added saved-output tests that compare the results of `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()`, `spacy_extract_nounphrases()` and the `entity_*()` and `nounphrase_*()` functions with those of version 1.4.0, on a fixed set of texts that includes edge cases. The `entity_*()` and `nounphrase_*()` tests do not need Python, so they also run on CRAN.
+
 # spacyr v1.4.0
 
 ## Changes that can affect results
