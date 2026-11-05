@@ -49,8 +49,7 @@ spacy_initialize <- function(model = "en_core_web_sm",
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
-  spacyr_env$module <- reticulate::import_from_path(
-    "spacyr_class", path = system.file("python", package = "spacyr"))
+  spacyr_env$module <- load_spacyr_module()
   
   options("spacy_entity" = entity)
   spacyr_env$nlp <- tryCatch(

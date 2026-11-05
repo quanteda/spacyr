@@ -1,8 +1,32 @@
-# The Python side of spacyr: the module inst/python/spacyr_class.py, loaded
+# The Python side of spacyr: the module inst/python/spacyr_bridge.py, loaded
 # by spacy_initialize(), the spaCy pipeline it returns, and the object
 # holding the documents parsed by the last call to process_document(), which
 # the get_*() functions read. Nothing is stored in Python's __main__.
 spacyr_env <- new.env(parent = emptyenv())
+
+# Load inst/python/spacyr_bridge.py from this copy of spacyr. A module of the
+# same name cached in sys.modules (for instance from another installed or
+# source copy of spacyr loaded earlier in the session) is dropped first, since
+# import_from_path() would otherwise return it.
+load_spacyr_module <- function(name = "spacyr_bridge") {
+    path <- system.file("python", package = "spacyr")
+    file <- file.path(path, paste0(name, ".py"))
+    if (!file.exists(file)) stop("spacyr's Python module was not found at ", file)
+    sys <- reticulate::import("sys", convert = FALSE)
+    sys$modules$pop(name, NULL)
+    module <- reticulate::import_from_path(name, path = path)
+    loaded <- tryCatch(
+        reticulate::py_to_r(reticulate::py_get_attr(module, "__file__")),
+        error = function(e) NULL)
+    if (is.null(loaded) ||
+        !identical(normalizePath(as.character(loaded), winslash = "/", mustWork = FALSE),
+                   normalizePath(file, winslash = "/", mustWork = FALSE))) {
+        stop("spacyr's Python module was loaded from ",
+             if (is.null(loaded)) "an unknown location" else as.character(loaded),
+             " instead of ", file)
+    }
+    module
+}
 
 spacyr_module <- function() {
     if (is.null(spacyr_env$module)) stop("spaCy is not initialized")

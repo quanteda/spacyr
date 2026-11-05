@@ -72,3 +72,21 @@ test_that("spacyr leaves no variables in Python's __main__", {
   expect_false(any(c("nlp", "spobj", "texts", "spacyr") %in% main_names()))
   spacy_finalize()
 })
+
+test_that("spacy_initialize ignores a cached module with the same name", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  spacy_finalize()
+  # a module of the same name from elsewhere, e.g. another copy of spacyr
+  sys <- reticulate::import("sys", convert = FALSE)
+  types <- reticulate::import("types")
+  sys$modules$`__setitem__`("spacyr_bridge", types$ModuleType("spacyr_bridge"))
+  expect_message(spacy_initialize(), "successfully")
+  expect_identical(
+    normalizePath(reticulate::py_to_r(spacyr:::spacyr_env$module$`__file__`)),
+    normalizePath(system.file("python", "spacyr_bridge.py", package = "spacyr")))
+  expect_identical(nrow(spacy_parse("One two.")), 3L)
+  spacy_finalize()
+})
