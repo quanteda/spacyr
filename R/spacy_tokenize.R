@@ -71,9 +71,6 @@ spacy_tokenize.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
-    if (length(x) == 1) {
-        multithread <- FALSE
-    }
 
 
     if (all(!duplicated(docnames)) == FALSE) {
@@ -91,8 +88,7 @@ spacy_tokenize.character <- function(x,
     if (identical(what, "sentence")){
         tokens <- new_spobj()$tokenize_sentence(
             x, docnames,
-            remove_separators = remove_separators,
-            multithread = multithread)
+            remove_separators = remove_separators)
     } else {
         turn_off_pipes <- if (all(!c(remove_punct, remove_url, remove_numbers))) TRUE else FALSE
         if (remove_separators == FALSE & turn_off_pipes == FALSE) {
@@ -106,8 +102,7 @@ spacy_tokenize.character <- function(x,
             remove_separators = remove_separators,
             remove_symbols = remove_symbols,
             turn_off_pipes = turn_off_pipes,
-            padding = padding,
-            multithread = multithread)
+            padding = padding)
     }
 
     if (identical(output, "list")) return(tokens)

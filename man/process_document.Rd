@@ -14,7 +14,7 @@ This slows down \code{spacy_parse()} but speeds up the later parsing.
 If FALSE, tagging, entity recognition, and dependency analysis when
 relevant functions are called.}
 
-\item{multithread}{logical;}
+\item{multithread}{not used; kept for compatibility}
 
 \item{...}{arguments passed to specific methods}
 }

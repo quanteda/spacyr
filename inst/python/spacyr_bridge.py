@@ -128,21 +128,16 @@ class spacyr:
         self.nlp = nlp
         self.documents = {}
 
-    def docs(self, texts, multithread = True):
-        # Parse the texts, in order. With multithread, spaCy's nlp.pipe()
-        # processes them in batches and calls each component's pipe() method;
-        # otherwise each text is processed by nlp(), which calls each
-        # component on the single document. A custom component can behave
-        # differently in the two, so the choice is kept as it was in 1.4.0
-        # (see tests/testthat/test-pipeline-paths.R).
-        if multithread == True:
-            return self.nlp.pipe(texts)
-        return (self.nlp(text) for text in texts)
+    def docs(self, texts):
+        # Parse the texts, in order, with spaCy's nlp.pipe(), which processes
+        # them in batches and calls each component's pipe() method rather
+        # than its __call__() (see tests/testthat/test-pipeline-paths.R).
+        return self.nlp.pipe(texts)
 
-    def parse(self, texts, multithread = True):
+    def parse(self, texts):
         texts, _ = _as_list(texts)
         epoch_nanos = []
-        for doc in self.docs(texts, multithread):
+        for doc in self.docs(texts):
             epoch_nano = str(int(time.time() * 1000000)) + id_generator()
             self.documents[epoch_nano] = doc
             epoch_nanos.append(epoch_nano)
@@ -154,8 +149,7 @@ class spacyr:
                  remove_url = False,
                  remove_separators = True,
                  remove_symbols = False,
-                 padding = False,
-                 multithread = True):
+                 padding = False):
         # disable the pipeline components for plain tokenization; the context
         # manager restores them even if tokenization fails
         if turn_off_pipes and remove_symbols == False:
@@ -169,7 +163,7 @@ class spacyr:
         texts, docnames = _as_list(texts, docnames)
         with pipes_context:
             tokens_out = {}
-            for id_, doc in zip(docnames, self.docs(texts, multithread)):
+            for id_, doc in zip(docnames, self.docs(texts)):
                 tokens_out[id_] = doc_tokens(doc, padding,
                                              remove_separators = remove_separators,
                                              remove_punct = remove_punct,
@@ -178,49 +172,47 @@ class spacyr:
                                              remove_symbols = remove_symbols)
             return tokens_out
 
-    def tokenize_sentence(self, texts, docnames, multithread = True, remove_separators = False):
+    def tokenize_sentence(self, texts, docnames, remove_separators = False):
         texts, docnames = _as_list(texts, docnames)
         tokens_out = {}
-        for id_, doc in zip(docnames, self.docs(texts, multithread)):
+        for id_, doc in zip(docnames, self.docs(texts)):
             tokens_out[id_] = doc_sentences(doc, remove_separators)
         return tokens_out
 
-    def extract_nounphrases_list(self, texts, docnames, multithread = True):
-        return self.extract_np_ne_list(texts, docnames, multithread, what = "noun_chunks")
+    def extract_nounphrases_list(self, texts, docnames):
+        return self.extract_np_ne_list(texts, docnames, what = "noun_chunks")
 
-    def extract_entity_list(self, texts, docnames, multithread = True, ent_type_category = "all"):
-        return self.extract_np_ne_list(texts, docnames, multithread, what = "ents", ent_type_category = ent_type_category)
+    def extract_entity_list(self, texts, docnames, ent_type_category = "all"):
+        return self.extract_np_ne_list(texts, docnames, what = "ents", ent_type_category = ent_type_category)
 
-    def extract_np_ne_list(self, texts, docnames, multithread = True, what = "noun_chunks", ent_type_category = 'all'):
+    def extract_np_ne_list(self, texts, docnames, what = "noun_chunks", ent_type_category = 'all'):
         texts, docnames = _as_list(texts, docnames)
         items = {}
-        for id_, doc in zip(docnames, self.docs(texts, multithread)):
+        for id_, doc in zip(docnames, self.docs(texts)):
             items[id_] = doc_span_texts(doc, what, ent_type_category)
         return items
 
-    def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = [], multithread = True):
-        return self.extract_np_ne_dataframe(docnames, texts, timestamps, multithread, what = "noun_chunks")
+    def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = []):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "noun_chunks")
 
-    def extract_entity_dataframe(self, docnames, texts = [], timestamps = [], multithread = True):
-        return self.extract_np_ne_dataframe(docnames, texts, timestamps, multithread, what = "ents")
+    def extract_entity_dataframe(self, docnames, texts = [], timestamps = []):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "ents")
 
-    def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], multithread = True, what = "noun_chunks"):
+    def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], what = "noun_chunks"):
         if timestamps:
             # documents already parsed by parse()
             if isinstance(timestamps, list) == False:
                 timestamps = [timestamps]
                 docnames = [docnames]
             docs = (self.documents[ts] for ts in timestamps)
-            multithread = False
         else:
             texts, docnames = _as_list(texts, docnames)
-            docs = self.docs(texts, multithread)
+            docs = self.docs(texts)
         df_all = {}
         for id_, doc in zip(docnames, docs):
             df_doc = doc_span_table(doc, what)
-            # as in 1.4.0, documents without spans are left out only with
-            # multithread; R drops them either way
-            if multithread == True and len(df_doc['text']) == 0:
+            # documents without spans are left out; R would drop them anyway
+            if len(df_doc['text']) == 0:
                 continue
             df_all[id_] = df_doc
         return df_all

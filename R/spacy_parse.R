@@ -21,9 +21,8 @@
 #' @param lemma logical; include lemmatized tokens in the output (the quality
 #'   of lemmatization depends on the language model)
 #' @param entity logical; if `TRUE`, report named entities
-#' @param multithread logical; if `TRUE`, documents are processed in batches
-#'   using spaCy's `nlp.pipe()`, which is usually faster for many documents.
-#'   Despite the name, processing takes place in a single process.
+#' @param multithread no longer has any effect. Documents are always processed
+#'   in batches with spaCy's `nlp.pipe()`, in a single process.
 #' @param dependency logical; if `TRUE`, analyse and tag dependencies
 #' @param nounphrase logical; if `TRUE`, analyse and tag noun phrases
 #'   tags
@@ -206,7 +205,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' This slows down `spacy_parse()` but speeds up the later parsing. 
 #' If FALSE, tagging, entity recognition, and dependency analysis when 
 #' relevant functions are called.
-#' @param multithread logical;
+#' @param multithread not used; kept for compatibility
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @importFrom methods new
@@ -239,7 +238,7 @@ process_document <- function(x, multithread, ...) {
     x <- unname(x)
 
     spobj <- new_spobj()
-    timestamps <- as.character(spobj$parse(x, multithread = multithread))
+    timestamps <- as.character(spobj$parse(x))
     output <- spacy_out$new(docnames = docnames,
                             timestamps = timestamps)
     return(output)

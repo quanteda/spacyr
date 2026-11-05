@@ -53,9 +53,6 @@ spacy_extract_nounphrases.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
-    if (length(x) == 1) {
-        multithread <- FALSE
-    }
 
     if (all(!duplicated(docnames)) == FALSE) {
         stop("Docnames are duplicated.")
@@ -72,11 +69,9 @@ spacy_extract_nounphrases.character <- function(x,
     ## run noun phrase extraction
     spobj <- new_spobj()
     if (identical(output, "list")) {
-        return(spobj$extract_nounphrases_list(texts = x, docnames = docnames,
-                                              multithread = multithread))
+        return(spobj$extract_nounphrases_list(texts = x, docnames = docnames))
     } else {
-        noun_phrases <- spobj$extract_nounphrases_dataframe(texts = x, docnames = docnames,
-                                                            multithread = multithread)
+        noun_phrases <- spobj$extract_nounphrases_dataframe(texts = x, docnames = docnames)
 
         doc_id <- names(noun_phrases)
         data_out <-

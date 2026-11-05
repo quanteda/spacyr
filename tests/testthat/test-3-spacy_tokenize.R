@@ -209,19 +209,6 @@ test_that("spacy_tokenize multithread = TRUE does not change value", {
   )
 })
 
-test_that("spacy_tokenize multithread = TRUE is faster than when FALSE", {
-  skip_on_cran()
-  skip_on_os("solaris")
-  try_spacy_initialize()
-  
-  skip("multithread = TRUE performance test skipped because takes so long")
-  txt <- rep(data_char_paragraph, 5000)
-  expect_lt(
-    system.time(spacy_tokenize(txt, multithread = TRUE))["elapsed"],
-    system.time(spacy_tokenize(txt, multithread = FALSE))["elapsed"]
-  )
-})
-
 test_that("spacy_tokenize what = 'sentence' works as expected", {
   skip_on_cran()
   skip_on_os("solaris")

@@ -121,8 +121,7 @@ get_noun_phrases <- function(spacy_out) {
     # get ids of head of each token
     noun_phrases <- current_spobj()$extract_nounphrases_dataframe(
         timestamps = spacy_out$timestamps,
-        docnames = spacy_out$docnames,
-        multithread = FALSE)
+        docnames = spacy_out$docnames)
 
     doc_id <- names(noun_phrases)
     data_out <-
