@@ -75,10 +75,13 @@ spacy_extract_entity.character <- function(x,
     ## run entity extraction
     spobj <- new_spobj()
     if (identical(output, "list")) {
-        return(spobj$extract_entity_list(texts = x, docnames = docnames,
-                                         ent_type_category = type))
+        entities <- spobj$extract_entity_list(texts = x, docnames = docnames,
+                                              ent_type_category = type)
+        warn_skipped(spobj)
+        return(entities)
     } else {
         entities <- spobj$extract_entity_dataframe(texts = x, docnames = docnames)
+        warn_skipped(spobj)
 
         doc_id <- names(entities)
         data_out <-

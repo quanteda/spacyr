@@ -238,7 +238,11 @@ process_document <- function(x, multithread, ...) {
     x <- unname(x)
 
     spobj <- new_spobj()
-    timestamps <- as.character(spobj$parse(x))
+    # named by document; a document that the pipeline left out has none
+    timestamps <- unlist(spobj$parse(x, docnames))
+    warn_skipped(spobj)
+    docnames <- as.character(names(timestamps))
+    timestamps <- as.character(timestamps)
     output <- spacy_out$new(docnames = docnames,
                             timestamps = timestamps)
     return(output)

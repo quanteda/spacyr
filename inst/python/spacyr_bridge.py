@@ -127,20 +127,30 @@ class spacyr:
     def __init__(self, nlp):
         self.nlp = nlp
         self.documents = {}
+        self.skipped = []
 
-    def docs(self, texts):
+    def docs(self, texts, ids):
         # Parse the texts, in order, with spaCy's nlp.pipe(), which processes
         # them in batches and calls each component's pipe() method rather
         # than its __call__() (see tests/testthat/test-pipeline-paths.R).
-        return self.nlp.pipe(texts)
+        # Yields (id, doc) pairs. Each id travels with its text through the
+        # pipeline, because nlp.pipe() leaves out a document when a component
+        # fails on it and the pipeline's error handler suppresses the error;
+        # the ids of documents left out are stored in self.skipped.
+        self.skipped = []
+        seen = set()
+        for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True):
+            seen.add(id_)
+            yield id_, doc
+        self.skipped = [id_ for id_ in ids if id_ not in seen]
 
-    def parse(self, texts):
-        texts, _ = _as_list(texts)
-        epoch_nanos = []
-        for doc in self.docs(texts):
+    def parse(self, texts, docnames):
+        texts, docnames = _as_list(texts, docnames)
+        epoch_nanos = {}
+        for id_, doc in self.docs(texts, docnames):
             epoch_nano = str(int(time.time() * 1000000)) + id_generator()
             self.documents[epoch_nano] = doc
-            epoch_nanos.append(epoch_nano)
+            epoch_nanos[id_] = epoch_nano
         return epoch_nanos
 
     def tokenize(self, texts, docnames, turn_off_pipes = True,
@@ -163,7 +173,7 @@ class spacyr:
         texts, docnames = _as_list(texts, docnames)
         with pipes_context:
             tokens_out = {}
-            for id_, doc in zip(docnames, self.docs(texts)):
+            for id_, doc in self.docs(texts, docnames):
                 tokens_out[id_] = doc_tokens(doc, padding,
                                              remove_separators = remove_separators,
                                              remove_punct = remove_punct,
@@ -175,7 +185,7 @@ class spacyr:
     def tokenize_sentence(self, texts, docnames, remove_separators = False):
         texts, docnames = _as_list(texts, docnames)
         tokens_out = {}
-        for id_, doc in zip(docnames, self.docs(texts)):
+        for id_, doc in self.docs(texts, docnames):
             tokens_out[id_] = doc_sentences(doc, remove_separators)
         return tokens_out
 
@@ -188,7 +198,7 @@ class spacyr:
     def extract_np_ne_list(self, texts, docnames, what = "noun_chunks", ent_type_category = 'all'):
         texts, docnames = _as_list(texts, docnames)
         items = {}
-        for id_, doc in zip(docnames, self.docs(texts)):
+        for id_, doc in self.docs(texts, docnames):
             items[id_] = doc_span_texts(doc, what, ent_type_category)
         return items
 
@@ -204,12 +214,12 @@ class spacyr:
             if isinstance(timestamps, list) == False:
                 timestamps = [timestamps]
                 docnames = [docnames]
-            docs = (self.documents[ts] for ts in timestamps)
+            docs = zip(docnames, (self.documents[ts] for ts in timestamps))
         else:
             texts, docnames = _as_list(texts, docnames)
-            docs = self.docs(texts)
+            docs = self.docs(texts, docnames)
         df_all = {}
-        for id_, doc in zip(docnames, docs):
+        for id_, doc in docs:
             df_doc = doc_span_table(doc, what)
             # documents without spans are left out; R would drop them anyway
             if len(df_doc['text']) == 0:

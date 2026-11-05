@@ -39,6 +39,21 @@ new_spobj <- function() {
     spacyr_env$spobj
 }
 
+# Warn about documents that spaCy's pipeline left out of the last call through
+# spobj: nlp.pipe() leaves out a document when a pipeline component fails on
+# it and the pipeline's error handler suppresses the error.
+warn_skipped <- function(spobj) {
+    skipped <- as.character(unlist(spobj$skipped))
+    if (length(skipped)) {
+        warning("spaCy's pipeline did not return ", length(skipped),
+                if (length(skipped) == 1) " document" else " documents",
+                ", which ", if (length(skipped) == 1) "is" else "are",
+                " left out of the output: ",
+                paste(skipped, collapse = ", "), call. = FALSE)
+    }
+    invisible(skipped)
+}
+
 # the spacyr object from the last call to process_document()
 current_spobj <- function() {
     if (is.null(spacyr_env$spobj)) stop("no parsed documents: run spacy_parse() first")

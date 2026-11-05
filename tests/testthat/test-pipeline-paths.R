@@ -57,3 +57,51 @@ test_that("spacy_extract_entity() always uses nlp.pipe()", {
     }
   })
 })
+
+# nlp.pipe() leaves out a document when a component fails on it and the
+# pipeline's error handler suppresses the error; the other documents must keep
+# their names, and the documents left out are reported in a warning.
+with_failing_component <- function(code) {
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  components <- reticulate::import_from_path("spacyr_test_components",
+                                             path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  nlp$add_pipe("spacyr_test_fail_on_bad", last = TRUE)
+  components$skip_errors(nlp)
+  on.exit(spacy_finalize(), add = TRUE)
+  force(code)
+}
+
+skipped <- c(bad = "Bad input.", good = "London is in England.")
+skipped_warning <- "did not return 1 document, which is left out of the output: bad"
+
+test_that("documents left out by the pipeline do not shift the others' names", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  with_failing_component({
+    expect_warning(ents <- spacy_extract_entity(skipped), skipped_warning)
+    expect_identical(ents$doc_id, c("good", "good"))
+    expect_identical(ents$text, c("London", "England"))
+    expect_warning(ents <- spacy_extract_entity(skipped, output = "list"), skipped_warning)
+    expect_identical(ents, list(good = c("London", "England")))
+
+    expect_warning(nps <- spacy_extract_nounphrases(skipped), skipped_warning)
+    expect_identical(unique(nps$doc_id), "good")
+    expect_warning(nps <- spacy_extract_nounphrases(skipped, output = "list"), skipped_warning)
+    expect_identical(names(nps), "good")
+
+    expect_warning(sents <- spacy_tokenize(skipped, what = "sentence"), skipped_warning)
+    expect_identical(sents, list(good = "London is in England."))
+    # word tokenization disables the pipeline components, so nothing is left out
+    expect_silent(toks <- spacy_tokenize(skipped))
+    expect_identical(names(toks), c("bad", "good"))
+
+    for (np in c(FALSE, TRUE)) {
+      expect_warning(parsed <- spacy_parse(skipped, nounphrase = np), skipped_warning)
+      expect_identical(unique(parsed$doc_id), "good")
+      expect_identical(parsed$token, c("London", "is", "in", "England", "."))
+      expect_identical(parsed$entity[c(1, 4)], c("GPE_B", "GPE_B"))
+    }
+  })
+})

@@ -69,9 +69,12 @@ spacy_extract_nounphrases.character <- function(x,
     ## run noun phrase extraction
     spobj <- new_spobj()
     if (identical(output, "list")) {
-        return(spobj$extract_nounphrases_list(texts = x, docnames = docnames))
+        noun_phrases <- spobj$extract_nounphrases_list(texts = x, docnames = docnames)
+        warn_skipped(spobj)
+        return(noun_phrases)
     } else {
         noun_phrases <- spobj$extract_nounphrases_dataframe(texts = x, docnames = docnames)
+        warn_skipped(spobj)
 
         doc_id <- names(noun_phrases)
         data_out <-
