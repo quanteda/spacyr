@@ -1,12 +1,16 @@
 # Definitions for the saved-output tests (test-9-saved-output.R).
 #
-# The texts and calls below were run with spacyr 1.4.0 and the results saved
-# in fixtures/saved-output.rds by fixtures/record-saved-output.R. The tests
-# rerun each call and compare the result with the saved one, so that a
-# refactor that changes any output is caught. See fixtures/README.md.
+# The texts and calls below are run by fixtures/record-saved-output.R, and the
+# accepted results saved in fixtures/saved-output.rds. The tests rerun each
+# call and compare the result with the saved one, so that a refactor that
+# changes any output is caught. fixtures/saved-output-1.4.0.rds keeps the
+# output of spacyr 1.4.0 as a fixed reference. See fixtures/README.md.
 
-saved_output_file <- function() {
-  testthat::test_path("fixtures", "saved-output.rds")
+saved_output_file <- function(which = c("accepted", "baseline")) {
+  file <- switch(match.arg(which),
+                 accepted = "saved-output.rds",
+                 baseline = "saved-output-1.4.0.rds")
+  testthat::test_path("fixtures", file)
 }
 
 saved_output_texts <- function() {

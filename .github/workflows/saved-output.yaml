@@ -1,0 +1,76 @@
+# Runs every saved-output test (tests/testthat/test-9-saved-output.R) with
+# exactly the spaCy and language model versions the accepted output was
+# recorded with, read from tests/testthat/fixtures/saved-output.rds, and fails
+# if any of them is skipped. The R-CMD-check matrix installs the latest spaCy
+# for compatibility testing, where these tests are skipped when the versions
+# differ. See tests/testthat/fixtures/README.md.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+name: saved-output
+
+permissions:
+  contents: read
+
+jobs:
+  saved-output:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      NOT_CRAN: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: '3.12'
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::testthat, any::quanteda, local::.
+
+      - name: List the pinned spaCy and model versions
+        run: |
+          meta <- readRDS("tests/testthat/fixtures/saved-output.rds")$meta
+          stopifnot(!is.null(meta$spacy_version), length(meta$models) > 0)
+          base <- "https://github.com/explosion/spacy-models/releases/download"
+          reqs <- c(paste0("spacy==", meta$spacy_version),
+                    sprintf("%s/%s-%s/%s-%s-py3-none-any.whl", base,
+                            names(meta$models), meta$models,
+                            names(meta$models), meta$models))
+          writeLines(reqs, file.path(Sys.getenv("RUNNER_TEMP"), "saved-output-requirements.txt"))
+          writeLines(reqs)
+        shell: Rscript {0}
+
+      - name: Create the r-spacyr environment with the pinned versions
+        run: |
+          "${{ steps.setup-python.outputs.python-path }}" -m venv ~/.virtualenvs/r-spacyr
+          ~/.virtualenvs/r-spacyr/bin/python -m pip install --upgrade pip
+          ~/.virtualenvs/r-spacyr/bin/python -m pip install -r "$RUNNER_TEMP/saved-output-requirements.txt"
+          ~/.virtualenvs/r-spacyr/bin/python -m pip list
+        shell: bash
+
+      - name: Run the saved-output tests and fail on any skip
+        run: |
+          library("testthat")
+          results <- as.data.frame(test_file(
+            "tests/testthat/test-9-saved-output.R",
+            package = "spacyr", load_package = "installed", reporter = "summary"))
+          failed <- results$failed > 0 | results$error
+          if (any(failed)) stop(sum(failed), " saved-output tests failed")
+          if (any(results$skipped)) {
+            stop(sum(results$skipped), " saved-output tests were skipped:\n",
+                 paste(results$test[results$skipped], collapse = "\n"))
+          }
+          message(nrow(results), " saved-output tests passed, none skipped")
+        shell: Rscript {0}
