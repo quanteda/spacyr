@@ -102,11 +102,7 @@ spacy_parse.character <- function(x,
     `:=` <- `.` <- `.N` <- `.I` <- NULL
     check_multithread(multithread, "spacy_parse")
     args <- pipe_args(n_process, batch_size)
-    spacy_out <- process_document(x, n_process = args$n_process,
-                                  batch_size = args$batch_size)
-    if (is.null(spacy_out$timestamps)) {
-        stop("Document parsing failed")
-    }
+    input <- parse_input(x)
 
     ## check the omit_entity status
     if (entity == TRUE & getOption("spacy_entity") == FALSE) {
@@ -115,83 +111,31 @@ spacy_parse.character <- function(x,
         entity <- FALSE
     }
 
-    ntokens <- get_ntokens(spacy_out)
-    if (sum(unlist(ntokens)) == 0) {
+    # all the columns, from one pass over the documents as spaCy parses them
+    spobj <- new_spobj()
+    parsed <- spobj$parse_table(input$x, input$docnames,
+                                lemma = lemma, pos = pos, tag = tag,
+                                dependency = dependency, entity = entity,
+                                nounphrase = nounphrase,
+                                attributes = unname(as.list(additional_attributes)),
+                                batch_size = args$batch_size,
+                                n_process = args$n_process)
+    warn_skipped(spobj)
+    cols <- parsed$columns
+    if (length(cols$token) == 0) {
         return(empty_spacyr_parsed(lemma = lemma, pos = pos, tag = tag,
                                    dependency = dependency, entity = entity,
                                    nounphrase = nounphrase,
                                    additional_attributes = additional_attributes))
     }
-    tokens <- get_tokens(spacy_out)
-    ntokens_by_sent <- get_ntokens_by_sent(spacy_out)
-
-    dt <- data.table(doc_id = rep(spacy_out$docnames, ntokens),
-                     sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(seq_along(x), x))),
-                     token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) seq(to = x))),
-                     token = tokens)
-
-    if (lemma) {
-        dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
+    if (dependency) cols$head_token_id <- as.numeric(cols$head_token_id)
+    if (nounphrase && parsed$n_nounphrases == 0) {
+        message("No noun phrase found in documents.")
+        cols$nounphrase <- cols$whitespace <- NULL
     }
-    if (pos) {
-        dt[, "pos" := get_tags(spacy_out, "google")]
-    }
-    if (tag) {
-        dt[, "tag" := get_tags(spacy_out, "detailed")]
-    }
-
-    ## add dependency data fields
-    if (dependency) {
-        subtractor <- unlist(lapply(ntokens_by_sent, function(x) {
-            if (length(x) == 0) return(NULL)
-            csumx <- cumsum(c(0, x[-length(x)]))
-            return(rep(csumx, x))
-        }))
-        deps <- get_dependency(spacy_out)
-        dt[, c("head_token_id", "dep_rel") := list(deps$head_id - subtractor,
-                                                   deps$dep_rel)]
-    }
-
-    ## named entity fields
-    if (entity) {
-        dt[, entity := get_named_entities(spacy_out)]
-    }
-
-    ## noun phrases
-    if (nounphrase) {
-        doc_id <- start_id <- nounphrase <- w_id <- root_id <- whitespace <- row_order <- NULL
-
-        dt_nounphrases <- data.table::data.table(get_noun_phrases(spacy_out))
-        if (nrow(dt_nounphrases) > 0) {
-            dt_nounphrases <- dt_nounphrases[rep(1:nrow(dt_nounphrases), times = length)]
-            dt_nounphrases[, w_id := seq(start_id[1], length.out = length[1]), by = .(doc_id, start_id)]
-            dt_nounphrases <- data.table::setorder(dt_nounphrases, w_id, -length)
-            dt_nounphrases <- unique(dt_nounphrases, by = c("doc_id", "w_id"))
-            dt_nounphrases[, nounphrase := ifelse(w_id == start_id, "beg",
-                                          ifelse(w_id == max(w_id), "end", "mid")), by = .(doc_id, start_id)]
-            dt_nounphrases[, nounphrase := ifelse(w_id == root_id, paste0(nounphrase, "_root"), nounphrase)]
-            dt[, w_id := seq_len(.N), by = doc_id]
-            # merge() sorts by doc_id, but the attributes assigned below are in
-            # input order, so restore the original row order afterwards
-            dt[, row_order := .I]
-            dt <- merge(dt, dt_nounphrases, by  = c("doc_id", "w_id"), all.x = TRUE)
-            data.table::setorder(dt, row_order)
-            # dt[ !is.na(start_id), start_token_id := token_id[w_id == start_id][1],
-            #     by = .(doc_id, root_id)]
-            # dt[ !is.na(start_id), root_token_id := token_id[w_id == root_id][1],
-            #     by = .(doc_id, root_id)]
-            dt[, c("w_id", "row_order", "start_id", "root_id", "text", "root_text", "length") := NULL]
-            dt[, whitespace := ifelse(nchar(get_attrs(spacy_out, "whitespace_")), TRUE, FALSE)]
-            dt[, nounphrase := ifelse(is.na(nounphrase), "", nounphrase)]
-        } else {
-            message("No noun phrase found in documents.")
-        }
-    }
-
-    if (!is.null(additional_attributes)) {
-        for (att_name in additional_attributes){
-            dt[, (att_name) := get_attrs(spacy_out, att_name, deal_utf8 = TRUE)]
-        }
+    dt <- data.table::as.data.table(lapply(cols, unlist))
+    for (att_name in additional_attributes) {
+        dt[, (att_name) := parsed$attributes[[att_name]]]
     }
 
     dt <- as.data.frame(dt)
@@ -241,7 +185,23 @@ spacy_parse.data.frame <- function(x, ...) {
 #' @keywords internal
 process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, ...) {
     # This function passes texts to python and spacy
-    # get or set document names
+    input <- parse_input(x)
+    spobj <- new_spobj()
+    # named by document; a document that the pipeline left out has none
+    timestamps <- unlist(spobj$parse(input$x, input$docnames, batch_size = batch_size,
+                                     n_process = n_process))
+    warn_skipped(spobj)
+    docnames <- as.character(names(timestamps))
+    timestamps <- as.character(timestamps)
+    output <- spacy_out$new(docnames = docnames,
+                            timestamps = timestamps)
+    return(output)
+}
+
+
+# Document names and texts for spaCy, initializing spaCy if needed: missing
+# names are set to text1, text2, ..., and NA documents are treated as empty.
+parse_input <- function(x) {
     if (!is.null(names(x))) {
         docnames <- names(x)
     } else {
@@ -255,18 +215,7 @@ process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, 
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
     x[is.na(x)] <- "" # missing documents are treated as empty
-    x <- unname(x)
-
-    spobj <- new_spobj()
-    # named by document; a document that the pipeline left out has none
-    timestamps <- unlist(spobj$parse(x, docnames, batch_size = batch_size,
-                                     n_process = n_process))
-    warn_skipped(spobj)
-    docnames <- as.character(names(timestamps))
-    timestamps <- as.character(timestamps)
-    output <- spacy_out$new(docnames = docnames,
-                            timestamps = timestamps)
-    return(output)
+    list(x = unname(x), docnames = docnames)
 }
 
 

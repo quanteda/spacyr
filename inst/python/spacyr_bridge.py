@@ -123,6 +123,41 @@ def doc_span_table(doc, what):
             df_doc['ent_type'].append(chunk.label_)
     return df_doc
 
+def doc_entity_tags(doc):
+    # "TYPE_B" or "TYPE_I" for tokens in an entity, "" otherwise
+    tags = []
+    for w in doc:
+        tag = w.ent_type_ + "_" + w.ent_iob_.replace("O", "", 1)
+        tags.append("" if tag == "_" else tag)
+    return tags
+
+def doc_nounphrase_tags(doc):
+    # Label each token of a noun phrase "beg", "mid" or "end", with "_root"
+    # added for the root of the phrase, and other tokens "". A token in more
+    # than one noun phrase takes the label from the longest of them, or the
+    # first if they are equally long.
+    chunks = [(c.start, len(c), c.root.i) for c in doc.noun_chunks]
+    best = {}
+    for k, (start, length, root) in enumerate(chunks):
+        for w in range(start, start + length):
+            if w not in best or length > chunks[best[w]][1]:
+                best[w] = k
+    last = {}
+    for w, k in best.items():
+        last[k] = max(last.get(k, w), w)
+    tags = []
+    for w in range(len(doc)):
+        if w not in best:
+            tags.append("")
+            continue
+        k = best[w]
+        start, length, root = chunks[k]
+        tag = "beg" if w == start else ("end" if w == last[k] else "mid")
+        if w == root:
+            tag += "_root"
+        tags.append(tag)
+    return tags, len(chunks)
+
 class spacyr:
     def __init__(self, nlp):
         self.nlp = nlp
@@ -155,6 +190,64 @@ class spacyr:
             self.documents[epoch_nano] = doc
             epoch_nanos[id_] = epoch_nano
         return epoch_nanos
+
+    def parse_table(self, texts, docnames, lemma = True, pos = True, tag = False,
+                    dependency = False, entity = True, nounphrase = False,
+                    attributes = None, batch_size = None, n_process = 1):
+        # The columns of spacy_parse(), built in one pass over the documents
+        # as they are parsed. Token and sentence ids start at 1, and
+        # head_token_id is the position of the head in its sentence.
+        texts, docnames = _as_list(texts, docnames)
+        if attributes is None:
+            attributes = []
+        elif not isinstance(attributes, list):
+            attributes = [attributes]
+        cols = {"doc_id": [], "sentence_id": [], "token_id": [], "token": []}
+        if lemma:
+            cols["lemma"] = []
+        if pos:
+            cols["pos"] = []
+        if tag:
+            cols["tag"] = []
+        if dependency:
+            cols["head_token_id"] = []
+            cols["dep_rel"] = []
+        if entity:
+            cols["entity"] = []
+        if nounphrase:
+            cols["nounphrase"] = []
+            cols["whitespace"] = []
+        # additional attributes are returned apart from the other columns,
+        # since their names can be the same as those of other columns
+        extra = dict((att, []) for att in attributes)
+        n_nounphrases = 0
+        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+            for sent_id, sent in enumerate(doc.sents, 1):
+                for token_id, w in enumerate(sent, 1):
+                    cols["doc_id"].append(id_)
+                    cols["sentence_id"].append(sent_id)
+                    cols["token_id"].append(token_id)
+                    cols["token"].append(w.text)
+                    if lemma:
+                        cols["lemma"].append(w.lemma_)
+                    if pos:
+                        cols["pos"].append(w.pos_)
+                    if tag:
+                        cols["tag"].append(w.tag_)
+                    if dependency:
+                        cols["head_token_id"].append(w.head.i - sent.start + 1)
+                        cols["dep_rel"].append(w.dep_)
+                    if nounphrase:
+                        cols["whitespace"].append(len(w.whitespace_) > 0)
+                    for att in extra:
+                        extra[att].append(getattr(w, att))
+            if entity:
+                cols["entity"].extend(doc_entity_tags(doc))
+            if nounphrase:
+                tags, n = doc_nounphrase_tags(doc)
+                cols["nounphrase"].extend(tags)
+                n_nounphrases += n
+        return {"columns": cols, "attributes": extra, "n_nounphrases": n_nounphrases}
 
     def tokenize(self, texts, docnames, turn_off_pipes = True,
                  remove_punct = False,
