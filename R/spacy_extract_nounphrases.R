@@ -33,7 +33,7 @@
 #' spacy_extract_nounphrases(txt, output = "list")
 #' }
 spacy_extract_nounphrases <- function(x, output = c("data.frame", "list"),
-                                      multithread = TRUE, ...) {
+                                      multithread, n_process = 1L, batch_size = NULL, ...) {
     UseMethod("spacy_extract_nounphrases")
 }
 
@@ -42,7 +42,7 @@ spacy_extract_nounphrases <- function(x, output = c("data.frame", "list"),
 #' @export
 spacy_extract_nounphrases.character <- function(x,
                                                 output = c("data.frame", "list"),
-                                                multithread = TRUE, ...) {
+                                                multithread, n_process = 1L, batch_size = NULL, ...) {
 
     `root_id` <- `start_id` <- `:=` <- NULL
 
@@ -67,13 +67,17 @@ spacy_extract_nounphrases.character <- function(x,
     x <- unname(x)
 
     ## run noun phrase extraction
+    check_multithread(multithread, "spacy_extract_nounphrases")
+    args <- pipe_args(n_process, batch_size)
     spobj <- new_spobj()
     if (identical(output, "list")) {
-        noun_phrases <- spobj$extract_nounphrases_list(texts = x, docnames = docnames)
+        noun_phrases <- spobj$extract_nounphrases_list(texts = x, docnames = docnames,
+            batch_size = args$batch_size, n_process = args$n_process)
         warn_skipped(spobj)
         return(noun_phrases)
     } else {
-        noun_phrases <- spobj$extract_nounphrases_dataframe(texts = x, docnames = docnames)
+        noun_phrases <- spobj$extract_nounphrases_dataframe(texts = x, docnames = docnames,
+            batch_size = args$batch_size, n_process = args$n_process)
         warn_skipped(spobj)
 
         doc_id <- names(noun_phrases)

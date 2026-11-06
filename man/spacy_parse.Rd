@@ -12,8 +12,10 @@ spacy_parse(
   entity = TRUE,
   dependency = FALSE,
   nounphrase = FALSE,
-  multithread = TRUE,
+  multithread,
   additional_attributes = NULL,
+  n_process = 1L,
+  batch_size = NULL,
   ...
 )
 }
@@ -41,8 +43,9 @@ of lemmatization depends on the language model)}
 \item{nounphrase}{logical; if \code{TRUE}, analyse and tag noun phrases
 tags}
 
-\item{multithread}{no longer has any effect. Documents are always processed
-in batches with spaCy's \code{nlp.pipe()}, in a single process.}
+\item{multithread}{deprecated; it no longer has any effect, and gives a
+warning if supplied. Documents are always processed in
+batches with spaCy's \code{nlp.pipe()}; use \code{n_process} and \code{batch_size} instead.}
 
 \item{additional_attributes}{a character vector; this option is for
 extracting additional attributes of tokens from spaCy. When the names of
@@ -53,6 +56,19 @@ additional variable named \code{is_punct}, which is a Boolean (in R,
 logical) variable indicating whether  the token is a punctuation. A full
 list of available attributes is available from
 \url{https://spacy.io/api/token#attributes}.}
+
+\item{n_process}{the number of processes for spaCy's \code{nlp.pipe()} to use:
+\code{1} (the default) processes the documents in the current R session's Python
+process, a larger number starts that many Python processes, and \code{-1} uses
+all CPUs. Starting the processes and loading the model in each takes time,
+so more than one process helps only for large numbers of documents. A
+custom pipeline component must be defined in an importable Python module
+to be used in other processes.}
+
+\item{batch_size}{the number of documents that spaCy's \code{nlp.pipe()}
+processes together; \code{NULL} (the default) uses the pipeline's default
+(\code{nlp.batch_size}, usually 1000). Larger batches can be faster, but use
+more memory.}
 
 \item{...}{not used directly}
 }

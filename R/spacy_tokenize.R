@@ -43,8 +43,10 @@ spacy_tokenize <- function(x,
                            remove_separators = TRUE,
                            remove_symbols = FALSE,
                            padding = FALSE,
-                           multithread = TRUE,
+                           multithread,
                            output = c("list", "data.frame"),
+                           n_process = 1L,
+                           batch_size = NULL,
                            ...) {
     UseMethod("spacy_tokenize")
 }
@@ -59,8 +61,10 @@ spacy_tokenize.character <- function(x,
                                      remove_separators = TRUE,
                                      remove_symbols = FALSE,
                                      padding = FALSE,
-                                     multithread = TRUE,
+                                     multithread,
                                      output = c("list", "data.frame"),
+                                     n_process = 1L,
+                                     batch_size = NULL,
                                      ...) {
     x <- structure(as.character(x), names = names(x))
     output <- match.arg(output)
@@ -85,11 +89,14 @@ spacy_tokenize.character <- function(x,
     x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
+    check_multithread(multithread, "spacy_tokenize")
+    args <- pipe_args(n_process, batch_size)
     spobj <- new_spobj()
     if (identical(what, "sentence")){
         tokens <- spobj$tokenize_sentence(
             x, docnames,
-            remove_separators = remove_separators)
+            remove_separators = remove_separators,
+            batch_size = args$batch_size, n_process = args$n_process)
     } else {
         turn_off_pipes <- if (all(!c(remove_punct, remove_url, remove_numbers))) TRUE else FALSE
         if (remove_separators == FALSE & turn_off_pipes == FALSE) {
@@ -103,7 +110,8 @@ spacy_tokenize.character <- function(x,
             remove_separators = remove_separators,
             remove_symbols = remove_symbols,
             turn_off_pipes = turn_off_pipes,
-            padding = padding)
+            padding = padding,
+            batch_size = args$batch_size, n_process = args$n_process)
     }
     warn_skipped(spobj)
 

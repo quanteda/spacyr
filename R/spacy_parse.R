@@ -21,8 +21,20 @@
 #' @param lemma logical; include lemmatized tokens in the output (the quality
 #'   of lemmatization depends on the language model)
 #' @param entity logical; if `TRUE`, report named entities
-#' @param multithread no longer has any effect. Documents are always processed
-#'   in batches with spaCy's `nlp.pipe()`, in a single process.
+#' @param multithread deprecated; it no longer has any effect, and gives a
+#'   warning if supplied. Documents are always processed in
+#'   batches with spaCy's `nlp.pipe()`; use `n_process` and `batch_size` instead.
+#' @param n_process the number of processes for spaCy's `nlp.pipe()` to use:
+#'   `1` (the default) processes the documents in the current R session's Python
+#'   process, a larger number starts that many Python processes, and `-1` uses
+#'   all CPUs. Starting the processes and loading the model in each takes time,
+#'   so more than one process helps only for large numbers of documents. A
+#'   custom pipeline component must be defined in an importable Python module
+#'   to be used in other processes.
+#' @param batch_size the number of documents that spaCy's `nlp.pipe()`
+#'   processes together; `NULL` (the default) uses the pipeline's default
+#'   (`nlp.batch_size`). Larger batches can be faster, but use
+#'   more memory.
 #' @param dependency logical; if `TRUE`, analyse and tag dependencies
 #' @param nounphrase logical; if `TRUE`, analyse and tag noun phrases
 #'   tags
@@ -63,8 +75,10 @@ spacy_parse <- function(x,
                         entity = TRUE,
                         dependency = FALSE,
                         nounphrase = FALSE,
-                        multithread = TRUE,
+                        multithread,
                         additional_attributes = NULL,
+                        n_process = 1L,
+                        batch_size = NULL,
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -79,12 +93,17 @@ spacy_parse.character <- function(x,
                                   entity = TRUE,
                                   dependency = FALSE,
                                   nounphrase = FALSE,
-                                  multithread = TRUE,
+                                  multithread,
                                   additional_attributes = NULL,
+                                  n_process = 1L,
+                                  batch_size = NULL,
                                   ...) {
     x <- structure(as.character(x), names = names(x))
     `:=` <- `.` <- `.N` <- `.I` <- NULL
-    spacy_out <- process_document(x, multithread)
+    check_multithread(multithread, "spacy_parse")
+    args <- pipe_args(n_process, batch_size)
+    spacy_out <- process_document(x, n_process = args$n_process,
+                                  batch_size = args$batch_size)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
@@ -206,6 +225,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' If FALSE, tagging, entity recognition, and dependency analysis when 
 #' relevant functions are called.
 #' @param multithread not used; kept for compatibility
+#' @param n_process,batch_size passed to spaCy's `nlp.pipe()`
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @importFrom methods new
@@ -219,7 +239,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' }
 #' @export
 #' @keywords internal
-process_document <- function(x, multithread, ...) {
+process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
@@ -239,7 +259,8 @@ process_document <- function(x, multithread, ...) {
 
     spobj <- new_spobj()
     # named by document; a document that the pipeline left out has none
-    timestamps <- unlist(spobj$parse(x, docnames))
+    timestamps <- unlist(spobj$parse(x, docnames, batch_size = batch_size,
+                                     n_process = n_process))
     warn_skipped(spobj)
     docnames <- as.character(names(timestamps))
     timestamps <- as.character(timestamps)
