@@ -71,9 +71,6 @@ spacy_tokenize.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
-    if (length(x) == 1) {
-        multithread <- FALSE
-    }
 
 
     if (all(!duplicated(docnames)) == FALSE) {
@@ -88,17 +85,17 @@ spacy_tokenize.character <- function(x,
     x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
+    spobj <- new_spobj()
     if (identical(what, "sentence")){
-        tokens <- new_spobj()$tokenize_sentence(
+        tokens <- spobj$tokenize_sentence(
             x, docnames,
-            remove_separators = remove_separators,
-            multithread = multithread)
+            remove_separators = remove_separators)
     } else {
         turn_off_pipes <- if (all(!c(remove_punct, remove_url, remove_numbers))) TRUE else FALSE
         if (remove_separators == FALSE & turn_off_pipes == FALSE) {
             stop("remove_separators = FALSE and remove_* = TRUE are not compatible", call. = FALSE)
         }
-        tokens <- new_spobj()$tokenize(
+        tokens <- spobj$tokenize(
             x, docnames,
             remove_punct = remove_punct,
             remove_url = remove_url,
@@ -106,9 +103,9 @@ spacy_tokenize.character <- function(x,
             remove_separators = remove_separators,
             remove_symbols = remove_symbols,
             turn_off_pipes = turn_off_pipes,
-            padding = padding,
-            multithread = multithread)
+            padding = padding)
     }
+    warn_skipped(spobj)
 
     if (identical(output, "list")) return(tokens)
     else {

@@ -59,9 +59,6 @@ spacy_extract_entity.character <- function(x,
     } else {
         docnames <- paste0("text", 1:length(x))
     }
-    if (length(x) == 1) {
-        multithread <- FALSE
-    }
 
     if (all(!duplicated(docnames)) == FALSE) {
         stop("Docnames are duplicated.")
@@ -78,12 +75,13 @@ spacy_extract_entity.character <- function(x,
     ## run entity extraction
     spobj <- new_spobj()
     if (identical(output, "list")) {
-        return(spobj$extract_entity_list(texts = x, docnames = docnames,
-                                         multithread = multithread,
-                                         ent_type_category = type))
+        entities <- spobj$extract_entity_list(texts = x, docnames = docnames,
+                                              ent_type_category = type)
+        warn_skipped(spobj)
+        return(entities)
     } else {
-        entities <- spobj$extract_entity_dataframe(texts = x, docnames = docnames,
-                                                   multithread = multithread)
+        entities <- spobj$extract_entity_dataframe(texts = x, docnames = docnames)
+        warn_skipped(spobj)
 
         doc_id <- names(entities)
         data_out <-

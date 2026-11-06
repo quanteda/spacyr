@@ -4,8 +4,9 @@ source("utils.R")
 # Which spaCy path each function uses: nlp.pipe(), which calls each
 # component's pipe() method on batches of documents, or nlp(), which calls the
 # component on each document. A custom component can behave differently in the
-# two, so these tests record the paths of spacyr 1.4.0; a change of path must
-# be intended and described in NEWS.md. spacy_tokenize() is not covered: its
+# two. In spacyr 1.4.0, the path depended on multithread and on the number of
+# documents; now every function uses nlp.pipe(). A change of path must be
+# intended and described in NEWS.md. spacy_tokenize() is not covered: its
 # tokens do not depend on pipeline components other than the parser.
 
 with_path_marker <- function(code) {
@@ -23,39 +24,84 @@ two <- c(b = "First document here.", a = "Second one.")
 one <- c(only = "Just one document.")
 marks <- function(x) unique(x[nzchar(x)])
 
-test_that("spacy_parse() uses nlp.pipe() only with multithread = TRUE", {
+test_that("spacy_parse() always uses nlp.pipe()", {
   skip_on_cran()
   skip_on_os("solaris")
   with_path_marker({
-    expect_identical(marks(spacy_parse(two)$entity), c("VIA_PIPE_B", "VIA_PIPE_I"))
-    expect_identical(marks(spacy_parse(one)$entity), c("VIA_PIPE_B", "VIA_PIPE_I"))
-    expect_identical(marks(spacy_parse(two, multithread = FALSE)$entity), "VIA_CALL_B")
-    expect_identical(marks(spacy_parse(one, multithread = FALSE)$entity), "VIA_CALL_B")
-    expect_identical(
-      spacy_parse(two, additional_attributes = "norm_")$norm_[c(1, 5)],
-      c("VIA_PIPE", "VIA_PIPE"))
-    expect_identical(
-      spacy_parse(two, multithread = FALSE, additional_attributes = "norm_")$norm_[c(1, 5)],
-      c("VIA_CALL", "VIA_CALL"))
-    expect_identical(marks(spacy_parse(two, nounphrase = TRUE)$entity),
-                     c("VIA_PIPE_B", "VIA_PIPE_I"))
-    expect_identical(marks(spacy_parse(two, nounphrase = TRUE, multithread = FALSE)$entity),
-                     "VIA_CALL_B")
+    for (mt in c(TRUE, FALSE)) {
+      for (x in list(two, one)) {
+        expect_identical(marks(spacy_parse(x, multithread = mt)$entity),
+                         c("VIA_PIPE_B", "VIA_PIPE_I"))
+        expect_identical(marks(spacy_parse(x, multithread = mt, nounphrase = TRUE)$entity),
+                         c("VIA_PIPE_B", "VIA_PIPE_I"))
+      }
+      expect_identical(
+        spacy_parse(two, multithread = mt, additional_attributes = "norm_")$norm_[c(1, 5)],
+        c("VIA_PIPE", "VIA_PIPE"))
+    }
   })
 })
 
-test_that("spacy_extract_entity() uses nlp.pipe() only for several documents with multithread = TRUE", {
+test_that("spacy_extract_entity() always uses nlp.pipe()", {
   skip_on_cran()
   skip_on_os("solaris")
   with_path_marker({
-    expect_identical(spacy_extract_entity(two)$ent_type, c("VIA_PIPE", "VIA_PIPE"))
-    expect_identical(spacy_extract_entity(two, multithread = FALSE)$ent_type,
-                     c("VIA_CALL", "VIA_CALL"))
-    expect_identical(spacy_extract_entity(one)$ent_type, "VIA_CALL")
-    expect_identical(spacy_extract_entity(two, output = "list"),
-                     list(b = "First document", a = "Second one"))
-    expect_identical(spacy_extract_entity(two, output = "list", multithread = FALSE),
-                     list(b = "First", a = "Second"))
-    expect_identical(spacy_extract_entity(one, output = "list"), list(only = "Just"))
+    for (mt in c(TRUE, FALSE)) {
+      expect_identical(spacy_extract_entity(two, multithread = mt)$ent_type,
+                       c("VIA_PIPE", "VIA_PIPE"))
+      expect_identical(spacy_extract_entity(one, multithread = mt)$ent_type, "VIA_PIPE")
+      expect_identical(spacy_extract_entity(two, output = "list", multithread = mt),
+                       list(b = "First document", a = "Second one"))
+      expect_identical(spacy_extract_entity(one, output = "list", multithread = mt),
+                       list(only = "Just one"))
+    }
+  })
+})
+
+# nlp.pipe() leaves out a document when a component fails on it and the
+# pipeline's error handler suppresses the error; the other documents must keep
+# their names, and the documents left out are reported in a warning.
+with_failing_component <- function(code) {
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  components <- reticulate::import_from_path("spacyr_test_components",
+                                             path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  nlp$add_pipe("spacyr_test_fail_on_bad", last = TRUE)
+  components$skip_errors(nlp)
+  on.exit(spacy_finalize(), add = TRUE)
+  force(code)
+}
+
+skipped <- c(bad = "Bad input.", good = "London is in England.")
+skipped_warning <- "did not return 1 document, which is left out of the output: bad"
+
+test_that("documents left out by the pipeline do not shift the others' names", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  with_failing_component({
+    expect_warning(ents <- spacy_extract_entity(skipped), skipped_warning)
+    expect_identical(ents$doc_id, c("good", "good"))
+    expect_identical(ents$text, c("London", "England"))
+    expect_warning(ents <- spacy_extract_entity(skipped, output = "list"), skipped_warning)
+    expect_identical(ents, list(good = c("London", "England")))
+
+    expect_warning(nps <- spacy_extract_nounphrases(skipped), skipped_warning)
+    expect_identical(unique(nps$doc_id), "good")
+    expect_warning(nps <- spacy_extract_nounphrases(skipped, output = "list"), skipped_warning)
+    expect_identical(names(nps), "good")
+
+    expect_warning(sents <- spacy_tokenize(skipped, what = "sentence"), skipped_warning)
+    expect_identical(sents, list(good = "London is in England."))
+    # word tokenization disables the pipeline components, so nothing is left out
+    expect_silent(toks <- spacy_tokenize(skipped))
+    expect_identical(names(toks), c("bad", "good"))
+
+    for (np in c(FALSE, TRUE)) {
+      expect_warning(parsed <- spacy_parse(skipped, nounphrase = np), skipped_warning)
+      expect_identical(unique(parsed$doc_id), "good")
+      expect_identical(parsed$token, c("London", "is", "in", "England", "."))
+      expect_identical(parsed$entity[c(1, 4)], c("GPE_B", "GPE_B"))
+    }
   })
 })

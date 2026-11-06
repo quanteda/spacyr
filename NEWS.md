@@ -2,6 +2,8 @@
 
 ## Changes
 
+* `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` now always process documents in batches with spaCy's `nlp.pipe()`, and the `multithread` argument no longer has any effect. Previously, `multithread = FALSE`, and a single document in all but `spacy_parse()`, processed each document with `nlp()`. With the standard spaCy models the results are the same, but a custom pipeline component whose `pipe()` method behaves differently from its `__call__()` method now always has its `pipe()` method used.
+* When a pipeline component fails on a document and the pipeline's error handler suppresses the error, spaCy's `nlp.pipe()` leaves that document out. **spacyr** now keeps the names of the other documents, leaves the failed document out of the output and warns about it. Previously, the results of later documents could be assigned to the wrong document names, and `spacy_parse()` failed.
 * spacyr now loads its Python code as a module with `reticulate::import_from_path()` and calls its functions with arguments, instead of running Python code in the `__main__` namespace and passing data through global variables there. As a result, spacyr no longer creates the Python variables `nlp`, `spobj`, `texts` and others in `__main__`, so code that read `reticulate::py$nlp` after `spacy_initialize()` no longer works.
 
 ## Tests

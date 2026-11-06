@@ -127,25 +127,30 @@ class spacyr:
     def __init__(self, nlp):
         self.nlp = nlp
         self.documents = {}
+        self.skipped = []
 
-    def docs(self, texts, multithread = True):
-        # Parse the texts, in order. With multithread, spaCy's nlp.pipe()
-        # processes them in batches and calls each component's pipe() method;
-        # otherwise each text is processed by nlp(), which calls each
-        # component on the single document. A custom component can behave
-        # differently in the two, so the choice is kept as it was in 1.4.0
-        # (see tests/testthat/test-pipeline-paths.R).
-        if multithread == True:
-            return self.nlp.pipe(texts)
-        return (self.nlp(text) for text in texts)
+    def docs(self, texts, ids):
+        # Parse the texts, in order, with spaCy's nlp.pipe(), which processes
+        # them in batches and calls each component's pipe() method rather
+        # than its __call__() (see tests/testthat/test-pipeline-paths.R).
+        # Yields (id, doc) pairs. Each id travels with its text through the
+        # pipeline, because nlp.pipe() leaves out a document when a component
+        # fails on it and the pipeline's error handler suppresses the error;
+        # the ids of documents left out are stored in self.skipped.
+        self.skipped = []
+        seen = set()
+        for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True):
+            seen.add(id_)
+            yield id_, doc
+        self.skipped = [id_ for id_ in ids if id_ not in seen]
 
-    def parse(self, texts, multithread = True):
-        texts, _ = _as_list(texts)
-        epoch_nanos = []
-        for doc in self.docs(texts, multithread):
+    def parse(self, texts, docnames):
+        texts, docnames = _as_list(texts, docnames)
+        epoch_nanos = {}
+        for id_, doc in self.docs(texts, docnames):
             epoch_nano = str(int(time.time() * 1000000)) + id_generator()
             self.documents[epoch_nano] = doc
-            epoch_nanos.append(epoch_nano)
+            epoch_nanos[id_] = epoch_nano
         return epoch_nanos
 
     def tokenize(self, texts, docnames, turn_off_pipes = True,
@@ -154,8 +159,7 @@ class spacyr:
                  remove_url = False,
                  remove_separators = True,
                  remove_symbols = False,
-                 padding = False,
-                 multithread = True):
+                 padding = False):
         # disable the pipeline components for plain tokenization; the context
         # manager restores them even if tokenization fails
         if turn_off_pipes and remove_symbols == False:
@@ -169,7 +173,7 @@ class spacyr:
         texts, docnames = _as_list(texts, docnames)
         with pipes_context:
             tokens_out = {}
-            for id_, doc in zip(docnames, self.docs(texts, multithread)):
+            for id_, doc in self.docs(texts, docnames):
                 tokens_out[id_] = doc_tokens(doc, padding,
                                              remove_separators = remove_separators,
                                              remove_punct = remove_punct,
@@ -178,49 +182,47 @@ class spacyr:
                                              remove_symbols = remove_symbols)
             return tokens_out
 
-    def tokenize_sentence(self, texts, docnames, multithread = True, remove_separators = False):
+    def tokenize_sentence(self, texts, docnames, remove_separators = False):
         texts, docnames = _as_list(texts, docnames)
         tokens_out = {}
-        for id_, doc in zip(docnames, self.docs(texts, multithread)):
+        for id_, doc in self.docs(texts, docnames):
             tokens_out[id_] = doc_sentences(doc, remove_separators)
         return tokens_out
 
-    def extract_nounphrases_list(self, texts, docnames, multithread = True):
-        return self.extract_np_ne_list(texts, docnames, multithread, what = "noun_chunks")
+    def extract_nounphrases_list(self, texts, docnames):
+        return self.extract_np_ne_list(texts, docnames, what = "noun_chunks")
 
-    def extract_entity_list(self, texts, docnames, multithread = True, ent_type_category = "all"):
-        return self.extract_np_ne_list(texts, docnames, multithread, what = "ents", ent_type_category = ent_type_category)
+    def extract_entity_list(self, texts, docnames, ent_type_category = "all"):
+        return self.extract_np_ne_list(texts, docnames, what = "ents", ent_type_category = ent_type_category)
 
-    def extract_np_ne_list(self, texts, docnames, multithread = True, what = "noun_chunks", ent_type_category = 'all'):
+    def extract_np_ne_list(self, texts, docnames, what = "noun_chunks", ent_type_category = 'all'):
         texts, docnames = _as_list(texts, docnames)
         items = {}
-        for id_, doc in zip(docnames, self.docs(texts, multithread)):
+        for id_, doc in self.docs(texts, docnames):
             items[id_] = doc_span_texts(doc, what, ent_type_category)
         return items
 
-    def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = [], multithread = True):
-        return self.extract_np_ne_dataframe(docnames, texts, timestamps, multithread, what = "noun_chunks")
+    def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = []):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "noun_chunks")
 
-    def extract_entity_dataframe(self, docnames, texts = [], timestamps = [], multithread = True):
-        return self.extract_np_ne_dataframe(docnames, texts, timestamps, multithread, what = "ents")
+    def extract_entity_dataframe(self, docnames, texts = [], timestamps = []):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "ents")
 
-    def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], multithread = True, what = "noun_chunks"):
+    def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], what = "noun_chunks"):
         if timestamps:
             # documents already parsed by parse()
             if isinstance(timestamps, list) == False:
                 timestamps = [timestamps]
                 docnames = [docnames]
-            docs = (self.documents[ts] for ts in timestamps)
-            multithread = False
+            docs = zip(docnames, (self.documents[ts] for ts in timestamps))
         else:
             texts, docnames = _as_list(texts, docnames)
-            docs = self.docs(texts, multithread)
+            docs = self.docs(texts, docnames)
         df_all = {}
-        for id_, doc in zip(docnames, docs):
+        for id_, doc in docs:
             df_doc = doc_span_table(doc, what)
-            # as in 1.4.0, documents without spans are left out only with
-            # multithread; R drops them either way
-            if multithread == True and len(df_doc['text']) == 0:
+            # documents without spans are left out; R would drop them anyway
+            if len(df_doc['text']) == 0:
                 continue
             df_all[id_] = df_doc
         return df_all
