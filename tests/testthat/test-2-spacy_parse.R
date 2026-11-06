@@ -122,6 +122,14 @@ test_that("spacy_parse additional_attributes option works as intended", {
     expect_error(spacy_parse(txt1, additional_attributes = c("random_attribute_name")),
                  "object has no attribute")
 
+    # names of the vector are ignored: the columns are named after the attributes
+    expect_identical(
+        spacy_parse(txt1, additional_attributes = c(title = "is_title", num = "like_num")),
+        spacy_parse(txt1, additional_attributes = c("is_title", "like_num")))
+    expect_identical(
+        spacy_parse("Hello world.", additional_attributes = c(punct = "is_punct")),
+        spacy_parse("Hello world.", additional_attributes = "is_punct"))
+
     expect_silent(spacy_finalize())
 })
 

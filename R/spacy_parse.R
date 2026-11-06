@@ -117,7 +117,7 @@ spacy_parse.character <- function(x,
                                 lemma = lemma, pos = pos, tag = tag,
                                 dependency = dependency, entity = entity,
                                 nounphrase = nounphrase,
-                                attributes = as.list(additional_attributes),
+                                attributes = unname(as.list(additional_attributes)),
                                 batch_size = args$batch_size,
                                 n_process = args$n_process)
     warn_skipped(spobj)
