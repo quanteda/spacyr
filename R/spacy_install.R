@@ -150,8 +150,41 @@ spacy_pkg_spec <- function(version) {
   } else if (grepl("^[A-z,-]+$", version)) {
     paste0("spacy[", version, "]")
   } else {
-    paste0("spacy", version)
+    spacy_spec_floor(paste0("spacy", version))
   }
+}
+
+# Check a pip requirement such as "spacy[cuda102]==3.2.0" or "spacy<3.8"
+# against spacyr's minimum spaCy version: stop if it allows no spaCy 3 release
+# (a pin, compatible release or upper bound below 3.0.0), and add ">=3.0.0" if
+# it sets no lower bound of its own at 3 or above.
+spacy_spec_floor <- function(spec) {
+  constraints <- sub("^spacy(\\[[^]]*\\])?", "", spec)
+  if (!nzchar(trimws(constraints))) return(spec)
+  minimum <- numeric_version("3.0.0")
+  has_floor <- FALSE
+  for (clause in trimws(strsplit(constraints, ",", fixed = TRUE)[[1]])) {
+    m <- regmatches(clause, regexec(
+      "^(===|==|~=|<=|>=|<|>)\\s*v*([0-9]+(\\.[0-9]+)*)(\\.\\*)?$", clause))[[1]]
+    if (!length(m)) next
+    op <- m[2]
+    v <- numeric_version(m[3])
+    major <- unlist(v)[1]
+    wildcard <- nzchar(m[5])
+    # "==2.*" and "~=2.9" allow only 2.x releases
+    excludes <- switch(op,
+      "<" = v <= minimum,
+      "<=" = v < minimum,
+      "==" = , "===" = if (wildcard) major < 3 else v < minimum,
+      "~=" = major < 3,
+      FALSE)
+    if (excludes) {
+      stop("spacyr requires spaCy 3.0.0 or later; the version requirement \"",
+           sub("^spacy", "", spec), "\" allows no such version.", call. = FALSE)
+    }
+    if (op %in% c("==", "===", "~=", ">=", ">") && v >= minimum) has_floor <- TRUE
+  }
+  if (has_floor) spec else paste0(spec, ",>=3.0.0")
 }
 
 # Extract a single pinned release from the version argument.

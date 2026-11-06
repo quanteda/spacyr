@@ -38,6 +38,38 @@ test_that("spaCy versions before 3 are rejected", {
   expect_identical(spacyr:::check_spacy_version("10.0.0"), "10.0.0")
 })
 
+test_that("pip-style specs are checked against the minimum spaCy version", {
+  # pins, with and without extras
+  for (v in c("==2.3.9", "===2.3.9", "== 2.3.9", "[cuda102]==2.3.9", "==2.*", "~=2.9"))
+    expect_error(spacyr:::spacy_pkg_spec(v), "allows no such version", info = v)
+  expect_identical(spacyr:::spacy_pkg_spec("==3.8.13"), "spacy==3.8.13")
+  expect_identical(spacyr:::spacy_pkg_spec("[cuda102]==3.2.0"), "spacy[cuda102]==3.2.0")
+  expect_identical(spacyr:::spacy_pkg_version("[cuda102]==3.2.0"), "3.2.0")
+  expect_identical(spacyr:::spacy_pkg_spec("==3.*"), "spacy==3.*")
+  expect_identical(spacyr:::spacy_pkg_spec("~=3.7"), "spacy~=3.7")
+  # ranges that exclude spaCy 3
+  for (v in c("<3", "<3.0.0", "<=2.3.9", ">=2,<3"))
+    expect_error(spacyr:::spacy_pkg_spec(v), "allows no such version", info = v)
+  # ranges without their own lower bound at 3 or above get one
+  expect_identical(spacyr:::spacy_pkg_spec("<3.8"), "spacy<3.8,>=3.0.0")
+  expect_identical(spacyr:::spacy_pkg_spec("<4,>=2"), "spacy<4,>=2,>=3.0.0")
+  expect_identical(spacyr:::spacy_pkg_spec(">2.9"), "spacy>2.9,>=3.0.0")
+  expect_identical(spacyr:::spacy_pkg_spec("!=3.1.0"), "spacy!=3.1.0,>=3.0.0")
+  expect_identical(spacyr:::spacy_pkg_spec("[apple]<3.8"), "spacy[apple]<3.8,>=3.0.0")
+  expect_identical(spacyr:::spacy_pkg_spec(">=3.7,<3.8"), "spacy>=3.7,<3.8")
+  expect_null(spacyr:::spacy_pypi_url("<3.8"))
+})
+
+test_that("spacy_install() stops before installing an unsupported version", {
+  local_mocked_bindings(
+    virtualenv_exists = function(...) stop("should not be reached"),
+    py_install = function(...) stop("should not be reached"),
+    .package = "reticulate")
+  for (v in c("==2.3.9", "[cuda102]==2.3.9", "<3"))
+    expect_error(spacy_install(version = v, ask = FALSE),
+                 "requires spaCy 3.0.0 or later", info = v)
+})
+
 test_that("the fallback installs a compatible stable Python release", {
   local_mocked_bindings(
     install_python = function(version = "3.9:latest", list = FALSE) {
