@@ -12,6 +12,7 @@ Authors@R: c(
 Description: An R wrapper to the 'Python' 'spaCy' 'NLP' library,
     from <https://spacy.io>.
 License: GPL-3
+SystemRequirements: Python (>= 3), spaCy (>= 3.0.0)
 LazyData: TRUE
 Depends:
     R (>= 3.0.0),

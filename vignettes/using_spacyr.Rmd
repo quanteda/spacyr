@@ -146,7 +146,7 @@ spacy_parse("I have six email addresses, including me@mymail.com.",
 
 ## Using other language models
 
-By default, **spacyr** loads an English language model. You also can load spaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have successfully tested following language models with spaCy version 2.0.18.
+By default, **spacyr** loads an English language model. You also can load spaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. spacyr requires spaCy 3.0.0 or later.
 
 ```{r echo = FALSE}
 knitr::kable(data.frame(Language = c("German", "Spanish", "Portuguese",  "French", "Italian", "Dutch"),

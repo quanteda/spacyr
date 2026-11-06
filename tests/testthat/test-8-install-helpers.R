@@ -29,6 +29,15 @@ test_that("spaCy metadata is looked up for unpinned versions and exact pins", {
   expect_null(spacyr:::spacy_pypi_url("==3.8.*"))
 })
 
+test_that("spaCy versions before 3 are rejected", {
+  expect_error(spacyr:::spacy_pkg_spec("2.3.9"), "requires spaCy 3.0.0 or later")
+  expect_error(spacyr:::spacy_pkg_spec("v2.3.9"), "version 2.3.9 cannot be installed")
+  expect_identical(spacyr:::spacy_pkg_spec("3.0.0"), "spacy==3.0.0")
+  expect_error(spacyr:::check_spacy_version("2.3.9"), "Use `spacy_upgrade\\(\\)`")
+  expect_identical(spacyr:::check_spacy_version("3.8.18"), "3.8.18")
+  expect_identical(spacyr:::check_spacy_version("10.0.0"), "10.0.0")
+})
+
 test_that("the fallback installs a compatible stable Python release", {
   local_mocked_bindings(
     install_python = function(version = "3.9:latest", list = FALSE) {

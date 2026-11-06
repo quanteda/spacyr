@@ -144,7 +144,9 @@ spacy_pkg_spec <- function(version) {
   if (identical(version, "latest")) {
     "spacy"
   } else if (grepl("^v*[1-9]\\.\\d{1,2}\\.\\d{1,2}$", version)) {
-    paste0("spacy==", sub("^v+", "", version))
+    version <- sub("^v+", "", version)
+    check_spacy_version(version, installing = TRUE)
+    paste0("spacy==", version)
   } else if (grepl("^[A-z,-]+$", version)) {
     paste0("spacy[", version, "]")
   } else {

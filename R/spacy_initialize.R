@@ -50,7 +50,9 @@ spacy_initialize <- function(model = "en_core_web_sm",
   }
   
   spacyr_env$module <- load_spacyr_module()
-  
+  spacy_version <- spacyr_env$module$spacy_version()
+  check_spacy_version(spacy_version)
+
   options("spacy_entity" = entity)
   spacyr_env$nlp <- tryCatch(
     spacyr_env$module$load_model(
@@ -65,11 +67,6 @@ spacy_initialize <- function(model = "en_core_web_sm",
       stop(e)
     }
   )
-  spacy_version <- spacyr_env$module$spacy_version()
-  if (entity == FALSE && as.integer(substr(spacy_version, 1, 1)) < 2){
-    message("entity == FALSE is only available for spaCy version 2.0.0 or higher")
-    options("spacy_entity" = TRUE)
-  }
   message("successfully initialized (spaCy Version: ", spacy_version, ", language model: ", model, ")")
   options("spacy_initialized" = TRUE)
   
@@ -130,3 +127,17 @@ clear_spacy_options <- function(){
   options(spacy_virtualenv = NULL)
 }
 
+
+# spacyr requires spaCy 3 or later
+check_spacy_version <- function(version, installing = FALSE) {
+  major <- suppressWarnings(as.integer(sub("^v*(\\d+)\\..*$", "\\1", version)))
+  if (!is.na(major) && major < 3) {
+    if (installing) {
+      stop("spacyr requires spaCy 3.0.0 or later; version ", version,
+           " cannot be installed.", call. = FALSE)
+    }
+    stop("spacyr requires spaCy 3.0.0 or later, but version ", version,
+         " is installed. Use `spacy_upgrade()` to upgrade it.", call. = FALSE)
+  }
+  invisible(version)
+}
