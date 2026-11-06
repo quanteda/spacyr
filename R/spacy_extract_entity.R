@@ -37,7 +37,7 @@
 #' }
 spacy_extract_entity <- function(x, output = c("data.frame", "list"),
                                  type = c("all", "named", "extended"),
-                                 multithread = TRUE, ...) {
+                                 multithread, n_process = 1L, batch_size = NULL, ...) {
     UseMethod("spacy_extract_entity")
 }
 
@@ -47,7 +47,10 @@ spacy_extract_entity <- function(x, output = c("data.frame", "list"),
 spacy_extract_entity.character <- function(x,
                                            output = c("data.frame", "list"),
                                            type = c("all", "named", "extended"),
-                                           multithread = TRUE, ...) {
+                                           multithread, n_process = 1L, batch_size = NULL, ...) {
+    # checked before spaCy is initialized
+    check_multithread(multithread, "spacy_extract_entity")
+    args <- pipe_args(n_process, batch_size)
     type <- match.arg(type)
 
     `ent_type` <- `start_id` <- `:=` <- NULL
@@ -76,11 +79,13 @@ spacy_extract_entity.character <- function(x,
     spobj <- new_spobj()
     if (identical(output, "list")) {
         entities <- spobj$extract_entity_list(texts = x, docnames = docnames,
-                                              ent_type_category = type)
+                                              ent_type_category = type,
+            batch_size = args$batch_size, n_process = args$n_process)
         warn_skipped(spobj)
         return(entities)
     } else {
-        entities <- spobj$extract_entity_dataframe(texts = x, docnames = docnames)
+        entities <- spobj$extract_entity_dataframe(texts = x, docnames = docnames,
+            batch_size = args$batch_size, n_process = args$n_process)
         warn_skipped(spobj)
 
         doc_id <- names(entities)

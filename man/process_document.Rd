@@ -4,7 +4,7 @@
 \alias{process_document}
 \title{Tokenize text using spaCy}
 \usage{
-process_document(x, multithread, ...)
+process_document(x, multithread, n_process = 1L, batch_size = NULL, ...)
 }
 \arguments{
 \item{x}{input text
@@ -15,6 +15,8 @@ If FALSE, tagging, entity recognition, and dependency analysis when
 relevant functions are called.}
 
 \item{multithread}{not used; kept for compatibility}
+
+\item{n_process, batch_size}{passed to spaCy's \code{nlp.pipe()}}
 
 \item{...}{arguments passed to specific methods}
 }

@@ -1,5 +1,13 @@
 # spacyr (development version)
 
+## New features
+
+* `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` have new arguments `n_process` and `batch_size`, passed to spaCy's `nlp.pipe()` (#185). `n_process` sets the number of processes (`-1` for all CPUs) and `batch_size` the number of documents processed together; the defaults, `n_process = 1` and `batch_size = NULL` (the pipeline's default batch size), process documents as before. The output does not depend on either.
+
+## Deprecated
+
+* The `multithread` argument of `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` is deprecated, and gives a warning when supplied. It has no effect (see below); use `n_process` and `batch_size` instead.
+
 ## Changes
 
 * `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` now always process documents in batches with spaCy's `nlp.pipe()`, and the `multithread` argument no longer has any effect. Previously, `multithread = FALSE`, and a single document in all but `spacy_parse()`, processed each document with `nlp()`. With the standard spaCy models the results are the same, but a custom pipeline component whose `pipe()` method behaves differently from its `__call__()` method now always has its `pipe()` method used.

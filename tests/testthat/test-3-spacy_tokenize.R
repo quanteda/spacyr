@@ -198,14 +198,14 @@ test_that("spacy_tokenize remove_separators works as expected", {
   )
 })
 
-test_that("spacy_tokenize multithread = TRUE does not change value", {
+test_that("spacy_tokenize batch_size does not change value", {
   skip_on_cran()
   skip_on_os("solaris")
   try_spacy_initialize()
-  
+
   expect_identical(
-    spacy_tokenize(data_char_paragraph, multithread = TRUE),
-    spacy_tokenize(data_char_paragraph, multithread = FALSE)
+    spacy_tokenize(data_char_paragraph, batch_size = 1),
+    spacy_tokenize(data_char_paragraph)
   )
 })
 
@@ -282,7 +282,7 @@ test_that("spacy_tokenize restores the pipeline after an error", {
   )
 })
 
-test_that("spacy_tokenize what = 'sentence' does not depend on multithread", {
+test_that("spacy_tokenize what = 'sentence' does not depend on batch_size", {
   skip_on_cran()
   skip_on_os("solaris")
   try_spacy_initialize()
@@ -290,8 +290,8 @@ test_that("spacy_tokenize what = 'sentence' does not depend on multithread", {
   txt <- c(a = "One.  Two.  ", b = "Three.")
   for (rs in c(TRUE, FALSE)) {
     expect_identical(
-      spacy_tokenize(txt, what = "sentence", remove_separators = rs, multithread = TRUE),
-      spacy_tokenize(txt, what = "sentence", remove_separators = rs, multithread = FALSE)
+      spacy_tokenize(txt, what = "sentence", remove_separators = rs, batch_size = 1),
+      spacy_tokenize(txt, what = "sentence", remove_separators = rs)
     )
   }
   expect_identical(
@@ -306,12 +306,12 @@ test_that("spacy_tokenize what = 'sentence' keeps single trailing spaces", {
   try_spacy_initialize()
 
   txt <- c(a = "One. Two. ", b = "Three.")
-  for (mt in c(TRUE, FALSE)) {
-    toks <- spacy_tokenize(txt, what = "sentence", remove_separators = FALSE, multithread = mt)
+  for (bs in list(NULL, 1)) {
+    toks <- spacy_tokenize(txt, what = "sentence", remove_separators = FALSE, batch_size = bs)
     expect_identical(toks$a, c("One. ", "Two. "))
     expect_identical(paste(toks$a, collapse = ""), unname(txt["a"]))
     expect_identical(
-      spacy_tokenize(txt, what = "sentence", remove_separators = TRUE, multithread = mt)$a,
+      spacy_tokenize(txt, what = "sentence", remove_separators = TRUE, batch_size = bs)$a,
       c("One.", "Two.")
     )
   }

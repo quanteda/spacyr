@@ -129,7 +129,7 @@ class spacyr:
         self.documents = {}
         self.skipped = []
 
-    def docs(self, texts, ids):
+    def docs(self, texts, ids, batch_size = None, n_process = 1):
         # Parse the texts, in order, with spaCy's nlp.pipe(), which processes
         # them in batches and calls each component's pipe() method rather
         # than its __call__() (see tests/testthat/test-pipeline-paths.R).
@@ -137,17 +137,20 @@ class spacyr:
         # pipeline, because nlp.pipe() leaves out a document when a component
         # fails on it and the pipeline's error handler suppresses the error;
         # the ids of documents left out are stored in self.skipped.
+        # batch_size and n_process are passed to nlp.pipe(): None uses the
+        # pipeline's default batch size, and n_process = -1 uses all CPUs.
         self.skipped = []
         seen = set()
-        for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True):
+        for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True,
+                                     batch_size = batch_size, n_process = n_process):
             seen.add(id_)
             yield id_, doc
         self.skipped = [id_ for id_ in ids if id_ not in seen]
 
-    def parse(self, texts, docnames):
+    def parse(self, texts, docnames, batch_size = None, n_process = 1):
         texts, docnames = _as_list(texts, docnames)
         epoch_nanos = {}
-        for id_, doc in self.docs(texts, docnames):
+        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
             epoch_nano = str(int(time.time() * 1000000)) + id_generator()
             self.documents[epoch_nano] = doc
             epoch_nanos[id_] = epoch_nano
@@ -159,7 +162,9 @@ class spacyr:
                  remove_url = False,
                  remove_separators = True,
                  remove_symbols = False,
-                 padding = False):
+                 padding = False,
+                 batch_size = None,
+                 n_process = 1):
         # disable the pipeline components for plain tokenization; the context
         # manager restores them even if tokenization fails
         if turn_off_pipes and remove_symbols == False:
@@ -173,7 +178,7 @@ class spacyr:
         texts, docnames = _as_list(texts, docnames)
         with pipes_context:
             tokens_out = {}
-            for id_, doc in self.docs(texts, docnames):
+            for id_, doc in self.docs(texts, docnames, batch_size, n_process):
                 tokens_out[id_] = doc_tokens(doc, padding,
                                              remove_separators = remove_separators,
                                              remove_punct = remove_punct,
@@ -182,33 +187,44 @@ class spacyr:
                                              remove_symbols = remove_symbols)
             return tokens_out
 
-    def tokenize_sentence(self, texts, docnames, remove_separators = False):
+    def tokenize_sentence(self, texts, docnames, remove_separators = False,
+                          batch_size = None, n_process = 1):
         texts, docnames = _as_list(texts, docnames)
         tokens_out = {}
-        for id_, doc in self.docs(texts, docnames):
+        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
             tokens_out[id_] = doc_sentences(doc, remove_separators)
         return tokens_out
 
-    def extract_nounphrases_list(self, texts, docnames):
-        return self.extract_np_ne_list(texts, docnames, what = "noun_chunks")
+    def extract_nounphrases_list(self, texts, docnames, batch_size = None, n_process = 1):
+        return self.extract_np_ne_list(texts, docnames, what = "noun_chunks",
+                                       batch_size = batch_size, n_process = n_process)
 
-    def extract_entity_list(self, texts, docnames, ent_type_category = "all"):
-        return self.extract_np_ne_list(texts, docnames, what = "ents", ent_type_category = ent_type_category)
+    def extract_entity_list(self, texts, docnames, ent_type_category = "all",
+                            batch_size = None, n_process = 1):
+        return self.extract_np_ne_list(texts, docnames, what = "ents",
+                                       ent_type_category = ent_type_category,
+                                       batch_size = batch_size, n_process = n_process)
 
-    def extract_np_ne_list(self, texts, docnames, what = "noun_chunks", ent_type_category = 'all'):
+    def extract_np_ne_list(self, texts, docnames, what = "noun_chunks", ent_type_category = 'all',
+                           batch_size = None, n_process = 1):
         texts, docnames = _as_list(texts, docnames)
         items = {}
-        for id_, doc in self.docs(texts, docnames):
+        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
             items[id_] = doc_span_texts(doc, what, ent_type_category)
         return items
 
-    def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = []):
-        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "noun_chunks")
+    def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = [],
+                                      batch_size = None, n_process = 1):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "noun_chunks",
+                                            batch_size = batch_size, n_process = n_process)
 
-    def extract_entity_dataframe(self, docnames, texts = [], timestamps = []):
-        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "ents")
+    def extract_entity_dataframe(self, docnames, texts = [], timestamps = [],
+                                 batch_size = None, n_process = 1):
+        return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "ents",
+                                            batch_size = batch_size, n_process = n_process)
 
-    def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], what = "noun_chunks"):
+    def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], what = "noun_chunks",
+                                batch_size = None, n_process = 1):
         if timestamps:
             # documents already parsed by parse()
             if isinstance(timestamps, list) == False:
@@ -217,7 +233,7 @@ class spacyr:
             docs = zip(docnames, (self.documents[ts] for ts in timestamps))
         else:
             texts, docnames = _as_list(texts, docnames)
-            docs = self.docs(texts, docnames)
+            docs = self.docs(texts, docnames, batch_size, n_process)
         df_all = {}
         for id_, doc in docs:
             df_doc = doc_span_table(doc, what)
