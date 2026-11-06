@@ -5,10 +5,15 @@ test_that("n_process and batch_size are checked", {
   expect_identical(spacyr:::pipe_args(1, NULL), list(n_process = 1L, batch_size = NULL))
   expect_identical(spacyr:::pipe_args(-1, 10), list(n_process = -1L, batch_size = 10L))
   expect_identical(spacyr:::pipe_args(4L, 1L), list(n_process = 4L, batch_size = 1L))
-  for (bad in list(0, -2, 1.5, NA, NA_integer_, "2", c(1, 2), Inf, NULL, TRUE)) {
+  # the largest value that as.integer() can represent
+  big <- .Machine$integer.max
+  expect_identical(spacyr:::pipe_args(big, big), list(n_process = big, batch_size = big))
+  expect_silent(spacyr:::pipe_args(as.numeric(big), as.numeric(big)))
+  for (bad in list(0, -2, 1.5, NA, NA_integer_, "2", c(1, 2), Inf, NULL, TRUE,
+                   2^31, -2^31, big + 1)) {
     expect_error(spacyr:::pipe_args(bad, NULL), "`n_process` must be")
   }
-  for (bad in list(0, -1, 1.5, NA, "2", c(1, 2), Inf, TRUE)) {
+  for (bad in list(0, -1, 1.5, NA, "2", c(1, 2), Inf, TRUE, 2^31, big + 1)) {
     expect_error(spacyr:::pipe_args(1, bad), "`batch_size` must be")
   }
 })
@@ -78,12 +83,23 @@ test_that("batch_size and n_process do not change the output", {
   expect_identical(run(n_process = 2, batch_size = 4), ref)
 })
 
-test_that("invalid n_process and batch_size stop before spaCy is called", {
-  skip_on_cran()
-  skip_on_os("solaris")
-  try_spacy_initialize()
-  expect_error(spacy_parse(txt, n_process = 0), "`n_process` must be")
-  expect_error(spacy_tokenize(txt, batch_size = 0), "`batch_size` must be")
-  expect_error(spacy_extract_entity(txt, n_process = "2"), "`n_process` must be")
-  expect_error(spacy_extract_nounphrases(txt, batch_size = 2.5), "`batch_size` must be")
+test_that("invalid arguments stop before spaCy is initialized", {
+  # spacy_initialize() is replaced, so that this test needs no Python and
+  # fails if any function initializes spaCy before checking its arguments
+  local_mocked_bindings(spacy_initialize = function(...) stop("spacy_initialize() was called"),
+                        .package = "spacyr")
+  op <- options(spacy_initialized = NULL)
+  on.exit(options(op), add = TRUE)
+  funs <- list(spacy_parse = spacy_parse, spacy_tokenize = spacy_tokenize,
+               spacy_extract_entity = spacy_extract_entity,
+               spacy_extract_nounphrases = spacy_extract_nounphrases)
+  for (fun in funs) {
+    expect_error(fun(txt, n_process = 0), "`n_process` must be")
+    expect_error(fun(txt, n_process = 2^31), "`n_process` must be")
+    expect_error(fun(txt, batch_size = 2^31), "`batch_size` must be")
+    expect_error(fun(txt, batch_size = 2.5), "`batch_size` must be")
+    # valid arguments reach spacy_initialize()
+    expect_error(fun(txt), "spacy_initialize\\(\\) was called")
+  }
+  expect_null(getOption("spacy_initialized"))
 })

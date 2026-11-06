@@ -66,6 +66,9 @@ spacy_tokenize.character <- function(x,
                                      n_process = 1L,
                                      batch_size = NULL,
                                      ...) {
+    # checked before spaCy is initialized
+    check_multithread(multithread, "spacy_tokenize")
+    args <- pipe_args(n_process, batch_size)
     x <- structure(as.character(x), names = names(x))
     output <- match.arg(output)
     what <- match.arg(what)
@@ -89,8 +92,6 @@ spacy_tokenize.character <- function(x,
     x[is.na(x)] <- "" # missing documents are treated as empty
     x <- unname(x)
 
-    check_multithread(multithread, "spacy_tokenize")
-    args <- pipe_args(n_process, batch_size)
     spobj <- new_spobj()
     if (identical(what, "sentence")){
         tokens <- spobj$tokenize_sentence(

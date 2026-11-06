@@ -43,6 +43,9 @@ spacy_extract_nounphrases <- function(x, output = c("data.frame", "list"),
 spacy_extract_nounphrases.character <- function(x,
                                                 output = c("data.frame", "list"),
                                                 multithread, n_process = 1L, batch_size = NULL, ...) {
+    # checked before spaCy is initialized
+    check_multithread(multithread, "spacy_extract_nounphrases")
+    args <- pipe_args(n_process, batch_size)
 
     `root_id` <- `start_id` <- `:=` <- NULL
 
@@ -67,8 +70,6 @@ spacy_extract_nounphrases.character <- function(x,
     x <- unname(x)
 
     ## run noun phrase extraction
-    check_multithread(multithread, "spacy_extract_nounphrases")
-    args <- pipe_args(n_process, batch_size)
     spobj <- new_spobj()
     if (identical(output, "list")) {
         noun_phrases <- spobj$extract_nounphrases_list(texts = x, docnames = docnames,

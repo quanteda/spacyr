@@ -48,6 +48,9 @@ spacy_extract_entity.character <- function(x,
                                            output = c("data.frame", "list"),
                                            type = c("all", "named", "extended"),
                                            multithread, n_process = 1L, batch_size = NULL, ...) {
+    # checked before spaCy is initialized
+    check_multithread(multithread, "spacy_extract_entity")
+    args <- pipe_args(n_process, batch_size)
     type <- match.arg(type)
 
     `ent_type` <- `start_id` <- `:=` <- NULL
@@ -73,8 +76,6 @@ spacy_extract_entity.character <- function(x,
     x <- unname(x)
 
     ## run entity extraction
-    check_multithread(multithread, "spacy_extract_entity")
-    args <- pipe_args(n_process, batch_size)
     spobj <- new_spobj()
     if (identical(output, "list")) {
         entities <- spobj$extract_entity_list(texts = x, docnames = docnames,

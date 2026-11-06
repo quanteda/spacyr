@@ -4,23 +4,26 @@
 
 # Warn when the deprecated multithread argument is supplied. It has had no
 # effect since documents are always processed with nlp.pipe(). The warning is
-# given on every call, so that output does not depend on earlier calls.
+# given on every call, so that output does not depend on earlier calls. The
+# condition is built by hand, as warningCondition() needs R >= 3.6.0.
 check_multithread <- function(multithread, fun) {
     if (!missing(multithread)) {
-        warning(warningCondition(
-            paste0("The `multithread` argument of `", fun, "()` is deprecated ",
+        msg <- paste0("The `multithread` argument of `", fun, "()` is deprecated ",
                    "and has no effect: documents are always processed in batches ",
                    "with spaCy's nlp.pipe(). Use `n_process` to process them in ",
                    "parallel, and `batch_size` to set the number of documents in ",
-                   "each batch."),
-            class = c("spacyr_deprecated", "deprecatedWarning"),
-            call = NULL))
+                   "each batch.")
+        warning(structure(
+            class = c("spacyr_deprecated", "deprecatedWarning", "warning", "condition"),
+            list(message = msg, call = NULL)))
     }
     invisible(NULL)
 }
 
+# a whole number that as.integer() can represent
 is_whole_number <- function(x) {
-    is.numeric(x) && length(x) == 1 && !is.na(x) && is.finite(x) && x == round(x)
+    is.numeric(x) && length(x) == 1 && !is.na(x) && is.finite(x) && x == round(x) &&
+        abs(x) <= .Machine$integer.max
 }
 
 # Check n_process and batch_size and convert them for nlp.pipe(): a NULL
