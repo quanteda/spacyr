@@ -22,7 +22,7 @@ spacy_tokenize(
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
+corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{what}{the unit for splitting the text, available alternatives are:
 \describe{ \item{\code{"word"}}{word segmenter}

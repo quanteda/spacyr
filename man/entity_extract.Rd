@@ -13,9 +13,10 @@ entity_consolidate(x, concatenator = "_")
 \item{x}{output from \code{\link[=spacy_parse]{spacy_parse()}}.}
 
 \item{type}{type of named entities, either \code{named}, \code{extended}, or
-\code{all}.  See
-\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for
-details.}
+\code{all}. Extended entities are those of types \code{DATE}, \code{TIME}, \code{PERCENT},
+\code{MONEY}, \code{QUANTITY}, \code{ORDINAL} and \code{CARDINAL}, and named entities are those
+of all other types. The entity types are those of the language model;
+see its "Label scheme" on \url{https://spacy.io/models}.}
 
 \item{concatenator}{the character(s) used to join the elements of multi-word
 named entities}

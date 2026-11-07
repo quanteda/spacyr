@@ -2,17 +2,18 @@
 #' 
 #' This function extracts named entities from texts, based on the entity tag
 #' `ent` attributes of documents objects parsed by spaCy (see
-#' <https://spacy.io/usage/linguistic-features#section-named-entities>).
+#' <https://spacy.io/usage/linguistic-features#named-entities>).
 #' 
 #' @param x a character object or a TIF-compliant
-#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
+#'   corpus data.frame (see <https://github.com/ropensci/tif>)
 #' @inheritParams spacy_parse
 #' @param output type of returned object, either `"list"` or
 #'   `"data.frame"`.
-#' @param type type of named entities, either `named`, `extended`, or 
-#'   `all`.  See 
-#'   <https://spacy.io/docs/usage/entity-recognition#entity-types> for 
-#'   details.
+#' @param type type of named entities, either `named`, `extended`, or
+#'   `all`. Extended entities are those of types `DATE`, `TIME`, `PERCENT`,
+#'   `MONEY`, `QUANTITY`, `ORDINAL` and `CARDINAL`, and named entities are those
+#'   of all other types. The entity types are those of the language model;
+#'   see its "Label scheme" on <https://spacy.io/models>.
 #' @param ... unused
 #' @details When the option `output = "data.frame"` is selected, the
 #'   function returns a `data.frame` with the following fields.

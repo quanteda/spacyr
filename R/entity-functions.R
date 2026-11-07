@@ -4,10 +4,11 @@
 #' separate object, or convert the multi-word entities into single "token"
 #' consisting of the concatenated elements of the multi-word entities.
 #' @param x output from [spacy_parse()].
-#' @param type type of named entities, either `named`, `extended`, or 
-#'   `all`.  See 
-#'   <https://spacy.io/docs/usage/entity-recognition#entity-types> for 
-#'   details.
+#' @param type type of named entities, either `named`, `extended`, or
+#'   `all`. Extended entities are those of types `DATE`, `TIME`, `PERCENT`,
+#'   `MONEY`, `QUANTITY`, `ORDINAL` and `CARDINAL`, and named entities are those
+#'   of all other types. The entity types are those of the language model;
+#'   see its "Label scheme" on <https://spacy.io/models>.
 #' @returns `entity_extract()` returns a data.frame of all named
 #'   entities, containing the following fields: 
 #'   * `doc_id` name of the document containing the entity
