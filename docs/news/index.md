@@ -1,0 +1,398 @@
+# Changelog
+
+## spacyr (development version)
+
+### New features
+
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  and
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  have new arguments `n_process` and `batch_size`, passed to spaCy’s
+  `nlp.pipe()` ([\#185](https://github.com/quanteda/spacyr/issues/185)).
+  `n_process` sets the number of processes (`-1` for all CPUs) and
+  `batch_size` the number of documents processed together; the defaults,
+  `n_process = 1` and `batch_size = NULL` (the pipeline’s default batch
+  size), process documents as before. The output does not depend on
+  either.
+
+### Deprecated
+
+- The `multithread` argument of
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  and
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  is deprecated, and gives a warning when supplied. It has no effect
+  (see below); use `n_process` and `batch_size` instead.
+- [`process_document()`](https://spacyr.quanteda.io/reference/process_document.md)
+  and the functions that read its result,
+  [`get_tokens()`](https://spacyr.quanteda.io/reference/get-functions.md),
+  [`get_tags()`](https://spacyr.quanteda.io/reference/get-functions.md),
+  [`get_attrs()`](https://spacyr.quanteda.io/reference/get-functions.md),
+  [`get_named_entities()`](https://spacyr.quanteda.io/reference/get-functions.md),
+  [`get_dependency()`](https://spacyr.quanteda.io/reference/get-functions.md),
+  [`get_noun_phrases()`](https://spacyr.quanteda.io/reference/get-functions.md),
+  [`get_ntokens()`](https://spacyr.quanteda.io/reference/get-functions.md)
+  and
+  [`get_ntokens_by_sent()`](https://spacyr.quanteda.io/reference/get-functions.md),
+  are deprecated, and give a warning on every call. They will be removed
+  in a future version.
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  returns all of their results; each warning names the replacement. The
+  help for
+  [`get_dependency()`](https://spacyr.quanteda.io/reference/get-functions.md)
+  shows how to convert
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)’s
+  `head_token_id`, which numbers tokens within each sentence, to its
+  `head_id`, which numbers them within each document.
+- The result of
+  [`process_document()`](https://spacyr.quanteda.io/reference/process_document.md)
+  now holds its own parsed documents. Previously, the `get_*()`
+  functions read the documents of the most recent call to any spacyr
+  function, so they failed with a Python `KeyError` once another
+  function, such as
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  had been called.
+  [`process_document()`](https://spacyr.quanteda.io/reference/process_document.md)
+  now also checks `n_process` and `batch_size`, and warns about
+  `multithread`, as the other functions do. It does not keep the
+  language model, which
+  [`spacy_finalize()`](https://spacyr.quanteda.io/reference/spacy_finalize.md)
+  frees as before.
+
+### Changes
+
+- spacyr now requires spaCy 3.0.0 or later, and Python 3.
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  stops with an error if an earlier version of spaCy is installed, and
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  refuses a `version` that allows only earlier versions, whether a bare
+  version (`"2.3.9"`), a pip-style pin (`"==2.3.9"`,
+  `"[cuda102]==2.3.9"`) or a range (`"<3"`). A range without a lower
+  bound of 3 or above gets `>=3.0.0` added. The code for Python 2 and
+  spaCy 2 has been removed. The `deal_utf8` argument of
+  [`get_attrs()`](https://spacyr.quanteda.io/reference/get-functions.md)
+  is no longer used.
+
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  now builds all its columns in one pass over the documents as spaCy
+  parses them, instead of storing the parsed documents in Python and
+  fetching each column with a separate call. The output is unchanged;
+  the parsed documents are no longer kept in memory after the call, and
+  parsing with several options is somewhat faster.
+
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  and
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  now always process documents in batches with spaCy’s `nlp.pipe()`, and
+  the `multithread` argument no longer has any effect. Previously,
+  `multithread = FALSE`, and a single document in all but
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  processed each document with `nlp()`. With the standard spaCy models
+  the results are the same, but a custom pipeline component whose
+  [`pipe()`](https://rdrr.io/r/base/connections.html) method behaves
+  differently from its `__call__()` method now always has its
+  [`pipe()`](https://rdrr.io/r/base/connections.html) method used.
+
+- When a pipeline component fails on a document and the pipeline’s error
+  handler suppresses the error, spaCy’s `nlp.pipe()` leaves that
+  document out. **spacyr** now keeps the names of the other documents,
+  leaves the failed document out of the output and warns about it.
+  Previously, the results of later documents could be assigned to the
+  wrong document names, and
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  failed.
+
+- spacyr now loads its Python code as a module with
+  [`reticulate::import_from_path()`](https://rstudio.github.io/reticulate/reference/import.html)
+  and calls its functions with arguments, instead of running Python code
+  in the `__main__` namespace and passing data through global variables
+  there. As a result, spacyr no longer creates the Python variables
+  `nlp`, `spobj`, `texts` and others in `__main__`, so code that read
+  `reticulate::py$nlp` after
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  no longer works.
+
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  and
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  now share one function for checking and preparing their input, which
+  fixes three edge cases:
+
+  - A TIF data.frame whose `text` column is a factor, as
+    [`data.frame()`](https://rdrr.io/r/base/data.frame.html) made it by
+    default before R 4.0, is now accepted. Previously it failed with “no
+    applicable method”. (A factor `doc_id` column already worked.)
+  - A document name that is `NA` now gives the error “Some docnames are
+    missing.” Previously it failed with “missing value where TRUE/FALSE
+    needed”.
+  - An empty character vector no longer gives a warning that two
+    documents (`text1` and `text0`) were left out.
+
+### Documentation
+
+- The vignette and help pages are updated for spaCy 3: language models
+  are named in full (for example `de_core_news_sm` rather than `de`),
+  links to spaCy’s documentation point to its current pages, and the
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  description no longer mentions options that do not exist. The help for
+  [`entity_extract()`](https://spacyr.quanteda.io/reference/entity_extract.md)
+  and
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  now lists which entity types count as extended.
+- The vignette is now precomputed: its source is
+  `vignettes/using_spacyr.Rmd.orig`, which `make vignette` knits, with
+  spaCy, into `vignettes/using_spacyr.Rmd`, so that R and pkgdown build
+  it without running its code. It replaces the static HTML vignette
+  built with **R.rsp**, which had not been updated with the vignette’s
+  source, and **R.rsp** is no longer a suggested package. The pkgdown
+  site is rebuilt with pkgdown 2.2.1.
+
+### Tests
+
+- Added saved-output tests that compare the results of
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md),
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  and the `entity_*()` and `nounphrase_*()` functions with those of
+  version 1.4.0, on a fixed set of texts that includes edge cases. The
+  `entity_*()` and `nounphrase_*()` tests do not need Python, so they
+  also run on CRAN.
+- The saved-output tests compare output only with the spaCy and language
+  model versions it was recorded with. A new `saved-output` CI job
+  installs exactly those versions and fails if any saved-output test is
+  skipped. The 1.4.0 output is kept as a fixed baseline, and the
+  accepted output is updated from a named, accepted revision (see
+  `tests/testthat/fixtures/README.md`).
+- Added tests that record which functions process documents with spaCy’s
+  `nlp.pipe()` and which call `nlp()` on each document, using a custom
+  pipeline component that behaves differently in the two. Output with
+  the standard models is the same either way, so the saved-output tests
+  alone would not catch a change of path.
+
+## spacyr v1.4.0
+
+CRAN release: 2026-11-04
+
+### Changes that can affect results
+
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  and
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  no longer alter the input text. Previously they deleted all
+  backslashes and converted the literal sequences `\n` and `\t` into
+  newlines and tabs, so that for instance `C:\Users` was tokenized as
+  `C`, `:`, `Users`. Code that relied on literal `\n` being converted
+  should now convert it in R before calling **spacyr**.
+- `NA` documents are now treated as empty documents, rather than as the
+  text `"NA"`.
+- `spacy_tokenize(what = "sentence", remove_separators = FALSE)` now
+  keeps trailing whitespace regardless of the value of `multithread`,
+  including a single space after a sentence, so that the sentences join
+  back into the original text.
+- `spacy_parse(nounphrase = TRUE)` now returns rows in the order of the
+  input documents, as it does without noun phrases, instead of sorted by
+  document name. This fixes a bug where the `whitespace` column and any
+  `additional_attributes` were assigned to the wrong tokens when the
+  document names were not in alphabetical order.
+
+### New features
+
+- Added
+  [`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md),
+  which checks without starting Python whether spaCy and, optionally,
+  given language models are installed
+  ([\#197](https://github.com/quanteda/spacyr/issues/197)).
+- Added a `max_length` argument to
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  to allow documents longer than spaCy’s default limit of 1,000,000
+  characters ([\#218](https://github.com/quanteda/spacyr/issues/218)).
+
+### Installation
+
+- [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  now creates its environment with a version of Python supported by the
+  spaCy release being installed, as declared on PyPI, rather than
+  whichever Python is found first; if none is found, it offers to
+  install a compatible one. For an existing environment whose Python is
+  not supported, it stops with an error explaining how to recreate the
+  environment, instead of failing during installation.
+- [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  now explains how to install a language model that cannot be found.
+- Fixed
+  [`spacy_download_langmodel()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel.md)
+  and
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  not detecting already-installed language models with recent versions
+  of pip ([\#258](https://github.com/quanteda/spacyr/issues/258)).
+- Fixed a bug in
+  [`spacy_download_langmodel()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel.md)
+  that prevented installing multiple models in one function call
+  ([\#249](https://github.com/quanteda/spacyr/issues/249)).
+- [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  and
+  [`spacy_upgrade()`](https://spacyr.quanteda.io/reference/spacy_upgrade.md)
+  no longer fail on Windows when installing into a different environment
+  after Python has been initialised in the session
+  ([\#258](https://github.com/quanteda/spacyr/issues/258)).
+- Updated the installation instructions: language models are installed
+  with
+  [`spacy_download_langmodel()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel.md)
+  rather than with `pip`
+  ([\#253](https://github.com/quanteda/spacyr/issues/253)), and new
+  sections cover changing the Python version, using an existing Python
+  or conda environment
+  ([\#246](https://github.com/quanteda/spacyr/issues/246)), using local
+  models ([\#180](https://github.com/quanteda/spacyr/issues/180)) and
+  the need for git on Windows
+  ([\#245](https://github.com/quanteda/spacyr/issues/245)). The vignette
+  no longer describes arguments that were removed from
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md).
+- Requires **reticulate** \>= 1.31.
+
+### Bug fixes
+
+- Fixed a bug where an error during
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  such as a text exceeding spaCy’s maximum length, left the spaCy
+  pipeline disabled, so that later calls in the same session failed or
+  silently returned no entities.
+- Fixed a `SyntaxWarning` about an invalid escape sequence on Python
+  3.12+ when initialising spacyr
+  ([\#257](https://github.com/quanteda/spacyr/issues/257), thanks to
+  [@thjbdvlt](https://github.com/thjbdvlt)).
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  no longer warns that lemmatization “may not work properly” for models
+  whose name does not start with “en”.
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  now returns a zero-row result with the usual columns and types when no
+  document contains any tokens (for instance when all documents are `NA`
+  or empty), instead of failing with `dependency = TRUE` or returning
+  malformed columns.
+
+## spacyr v1.3
+
+- Overhauled the
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  and
+  [`spacy_uninstall()`](https://spacyr.quanteda.io/reference/spacy_uninstall.md)
+  functions to provide a more modern and robust installation procedure.
+
+## spacyr v1.2
+
+CRAN release: 2019-07-04
+
+- Added an option for using conda package manager instead of `pip` in
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  and
+  [`spacy_upgrade()`](https://spacyr.quanteda.io/reference/spacy_upgrade.md).
+- (1.21) All character inputs to
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  and
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+  are now coerced to `character`, which allows them to work directly
+  with **quanteda** v2 corpus objects (which are based on the
+  `character` class but with special attributed), without special
+  methods.
+
+## spacyr v1.1
+
+- Fixed a bug in `spacy_parse(x, nounphrase = TRUE)` that occurred when
+  no noun phrases were found in the text.
+  ([\#153](https://github.com/quanteda/spacyr/issues/153))
+- Fixed a bug in
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  ([\#157](https://github.com/quanteda/spacyr/issues/157)).
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  ignored Python options supplied by users when a conda environment
+  created through
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  exists.
+- General stability enhancements to ensure compatibility with spaCy \>=
+  2.1
+
+## spacyr v1.0
+
+CRAN release: 2018-12-15
+
+- Added new commands
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md),
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md),
+  [`nounphrase_extract()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md),
+  and
+  [`nounphrase_consolidate()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
+  for direct extraction of entities, noun phrases, and tokens, and
+  extraction of noun phrases from spacyr parsed tests.
+- Added a new argument `additional_attributes` to
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  allowing the return of any tokens-level attribute available from
+  <https://spacy.io/api/token#attributes>.
+- Added a vignette and significantly improved the documentation site
+  <https://spacyr.quanteda.io>.
+
+## spacyr v0.9.9
+
+CRAN release: 2018-04-17
+
+- Added
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md),
+  [`spacy_install_virtualenv()`](https://spacyr.quanteda.io/reference/spacy_install_virtualenv.md),
+  and
+  [`spacy_upgrade()`](https://spacyr.quanteda.io/reference/spacy_upgrade.md)
+  to make installing or upgrading spaCy (and Python itself) easy and
+  automatic.
+- Added support for multithreading in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  via the `multithreading` argument. This uses the “pipes” functionality
+  in spaCy for improved performance.
+
+## spacyr v0.9.6
+
+CRAN release: 2018-02-18
+
+- Create an option to permanently set the default Python through
+  `.Rprofile`
+- Performance enhancement through `spacy_initialize(entity = FALSE)`
+  ([\#91](https://github.com/quanteda/spacyr/issues/91))
+- Now looks for Python settings from `.bash_profile`.
+
+## spacyr v0.9.3
+
+CRAN release: 2017-11-10
+
+- Updated for the newer spaCy 2.0 release and new language models.
+- Add `ask = FALSE` to
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md),
+  to find spaCy installations automatically.
+
+## spacyr v0.9.2
+
+- Fixed a bug caused by zero-token “sentences” in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  by changing `1:length()` to
+  [`seq_along()`](https://rdrr.io/r/base/seq.html).
+
+## spacyr v0.9.1
+
+- Fixed a bug causing non-ASCII characters to be dropped when using
+  Python 2.7.x ([\#58](https://github.com/quanteda/spacyr/issues/58)).
+- Fixed issue with automatic detection of python3 when both python and
+  python3 exist, but only python3 has spaCy installed
+  ([\#62](https://github.com/quanteda/spacyr/issues/62)).
+
+## spacyr v0.9.0
+
+CRAN release: 2017-05-20
+
+- Initial CRAN release.

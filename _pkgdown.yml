@@ -1,10 +1,14 @@
 url: https://spacyr.quanteda.io
 template:
-  params:
-    bootswatch: readable
-    docsearch:
-      api_key: 6db886781d6c5d5b8b62b7b72b1d1b7c
-      index_name: spacyr
+  bootstrap: 5
+  bootswatch: simplex
+  bslib:
+    bg: "#ffffff"
+    fg: "#333333"
+    primary: "#4582ec"
+  docsearch:
+    api_key: 6db886781d6c5d5b8b62b7b72b1d1b7c
+    index_name: spacyr
 navbar:
   title: "spacyr"
   type: inverse
@@ -18,3 +22,4 @@ navbar:
   right:
     - icon: fa-github fa-lg
       href: https://github.com/quanteda/spacyr
+      aria-label: View on Github
