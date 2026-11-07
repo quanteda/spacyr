@@ -101,3 +101,38 @@ test_that("process_document() checks its arguments before initializing spaCy", {
                    "`multithread` argument of `process_document\\(\\)`")
   })
 })
+
+test_that("the documented conversion gives get_dependency()'s head IDs", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  # head_token_id numbers tokens within each sentence, head_id within each
+  # document; the conversion is the one documented in ?get_dependency
+  txt <- c(a = "Dogs bark. Cats sleep.", b = "",
+           c = "The Supreme Court is in Washington. It sits in winter. Yes.")
+  parsed <- spacy_parse(txt, dependency = TRUE)
+  head_id <- parsed$head_token_id +
+    ave(seq_len(nrow(parsed)), parsed$doc_id, FUN = seq_along) -
+    parsed$token_id
+  sp <- quiet(process_document(txt))
+  expect_identical(as.numeric(quiet(get_dependency(sp))$head_id), head_id)
+  # the head of "Cats" is token 5 of document a, and token 2 of its sentence
+  expect_identical(head_id[4], 5)
+  expect_identical(parsed$head_token_id[4], 2)
+})
+
+test_that("spacy_finalize() frees the pipeline while a handle is kept", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+  on.exit(spacy_initialize(), add = TRUE)
+
+  ref <- reticulate::import("weakref")$ref(spacyr:::spacyr_env$nlp)
+  sp <- quiet(process_document(c(a = "Hello world.")))
+  expect_false(is.null(ref()))
+  spacy_finalize()
+  expect_null(ref())
+  # the handle still reads its documents
+  expect_identical(quiet(get_tokens(sp)), c("Hello", "world", "."))
+})

@@ -28,7 +28,8 @@ all the results in one data.frame.
 \code{process_document()} parses documents with spaCy and returns a handle on
 the parsed documents, which are kept in Python until the handle is
 garbage collected. They are not affected by later calls to other
-\pkg{spacyr} functions.
+\pkg{spacyr} functions. The handle does not keep the language model:
+\code{\link[=spacy_finalize]{spacy_finalize()}} frees it as usual.
 }
 \examples{
 \dontrun{

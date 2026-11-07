@@ -157,7 +157,8 @@ spacy_parse.data.frame <- function(x, ...) {
 #' `process_document()` parses documents with spaCy and returns a handle on
 #' the parsed documents, which are kept in Python until the handle is
 #' garbage collected. They are not affected by later calls to other
-#' \pkg{spacyr} functions.
+#' \pkg{spacyr} functions. The handle does not keep the language model:
+#' [spacy_finalize()] frees it as usual.
 #' @param x a character object or a \pkg{quanteda} corpus
 #' @param multithread deprecated; see [spacy_parse()]
 #' @param n_process,batch_size passed to spaCy's `nlp.pipe()`; see
@@ -189,6 +190,8 @@ process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, 
                                      batch_size = args$batch_size,
                                      n_process = args$n_process))
     warn_skipped(spobj)
+    # the handle keeps the parsed documents, but not the pipeline
+    spobj$release_pipeline()
     spacy_out$new(docnames = as.character(names(timestamps)),
                   timestamps = as.character(timestamps),
                   spobj = spobj)

@@ -72,7 +72,17 @@ of their results in one data.frame, one row per token:
 \item \code{get_attrs()}: \code{spacy_parse(x, additional_attributes = attr_name)};
 \item \code{get_named_entities()}: the \code{entity} column;
 \item \code{get_dependency()}: the \code{head_token_id} and \code{dep_rel} columns of
-\code{spacy_parse(x, dependency = TRUE)};
+\code{spacy_parse(x, dependency = TRUE)}. Note that \code{head_token_id} numbers
+the tokens within each sentence, while the \code{head_id} of
+\code{get_dependency()} numbers them within each document. To number the head
+tokens within each document, add the number of tokens in the document's
+earlier sentences:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{parsed <- spacy_parse(x, dependency = TRUE)
+head_id <- parsed$head_token_id +
+  ave(seq_len(nrow(parsed)), parsed$doc_id, FUN = seq_along) -
+  parsed$token_id
+}\if{html}{\out{</div>}}
 \item \code{get_ntokens()} and \code{get_ntokens_by_sent()}: count the rows by \code{doc_id},
 and by \code{doc_id} and \code{sentence_id};
 \item \code{get_noun_phrases()}: \code{\link[=spacy_extract_nounphrases]{spacy_extract_nounphrases()}}.

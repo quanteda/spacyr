@@ -2,6 +2,8 @@
 # which the get_*() functions read. It holds the Python object that keeps the
 # parsed documents (spobj), so that they are not affected by later calls to
 # spacyr's functions, and are released when the handle is garbage collected.
+# The object no longer refers to the pipeline, so that spacy_finalize() frees
+# the language model even while a handle exists.
 # The tagger, entity and parser fields are kept for compatibility: documents
 # are always parsed by the whole pipeline.
 spacy_out <- setRefClass(
@@ -53,7 +55,17 @@ deprecate_get <- function(fun, instead) {
 #' * `get_attrs()`: `spacy_parse(x, additional_attributes = attr_name)`;
 #' * `get_named_entities()`: the `entity` column;
 #' * `get_dependency()`: the `head_token_id` and `dep_rel` columns of
-#'   `spacy_parse(x, dependency = TRUE)`;
+#'   `spacy_parse(x, dependency = TRUE)`. Note that `head_token_id` numbers
+#'   the tokens within each sentence, while the `head_id` of
+#'   `get_dependency()` numbers them within each document. To number the head
+#'   tokens within each document, add the number of tokens in the document's
+#'   earlier sentences:
+#'   ```
+#'   parsed <- spacy_parse(x, dependency = TRUE)
+#'   head_id <- parsed$head_token_id +
+#'     ave(seq_len(nrow(parsed)), parsed$doc_id, FUN = seq_along) -
+#'     parsed$token_id
+#'   ```
 #' * `get_ntokens()` and `get_ntokens_by_sent()`: count the rows by `doc_id`,
 #'   and by `doc_id` and `sentence_id`;
 #' * `get_noun_phrases()`: [spacy_extract_nounphrases()].
@@ -122,7 +134,10 @@ get_named_entities <- function(spacy_out){
 #' @export
 #' @keywords internal
 get_dependency <- function(spacy_out) {
-    deprecate_get("get_dependency", "`spacy_parse(x, dependency = TRUE)`")
+    deprecate_get("get_dependency", paste0(
+        "`spacy_parse(x, dependency = TRUE)`, whose `head_token_id` numbers ",
+        "tokens within each sentence rather than each document (see ",
+        "?get_dependency)"))
     spobj <- handle_spobj(spacy_out)
     head_id <- spobj$dep_head_id(spacy_out$timestamps) + 1 # + 1 is for fixing the start index to 1
     dep_rel <- spobj$attributes(spacy_out$timestamps, "dep_")
