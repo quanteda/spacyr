@@ -2,13 +2,13 @@
 
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,500');
 
-body {
-    font-family: 'Roboto', sans-serif;
+body { 
+    font-family: 'Roboto', sans-serif; 
     font-weight: 300;
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif; 
     font-weight: 500;
 }
 
@@ -19,26 +19,14 @@ b, strong, th {
 .navbar-brand {
     background-image: url(https://cdn.jsdelivr.net/gh/quanteda/spacyr@main/images/spacyr_logo_small.svg);
     background-repeat: no-repeat;
-    background-position: 12.5px 12.5px;
+    background-position: 0px 5px;
     background-size: 112px auto;
-    width: 250px;
+    width: 112px;
+    color: rgba(0, 0, 0, 0);
 }
 
-.navbar-brand > .navbar-link {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    display: block;
-    font-size: 1.7em;
-    line-height: 1em;
-}
-
-.navbar-brand > .label {
-    margin-left: 112px;
-}
-
-.navbar .navbar-nav > li > a {
-    padding: 8px 8px;
+.navbar-brand:hover {
+    color: rgba(0, 0, 0, 0);
 }
 
 div#overview div.page-header h1 {
@@ -53,8 +41,9 @@ div#system-requirements th {
 }
 
 div.page-header h1 {
-    font-size: 250%;
+    font-size: 220%;
     color: dimgray;
+    padding-top: 50px;
 }
 
 div.page-header h4 {
@@ -70,17 +59,17 @@ div.contents h1 {
 
 div.contents h2 {
     font-size: 150%;
-    padding-top: 70px;
+    padding-top: 60px;
 }
 
 div.contents h3 {
     font-size: 120%;
-    padding-top: 60px;
+    padding-top: 50px;
 }
 
 div.contents h4 {
     font-size: 100%;
-    padding-top: 60px;
+    padding-top: 50px;
 }
 
 pre {
@@ -88,6 +77,3 @@ pre {
     font-size: 80%;
     line-height: 150%;
 }
-
-
-
