@@ -3,12 +3,8 @@
 #  Google universal: http://www.petrovi.de/data/universal.pdf
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
-from __future__ import unicode_literals
-import os
-import sys
 import spacy
 import time
-import gc
 import string
 import random
 import contextlib
@@ -39,12 +35,6 @@ def _as_list(texts, docnames = None):
         texts = [texts]
         if docnames is not None:
             docnames = [docnames]
-    for i in range(len(texts)):
-        try:
-            if not isinstance(texts[i], unicode):
-                texts[i] = unicode(texts[i], "utf-8", errors = "ignore")
-        except NameError:
-            pass
     return texts, docnames
 
 ## per-document processing, shared by both paths
@@ -261,11 +251,7 @@ class spacyr:
         # disable the pipeline components for plain tokenization; the context
         # manager restores them even if tokenization fails
         if turn_off_pipes and remove_symbols == False:
-            if hasattr(self.nlp, "select_pipes"):
-                pipes_context = self.nlp.select_pipes(disable = self.nlp.pipe_names)
-            else:
-                # spaCy 2.x; its DisabledPipes also restores the pipes on exit
-                pipes_context = self.nlp.disable_pipes(*self.nlp.pipe_names)
+            pipes_context = self.nlp.select_pipes(disable = self.nlp.pipe_names)
         else:
             pipes_context = contextlib.nullcontext()
         texts, docnames = _as_list(texts, docnames)
@@ -357,7 +343,7 @@ class spacyr:
             ntok_by_sent.append(ntok_in_sent)
         return ntok_by_sent
 
-    def attributes(self, timestamps, attrname, deal_utf8 = 0):
+    def attributes(self, timestamps, attrname):
         all_attrs = []
         if isinstance(timestamps, list) == False:
             timestamps = [timestamps]
@@ -367,14 +353,10 @@ class spacyr:
             for w in c_document:
                 attrs.append(getattr(w, attrname))
             all_attrs.extend(attrs)
-        if deal_utf8 == 1:
-            if sys.version_info.major == 2:
-                for i in range(len(all_attrs)):
-                    all_attrs[i] = all_attrs[i].encode('utf-8')
         return all_attrs
 
     def tokens(self, timestamps):
-        all_tokens = self.attributes(timestamps, 'text', 1)
+        all_tokens = self.attributes(timestamps, 'text')
         return all_tokens
 
     def tags(self, timestamps, tag_type):

@@ -65,12 +65,12 @@ get_tags <- function(spacy_out, tagset = c("google", "detailed")) {
 
 #' @rdname get-functions
 #' @param attr_name name of spaCy token attributes to extract
+#' @param deal_utf8 not used; kept for compatibility
 #' @return `get_attrs` returns a list of attributes from spaCy output
 #' @export
 #' @keywords internal
 get_attrs <- function(spacy_out, attr_name, deal_utf8 = FALSE) {
-    attrs <- current_spobj()$attributes(spacy_out$timestamps, attr_name,
-                                        as.numeric(deal_utf8))
+    attrs <- current_spobj()$attributes(spacy_out$timestamps, attr_name)
     return(attrs)
 }
 

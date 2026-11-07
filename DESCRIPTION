@@ -12,6 +12,7 @@ Authors@R: c(
 Description: An R wrapper to the 'Python' 'spaCy' 'NLP' library,
     from <https://spacy.io>.
 License: GPL-3
+SystemRequirements: Python (>= 3), spaCy (>= 3.0.0)
 LazyData: TRUE
 Depends:
     R (>= 3.0.0),
@@ -32,7 +33,7 @@ Suggests:
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
-RoxygenNote: 7.2.3
 Language: en-GB
 VignetteBuilder: R.rsp
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.1

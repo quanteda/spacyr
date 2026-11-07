@@ -36,6 +36,8 @@ or \code{"detailed"} to use the simplified Google tagset, or the more detailed
 scheme from the Penn Treebank (or the German Text Archive in case of German language model).}
 
 \item{attr_name}{name of spaCy token attributes to extract}
+
+\item{deal_utf8}{not used; kept for compatibility}
 }
 \value{
 \code{get_tokens} returns a data.frame of tokens from spaCy.

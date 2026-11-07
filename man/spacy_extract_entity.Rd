@@ -40,7 +40,7 @@ to be used in other processes.}
 
 \item{batch_size}{the number of documents that spaCy's \code{nlp.pipe()}
 processes together; \code{NULL} (the default) uses the pipeline's default
-(\code{nlp.batch_size}, usually 1000). Larger batches can be faster, but use
+(\code{nlp.batch_size}). Larger batches can be faster, but use
 more memory.}
 
 \item{...}{unused}
