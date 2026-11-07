@@ -18,7 +18,9 @@
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../index.html">Installation</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/quanteda/spacyr" aria-label="View on Github"><span class="fa fa-github fa-lg"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/quanteda/spacyr" aria-label="View on Github"><span class="fa fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -62,7 +64,7 @@
 <div class="section level3">
 <h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
 <ul><li>The vignette and help pages are updated for spaCy 3: language models are named in full (for example <code>de_core_news_sm</code> rather than <code>de</code>), links to spaCy’s documentation point to its current pages, and the <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> description no longer mentions options that do not exist. The help for <code><a href="../reference/entity_extract.html">entity_extract()</a></code> and <code><a href="../reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> now lists which entity types count as extended.</li>
-<li>The vignette is now precomputed: its source is <code>vignettes/using_spacyr.Rmd.orig</code>, which <code>make vignette</code> knits, with spaCy, into <code>vignettes/using_spacyr.Rmd</code>, so that R and pkgdown build it without running its code. It replaces the static HTML vignette built with <strong>R.rsp</strong>, which had not been updated with the vignette’s source, and <strong>R.rsp</strong> is no longer a suggested package. The pkgdown site is rebuilt with pkgdown 2.2.1, and now uses Bootstrap 5 with the same theme and styling as the <strong>quanteda</strong> site.</li>
+<li>The vignette is now precomputed: its source is <code>vignettes/using_spacyr.Rmd.orig</code>, which <code>make vignette</code> knits, with spaCy, into <code>vignettes/using_spacyr.Rmd</code>, so that R and pkgdown build it without running its code. It replaces the static HTML vignette built with <strong>R.rsp</strong>, which had not been updated with the vignette’s source, and <strong>R.rsp</strong> is no longer a suggested package. The pkgdown site is rebuilt with pkgdown 2.2.1, and now uses Bootstrap 5 with the same theme and styling as the <strong>quanteda</strong> site. The site’s search box, which pkgdown provides without an outside service, is restored.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="tests-development-version">Tests<a class="anchor" aria-label="anchor" href="#tests-development-version"></a></h3>

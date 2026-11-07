@@ -153,7 +153,8 @@
   it without running its code. It replaces the static HTML vignette
   built with **R.rsp**, which had not been updated with the vignette’s
   source, and **R.rsp** is no longer a suggested package. The pkgdown
-  site is rebuilt with pkgdown 2.2.1.
+  site is rebuilt with pkgdown 2.2.1, and now uses Bootstrap 5 with the
+  same theme and styling as the **quanteda** site.
 
 ### Tests
 
