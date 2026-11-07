@@ -146,45 +146,52 @@ spacy_parse.data.frame <- function(x, ...) {
 }
 
 
-#' Tokenize text using spaCy
-#' 
-#' Tokenize text using spaCy. The results of tokenization is stored as a Python
-#' object. To obtain the tokens results in R, use `get_tokens()`.
-#' <https://spacy.io>.
-#' @param x input text
-#' functionalities including the tagging, named entity recognition, dependency 
-#' analysis. 
-#' This slows down `spacy_parse()` but speeds up the later parsing. 
-#' If FALSE, tagging, entity recognition, and dependency analysis when 
-#' relevant functions are called.
-#' @param multithread not used; kept for compatibility
-#' @param n_process,batch_size passed to spaCy's `nlp.pipe()`
-#' @param ... arguments passed to specific methods
-#' @return result marker object
+#' Process documents with spaCy (deprecated)
+#'
+#' @description
+#' This function is deprecated, and will be removed in a future version of
+#' \pkg{spacyr}, together with the [get-functions] that read its result. It
+#' gives a warning on every call. Use [spacy_parse()] instead, which returns
+#' all the results in one data.frame.
+#'
+#' `process_document()` parses documents with spaCy and returns a handle on
+#' the parsed documents, which are kept in Python until the handle is
+#' garbage collected. They are not affected by later calls to other
+#' \pkg{spacyr} functions.
+#' @param x a character object or a \pkg{quanteda} corpus
+#' @param multithread deprecated; see [spacy_parse()]
+#' @param n_process,batch_size passed to spaCy's `nlp.pipe()`; see
+#'   [spacy_parse()]
+#' @param ... not used
+#' @return an object of class `spacy_out`, for the [get-functions]
 #' @importFrom methods new
 #' @examples
 #' \dontrun{
 #' spacy_initialize()
-#' # the result has to be "tag() is ready to run" to run the following
-#' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
+#' txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.",
 #'          text2 = "This is the second document.")
-#' results <- spacy_parse(txt)
+#' # instead of process_document() and get_tokens():
+#' spacy_parse(txt)$token
 #' }
 #' @export
 #' @keywords internal
 process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, ...) {
-    # This function passes texts to python and spacy
+    deprecation_warning(paste0(
+        "`process_document()` is deprecated and will be removed in a future ",
+        "version of spacyr, together with the get_*() functions. Use ",
+        "`spacy_parse()` instead."))
+    check_multithread(multithread, "process_document")
+    args <- pipe_args(n_process, batch_size)
     input <- spacy_input(x)
     spobj <- new_spobj()
     # named by document; a document that the pipeline left out has none
-    timestamps <- unlist(spobj$parse(input$x, input$docnames, batch_size = batch_size,
-                                     n_process = n_process))
+    timestamps <- unlist(spobj$parse(input$x, input$docnames,
+                                     batch_size = args$batch_size,
+                                     n_process = args$n_process))
     warn_skipped(spobj)
-    docnames <- as.character(names(timestamps))
-    timestamps <- as.character(timestamps)
-    output <- spacy_out$new(docnames = docnames,
-                            timestamps = timestamps)
-    return(output)
+    spacy_out$new(docnames = as.character(names(timestamps)),
+                  timestamps = as.character(timestamps),
+                  spobj = spobj)
 }
 
 

@@ -2,39 +2,41 @@
 % Please edit documentation in R/spacy_parse.R
 \name{process_document}
 \alias{process_document}
-\title{Tokenize text using spaCy}
+\title{Process documents with spaCy (deprecated)}
 \usage{
 process_document(x, multithread, n_process = 1L, batch_size = NULL, ...)
 }
 \arguments{
-\item{x}{input text
-functionalities including the tagging, named entity recognition, dependency
-analysis.
-This slows down \code{spacy_parse()} but speeds up the later parsing.
-If FALSE, tagging, entity recognition, and dependency analysis when
-relevant functions are called.}
+\item{x}{a character object or a \pkg{quanteda} corpus}
 
-\item{multithread}{not used; kept for compatibility}
+\item{multithread}{deprecated; see \code{\link[=spacy_parse]{spacy_parse()}}}
 
-\item{n_process, batch_size}{passed to spaCy's \code{nlp.pipe()}}
+\item{n_process, batch_size}{passed to spaCy's \code{nlp.pipe()}; see
+\code{\link[=spacy_parse]{spacy_parse()}}}
 
-\item{...}{arguments passed to specific methods}
+\item{...}{not used}
 }
 \value{
-result marker object
+an object of class \code{spacy_out}, for the \link{get-functions}
 }
 \description{
-Tokenize text using spaCy. The results of tokenization is stored as a Python
-object. To obtain the tokens results in R, use \code{get_tokens()}.
-\url{https://spacy.io}.
+This function is deprecated, and will be removed in a future version of
+\pkg{spacyr}, together with the \link{get-functions} that read its result. It
+gives a warning on every call. Use \code{\link[=spacy_parse]{spacy_parse()}} instead, which returns
+all the results in one data.frame.
+
+\code{process_document()} parses documents with spaCy and returns a handle on
+the parsed documents, which are kept in Python until the handle is
+garbage collected. They are not affected by later calls to other
+\pkg{spacyr} functions.
 }
 \examples{
 \dontrun{
 spacy_initialize()
-# the result has to be "tag() is ready to run" to run the following
-txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
+txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.",
          text2 = "This is the second document.")
-results <- spacy_parse(txt)
+# instead of process_document() and get_tokens():
+spacy_parse(txt)$token
 }
 }
 \keyword{internal}

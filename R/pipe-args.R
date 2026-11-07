@@ -2,20 +2,25 @@
 # nlp.pipe(): spacy_parse(), spacy_tokenize(), spacy_extract_entity() and
 # spacy_extract_nounphrases().
 
+# Warn that something is deprecated, with a condition of class
+# "spacyr_deprecated" (and "deprecatedWarning", as from .Deprecated()). The
+# warning is given on every call, so that output does not depend on earlier
+# calls. The condition is built by hand, as warningCondition() needs R >= 3.6.0.
+deprecation_warning <- function(msg) {
+    warning(structure(
+        class = c("spacyr_deprecated", "deprecatedWarning", "warning", "condition"),
+        list(message = msg, call = NULL)))
+}
+
 # Warn when the deprecated multithread argument is supplied. It has had no
-# effect since documents are always processed with nlp.pipe(). The warning is
-# given on every call, so that output does not depend on earlier calls. The
-# condition is built by hand, as warningCondition() needs R >= 3.6.0.
+# effect since documents are always processed with nlp.pipe().
 check_multithread <- function(multithread, fun) {
     if (!missing(multithread)) {
-        msg <- paste0("The `multithread` argument of `", fun, "()` is deprecated ",
+        deprecation_warning(paste0("The `multithread` argument of `", fun, "()` is deprecated ",
                    "and has no effect: documents are always processed in batches ",
                    "with spaCy's nlp.pipe(). Use `n_process` to process them in ",
                    "parallel, and `batch_size` to set the number of documents in ",
-                   "each batch.")
-        warning(structure(
-            class = c("spacyr_deprecated", "deprecatedWarning", "warning", "condition"),
-            list(message = msg, call = NULL)))
+                   "each batch."))
     }
     invisible(NULL)
 }

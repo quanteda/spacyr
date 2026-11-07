@@ -366,24 +366,6 @@ class spacyr:
         all_tokens = self.attributes(timestamps, attr_name)
         return all_tokens
 
-    def run_entity(self, timestamps):
-        if isinstance(timestamps, list) == False:
-            timestamps = [timestamps]
-        for ts in timestamps:
-            self.nlp.entity(self.documents[ts])
-
-    def run_tagger(self, timestamps):
-        if isinstance(timestamps, list) == False:
-            timestamps = [timestamps]
-        for ts in timestamps:
-            self.nlp.tagger(self.documents[ts])
-
-    def run_dependency_parser(self, timestamps):
-        if isinstance(timestamps, list) == False:
-            timestamps = [timestamps]
-        for ts in timestamps:
-            self.nlp.parser(self.documents[ts])
-
     def list_entities(self, timestamps):
         all_entities = {}
         if isinstance(timestamps, list) == False:
