@@ -55,6 +55,10 @@ test_that("pip-style specs are checked against the minimum spaCy version", {
   expect_identical(spacyr:::spacy_pkg_spec("<4,>=2"), "spacy<4,>=2,>=3.0.0")
   expect_identical(spacyr:::spacy_pkg_spec(">2.9"), "spacy>2.9,>=3.0.0")
   expect_identical(spacyr:::spacy_pkg_spec("!=3.1.0"), "spacy!=3.1.0,>=3.0.0")
+  # a requirement that is not valid for pip is passed on unchanged, so that
+  # pip's error shows what was given
+  expect_identical(spacyr:::spacy_pkg_spec("1.10.1a"), "spacy1.10.1a")
+  expect_identical(spacyr:::spacy_pkg_spec("[cuda102]3.2"), "spacy[cuda102]3.2")
   expect_identical(spacyr:::spacy_pkg_spec("[apple]<3.8"), "spacy[apple]<3.8,>=3.0.0")
   expect_identical(spacyr:::spacy_pkg_spec(">=3.7,<3.8"), "spacy>=3.7,<3.8")
   expect_null(spacyr:::spacy_pypi_url("<3.8"))

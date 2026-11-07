@@ -166,6 +166,10 @@ spacy_spec_floor <- function(spec) {
   constraints <- trimws(sub("^\\((.*)\\)$", "\\1", constraints))
   if (!nzchar(constraints)) return(name)
   spec <- paste0(name, constraints)
+  # a requirement that does not start with a version operator, such as
+  # "1.10.1a", is not valid for pip; leave it as it is, so that pip's error
+  # shows what was given
+  if (!grepl("^(===|==|~=|<=|>=|!=|<|>)", constraints)) return(spec)
   minimum <- numeric_version("3.0.0")
   has_floor <- FALSE
   for (clause in trimws(strsplit(constraints, ",", fixed = TRUE)[[1]])) {
