@@ -2,21 +2,21 @@
   "index_name": "spacyr",
   "start_urls": [
     {
-      "url": "http://spacyr.quanteda.io/index.html",
+      "url": "https://spacyr.quanteda.io/index.html",
       "selectors_key": "homepage",
       "tags": [
         "homepage"
       ]
     },
     {
-      "url": "http://spacyr.quanteda.io/reference",
+      "url": "https://spacyr.quanteda.io/reference",
       "selectors_key": "reference",
       "tags": [
         "reference"
       ]
     },
     {
-      "url": "http://spacyr.quanteda.io/articles",
+      "url": "https://spacyr.quanteda.io/articles",
       "selectors_key": "articles",
       "tags": [
         "articles"
@@ -30,7 +30,7 @@
     "/articles/index.html"
   ],
   "sitemap_urls": [
-    "http://spacyr.quanteda.io/sitemap.xml"
+    "https://spacyr.quanteda.io/sitemap.xml"
   ],
   "selectors": {
     "homepage": {

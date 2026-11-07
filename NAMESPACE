@@ -39,10 +39,8 @@ export(spacy_parse)
 export(spacy_tokenize)
 export(spacy_uninstall)
 export(spacy_upgrade)
-importFrom(data.table,
-  as.data.table,
-  data.table,
-  setDT,
-  setnames
-)
+importFrom(data.table,as.data.table)
+importFrom(data.table,data.table)
+importFrom(data.table,setDT)
+importFrom(data.table,setnames)
 importFrom(methods,new)

@@ -21,6 +21,7 @@
 ^_pkgdown\.yml$
 ^css/
 ^vignettes/pkgdown/
+^vignettes/.*\.Rmd\.orig$
 ^CNAME$
 ^docs/
 ^images$

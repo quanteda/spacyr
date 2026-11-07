@@ -1,7 +1,7 @@
 ---
 title: "A Guide to Using spacyr"
 author: "Kenneth Benoit and Akitaka Matsuo"
-date: "`r Sys.Date()`"
+date: "2026-11-07"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{A Guide to Using spacyr}
@@ -9,13 +9,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "##"
-)
-library("quanteda")
-```
+<!-- The vignette's code needs spaCy, so its results are computed ahead of
+time: edit vignettes/using_spacyr.Rmd.orig, then run `make vignette` to knit
+it into vignettes/using_spacyr.Rmd, which R and pkgdown build without running
+the code. -->
+
+
 
 
 ## Introduction
@@ -41,9 +40,11 @@ We provide a function for this, `spacy_initialize()`, which attempts to make thi
 
 Users with their own setup of spaCy, for instance in a conda environment, can instead point **spacyr** to the Python executable of that environment by setting the `RETICULATE_PYTHON` environment variable before calling `spacy_initialize()`, e.g. `Sys.setenv(RETICULATE_PYTHON = reticulate::conda_python("my-spacy-env"))`.
 
-```{r}
+
+``` r
 library("spacyr")
 spacy_initialize(model = "en_core_web_sm")
+## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)
 ```
 
 ## Tokenizing and tagging texts
@@ -53,34 +54,90 @@ The `spacy_parse()` function is **spacyr**'s main workhorse.  It calls spaCy bot
 The tokenization approach taken by spaCy is inclusive: it includes all tokens without restrictions, including punctuation characters and symbols.
 
 Example:
-```{r}
+
+``` r
 txt <- c(d1 = "spaCy is great at fast natural language processing.",
          d2 = "Mr. Smith spent two years in North Carolina.")
 
 # process documents and obtain a data.table
 parsedtxt <- spacy_parse(txt)
 parsedtxt
+##    doc_id sentence_id token_id      token      lemma   pos   entity
+## 1      d1           1        1      spaCy      spacy   NUM         
+## 2      d1           1        2         is         be   AUX         
+## 3      d1           1        3      great      great   ADJ         
+## 4      d1           1        4         at         at   ADP         
+## 5      d1           1        5       fast       fast   ADJ         
+## 6      d1           1        6    natural    natural   ADJ         
+## 7      d1           1        7   language   language  NOUN         
+## 8      d1           1        8 processing processing  NOUN         
+## 9      d1           1        9          .          . PUNCT         
+## 10     d2           1        1        Mr.        Mr. PROPN         
+## 11     d2           1        2      Smith      Smith PROPN PERSON_B
+## 12     d2           1        3      spent      spend  VERB         
+## 13     d2           1        4        two        two   NUM   DATE_B
+## 14     d2           1        5      years       year  NOUN   DATE_I
+## 15     d2           1        6         in         in   ADP         
+## 16     d2           1        7      North      North PROPN    GPE_B
+## 17     d2           1        8   Carolina   Carolina PROPN    GPE_I
+## 18     d2           1        9          .          . PUNCT
 ```
 
 Two fields are available for part-of-speech tags.  The `pos` field returned is the [Universal tagset for parts-of-speech](https://universaldependencies.org/u/pos/all.html), a general scheme that most users will find serves their needs, and also that provides equivalencies across languages.   **spacyr** also provides a more detailed tagset, defined in each spaCy language model.  For English, this is the [OntoNotes 5 version of the Penn Treebank tag set](https://spacy.io/models/en).
 
-```{r}
+
+``` r
 spacy_parse(txt, tag = TRUE, entity = FALSE, lemma = FALSE)
+##    doc_id sentence_id token_id      token   pos tag
+## 1      d1           1        1      spaCy   NUM  CD
+## 2      d1           1        2         is   AUX VBZ
+## 3      d1           1        3      great   ADJ  JJ
+## 4      d1           1        4         at   ADP  IN
+## 5      d1           1        5       fast   ADJ  JJ
+## 6      d1           1        6    natural   ADJ  JJ
+## 7      d1           1        7   language  NOUN  NN
+## 8      d1           1        8 processing  NOUN  NN
+## 9      d1           1        9          . PUNCT   .
+## 10     d2           1        1        Mr. PROPN NNP
+## 11     d2           1        2      Smith PROPN NNP
+## 12     d2           1        3      spent  VERB VBD
+## 13     d2           1        4        two   NUM  CD
+## 14     d2           1        5      years  NOUN NNS
+## 15     d2           1        6         in   ADP  IN
+## 16     d2           1        7      North PROPN NNP
+## 17     d2           1        8   Carolina PROPN NNP
+## 18     d2           1        9          . PUNCT   .
 ```
 
 The Penn Treebank is specific to English parts of speech.  For other language models, the detailed tagset will be based on a different scheme.  In the German language model, for instance, the universal tagset (`pos`) remains the same, but the detailed tagset (`tag`) is based on the [TIGER Treebank](https://spacy.io/models/de) scheme.  Each model's tags are listed under "Label scheme" on the [spaCy models web page](https://spacy.io/models).
 
 Direct parsing of texts is also possible, using **spacy_tokenize()**.  The options are designed to match those in the [`tokens()` function](https://quanteda.io/reference/tokens.html) from the **quanteda** package.  By default this returns a named list (where the document name is the list element name):
 
-```{r}
+
+``` r
 spacy_tokenize(txt)
+## $d1
+## [1] "spaCy"      "is"         "great"      "at"         "fast"      
+## [6] "natural"    "language"   "processing" "."         
+## 
+## $d2
+## [1] "Mr."      "Smith"    "spent"    "two"      "years"    "in"       "North"   
+## [8] "Carolina" "."
 ```
 
 but it can also output a data.frame:
 
-```{r}
+
+``` r
 spacy_tokenize(txt, remove_punct = TRUE, output = "data.frame") %>%
     tail()
+##    doc_id    token
+## 11     d2    spent
+## 12     d2      two
+## 13     d2    years
+## 14     d2       in
+## 15     d2    North
+## 16     d2 Carolina
 ```
 
 ## Extracting language properties from texts
@@ -89,58 +146,136 @@ spacy_tokenize(txt, remove_punct = TRUE, output = "data.frame") %>%
 
 **spacyr** can extract entities, either named or ["extended"](https://spacy.io/usage/linguistic-features#named-entities) from the output of `spacy_parse()`.
 
-```{r}
+
+``` r
 parsedtxt <- spacy_parse(txt, lemma = FALSE, entity = TRUE, nounphrase = TRUE)
 entity_extract(parsedtxt)
+##   doc_id sentence_id         entity entity_type
+## 1     d2           1          Smith      PERSON
+## 2     d2           1 North_Carolina         GPE
 ```
 
 "Extended" entities including entities such as dates, events, and cardinal or ordinal quantities.
 
-```{r}
+
+``` r
 entity_extract(parsedtxt, type = "all")
+##   doc_id sentence_id         entity entity_type
+## 1     d2           1          Smith      PERSON
+## 2     d2           1      two_years        DATE
+## 3     d2           1 North_Carolina         GPE
 ```
 
 One very useful feature is to use the consolidation functions to compound multi-word entities into single "tokens" (as they would in a language like German):
 
-```{r}
+
+``` r
 entity_consolidate(parsedtxt) %>%
     tail()
+##    doc_id sentence_id token_id          token    pos entity_type
+## 11     d2           1        2          Smith ENTITY      PERSON
+## 12     d2           1        3          spent   VERB            
+## 13     d2           1        4      two_years ENTITY        DATE
+## 14     d2           1        5             in    ADP            
+## 15     d2           1        6 North_Carolina ENTITY         GPE
+## 16     d2           1        7              .  PUNCT
 ```
 
 In a similar manner to named entity extraction, **spacyr** can extract or concatenate [noun phrases* (or [*noun chunks*](https://spacy.io/usage/linguistic-features#noun-chunks)).
 
-```{r}
+
+``` r
 nounphrase_extract(parsedtxt)
+##   doc_id sentence_id                       nounphrase
+## 1     d1           1 fast_natural_language_processing
+## 2     d2           1                        Mr._Smith
+## 3     d2           1                        two_years
+## 4     d2           1                   North_Carolina
 ```
 
 Just as with entities, noun phrases can also be consolidated into single "tokens":
 
-```{r}
+
+``` r
 nounphrase_consolidate(parsedtxt)
+##    doc_id sentence_id token_id                            token        pos
+## 1      d1           1        1                            spaCy        NUM
+## 2      d1           1        2                               is        AUX
+## 3      d1           1        3                            great        ADJ
+## 4      d1           1        4                               at        ADP
+## 5      d1           1        5 fast_natural_language_processing nounphrase
+## 6      d1           1        6                                .      PUNCT
+## 7      d2           1        1                        Mr._Smith nounphrase
+## 8      d2           1        2                            spent       VERB
+## 9      d2           1        3                        two_years nounphrase
+## 10     d2           1        4                               in        ADP
+## 11     d2           1        5                   North_Carolina nounphrase
+## 12     d2           1        6                                .      PUNCT
 ```
 
 If a user's only goal is entity or noun phrase extraction, then two functions make this easy without first parsing the entire text:
 
-```{r}
+
+``` r
 spacy_extract_entity(txt)
+##   doc_id           text ent_type start_id length
+## 1     d2          Smith   PERSON        2      1
+## 2     d2      two years     DATE        4      2
+## 3     d2 North Carolina      GPE        7      2
 spacy_extract_nounphrases(txt)
+##   doc_id                             text  root_text start_id root_id length
+## 1     d1 fast natural language processing processing        5       8      4
+## 2     d2                        Mr. Smith      Smith        1       2      2
+## 3     d2                        two years      years        4       5      2
+## 4     d2                   North Carolina   Carolina        7       8      2
 ```
 
 ### Dependency parsing
 
 Detailed parsing of syntactic dependencies is possible with the `dependency = TRUE` option:
-```{r}
+
+``` r
 spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
+##    doc_id sentence_id token_id      token head_token_id  dep_rel   entity
+## 1      d1           1        1      spaCy             2    nsubj         
+## 2      d1           1        2         is             2     ROOT         
+## 3      d1           1        3      great             2    acomp         
+## 4      d1           1        4         at             2     prep         
+## 5      d1           1        5       fast             8     amod         
+## 6      d1           1        6    natural             7     amod         
+## 7      d1           1        7   language             8 compound         
+## 8      d1           1        8 processing             4     pobj         
+## 9      d1           1        9          .             2    punct         
+## 10     d2           1        1        Mr.             2 compound         
+## 11     d2           1        2      Smith             3    nsubj PERSON_B
+## 12     d2           1        3      spent             3     ROOT         
+## 13     d2           1        4        two             5   nummod   DATE_B
+## 14     d2           1        5      years             3     dobj   DATE_I
+## 15     d2           1        6         in             3     prep         
+## 16     d2           1        7      North             8 compound    GPE_B
+## 17     d2           1        8   Carolina             6     pobj    GPE_I
+## 18     d2           1        9          .             3    punct
 ```
 
 ### Extracting additional token attributes
 
 It is also possible to extract additional [attributes of spaCy tokens](https://spacy.io/api/token#attributes) with the `additional_attributes` option.  For example, detecting numbers and email addresses:
 
-```{r}
+
+``` r
 spacy_parse("I have six email addresses, including me@mymail.com.", 
             additional_attributes = c("like_num", "like_email"),
             lemma = FALSE, pos = FALSE, entity = FALSE)
+##   doc_id sentence_id token_id         token like_num like_email
+## 1  text1           1        1             I    FALSE      FALSE
+## 2  text1           1        2          have    FALSE      FALSE
+## 3  text1           1        3           six     TRUE      FALSE
+## 4  text1           1        4         email    FALSE      FALSE
+## 5  text1           1        5     addresses    FALSE      FALSE
+## 6  text1           1        6             ,    FALSE      FALSE
+## 7  text1           1        7     including    FALSE      FALSE
+## 8  text1           1        8 me@mymail.com    FALSE       TRUE
+## 9  text1           1        9             .    FALSE      FALSE
 ```
 
 
@@ -148,24 +283,76 @@ spacy_parse("I have six email addresses, including me@mymail.com.",
 
 By default, **spacyr** loads an English language model. You also can load spaCy's other [language models](https://spacy.io/models) by giving the model's full name, or the path to a model directory, as the `model` option of `spacy_initialize()`. **spacyr** requires spaCy 3.0.0 or later, in which the short model names of spaCy 2, such as `"en"` or `"de"`, no longer work. The small models for some languages are:
 
-```{r echo = FALSE}
-knitr::kable(data.frame(Language = c("German", "Spanish", "Portuguese",  "French", "Italian", "Dutch"),
-                        Model = c("`de_core_news_sm`", "`es_core_news_sm`", "`pt_core_news_sm`",
-                                  "`fr_core_news_sm`", "`it_core_news_sm`", "`nl_core_news_sm`")) )
-```
+
+
+|Language   |Model             |
+|:----------|:-----------------|
+|German     |`de_core_news_sm` |
+|Spanish    |`es_core_news_sm` |
+|Portuguese |`pt_core_news_sm` |
+|French     |`fr_core_news_sm` |
+|Italian    |`it_core_news_sm` |
+|Dutch      |`nl_core_news_sm` |
+
+
 
 
 This is an example of parsing German texts.
 
-```{r}
+
+``` r
 ## first finalize the old instance of spaCy if it's loaded
 spacy_finalize()
 spacy_initialize(model = "de_core_news_sm")
+## successfully initialized (spaCy Version: 3.8.18, language model: de_core_news_sm)
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
 results_german <- spacy_parse(txt_german, dependency = FALSE, lemma = FALSE, tag = TRUE)
 results_german
+##    doc_id sentence_id token_id              token   pos   tag entity
+## 1       R           1        1                  R     X    XY       
+## 2       R           1        2                ist   AUX VAFIN       
+## 3       R           1        3               eine   DET   ART       
+## 4       R           1        4              freie   ADJ  ADJA       
+## 5       R           1        5 Programmiersprache  NOUN    NN       
+## 6       R           1        6                für   ADP  APPR       
+## 7       R           1        7       statistische   ADJ  ADJA       
+## 8       R           1        8       Berechnungen  NOUN    NN       
+## 9       R           1        9                und CCONJ   KON       
+## 10      R           1       10           Grafiken  NOUN    NN       
+## 11      R           1       11                  . PUNCT    $.       
+## 12      R           2        1                Sie  PRON  PPER       
+## 13      R           2        2              wurde   AUX VAFIN       
+## 14      R           2        3                von   ADP  APPR       
+## 15      R           2        4       Statistikern  NOUN    NN MISC_B
+## 16      R           2        5                für   ADP  APPR       
+## 17      R           2        6           Anwender  NOUN    NN       
+## 18      R           2        7                mit   ADP  APPR       
+## 19      R           2        8      statistischen   ADJ  ADJA       
+## 20      R           2        9           Aufgaben  NOUN    NN       
+## 21      R           2       10         entwickelt  VERB  VVPP       
+## 22      R           2       11                  . PUNCT    $.       
+## 23 python           1        1             Python  NOUN    NE MISC_B
+## 24 python           1        2                ist   AUX VAFIN       
+## 25 python           1        3               eine   DET   ART       
+## 26 python           1        4        universelle   ADJ  ADJA       
+## 27 python           1        5                  , PUNCT    $,       
+## 28 python           1        6      üblicherweise   ADV   ADV       
+## 29 python           1        7     interpretierte   ADJ  ADJA       
+## 30 python           1        8             höhere   ADJ  ADJA       
+## 31 python           1        9 Programmiersprache  NOUN    NN       
+## 32 python           1       10                  . PUNCT    $.       
+## 33 python           2        1                Sie  PRON  PPER       
+## 34 python           2        2               will   AUX VMFIN       
+## 35 python           2        3              einen   DET   ART       
+## 36 python           2        4                gut   ADV  ADJD       
+## 37 python           2        5           lesbaren   ADJ  ADJA       
+## 38 python           2        6                  , PUNCT    $,       
+## 39 python           2        7            knappen   ADJ  ADJA       
+## 40 python           2        8    Programmierstil  NOUN    NE       
+## 41 python           2        9            fördern  VERB VVINF       
+## 42 python           2       10                  . PUNCT    $.
 spacy_finalize()
 ```
 
@@ -179,74 +366,150 @@ The outputs and formats of **spacyr** are designed to integrate directly with th
 
 For instance, many of its functions operate directly on **spacyr** objects, such as a parsed text.  
 
-```{r}
+
+``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
 docnames(parsedtxt)
+## [1] "d1" "d2"
 ndoc(parsedtxt)
+## [1] 2
 ntoken(parsedtxt)
+## d1 d2 
+##  9  9
 ntype(parsedtxt)
+## d1 d2 
+##  9  9
 ```
 
 Conversion of tokens is easily performed, and the tokenizers in **spacyr** tend to be smarter than the purely syntactic pattern-based parsers used by **quanteda**.
 
-```{r}
+
+``` r
 spacy_initialize(model = "en_core_web_sm")
+## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)
 parsedtxt <- spacy_parse(txt, pos = TRUE, tag = TRUE)
 as.tokens(parsedtxt)
+## tokens of 2 documents (18 tokens, 17 types).
+## d1 :
+## [1] "spaCy"      "is"         "great"      "at"         "fast"      
+## [6] "natural"    "language"   "processing" "."         
+## 
+## d2 :
+## [1] "Mr."      "Smith"    "spent"    "two"      "years"    "in"       "North"   
+## [8] "Carolina" "."
 as.tokens(parsedtxt, include_pos = "pos")
+## tokens of 2 documents (18 tokens, 17 types).
+## d1 :
+## [1] "spaCy/NUM"       "is/AUX"          "great/ADJ"       "at/ADP"         
+## [5] "fast/ADJ"        "natural/ADJ"     "language/NOUN"   "processing/NOUN"
+## [9] "./PUNCT"        
+## 
+## d2 :
+## [1] "Mr./PROPN"      "Smith/PROPN"    "spent/VERB"     "two/NUM"       
+## [5] "years/NOUN"     "in/ADP"         "North/PROPN"    "Carolina/PROPN"
+## [9] "./PUNCT"
 as.tokens(parsedtxt, include_pos = "tag")
+## tokens of 2 documents (18 tokens, 17 types).
+## d1 :
+## [1] "spaCy/CD"      "is/VBZ"        "great/JJ"      "at/IN"        
+## [5] "fast/JJ"       "natural/JJ"    "language/NN"   "processing/NN"
+## [9] "./."          
+## 
+## d2 :
+## [1] "Mr./NNP"      "Smith/NNP"    "spent/VBD"    "two/CD"       "years/NNS"   
+## [6] "in/IN"        "North/NNP"    "Carolina/NNP" "./."
 ```
 
 The latter is useful for say, selecting only nouns, using "glob" pattern matching with **quanteda**'s `tokens_select()` function:
 
-```{r}
+
+``` r
 spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
     as.tokens(include_pos = "pos") %>%
     tokens_select(pattern = c("*/NOUN"))
+## tokens of 1 document (4 tokens, 4 types).
+## text1 :
+## [1] "cat/NOUN"  "hat/NOUN"  "eggs/NOUN" "ham/NOUN"
 ```
 
 Direct conversion of just the spaCy-based tokens is also possible:
 
-```{r}
+
+``` r
 spacy_tokenize(txt) %>%
     as.tokens()
+## tokens of 2 documents (18 tokens, 17 types).
+## d1 :
+## [1] "spaCy"      "is"         "great"      "at"         "fast"      
+## [6] "natural"    "language"   "processing" "."         
+## 
+## d2 :
+## [1] "Mr."      "Smith"    "spent"    "two"      "years"    "in"       "North"   
+## [8] "Carolina" "."
 ```
 
 including for sentences, for which spaCy's recognition is very smart:
 
-```{r}
+
+``` r
 txt2 <- "A Ph.D. in Washington D.C.  Mr. Smith went to Washington."
 spacy_tokenize(txt2, what = "sentence") %>%
     as.tokens()
+## tokens of 1 document (1 token, 1 type).
+## text1 :
+## [1] "A Ph.D. in Washington D.C.  Mr. Smith went to Washington."
 ```
 
 This also works well with entity recognition, e.g.
 
-```{r}
+
+``` r
 spacy_parse(txt, entity = TRUE) %>%
     entity_consolidate() %>%
     as.tokens() %>% 
     head(1)
+## tokens of 1 document (9 tokens, 15 types).
+## d1 :
+## [1] "spaCy"      "is"         "great"      "at"         "fast"      
+## [6] "natural"    "language"   "processing" "."
 ```
 
 ### With **tidytext**
 
 If you prefer a tidy approach to text analysis, **spacyr** works nicely because it returns parsed texts and (optionally) tokenized texts as data.frame-based objects. 
 
-```{r}
+
+``` r
 if (!requireNamespace("tidytext", quietly = TRUE))
   install.packages("tidytext", repos = "https://cran.rstudio.com/")
 library("tidytext")
 unnest_tokens(parsedtxt, word, token) %>%
     dplyr::anti_join(stop_words)
+## Joining with `by = join_by(word)`
+##   doc_id sentence_id token_id      lemma   pos tag   entity       word
+## 1     d1           1        1      spacy   NUM  CD               spacy
+## 2     d1           1        5       fast   ADJ  JJ                fast
+## 3     d1           1        6    natural   ADJ  JJ             natural
+## 4     d1           1        7   language  NOUN  NN            language
+## 5     d1           1        8 processing  NOUN  NN          processing
+## 6     d2           1        2      Smith PROPN NNP PERSON_B      smith
+## 7     d2           1        3      spend  VERB VBD               spent
+## 8     d2           1        7      North PROPN NNP    GPE_B      north
+## 9     d2           1        8   Carolina PROPN NNP    GPE_I   carolina
 ```
 
 Part of speech filtering can then happen using **dplyr**:
 
-```{r}
+
+``` r
 spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
     unnest_tokens(word, token) %>%
     dplyr::filter(pos == "NOUN")
+##   doc_id sentence_id token_id lemma  pos entity word
+## 1  text1           1        2   cat NOUN         cat
+## 2  text1           1        5   hat NOUN         hat
+## 3  text1           1        8   egg NOUN        eggs
+## 4  text1           1       10   ham NOUN         ham
 ```
 
 
@@ -259,7 +522,8 @@ spacy_parse("The cat in the hat ate green eggs and ham.", pos = TRUE) %>%
 
 When `spacy_initialize()` is executed, the spaCy language model is loaded into the Python session that **reticulate** runs alongside R. This can take up a significant size of memory especially when a larger language model is used (e.g. [en_core_web_lg](https://spacy.io/models/en#en_core_web_lg)). When you do not need the connection to spaCy any longer, you can remove the spaCy object by calling the `spacy_finalize()` function.
 
-```{r, eval = FALSE}
+
+``` r
 spacy_finalize()
 ```
 
