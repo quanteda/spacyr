@@ -136,3 +136,25 @@ test_that("spacy_finalize() frees the pipeline while a handle is kept", {
   # the handle still reads its documents
   expect_identical(quiet(get_tokens(sp)), c("Hello", "world", "."))
 })
+
+test_that("get_*() work on a handle with no documents", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  sp <- quiet(process_document(character(0)))
+  expect_length(sp$timestamps, 0)
+  quiet({
+    # previously, an empty handle made Python parse texts with the pipeline
+    # that the handle has released
+    expect_null(get_noun_phrases(sp))
+    expect_identical(get_dependency(sp)$head_id, numeric(0))
+    expect_length(get_dependency(sp)$dep_rel, 0)
+    expect_length(get_tokens(sp), 0)
+    expect_length(get_tags(sp), 0)
+    expect_length(get_attrs(sp, "is_punct"), 0)
+    expect_length(get_named_entities(sp), 0)
+    expect_length(get_ntokens(sp), 0)
+    expect_length(get_ntokens_by_sent(sp), 0)
+  })
+})

@@ -139,7 +139,9 @@ get_dependency <- function(spacy_out) {
         "tokens within each sentence rather than each document (see ",
         "?get_dependency)"))
     spobj <- handle_spobj(spacy_out)
-    head_id <- spobj$dep_head_id(spacy_out$timestamps) + 1 # + 1 is for fixing the start index to 1
+    # + 1 is for fixing the start index to 1; unlist() makes the empty list
+    # of a handle with no documents numeric(0)
+    head_id <- unlist(spobj$dep_head_id(spacy_out$timestamps)) + 1
     dep_rel <- spobj$attributes(spacy_out$timestamps, "dep_")
     return(list(head_id = head_id, dep_rel = dep_rel))
 }
@@ -152,7 +154,11 @@ get_dependency <- function(spacy_out) {
 get_noun_phrases <- function(spacy_out) {
     deprecate_get("get_noun_phrases", "`spacy_extract_nounphrases()`")
     `:=` <- start_id <- root_id <- NULL
-    noun_phrases <- handle_spobj(spacy_out)$extract_nounphrases_dataframe(
+    spobj <- handle_spobj(spacy_out)
+    # with no documents, Python would take the empty timestamps for no
+    # timestamps, and parse texts with the pipeline the handle has released
+    if (length(spacy_out$timestamps) == 0) return(NULL)
+    noun_phrases <- spobj$extract_nounphrases_dataframe(
         timestamps = spacy_out$timestamps,
         docnames = spacy_out$docnames)
 
