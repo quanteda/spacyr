@@ -1,10 +1,9 @@
-pandoc: 3.1.1
-pkgdown: 2.0.7
+pandoc: '3.11'
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   using_spacyr: using_spacyr.html
-last_built: 2023-12-06T08:17Z
+last_built: 2026-11-07T13:41Z
 urls:
-  reference: http://spacyr.quanteda.io/reference
-  article: http://spacyr.quanteda.io/articles
-
+  reference: https://spacyr.quanteda.io/reference
+  article: https://spacyr.quanteda.io/articles

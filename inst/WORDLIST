@@ -29,9 +29,11 @@ OntoNotes
 ORG
 parsers
 PyPI
+pkgdown
 quanteda
 reticulate
 rmarkdown
+rsp
 RStudio
 Rsession
 segmenter

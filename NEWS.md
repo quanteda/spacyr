@@ -26,6 +26,7 @@
 ## Documentation
 
 * The vignette and help pages are updated for spaCy 3: language models are named in full (for example `de_core_news_sm` rather than `de`), links to spaCy's documentation point to its current pages, and the `spacy_parse()` description no longer mentions options that do not exist. The help for `entity_extract()` and `spacy_extract_entity()` now lists which entity types count as extended.
+* The vignette is now precomputed: its source is `vignettes/using_spacyr.Rmd.orig`, which `make vignette` knits, with spaCy, into `vignettes/using_spacyr.Rmd`, so that R and pkgdown build it without running its code. It replaces the static HTML vignette built with **R.rsp**, which had not been updated with the vignette's source, and **R.rsp** is no longer a suggested package. The pkgdown site is rebuilt with pkgdown 2.2.1.
 
 ## Tests
 
