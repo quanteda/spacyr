@@ -89,9 +89,7 @@ spacy_finalize <- function() {
   if (is.null(getOption("spacy_initialized"))) {
     stop("Nothing to finalize. spaCy is not initialized")
   }
-  # drop the references to the parsed documents and the pipeline, then let
-  # Python release their memory
-  spacyr_env$spobj <- NULL
+  # drop the reference to the pipeline, then let Python release its memory
   spacyr_env$nlp <- NULL
   gc()
   reticulate::import("gc")$collect()

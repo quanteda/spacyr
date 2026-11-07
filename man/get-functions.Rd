@@ -10,7 +10,7 @@
 \alias{get_noun_phrases}
 \alias{get_ntokens}
 \alias{get_ntokens_by_sent}
-\title{get functions for spaCy}
+\title{Get results from documents processed by spaCy (deprecated)}
 \usage{
 get_tokens(spacy_out)
 
@@ -29,7 +29,7 @@ get_ntokens(spacy_out)
 get_ntokens_by_sent(spacy_out)
 }
 \arguments{
-\item{spacy_out}{a spacy_out object}
+\item{spacy_out}{the result of \code{\link[=process_document]{process_document()}}}
 
 \item{tagset}{character label for the tagset to use, either \code{"google"}
 or \code{"detailed"} to use the simplified Google tagset, or the more detailed
@@ -40,37 +40,55 @@ scheme from the Penn Treebank (or the German Text Archive in case of German lang
 \item{deal_utf8}{not used; kept for compatibility}
 }
 \value{
-\code{get_tokens} returns a data.frame of tokens from spaCy.
+\code{get_tokens()} returns a character vector of the tokens of all the
+documents.
 
-\code{get_tags} returns a tokenized text object with part-of-speech tags.
-Options exist for using either the Google or Detailed tagsets. See
-\url{https://spacy.io}.
+\code{get_tags()} returns a character vector of the part-of-speech tags
+of all the tokens.
 
-\code{get_attrs} returns a list of attributes from spaCy output
+\code{get_attrs()} returns the values of the attribute for all the
+tokens.
 
-\code{get_named_entities} returns a list of named entities in texts
+\code{get_named_entities()} returns a character vector of the entity
+tags of all the tokens.
 
-\code{get_dependency} returns a data.frame of dependency relations.
+\code{get_dependency()} returns a list of the head token IDs
+(\code{head_id}) and the dependency relations (\code{dep_rel}) of all the tokens.
 
-\code{get_noun_phrases} returns a data.frame of noun phrases.
+\code{get_noun_phrases()} returns a data.frame of noun phrases.
 
-\code{get_ntokens} returns a data.frame of dependency relations
+\code{get_ntokens()} returns the number of tokens in each document.
 
-\code{get_ntokens_by_sent} returns a data.frame of dependency
-relations, by sentence
+\code{get_ntokens_by_sent()} returns a list of the number of tokens in
+each sentence, for each document.
 }
 \description{
-A collection of get methods for spacyr return objects (of \code{spacy_out} class).
-}
-\examples{
-\dontrun{
-# get_tags examples
-txt <- c(text1 = "This is the first sentence.\nHere is the second sentence.", 
-         text2 = "This is the second document.")
-results <- spacy_parse(txt)
-tokens <- tokens(results)
-tokens_with_tag <- tokens_tag(tokens)
+These functions are deprecated, and will be removed in a future version of
+\pkg{spacyr}. They give a warning on every call. \code{\link[=spacy_parse]{spacy_parse()}} returns all
+of their results in one data.frame, one row per token:
+\itemize{
+\item \code{get_tokens()}: the \code{token} column;
+\item \code{get_tags()}: the \code{pos} column, or \code{tag} with \code{spacy_parse(x, tag = TRUE)};
+\item \code{get_attrs()}: \code{spacy_parse(x, additional_attributes = attr_name)};
+\item \code{get_named_entities()}: the \code{entity} column;
+\item \code{get_dependency()}: the \code{head_token_id} and \code{dep_rel} columns of
+\code{spacy_parse(x, dependency = TRUE)}. Note that \code{head_token_id} numbers
+the tokens within each sentence, while the \code{head_id} of
+\code{get_dependency()} numbers them within each document. To number the head
+tokens within each document, add the number of tokens in the document's
+earlier sentences:
 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{parsed <- spacy_parse(x, dependency = TRUE)
+head_id <- parsed$head_token_id +
+  ave(seq_len(nrow(parsed)), parsed$doc_id, FUN = seq_along) -
+  parsed$token_id
+}\if{html}{\out{</div>}}
+\item \code{get_ntokens()} and \code{get_ntokens_by_sent()}: count the rows by \code{doc_id},
+and by \code{doc_id} and \code{sentence_id};
+\item \code{get_noun_phrases()}: \code{\link[=spacy_extract_nounphrases]{spacy_extract_nounphrases()}}.
 }
+
+Each reads the documents held by the result of \code{\link[=process_document]{process_document()}},
+which are not affected by later calls to other \pkg{spacyr} functions.
 }
 \keyword{internal}

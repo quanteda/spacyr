@@ -181,6 +181,12 @@ class spacyr:
             epoch_nanos[id_] = epoch_nano
         return epoch_nanos
 
+    def release_pipeline(self):
+        # Drop the reference to the pipeline, so that it can be freed (for
+        # instance by spacy_finalize()) while the parsed documents are kept.
+        # The documents keep only the vocabulary they share with it.
+        self.nlp = None
+
     def parse_table(self, texts, docnames, lemma = True, pos = True, tag = False,
                     dependency = False, entity = True, nounphrase = False,
                     attributes = None, batch_size = None, n_process = 1):
@@ -365,24 +371,6 @@ class spacyr:
         attr_name = "tag_" if tag_type == "detailed" else "pos_"
         all_tokens = self.attributes(timestamps, attr_name)
         return all_tokens
-
-    def run_entity(self, timestamps):
-        if isinstance(timestamps, list) == False:
-            timestamps = [timestamps]
-        for ts in timestamps:
-            self.nlp.entity(self.documents[ts])
-
-    def run_tagger(self, timestamps):
-        if isinstance(timestamps, list) == False:
-            timestamps = [timestamps]
-        for ts in timestamps:
-            self.nlp.tagger(self.documents[ts])
-
-    def run_dependency_parser(self, timestamps):
-        if isinstance(timestamps, list) == False:
-            timestamps = [timestamps]
-        for ts in timestamps:
-            self.nlp.parser(self.documents[ts])
 
     def list_entities(self, timestamps):
         all_entities = {}
