@@ -16,6 +16,11 @@
 * When a pipeline component fails on a document and the pipeline's error handler suppresses the error, spaCy's `nlp.pipe()` leaves that document out. **spacyr** now keeps the names of the other documents, leaves the failed document out of the output and warns about it. Previously, the results of later documents could be assigned to the wrong document names, and `spacy_parse()` failed.
 * spacyr now loads its Python code as a module with `reticulate::import_from_path()` and calls its functions with arguments, instead of running Python code in the `__main__` namespace and passing data through global variables there. As a result, spacyr no longer creates the Python variables `nlp`, `spobj`, `texts` and others in `__main__`, so code that read `reticulate::py$nlp` after `spacy_initialize()` no longer works.
 
+* `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` now share one function for checking and preparing their input, which fixes three edge cases:
+    * A TIF data.frame whose `doc_id` or `text` column is a factor, as `data.frame()` made them by default before R 4.0, is now accepted. Previously it failed with "no applicable method".
+    * A document name that is `NA` now gives the error "Some docnames are missing." Previously it failed with "missing value where TRUE/FALSE needed".
+    * An empty character vector no longer gives a warning that two documents (`text1` and `text0`) were left out.
+
 ## Documentation
 
 * The vignette and help pages are updated for spaCy 3: language models are named in full (for example `de_core_news_sm` rather than `de`), links to spaCy's documentation point to its current pages, and the `spacy_parse()` description no longer mentions options that do not exist. The help for `entity_extract()` and `spacy_extract_entity()` now lists which entity types count as extended.

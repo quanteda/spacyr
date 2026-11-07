@@ -58,23 +58,9 @@ spacy_extract_entity.character <- function(x,
 
     output <- match.arg(output)
 
-    if (!is.null(names(x))) {
-        docnames <- names(x)
-    } else {
-        docnames <- paste0("text", 1:length(x))
-    }
-
-    if (all(!duplicated(docnames)) == FALSE) {
-        stop("Docnames are duplicated.")
-    } else if (all(nchar(docnames) > 0L) == FALSE) {
-        stop("Some docnames are missing.")
-    }
-
-    if (is.null(options()$spacy_initialized)) spacy_initialize()
-
-    x <- as.character(x)
-    x[is.na(x)] <- "" # missing documents are treated as empty
-    x <- unname(x)
+    input <- spacy_input(x)
+    x <- input$x
+    docnames <- input$docnames
 
     ## run entity extraction
     spobj <- new_spobj()
@@ -120,12 +106,5 @@ spacy_extract_entity.character <- function(x,
 #' @method spacy_extract_entity data.frame
 #' @export
 spacy_extract_entity.data.frame <- function(x, ...) {
-
-    # insert compliance check here - replace with tif package
-    if (!all(c("doc_id", "text") %in% names(x)))
-        stop("input data.frame does not conform to the TIF standard")
-
-    txt <- x$text
-    names(txt) <- x$doc_id
-    spacy_extract_entity(txt, ...)
+    spacy_extract_entity(tif_texts(x), ...)
 }
