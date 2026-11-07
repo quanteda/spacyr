@@ -1,23 +1,20 @@
 #' Parse a text using spaCy
 #' 
 #' The `spacy_parse()` function calls spaCy to both tokenize and tag the
-#' texts, and returns a data.table of the results. The function provides options
-#' on the types of tagsets (`tagset_` options) either  `"google"` or
-#' `"detailed"`, as well as lemmatization (`lemma`). It provides a
-#' functionalities of dependency parsing and named entity recognition as an
-#' option. If `"full_parse = TRUE"` is provided, the function returns the
-#' most extensive list of the parsing results from spaCy.
+#' texts, and returns a data.frame of the results, with one row per token. The
+#' function provides options for universal (`pos`) and detailed (`tag`)
+#' part-of-speech tags, lemmatization (`lemma`), named entity recognition
+#' (`entity`), dependency parsing (`dependency`), noun phrases (`nounphrase`),
+#' and any other token attributes from spaCy (`additional_attributes`).
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
+#'   corpus data.frame (see <https://github.com/ropensci/tif>)
 #' @param pos logical whether to return universal dependency POS tagset
-#'   <https://universaldependencies.org/u/pos/>)
-#' @param tag logical whether to return detailed part-of-speech tags, for the
-#'   language model `en`, it uses the OntoNotes 5 version of the Penn
-#'   Treebank tag set
-#'   (<https://spacy.io/docs/usage/pos-tagging#pos-schemes>). Annotation
-#'   specifications for other available languages are available on the spaCy
-#'   website (<https://spacy.io/api/annotation>).
+#'   (<https://universaldependencies.org/u/pos/>)
+#' @param tag logical whether to return detailed part-of-speech tags; the
+#'   English language models use the OntoNotes 5 version of the Penn
+#'   Treebank tag set (<https://spacy.io/models/en>). The tag sets of other language
+#'   models are listed under "Label scheme" on <https://spacy.io/models>.
 #' @param lemma logical; include lemmatized tokens in the output (the quality
 #'   of lemmatization depends on the language model)
 #' @param entity logical; if `TRUE`, report named entities

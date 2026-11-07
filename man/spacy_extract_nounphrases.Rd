@@ -15,7 +15,7 @@ spacy_extract_nounphrases(
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant corpus data.frame (see
-\url{https://github.com/ropenscilabs/tif})}
+\url{https://github.com/ropensci/tif})}
 
 \item{output}{type of returned object, either \code{"data.frame"} or
 \code{"list"}}

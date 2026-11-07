@@ -21,17 +21,15 @@ spacy_parse(
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
+corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{pos}{logical whether to return universal dependency POS tagset
-\url{https://universaldependencies.org/u/pos/})}
+(\url{https://universaldependencies.org/u/pos/})}
 
-\item{tag}{logical whether to return detailed part-of-speech tags, for the
-language model \code{en}, it uses the OntoNotes 5 version of the Penn
-Treebank tag set
-(\url{https://spacy.io/docs/usage/pos-tagging#pos-schemes}). Annotation
-specifications for other available languages are available on the spaCy
-website (\url{https://spacy.io/api/annotation}).}
+\item{tag}{logical whether to return detailed part-of-speech tags; the
+English language models use the OntoNotes 5 version of the Penn
+Treebank tag set (\url{https://spacy.io/models/en}). The tag sets of other language
+models are listed under "Label scheme" on \url{https://spacy.io/models}.}
 
 \item{lemma}{logical; include lemmatized tokens in the output (the quality
 of lemmatization depends on the language model)}
@@ -77,12 +75,11 @@ a \code{data.frame} of tokenized, parsed, and annotated tokens
 }
 \description{
 The \code{spacy_parse()} function calls spaCy to both tokenize and tag the
-texts, and returns a data.table of the results. The function provides options
-on the types of tagsets (\code{tagset_} options) either  \code{"google"} or
-\code{"detailed"}, as well as lemmatization (\code{lemma}). It provides a
-functionalities of dependency parsing and named entity recognition as an
-option. If \code{"full_parse = TRUE"} is provided, the function returns the
-most extensive list of the parsing results from spaCy.
+texts, and returns a data.frame of the results, with one row per token. The
+function provides options for universal (\code{pos}) and detailed (\code{tag})
+part-of-speech tags, lemmatization (\code{lemma}), named entity recognition
+(\code{entity}), dependency parsing (\code{dependency}), noun phrases (\code{nounphrase}),
+and any other token attributes from spaCy (\code{additional_attributes}).
 }
 \examples{
 \dontrun{

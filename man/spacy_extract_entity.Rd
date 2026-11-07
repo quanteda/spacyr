@@ -16,15 +16,16 @@ spacy_extract_entity(
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
+corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
 \item{output}{type of returned object, either \code{"list"} or
 \code{"data.frame"}.}
 
 \item{type}{type of named entities, either \code{named}, \code{extended}, or
-\code{all}.  See
-\url{https://spacy.io/docs/usage/entity-recognition#entity-types} for
-details.}
+\code{all}. Extended entities are those of types \code{DATE}, \code{TIME}, \code{PERCENT},
+\code{MONEY}, \code{QUANTITY}, \code{ORDINAL} and \code{CARDINAL}, and named entities are those
+of all other types. The entity types are those of the language model;
+see its "Label scheme" on \url{https://spacy.io/models}.}
 
 \item{multithread}{deprecated; it no longer has any effect, and gives a
 warning if supplied. Documents are always processed in
@@ -51,7 +52,7 @@ either a \code{list} or \code{data.frame} of tokens
 \description{
 This function extracts named entities from texts, based on the entity tag
 \code{ent} attributes of documents objects parsed by spaCy (see
-\url{https://spacy.io/usage/linguistic-features#section-named-entities}).
+\url{https://spacy.io/usage/linguistic-features#named-entities}).
 }
 \details{
 When the option \code{output = "data.frame"} is selected, the
