@@ -95,11 +95,10 @@ spacy_parse.character <- function(x,
                                   n_process = 1L,
                                   batch_size = NULL,
                                   ...) {
-    x <- structure(as.character(x), names = names(x))
     `:=` <- `.` <- `.N` <- `.I` <- NULL
     check_multithread(multithread, "spacy_parse")
     args <- pipe_args(n_process, batch_size)
-    input <- parse_input(x)
+    input <- spacy_input(x)
 
     ## check the omit_entity status
     if (entity == TRUE & getOption("spacy_entity") == FALSE) {
@@ -143,14 +142,7 @@ spacy_parse.character <- function(x,
 
 #' @export
 spacy_parse.data.frame <- function(x, ...) {
-
-    # insert compliance check here - replace with tif package
-    if (!all(c("doc_id", "text") %in% names(x)))
-        stop("input data.frame does not conform to the TIF standard")
-
-    txt <- x$text
-    names(txt) <- x$doc_id
-    spacy_parse(txt, ...)
+    spacy_parse(tif_texts(x), ...)
 }
 
 
@@ -182,7 +174,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' @keywords internal
 process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, ...) {
     # This function passes texts to python and spacy
-    input <- parse_input(x)
+    input <- spacy_input(x)
     spobj <- new_spobj()
     # named by document; a document that the pipeline left out has none
     timestamps <- unlist(spobj$parse(input$x, input$docnames, batch_size = batch_size,
@@ -193,26 +185,6 @@ process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, 
     output <- spacy_out$new(docnames = docnames,
                             timestamps = timestamps)
     return(output)
-}
-
-
-# Document names and texts for spaCy, initializing spaCy if needed: missing
-# names are set to text1, text2, ..., and NA documents are treated as empty.
-parse_input <- function(x) {
-    if (!is.null(names(x))) {
-        docnames <- names(x)
-    } else {
-        docnames <- paste0("text", 1:length(x))
-    }
-    if (all(!duplicated(docnames)) == FALSE) {
-        stop("Docnames are duplicated.")
-    } else if (all(nchar(docnames) > 0L) == FALSE) {
-        stop("Some docnames are missing.")
-    }
-
-    if (is.null(options()$spacy_initialized)) spacy_initialize()
-    x[is.na(x)] <- "" # missing documents are treated as empty
-    list(x = unname(x), docnames = docnames)
 }
 
 
