@@ -60,6 +60,19 @@ test_that("pip-style specs are checked against the minimum spaCy version", {
   expect_null(spacyr:::spacy_pypi_url("<3.8"))
 })
 
+test_that("parenthesized pip-style specs are normalized before checking", {
+  expect_identical(spacyr:::spacy_pkg_spec("(>=3.7,<3.8)"), "spacy>=3.7,<3.8")
+  expect_identical(spacyr:::spacy_pkg_spec(" ( >=3.7, <3.8 ) "), "spacy>=3.7, <3.8")
+  expect_identical(spacyr:::spacy_pkg_spec("(<3.8)"), "spacy<3.8,>=3.0.0")
+  expect_identical(spacyr:::spacy_pkg_spec("[cuda102](>=3.7,<3.8)"),
+                   "spacy[cuda102]>=3.7,<3.8")
+  expect_identical(spacyr:::spacy_pkg_spec("(==3.8.13)"), "spacy==3.8.13")
+  expect_identical(spacyr:::spacy_pkg_version("(==3.8.13)"), "3.8.13")
+  expect_identical(spacyr:::spacy_pkg_spec("[cuda102] (==3.2.0)"), "spacy[cuda102]==3.2.0")
+  for (v in c("(<3)", "(==2.3.9)", "[cuda102](==2.3.9)"))
+    expect_error(spacyr:::spacy_pkg_spec(v), "allows no such version", info = v)
+})
+
 test_that("spacy_install() stops before installing an unsupported version", {
   local_mocked_bindings(
     virtualenv_exists = function(...) stop("should not be reached"),

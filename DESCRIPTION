@@ -33,7 +33,7 @@ Suggests:
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
-RoxygenNote: 7.2.3
 Language: en-GB
 VignetteBuilder: R.rsp
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.1

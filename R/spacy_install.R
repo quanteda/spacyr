@@ -159,8 +159,13 @@ spacy_pkg_spec <- function(version) {
 # (a pin, compatible release or upper bound below 3.0.0), and add ">=3.0.0" if
 # it sets no lower bound of its own at 3 or above.
 spacy_spec_floor <- function(spec) {
-  constraints <- sub("^spacy(\\[[^]]*\\])?", "", spec)
-  if (!nzchar(trimws(constraints))) return(spec)
+  name <- regmatches(spec, regexpr("^spacy(\\[[^]]*\\])?", spec))
+  constraints <- trimws(substring(spec, nchar(name) + 1))
+  # pip accepts the older form "spacy(>=3.7,<3.8)"; drop the parentheses so
+  # that the minimum can be added after the range
+  constraints <- trimws(sub("^\\((.*)\\)$", "\\1", constraints))
+  if (!nzchar(constraints)) return(name)
+  spec <- paste0(name, constraints)
   minimum <- numeric_version("3.0.0")
   has_floor <- FALSE
   for (clause in trimws(strsplit(constraints, ",", fixed = TRUE)[[1]])) {
