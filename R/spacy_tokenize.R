@@ -69,28 +69,11 @@ spacy_tokenize.character <- function(x,
     # checked before spaCy is initialized
     check_multithread(multithread, "spacy_tokenize")
     args <- pipe_args(n_process, batch_size)
-    x <- structure(as.character(x), names = names(x))
     output <- match.arg(output)
     what <- match.arg(what)
-
-    if (!is.null(names(x))) {
-        docnames <- names(x)
-    } else {
-        docnames <- paste0("text", 1:length(x))
-    }
-
-
-    if (all(!duplicated(docnames)) == FALSE) {
-        stop("Docnames are duplicated.")
-    } else if (all(nchar(docnames) > 0L) == FALSE) {
-        stop("Some docnames are missing.")
-    }
-
-    if (is.null(options()$spacy_initialized)) spacy_initialize()
-
-
-    x[is.na(x)] <- "" # missing documents are treated as empty
-    x <- unname(x)
+    input <- spacy_input(x)
+    x <- input$x
+    docnames <- input$docnames
 
     spobj <- new_spobj()
     if (identical(what, "sentence")){
@@ -129,12 +112,5 @@ spacy_tokenize.character <- function(x,
 
 #' @export
 spacy_tokenize.data.frame <- function(x, ...) {
-
-    # insert compliance check here - replace with tif package
-    if (!all(c("doc_id", "text") %in% names(x)))
-        stop("input data.frame does not conform to the TIF standard")
-
-    txt <- x$text
-    names(txt) <- x$doc_id
-    spacy_tokenize(txt, ...)
+    spacy_tokenize(tif_texts(x), ...)
 }
