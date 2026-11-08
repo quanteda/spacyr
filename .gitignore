@@ -21,3 +21,7 @@ CRAN-RELEASE
 revdep
 /doc/
 /Meta/
+# output of rendering the precomputed vignette in place (R CMD build makes
+# the package's copy in inst/doc)
+vignettes/*.html
+vignettes/*_files/
