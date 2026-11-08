@@ -40,7 +40,7 @@ present on the system and installs one via
 Python supported by the spaCy release being installed, as declared on
 PyPI (if PyPI cannot be reached, any Python found is used). It then
 creates a virtual environment with the necessary packages in the default
-location chosen by \code{\link[reticulate:virtualenv-tools]{reticulate::virtualenv_root()}}.
+location chosen by \code{\link[reticulate:virtualenv_root]{reticulate::virtualenv_root()}}.
 For a spaCy version range, pip selects a release compatible with the
 environment's Python.
 
