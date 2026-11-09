@@ -152,3 +152,40 @@ test_that("spacy_installed() respects the Python already bound to reticulate", {
   active_env <- configured_env
   expect_true(spacy_installed())
 })
+
+test_that("model downloads are tried again after a failure", {
+  waits <- numeric(0)
+  statuses <- c(1L, 1L, 0L)
+  calls <- 0
+  local_mocked_bindings(
+    run_python = function(bin, args) {
+      calls <<- calls + 1
+      statuses[calls]
+    },
+    pause = function(seconds) waits <<- c(waits, seconds),
+    .package = "spacyr"
+  )
+  expect_message(
+    expect_identical(spacyr:::download_with_retries("python", c("-m", "spacy", "download", "xx"), "xx"),
+                     0L),
+    "Downloading xx failed; trying again in 30 seconds")
+  expect_identical(calls, 3)
+  expect_identical(waits, c(10, 30))
+
+  # a first success needs no retry
+  calls <- 0
+  waits <- numeric(0)
+  statuses <- 0L
+  expect_silent(spacyr:::download_with_retries("python", "x", "xx"))
+  expect_identical(calls, 1)
+  expect_identical(waits, numeric(0))
+
+  # every attempt failing gives a warning and the last status
+  calls <- 0
+  statuses <- c(1L, 1L, 2L)
+  expect_warning(
+    suppressMessages(expect_identical(
+      spacyr:::download_with_retries("python", "x", "xx"), 2L)),
+    "Downloading xx failed after 3 attempts")
+  expect_identical(calls, 3)
+})

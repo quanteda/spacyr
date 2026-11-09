@@ -3,7 +3,12 @@
 #' @inheritParams spacy_install
 #' 
 #' @return Invisibly returns the installation log.
-#' 
+#'
+#' @details Models are downloaded from GitHub. If a download fails, for
+#'   instance because of a temporary server error, it is tried twice more,
+#'   after 10 and 30 seconds, and a warning is given if all three attempts
+#'   fail.
+#'
 #' @export
 #'
 #' @examples
@@ -32,13 +37,35 @@ spacy_download_langmodel <- function(lang_models = "en_core_web_sm",
     Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")
   ))
   args <- c("-m", "spacy", "download")
-  
+
   invisible(lapply(lang_models, function(m) {
     message("Executing command:\n", paste(c(bin, args, m), collapse = " "))
-    system2(bin, args = c(args, m))
+    download_with_retries(bin, c(args, m), m)
   }))
-  
+
 }
+
+# Run a model download, trying again after a pause if it fails. Downloads come
+# from GitHub, which sometimes answers with a temporary server error (such as
+# 504), and pip does not retry those. Returns the exit status of the last
+# attempt, and warns if every attempt failed.
+download_with_retries <- function(bin, args, model, waits = c(10, 30)) {
+  status <- run_python(bin, args)
+  for (wait in waits) {
+    if (identical(as.integer(status), 0L)) break
+    message("Downloading ", model, " failed; trying again in ", wait, " seconds")
+    pause(wait)
+    status <- run_python(bin, args)
+  }
+  if (!identical(as.integer(status), 0L))
+    warning("Downloading ", model, " failed after ", length(waits) + 1,
+            " attempts", call. = FALSE)
+  status
+}
+
+# wrappers, so that tests can replace them
+run_python <- function(bin, args) system2(bin, args = args)
+pause <- function(seconds) Sys.sleep(seconds)
 
 
 #' Install a language model in a conda or virtual environment
