@@ -290,3 +290,90 @@ test_that("bad file arguments are errors", {
   expect_error(entity_patterns_read(csv), "file must have the extension .jsonl, .json or .txt")
   expect_error(entity_patterns_write(c(ORG = "a"), NA_character_), "file must be a single file path")
 })
+
+test_that("IN and NOT_IN values lose their names, and lowercase operators are lists too", {
+  x <- as_entity_patterns(list(label = "X", pattern = list(
+    list(LOWER = list(IN = c(first = "apple", second = "pear"))),
+    list(LOWER = list(`in` = "apple")),
+    list(LOWER = list(not_in = list(a = "b")))
+  )))
+  p <- x$pattern[[1]]
+  expect_identical(p[[1]], list(LOWER = list(IN = list("apple", "pear"))))
+  expect_identical(p[[2]], list(LOWER = list(`in` = list("apple"))))
+  expect_identical(p[[3]], list(LOWER = list(not_in = list("b"))))
+  skip_if_not_installed("jsonlite")
+  file <- tempfile(fileext = ".jsonl")
+  on.exit(unlink(file), add = TRUE)
+  entity_patterns_write(x, file)
+  expect_identical(readLines(file), paste0(
+    '{"label":"X","pattern":[{"LOWER":{"IN":["apple","pear"]}},',
+    '{"LOWER":{"in":["apple"]}},{"LOWER":{"not_in":["b"]}}]}'))
+  expect_identical(entity_patterns_read(file), x)
+})
+
+test_that("entity_patterns_write() needs a .jsonl file, and leaves other files alone", {
+  skip_if_not_installed("jsonlite")
+  for (ext in c(".json", ".txt", "")) {
+    file <- tempfile(fileext = ext)
+    writeLines("keep", file)
+    expect_error(entity_patterns_write(c(ORG = "a", GPE = "b"), file),
+                 "file must have the extension .jsonl")
+    expect_identical(readLines(file), "keep")
+    unlink(file)
+  }
+})
+
+test_that("an edited object is checked again before it is used or written", {
+  x <- as_entity_patterns(c(ORG = "Acme", GPE = "Paris"))
+  y <- x
+  y$pattern <- NULL
+  expect_error(as_entity_patterns(y), "x is missing the columns: pattern")
+  y <- x
+  y$id <- NULL
+  expect_error(as_entity_patterns(y), "x is missing the columns: id")
+  y <- x
+  y$label <- c(1, 2)
+  expect_error(as_entity_patterns(y), "x has columns of the wrong type")
+  y <- x
+  y$pattern[[2]] <- ""
+  expect_error(as_entity_patterns(y), "Pattern 2 is not a single, non-empty phrase")
+  # edits that leave valid patterns are normalized again
+  y <- x
+  y$pattern[[1]] <- list(list(LOWER = list(IN = "acme")))
+  expect_identical(as_entity_patterns(y)$pattern[[1]],
+                   list(list(LOWER = list(IN = list("acme")))))
+  expect_identical(as_entity_patterns(y)$case_insensitive, c(NA, FALSE))
+  expect_error(c(x, y[, c("label", "id")]), "x is missing the columns")
+
+  skip_if_not_installed("jsonlite")
+  file <- tempfile(fileext = ".jsonl")
+  on.exit(unlink(file), add = TRUE)
+  entity_patterns_write(x, file)
+  before <- readLines(file)
+  y <- x
+  y$pattern <- NULL
+  expect_error(entity_patterns_write(y, file), "x is missing the columns: pattern")
+  expect_identical(readLines(file), before)
+})
+
+test_that("c() ignores its own arguments and the names of its arguments", {
+  x <- as_entity_patterns(c(ORG = "Acme"))
+  y <- as_entity_patterns(c(GPE = "Paris"))
+  expect_identical(c(x, y, use.names = FALSE), c(x, y))
+  expect_identical(c(x, y, recursive = TRUE), c(x, y))
+  z <- do.call(c, list(companies = x, places = y))
+  expect_identical(z, c(x, y))
+  expect_null(names(z$pattern))
+  skip_if_not_installed("jsonlite")
+  file <- tempfile(fileext = ".jsonl")
+  on.exit(unlink(file), add = TRUE)
+  entity_patterns_write(z, file)
+  expect_identical(entity_patterns_read(file), z)
+})
+
+test_that("names on the input do not reach the pattern column", {
+  df <- data.frame(label = "ORG")
+  df$pattern <- list(a = "Acme")
+  expect_null(names(as_entity_patterns(df)$pattern))
+  expect_null(names(as_entity_patterns(list(a = list(label = "ORG", pattern = "Acme")))$pattern))
+})

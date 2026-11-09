@@ -30,7 +30,8 @@ its own, rather than in a list of patterns.
 \item a data.frame with the columns \code{label} and \code{pattern}, and optionally \code{id}
 and \code{case_insensitive}. \code{pattern} is a character column of phrases, or a
 list column holding phrases or token patterns.
-\item a \code{spacyr_entity_patterns} object, which is returned as it is.
+\item a \code{spacyr_entity_patterns} object, which is checked again, since it
+may have been edited as a data.frame.
 }}
 
 \item{...}{not used.}

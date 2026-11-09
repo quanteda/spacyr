@@ -11,7 +11,7 @@ entity_patterns_write(x, file)
 }
 \arguments{
 \item{file}{the path of the file to read or write. Its extension sets the
-format:
+format, and must be \code{.jsonl} for writing:
 \itemize{
 \item \code{.jsonl}: spaCy's own format, one pattern per line, each a JSON object
 with the keys \code{label}, \code{pattern} and optionally \code{id}, as written by
@@ -41,8 +41,9 @@ spaCy in Python.
 \details{
 Reading and writing JSON needs the \strong{jsonlite} package.
 
-\code{entity_patterns_write()} always writes JSONL, whatever the extension of
-\code{file}. A phrase that matches regardless of case is written with the extra
+\code{entity_patterns_write()} writes JSONL only, so \code{file} must end in \code{.jsonl}.
+It checks the patterns before opening \code{file}, so an existing file is left
+as it was if they are not valid. A phrase that matches regardless of case is written with the extra
 key \code{"case_insensitive": true}, which \code{entity_patterns_read()} reads back.
 spaCy itself ignores that key, and matches the phrase exactly.
 

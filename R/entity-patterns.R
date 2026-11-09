@@ -19,7 +19,8 @@
 #'   * a data.frame with the columns `label` and `pattern`, and optionally `id`
 #'   and `case_insensitive`. `pattern` is a character column of phrases, or a
 #'   list column holding phrases or token patterns.
-#'   * a `spacyr_entity_patterns` object, which is returned as it is.
+#'   * a `spacyr_entity_patterns` object, which is checked again, since it
+#'   may have been edited as a data.frame.
 #' @param label character; the entity label of each phrase, such as `"PERSON"`
 #'   or `"ORG"`, either one for all phrases or one per phrase. If `NULL` (the
 #'   default), the names of `x` are used.
@@ -178,13 +179,27 @@ as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE, ...) {
 
 #' @export
 as_entity_patterns.spacyr_entity_patterns <- function(x, ...) {
-    x
+    # the object may have been edited as a data.frame, so check it again
+    cols <- c("label", "pattern", "id", "case_insensitive")
+    missing_cols <- setdiff(cols, names(x))
+    if (length(missing_cols))
+        stop("x is missing the columns: ", paste(missing_cols, collapse = ", "),
+             call. = FALSE)
+    if (!is.character(x$label) || !is.list(x$pattern) || !is.character(x$id) ||
+        !is.logical(x$case_insensitive))
+        stop("x has columns of the wrong type: label and id must be character, ",
+             "pattern a list and case_insensitive logical", call. = FALSE)
+    new_entity_patterns(x$label, x$pattern, x$id, x$case_insensitive)
 }
 
 # Build the object from its columns, normalizing and checking each pattern,
 # and removing duplicates. case_insensitive is kept for phrases only.
 new_entity_patterns <- function(label, pattern, id, case_insensitive) {
     n <- length(pattern)
+    label <- unname(label)
+    pattern <- unname(pattern)
+    id <- unname(id)
+    case_insensitive <- unname(case_insensitive)
     bad <- is.na(label) | !nzchar(label)
     if (any(bad))
         stop("Pattern ", which(bad)[1], " has a missing or empty label", call. = FALSE)
@@ -240,8 +255,9 @@ normalize_values <- function(x) {
     nms <- names(x)
     for (k in seq_along(x)) {
         v <- x[[k]]
-        if (!is.null(nms) && nms[k] %in% c("IN", "NOT_IN")) {
-            v <- lapply(as.list(v), whole_to_integer)
+        # spaCy accepts the operators in either case, with an array as value
+        if (!is.null(nms) && toupper(nms[k]) %in% c("IN", "NOT_IN")) {
+            v <- unname(lapply(as.list(v), whole_to_integer))
         } else if (is.list(v)) {
             v <- normalize_values(v)
         } else {
@@ -276,11 +292,13 @@ recycle_arg <- function(x, n, name) {
 }
 
 #' @export
-c.spacyr_entity_patterns <- function(...) {
-    parts <- lapply(list(...), as_entity_patterns)
+c.spacyr_entity_patterns <- function(..., recursive = FALSE, use.names = TRUE) {
+    # recursive and use.names are c()'s own arguments, and do not apply here;
+    # the names of the arguments are dropped
+    parts <- lapply(unname(list(...)), as_entity_patterns)
     new_entity_patterns(
         unlist(lapply(parts, `[[`, "label"), use.names = FALSE),
-        do.call(c, lapply(parts, `[[`, "pattern")),
+        unlist(lapply(parts, `[[`, "pattern"), recursive = FALSE, use.names = FALSE),
         unlist(lapply(parts, `[[`, "id"), use.names = FALSE),
         unlist(lapply(parts, `[[`, "case_insensitive"), use.names = FALSE)
     )
@@ -369,7 +387,7 @@ format_value <- function(v) {
 #' spaCy in Python.
 #'
 #' @param file the path of the file to read or write. Its extension sets the
-#'   format:
+#'   format, and must be `.jsonl` for writing:
 #'   * `.jsonl`: spaCy's own format, one pattern per line, each a JSON object
 #'   with the keys `label`, `pattern` and optionally `id`, as written by
 #'   spaCy's `EntityRuler.to_disk()`;
@@ -386,8 +404,9 @@ format_value <- function(v) {
 #' @details
 #' Reading and writing JSON needs the **jsonlite** package.
 #'
-#' `entity_patterns_write()` always writes JSONL, whatever the extension of
-#' `file`. A phrase that matches regardless of case is written with the extra
+#' `entity_patterns_write()` writes JSONL only, so `file` must end in `.jsonl`.
+#' It checks the patterns before opening `file`, so an existing file is left
+#' as it was if they are not valid. A phrase that matches regardless of case is written with the extra
 #' key `"case_insensitive": true`, which `entity_patterns_read()` reads back.
 #' spaCy itself ignores that key, and matches the phrase exactly.
 #'
@@ -414,7 +433,7 @@ entity_patterns_read <- function(file, label = NULL, case_insensitive = FALSE) {
     if (!is.character(file) || length(file) != 1 || is.na(file))
         stop("file must be a single file path", call. = FALSE)
     if (!file.exists(file)) stop("File not found: ", file, call. = FALSE)
-    ext <- tolower(sub(".*\\.([^.\\/]+)$", "\\1", basename(file)))
+    ext <- file_extension(file)
     if (!ext %in% c("jsonl", "json", "txt"))
         stop("file must have the extension .jsonl, .json or .txt", call. = FALSE)
     lines <- readLines(file, encoding = "UTF-8", warn = FALSE)
@@ -453,6 +472,8 @@ entity_patterns_read <- function(file, label = NULL, case_insensitive = FALSE) {
 entity_patterns_write <- function(x, file) {
     if (!is.character(file) || length(file) != 1 || is.na(file))
         stop("file must be a single file path", call. = FALSE)
+    if (file_extension(file) != "jsonl")
+        stop("file must have the extension .jsonl", call. = FALSE)
     check_jsonlite()
     x <- as_entity_patterns(x)
     lines <- vapply(as.list(x), function(p)
@@ -460,6 +481,10 @@ entity_patterns_write <- function(x, file) {
         character(1))
     writeLines(enc2utf8(lines), file, useBytes = TRUE)
     invisible(file)
+}
+
+file_extension <- function(file) {
+    tolower(sub(".*\\.([^.\\/]+)$", "\\1", basename(file)))
 }
 
 check_jsonlite <- function() {
