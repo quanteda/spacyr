@@ -24,6 +24,10 @@
     * A document name that is `NA` now gives the error "Some docnames are missing." Previously it failed with "missing value where TRUE/FALSE needed".
     * An empty character vector no longer gives a warning that two documents (`text1` and `text0`) were left out.
 
+## Bug fixes
+
+* `entity_extract()` and `entity_consolidate()` now keep entity labels that contain underscores, such as a custom `PUBLIC_AGENCY` label. Previously they cut the label at its first underscore, giving `PUBLIC`. The labels of spaCy's standard models have no underscores, so their results are unchanged.
+
 ## Documentation
 
 * The vignette and help pages are updated for spaCy 3: language models are named in full (for example `de_core_news_sm` rather than `de`), links to spaCy's documentation point to its current pages, and the `spacy_parse()` description no longer mentions options that do not exist. The help for `entity_extract()` and `spacy_extract_entity()` now lists which entity types count as extended.

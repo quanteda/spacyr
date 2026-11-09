@@ -277,3 +277,26 @@ test_that("entity consolidation works", {
   
   expect_silent(spacy_finalize())
 })
+
+test_that("entity labels containing underscores are kept whole", {
+  # a parse from a model with custom labels, built without Python
+  parsed <- data.frame(
+    doc_id = "d1", sentence_id = 1L, token_id = 1:7,
+    token = c("The", "Federal", "Reserve", "met", "Jane", "Smith", "."),
+    pos = c("DET", "PROPN", "PROPN", "VERB", "PROPN", "PROPN", "PUNCT"),
+    entity = c("", "PUBLIC_AGENCY_B", "PUBLIC_AGENCY_I", "", "PERSON_B", "PERSON_I", ""),
+    stringsAsFactors = FALSE
+  )
+  class(parsed) <- c("spacyr_parsed", "data.frame")
+
+  ents <- entity_extract(parsed, type = "all")
+  expect_identical(ents$entity, c("Federal_Reserve", "Jane_Smith"))
+  expect_identical(ents$entity_type, c("PUBLIC_AGENCY", "PERSON"))
+  # custom labels count as named entities
+  expect_identical(entity_extract(parsed)$entity_type, c("PUBLIC_AGENCY", "PERSON"))
+
+  cons <- entity_consolidate(parsed)
+  expect_identical(cons$token, c("The", "Federal_Reserve", "met", "Jane_Smith", "."))
+  expect_identical(cons$entity_type, c("", "PUBLIC_AGENCY", "", "PERSON", ""))
+  expect_identical(cons$pos, c("DET", "ENTITY", "VERB", "ENTITY", "PUNCT"))
+})
