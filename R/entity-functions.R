@@ -45,7 +45,7 @@ entity_extract.spacyr_parsed <- function(x, type = c("named", "extended", "all")
         stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE")
     }
     spacy_result <- spacy_result[nchar(spacy_result$entity) > 0]
-    spacy_result[, entity_type := sub("_.+", "", entity)]
+    spacy_result[, entity_type := sub("_[BI]$", "", entity)]
     spacy_result[, iob := sub(".+_", "", entity)]
     spacy_result[, entity_id := cumsum(iob == "B")]
     entities <- spacy_result[, lapply(.SD, function(x) x[1]), by = entity_id,
@@ -96,7 +96,7 @@ entity_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     if (!"entity" %in% names(spacy_result)) {
         stop("no entities in parsed object: rerun spacy_parse() with entity = TRUE")
     }
-    spacy_result[, entity_type := sub("_.+", "", entity)]
+    spacy_result[, entity_type := sub("_[BI]$", "", entity)]
     spacy_result[, iob := sub(".+_", "", entity)]
     extended_list <- c("DATE", "TIME", "PERCENT", "MONEY", "QUANTITY",
                        "ORDINAL", "CARDINAL")
