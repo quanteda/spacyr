@@ -377,3 +377,21 @@ test_that("names on the input do not reach the pattern column", {
   expect_null(names(as_entity_patterns(df)$pattern))
   expect_null(names(as_entity_patterns(list(a = list(label = "ORG", pattern = "Acme")))$pattern))
 })
+
+test_that("a file named after an extension, with no dot, has no extension", {
+  dir <- tempfile()
+  dir.create(dir)
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  for (name in c("jsonl", "json", "txt", "jsonl.")) {
+    file <- file.path(dir, name)
+    writeLines("keep", file)
+    expect_error(entity_patterns_read(file, label = "ORG"),
+                 "file must have the extension .jsonl, .json or .txt")
+    expect_error(entity_patterns_write(c(ORG = "a"), file),
+                 "file must have the extension .jsonl")
+    expect_identical(readLines(file), "keep")
+  }
+  expect_identical(spacyr:::file_extension(c("a.JSONL")), "jsonl")
+  expect_identical(spacyr:::file_extension("dir.jsonl/patterns"), "")
+  expect_identical(spacyr:::file_extension("a.b.jsonl"), "jsonl")
+})

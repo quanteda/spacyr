@@ -483,8 +483,12 @@ entity_patterns_write <- function(x, file) {
     invisible(file)
 }
 
+# The extension after the last ".", or "" if there is none: a file named
+# "jsonl" has no extension.
 file_extension <- function(file) {
-    tolower(sub(".*\\.([^.\\/]+)$", "\\1", basename(file)))
+    base <- basename(file)
+    if (!grepl(".", base, fixed = TRUE)) return("")
+    tolower(sub(".*\\.", "", base))
 }
 
 check_jsonlite <- function() {
