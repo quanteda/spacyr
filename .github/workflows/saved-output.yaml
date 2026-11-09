@@ -56,7 +56,14 @@ jobs:
         run: |
           "${{ steps.setup-python.outputs.python-path }}" -m venv ~/.virtualenvs/r-spacyr
           ~/.virtualenvs/r-spacyr/bin/python -m pip install --upgrade pip
-          ~/.virtualenvs/r-spacyr/bin/python -m pip install -r "$RUNNER_TEMP/saved-output-requirements.txt"
+          # the models come from GitHub, which sometimes answers with a
+          # temporary server error (such as 504) that pip does not retry
+          for attempt in 1 2 3; do
+            ~/.virtualenvs/r-spacyr/bin/python -m pip install -r "$RUNNER_TEMP/saved-output-requirements.txt" && break
+            if [ "$attempt" -eq 3 ]; then exit 1; fi
+            echo "pip install failed; trying again in $((attempt * 30)) seconds"
+            sleep $((attempt * 30))
+          done
           ~/.virtualenvs/r-spacyr/bin/python -m pip list
         shell: bash
 

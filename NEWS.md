@@ -13,6 +13,7 @@
 
 ## Changes
 
+* `spacy_download_langmodel()`, also used by `spacy_install()`, now tries a failed model download twice more, after 10 and 30 seconds, and warns if all three attempts fail. Models come from GitHub, which sometimes answers with a temporary server error that pip does not retry. Previously a failed download gave no warning from **spacyr**.
 * spacyr now requires spaCy 3.0.0 or later, and Python 3. `spacy_initialize()` stops with an error if an earlier version of spaCy is installed, and `spacy_install()` refuses a `version` that allows only earlier versions, whether a bare version (`"2.3.9"`), a pip-style pin (`"==2.3.9"`, `"[cuda102]==2.3.9"`) or a range (`"<3"`). A range without a lower bound of 3 or above gets `>=3.0.0` added. A `version` that is not a valid pip requirement, such as `"1.10.1a"`, is passed to pip unchanged, so that pip's error shows what was given. The code for Python 2 and spaCy 2 has been removed. The `deal_utf8` argument of `get_attrs()` is no longer used.
 * `spacy_parse()` now builds all its columns in one pass over the documents as spaCy parses them, instead of storing the parsed documents in Python and fetching each column with a separate call. The output is unchanged; the parsed documents are no longer kept in memory after the call, and parsing with several options is somewhat faster.
 * `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` now always process documents in batches with spaCy's `nlp.pipe()`, and the `multithread` argument no longer has any effect. Previously, `multithread = FALSE`, and a single document in all but `spacy_parse()`, processed each document with `nlp()`. With the standard spaCy models the results are the same, but a custom pipeline component whose `pipe()` method behaves differently from its `__call__()` method now always has its `pipe()` method used.
@@ -35,6 +36,7 @@
 
 ## Tests
 
+* The `saved-output` CI job now tries installing the pinned spaCy and model versions up to three times, for the same reason.
 * Added saved-output tests that compare the results of `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()`, `spacy_extract_nounphrases()` and the `entity_*()` and `nounphrase_*()` functions with those of version 1.4.0, on a fixed set of texts that includes edge cases. The `entity_*()` and `nounphrase_*()` tests do not need Python, so they also run on CRAN.
 * The saved-output tests compare output only with the spaCy and language model versions it was recorded with. A new `saved-output` CI job installs exactly those versions and fails if any saved-output test is skipped. The 1.4.0 output is kept as a fixed baseline, and the accepted output is updated from a named, accepted revision (see `tests/testthat/fixtures/README.md`).
 * Added tests that record which functions process documents with spaCy's `nlp.pipe()` and which call `nlp()` on each document, using a custom pipeline component that behaves differently in the two. Output with the standard models is the same either way, so the saved-output tests alone would not catch a change of path.
