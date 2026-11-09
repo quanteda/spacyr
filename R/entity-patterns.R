@@ -69,12 +69,15 @@
 #' as_entity_patterns(c("Acme Widgets", "Globex"), label = "ORG")
 #'
 #' # a token pattern for people with academic titles: a title, followed by
-#' # one or more tokens that the model recognises as a person
+#' # the first token of a person the model recognises (ENT_IOB "B") and the
+#' # rest of that person (ENT_IOB "I"), so that it extends one entity without
+#' # running into a person who follows it
 #' titles <- c("dr", "dr.", "prof", "prof.")
 #' as_entity_patterns(list(
 #'   label = "PERSON",
 #'   pattern = list(list(LOWER = list(IN = titles)),
-#'                  list(ENT_TYPE = "PERSON", OP = "+"))
+#'                  list(ENT_TYPE = "PERSON", ENT_IOB = "B"),
+#'                  list(ENT_TYPE = "PERSON", ENT_IOB = "I", OP = "*"))
 #' ))
 #'
 #' # a data.frame of patterns
@@ -418,7 +421,8 @@ format_value <- function(v) {
 #'   pats <- as_entity_patterns(list(
 #'     list(label = "PERSON",
 #'          pattern = list(list(LOWER = list(IN = c("dr", "dr."))),
-#'                         list(ENT_TYPE = "PERSON", OP = "+"))),
+#'                         list(ENT_TYPE = "PERSON", ENT_IOB = "B"),
+#'                         list(ENT_TYPE = "PERSON", ENT_IOB = "I", OP = "*"))),
 #'     list(label = "ORG", pattern = "Acme Widgets", id = "acme")
 #'   ))
 #'   file <- tempfile(fileext = ".jsonl")

@@ -55,7 +55,8 @@ if (requireNamespace("jsonlite", quietly = TRUE)) {
   pats <- as_entity_patterns(list(
     list(label = "PERSON",
          pattern = list(list(LOWER = list(IN = c("dr", "dr."))),
-                        list(ENT_TYPE = "PERSON", OP = "+"))),
+                        list(ENT_TYPE = "PERSON", ENT_IOB = "B"),
+                        list(ENT_TYPE = "PERSON", ENT_IOB = "I", OP = "*"))),
     list(label = "ORG", pattern = "Acme Widgets", id = "acme")
   ))
   file <- tempfile(fileext = ".jsonl")
