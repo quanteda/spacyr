@@ -2,6 +2,7 @@
 
 ## New features
 
+* New function `as_entity_patterns()` creates patterns for rule-based named entities, as used by spaCy's `entity_ruler`, from phrases, lists of patterns in spaCy's own structure, or a data.frame (#234). Patterns are checked for their structure, and converted so that they reach spaCy in the form it expects: the values of `IN` and `NOT_IN` stay lists even when they hold a single value, and whole numbers become integers. Phrases can match regardless of case with `case_insensitive = TRUE`. The new functions `entity_patterns_read()` and `entity_patterns_write()` read patterns from, and write them to, spaCy's JSONL format, JSON arrays, or (for reading) a text file of phrases; reading and writing JSON needs the **jsonlite** package, now suggested. Adding the patterns to spaCy's pipeline will follow in a later change.
 * `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` have new arguments `n_process` and `batch_size`, passed to spaCy's `nlp.pipe()` (#185). `n_process` sets the number of processes (`-1` for all CPUs) and `batch_size` the number of documents processed together; the defaults, `n_process = 1` and `batch_size = NULL` (the pipeline's default batch size), process documents as before. The output does not depend on either.
 
 ## Deprecated
