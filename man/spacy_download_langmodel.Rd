@@ -22,6 +22,12 @@ Invisibly returns the installation log.
 \description{
 Download spaCy language models
 }
+\details{
+Models are downloaded from GitHub. If a download fails, for
+instance because of a temporary server error, it is tried twice more,
+after 10 and 30 seconds, and a warning is given if all three attempts
+fail.
+}
 \examples{
 \dontrun{
 # install medium sized model
