@@ -104,19 +104,21 @@ Unless the environment variable \code{TOKENIZERS_PARALLELISM} is already set,
 \code{spacy_initialize()} sets it to \code{"false"}. Pipelines that use Hugging
 Face's \strong{tokenizers} library, such as some built with
 \strong{spacy-transformers}, otherwise print a warning about disabling
-parallelism, again and again until R is restarted, once the R process is
-forked after the library has been used, as RStudio does when saving a file.
-Turning off its parallelism makes little difference to speed, since the
-transformer itself takes most of the time. The setting applies to the
-whole R process, Python included, and stays after \code{\link[=spacy_finalize]{spacy_finalize()}}; if
-initialization fails, the previous value is restored. A value set before
-calling \code{spacy_initialize()} is kept, even an empty one, which
-\strong{tokenizers} reads as \code{"false"}. Setting
-\code{Sys.setenv(TOKENIZERS_PARALLELISM = "true")} turns off the library's
-safeguard against deadlocks: a forked process, such as a worker of
-\code{parallel::mclapply()} or of \code{n_process} greater than 1, that uses
-\strong{tokenizers} after the parent has used it can then hang. Leave the
-setting at \code{"false"} whenever that can happen.
+parallelism, with versions of \strong{tokenizers} before 0.22.2, again and again
+until R is restarted, once the R process is forked after the library has
+been used, for instance by \code{\link[parallel:mcparallel]{parallel::mcparallel()}}; saving a file in
+RStudio has also been reported to trigger it. The setting controls the
+library's tokenizer threads; its effect on total runtime depends on the
+pipeline and the workload. It applies to the whole R process, Python
+included, and stays after \code{\link[=spacy_finalize]{spacy_finalize()}}; if initialization fails, the
+previous value is restored. A value set before calling
+\code{spacy_initialize()} is kept, even an empty one, which \strong{tokenizers} reads
+as \code{"false"}. Setting \code{Sys.setenv(TOKENIZERS_PARALLELISM = "true")} turns
+off the library's safeguard against deadlocks: a forked process, such as a
+worker of \code{\link[parallel:mclapply]{parallel::mclapply()}}, or of \code{n_process} greater than 1 when the
+workers are started by fork, that uses \strong{tokenizers} after the parent has
+used it can then hang. Leave the setting at \code{"false"} whenever that can
+happen.
 }
 \examples{
 \dontrun{
