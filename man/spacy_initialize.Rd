@@ -8,6 +8,7 @@ spacy_initialize(
   model = "en_core_web_sm",
   entity = TRUE,
   max_length = NULL,
+  split_hyphens = TRUE,
   entity_patterns = NULL,
   overwrite_entities = TRUE,
   ...
@@ -29,6 +30,16 @@ larger than \code{.Machine$integer.max}. If \code{NULL} (the
 default), spaCy's default of 1,000,000 is used. Larger values require
 roughly 1GB of temporary memory per 100,000 characters for the parser
 and entity recogniser.}
+
+\item{split_hyphens}{logical; if \code{TRUE} (the default), words joined by a
+hyphen are split as the language model's tokenizer splits them, which for
+English makes three tokens of "eye-opening": "eye", "-" and "opening". If
+\code{FALSE}, the tokenizer no longer splits at a single hyphen between
+letters, or between a letter and a digit, so that "eye-opening" stays one
+token, and the rest of the pipeline, such as the tagger and lemmatizer,
+processes it as one. Note that the default differs from that of
+\strong{quanteda}'s \code{\link[quanteda:tokens]{quanteda::tokens()}}, whose \code{split_hyphens = FALSE} keeps
+hyphenated words together by default. See Details.}
 
 \item{entity_patterns}{rule-based entities to add to the pipeline: a
 \code{spacyr_entity_patterns} object, or anything that \code{\link[=as_entity_patterns]{as_entity_patterns()}}
@@ -63,6 +74,24 @@ tokenizer, and those marked \code{case_insensitive} match the lower case form of
 each token. A component that changes the tokens, such as spaCy's
 \code{merge_entities}, can stop phrases from matching when it comes before the
 ruler, which gives a warning.
+
+With \code{split_hyphens = FALSE}, the tokenizer still splits wherever the
+model's tokenizer did other than at a single hyphen within a word: between
+numbers, so that "3-4" is still three tokens ("3", "-" and "4"), where
+\strong{quanteda}'s \code{tokens(split_hyphens = FALSE)} keeps it as one; at two or
+more hyphens, as in "a--b"; and at the start or end of a word. The models
+were trained on text with hyphenated words split, so their tags, lemmas and
+dependencies for a hyphenated word kept whole can differ from those for its
+parts. Only the language's default infix rules are changed: a model saved
+with infix rules of its own, or whose tokenizer is not spaCy's rule-based
+one, as for Chinese and Japanese, is left as it is. A warning is given if
+the tokenizer still splits some hyphenated words, between letters or
+between a letter and a digit, for whatever reason. Many languages, such as German, do not split
+them in the first place. Phrase patterns of a ruler saved with the model,
+such as an \code{entity_ruler}, were tokenized when the model was saved, so
+those containing hyphenated words may no longer match; changing the
+tokenizer gives a warning when an active component has phrase patterns.
+Those of \code{entity_patterns} are tokenized after the change.
 
 Phrases are matched quickly, even many thousands of them, and so are
 patterns of a single token with a regular expression, such as dictionary
