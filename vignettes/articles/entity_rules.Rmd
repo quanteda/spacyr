@@ -24,6 +24,8 @@ spaCy solves this with an *entity ruler*, a pipeline component that adds entitie
 
 Creating rules needs neither Python nor spaCy, so the rules are ordinary R objects that can be inspected, combined and saved.
 
+If spaCy is already running in your R session, call `spacy_finalize()` before calling `spacy_initialize()` with a new set of rules.
+
 
 ``` r
 library("spacyr")
@@ -48,8 +50,7 @@ Without rules, the model finds some of these entities, but not as we would label
 ``` r
 txt <- "Acme Widgets opened a factory in Ruritania, said Jane Smith."
 spacy_initialize()
-## spaCy is already initialized
-## NULL
+## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)
 spacy_extract_entity(txt)
 ##   doc_id         text ent_type start_id length
 ## 1  text1 Acme Widgets   PERSON        1      2
@@ -179,7 +180,9 @@ spacy_extract_entity(txt)
 spacy_finalize()
 ```
 
-Rules also work without the model's recognizer, with `entity = FALSE`, which makes parsing faster when only the rules' entities are needed. Rules that ask for an entity type (`ENT_TYPE`) or for tokens inside an entity (`ENT_IOB`), such as the title rule, then have nothing to build on, and `spacy_initialize()` warns that they will not match:
+When two rules overlap, spaCy prefers the match that spans more tokens. If they span the same number of tokens, the one that starts earlier takes priority. See [spaCy's entity ruler guide](https://spacy.io/usage/rule-based-matching#entityruler).
+
+Set `entity = FALSE` to disable the model's named entity recogniser (`ner`). Rules based on token attributes such as `IS_TITLE` still work:
 
 
 ``` r
@@ -200,6 +203,8 @@ spacy_parse("We met Jane Smith there.", pos = FALSE, lemma = FALSE)
 spacy_finalize()
 ```
 
+The title rule relies on entity annotations (`ENT_TYPE` and `ENT_IOB`) from an earlier component. With `ner` disabled and no other component supplying entities, `spacy_initialize()` warns that the title rule will not match:
+
 
 ``` r
 spacy_initialize(entity = FALSE, entity_patterns = title_rule)
@@ -210,7 +215,7 @@ spacy_initialize(entity = FALSE, entity_patterns = title_rule)
 spacy_finalize()
 ```
 
-A model saved with an entity ruler of its own keeps it: **spacyr**'s ruler has its own name, `spacyr_entity_ruler`, and comes after it.
+A saved ruler stays in the pipeline and can supply entities even with `entity = FALSE`. **spacyr** adds its own ruler after it, using `spacyr_entity_ruler` or a numbered variant if that name is already in use.
 
 ## Dictionaries
 
@@ -325,8 +330,10 @@ identical(entity_patterns_read(file), all_rules)
 ## [1] TRUE
 ```
 
+spacyr preserves `case_insensitive` when writing and reading JSONL. Native spaCy ignores this field, so its default ruler matches those phrases case-sensitively.
+
 `entity_patterns_read()` also reads a JSON array of rules, or a text file with one phrase per line, given a `label`.
 
 ## Speed
 
-Phrases are matched quickly, even many thousands of them. On a test with 5,000 sentences, 10,000 phrases made parsing no slower. Patterns of a single token with a regular expression, such as dictionary values with a wildcard, are also fast, since **spacyr** combines them into one regular expression for each label. Other token patterns are checked one by one, so many thousands of them make parsing slower. So do phrases that match in any case, when the rules also include phrases that match only in their exact case.
+On a test with 5,000 sentences, 10,000 phrases added little parsing time when all used the same case-matching setting. **spacyr** can also combine simple single-token regular expressions, such as dictionary globs, when they share a label, ID and token attribute. Other token patterns are checked one by one. Mixing case-sensitive and case-insensitive phrases also makes large rule sets slower, because the case-insensitive phrases are matched as token patterns.
