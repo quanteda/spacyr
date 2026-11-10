@@ -2,9 +2,11 @@
 
 S3method(as.data.frame,spacyr_entity_patterns)
 S3method(as.list,spacyr_entity_patterns)
+S3method(as_entity_patterns,"NULL")
 S3method(as_entity_patterns,character)
 S3method(as_entity_patterns,data.frame)
 S3method(as_entity_patterns,default)
+S3method(as_entity_patterns,dictionary2)
 S3method(as_entity_patterns,list)
 S3method(as_entity_patterns,spacyr_entity_patterns)
 S3method(c,spacyr_entity_patterns)

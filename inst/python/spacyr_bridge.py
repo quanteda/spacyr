@@ -53,17 +53,57 @@ def free_ruler_name(nlp, name = "spacyr_entity_ruler"):
         candidate = name + "_" + str(k)
     return candidate
 
-def ruler_patterns(nlp, patterns):
-    # spaCy's form of the patterns from R: a phrase marked case_insensitive
-    # becomes a token pattern matching the lower case form of each of the
-    # tokens that the pipeline's own tokenizer makes of it
+def ruler_patterns(nlp, patterns, lower_phrases = False):
+    # spaCy's form of the patterns from R. A phrase marked case_insensitive is
+    # matched by the ruler's phrase matcher on LOWER when lower_phrases is
+    # True (all phrases are case-insensitive), and otherwise becomes a token
+    # pattern matching the lower case form of each of the tokens that the
+    # pipeline's own tokenizer makes of it, which is slower. Patterns of a
+    # single token matching a regular expression, as dictionary values with
+    # wildcards become, are merged into one per label, ID and attribute,
+    # since spaCy checks each regular expression on every token.
     out = []
+    regexes = {}
     for p in patterns:
         p = dict(p)
-        if p.pop("case_insensitive", False) and isinstance(p["pattern"], str):
-            p["pattern"] = [{"LOWER": t.lower_} for t in nlp.make_doc(p["pattern"])]
+        ci = p.pop("case_insensitive", False)
+        if isinstance(p["pattern"], str):
+            if ci and not lower_phrases:
+                p["pattern"] = [{"LOWER": t.lower_} for t in nlp.make_doc(p["pattern"])]
+        else:
+            single = _single_regex(p["pattern"])
+            if single is not None:
+                regexes.setdefault((p["label"], p.get("id"), single[0]), []).append(single[1])
+                continue
+        out.append(p)
+    for (label, id_, attr), rxs in regexes.items():
+        rx = rxs[0] if len(rxs) == 1 else "|".join("(?:" + r + ")" for r in rxs)
+        p = {"label": label, "pattern": [{attr: {"REGEX": rx}}]}
+        if id_ is not None:
+            p["id"] = id_
         out.append(p)
     return out
+
+def _single_regex(pattern):
+    # (attribute, regular expression) for a pattern of one token with only a
+    # REGEX, or None. Left as it is: one with inline flags, which must start a
+    # regular expression; one that does not compile; and one with capturing
+    # groups, since merging renumbers them, which changes backreferences
+    if not isinstance(pattern, list) or len(pattern) != 1 or len(pattern[0]) != 1:
+        return None
+    (attr, value), = pattern[0].items()
+    if not isinstance(value, dict) or list(value.keys()) != ["REGEX"]:
+        return None
+    rx = value["REGEX"]
+    if not isinstance(rx, str) or "(?" in rx:
+        return None
+    try:
+        compiled = re.compile(rx)
+    except re.error:
+        return None
+    if compiled.groups > 0:
+        return None
+    return attr.upper(), rx
 
 def add_entity_ruler(nlp, patterns, overwrite = True):
     # Add spacyr's entity ruler as the last component of the pipeline, after
@@ -76,13 +116,17 @@ def add_entity_ruler(nlp, patterns, overwrite = True):
             "retokenizers": [n for n in upstream if retokenizes(nlp, n)],
             "ner_disabled": "ner" in nlp.disabled}
     name = free_ruler_name(nlp)
-    ruler = nlp.add_pipe("entity_ruler", name = name, last = True,
-                         config = {"overwrite_ents": bool(overwrite), "validate": True})
+    phrases = [p for p in patterns if isinstance(p["pattern"], str)]
+    lower_phrases = len(phrases) > 0 and all(p.get("case_insensitive", False) for p in phrases)
+    config = {"overwrite_ents": bool(overwrite), "validate": True}
+    if lower_phrases:
+        config["phrase_matcher_attr"] = "LOWER"
+    ruler = nlp.add_pipe("entity_ruler", name = name, last = True, config = config)
     # the ruler makes a Doc of each phrase with the components before it;
     # tokenizing is all that matching phrases on ORTH needs
     try:
         with nlp.select_pipes(disable = upstream):
-            ruler.add_patterns(ruler_patterns(nlp, patterns))
+            ruler.add_patterns(ruler_patterns(nlp, patterns, lower_phrases))
     except Exception:
         nlp.remove_pipe(name)
         raise

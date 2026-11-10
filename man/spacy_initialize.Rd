@@ -63,6 +63,13 @@ tokenizer, and those marked \code{case_insensitive} match the lower case form of
 each token. A component that changes the tokens, such as spaCy's
 \code{merge_entities}, can stop phrases from matching when it comes before the
 ruler, which gives a warning.
+
+Phrases are matched quickly, even many thousands of them, and so are
+patterns of a single token with a regular expression, such as dictionary
+values with a wildcard, which spacyr combines into one regular expression
+for each label. Other token patterns are checked one by one, and so are
+phrases marked \code{case_insensitive} when the patterns also include phrases
+that are not, which makes parsing slower when there are many of them.
 }
 \examples{
 \dontrun{

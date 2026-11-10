@@ -20,6 +20,19 @@
 #'   * a data.frame with the columns `label` and `pattern`, and optionally `id`
 #'   and `case_insensitive`. `pattern` is a character column of phrases, or a
 #'   list column holding phrases or token patterns.
+#'   * the entities found by [spacy_extract_entity()], a data.frame with the
+#'   columns `text` and `ent_type`, which become phrases and their labels.
+#'   This turns the entities found in one set of texts into rules for others.
+#'   * the entities found by [entity_extract()], with the columns `entity` and
+#'   `entity_type`, given with the `concatenator` that joined their tokens.
+#'   * a \pkg{quanteda} dictionary, made by [quanteda::dictionary()]. Its
+#'   top-level keys are the labels, with the values of any nested keys under
+#'   them. A value without wildcards becomes a phrase. A value with wildcards
+#'   (`*` for any characters, `?` for one) becomes a token pattern with one
+#'   token for each part separated by spaces, as \pkg{quanteda} matches
+#'   dictionary values to tokens, so that `"dr * who"` matches three tokens.
+#'   * `NULL`, as [spacy_extract_entity()] returns when it finds no entities,
+#'   which gives an empty set of patterns.
 #'   * a `spacyr_entity_patterns` object, which is checked again, since it
 #'   may have been edited as a data.frame.
 #' @param label character; the entity label of each phrase, such as `"PERSON"`
@@ -29,7 +42,9 @@
 #'   phrases or one per phrase. spaCy gives the ID of the pattern that matched
 #'   as each entity's `ent_id_`.
 #' @param case_insensitive logical; if `TRUE`, phrases match regardless of
-#'   case. The default, `FALSE`, matches them exactly, as spaCy does. It does
+#'   case. The default, `FALSE`, matches them exactly, as spaCy does, except
+#'   for a dictionary, where it is `TRUE`, as in \pkg{quanteda}, and also
+#'   applies to the parts of values with wildcards. It does
 #'   not apply to token patterns, which set case through the attribute they
 #'   match, such as `ORTH` (exact) or `LOWER` (any case). For a list, it
 #'   applies to the patterns that do not set `case_insensitive` themselves;
@@ -58,6 +73,14 @@
 #' in `list(LENGTH = 3)`, become integers, since spaCy does not accept
 #' decimal numbers in token patterns.
 #'
+#' Phrases, including dictionary values without wildcards, are split into
+#' tokens by the pipeline's own tokenizer, and some of its rules depend on
+#' case: spaCy's English models keep `"Inc."` as one token, but split
+#' `"inc."` into `"inc"` and `"."`. So write phrases in their usual case, even with
+#' `case_insensitive = TRUE`, and make dictionaries with
+#' `quanteda::dictionary(tolower = FALSE)`, since by default it lowercases
+#' their values.
+#'
 #' Patterns match spaCy's tokens, not characters. For instance, spaCy's
 #' English models make "Prof." a single token, so a pattern for academic
 #' titles needs to list both `"prof"` and `"prof."`, to match titles written
@@ -85,12 +108,32 @@
 #' as_entity_patterns(data.frame(label = c("ORG", "ORG"),
 #'                               pattern = c("Acme Widgets", "Globex")))
 #'
+#' # a quanteda dictionary, with labels from its keys
+#' if (requireNamespace("quanteda", quietly = TRUE)) {
+#'   dict <- quanteda::dictionary(list(ORG = c("acme widgets", "globex*"),
+#'                                     PERSON = "dr * who"))
+#'   as_entity_patterns(dict)
+#' }
+#'
+#' # entities found by spaCy, to use as rules for other texts
+#' \dontrun{
+#' spacy_initialize()
+#' found <- spacy_extract_entity("Acme Widgets hired Jane Smith.")
+#' as_entity_patterns(found)
+#' spacy_finalize()
+#' }
+#'
 #' # combine sets of patterns
 #' c(as_entity_patterns(c(ORG = "Globex")),
 #'   as_entity_patterns(c(PERSON = "Jane Smith")))
 #' @export
 as_entity_patterns <- function(x, ...) {
     UseMethod("as_entity_patterns")
+}
+
+#' @export
+as_entity_patterns.NULL <- function(x, ...) {
+    as_entity_patterns(character())
 }
 
 #' @export
@@ -158,9 +201,36 @@ as_entity_patterns.list <- function(x, case_insensitive = FALSE, ...) {
 }
 
 #' @rdname as_entity_patterns
+#' @param concatenator for the output of [entity_extract()], the character(s)
+#'   that joined the tokens of each entity, which are replaced by spaces. It
+#'   must be given, since a token that itself contains the concatenator, such
+#'   as an underscore, is changed too; the output of [spacy_extract_entity()]
+#'   keeps the text of each entity as it was, and is the better input.
 #' @export
-as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE, ...) {
+as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE,
+                                          concatenator = NULL, ...) {
     check_case_insensitive(case_insensitive)
+    if (!all(c("label", "pattern") %in% names(x))) {
+        if (all(c("text", "ent_type") %in% names(x))) {
+            # the output of spacy_extract_entity()
+            x <- data.frame(label = as.character(x[["ent_type"]]),
+                            pattern = as.character(x[["text"]]),
+                            stringsAsFactors = FALSE)
+        } else if (all(c("entity", "entity_type") %in% names(x))) {
+            # the output of entity_extract(), whose tokens were joined
+            if (is.null(concatenator))
+                stop("The entities of entity_extract() have their tokens joined; ",
+                     "supply the concatenator used, such as concatenator = \"_\", ",
+                     "or use spacy_extract_entity(), which keeps their text",
+                     call. = FALSE)
+            if (!is_string(concatenator) || !nzchar(concatenator))
+                stop("concatenator must be a single, non-empty string", call. = FALSE)
+            x <- data.frame(label = as.character(x[["entity_type"]]),
+                            pattern = gsub(concatenator, " ",
+                                           as.character(x[["entity"]]), fixed = TRUE),
+                            stringsAsFactors = FALSE)
+        }
+    }
     missing_cols <- setdiff(c("label", "pattern"), names(x))
     if (length(missing_cols))
         stop("x needs the columns label and pattern; missing: ",
@@ -179,6 +249,62 @@ as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE, ...) {
         rep(case_insensitive, n)
     }
     new_entity_patterns(as.character(x[["label"]]), as.list(pattern), id, ci)
+}
+
+#' @rdname as_entity_patterns
+#' @param valuetype for a dictionary, how its values are matched: `"glob"`
+#'   (the default) for wildcards, `"fixed"` for exact phrases, or `"regex"`
+#'   for regular expressions, as in [quanteda::tokens_lookup()]. With
+#'   `"regex"`, each part of a value separated by spaces is a regular
+#'   expression for one of spaCy's tokens, in the dialect of Python's `re`
+#'   module, not of R: for instance, `"^\\p{L}+$"` works in
+#'   \pkg{quanteda} but stops [spacy_initialize()] with the error "bad escape
+#'   \\p". Since [quanteda::dictionary()] lowercases values by default, which
+#'   changes escapes such as `"\\D"` to `"\\d"`, make a dictionary of regular
+#'   expressions with `tolower = FALSE`.
+#' @export
+as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
+                                           valuetype = c("glob", "fixed", "regex"),
+                                           ...) {
+    check_case_insensitive(case_insensitive)
+    valuetype <- match.arg(valuetype)
+    if (!requireNamespace("quanteda", quietly = TRUE))
+        stop("Converting a dictionary needs the quanteda package", call. = FALSE)
+    values <- as.list(x, flatten = TRUE, levels = 1)
+    label <- rep(names(values), lengths(values))
+    values <- unlist(values, use.names = FALSE)
+    if (is.null(values)) values <- character()
+    pattern <- lapply(values, dictionary_pattern, valuetype = valuetype,
+                      case_insensitive = case_insensitive)
+    new_entity_patterns(label, pattern, rep(NA_character_, length(values)),
+                        rep(case_insensitive, length(values)))
+}
+
+# A dictionary value as a phrase, or, with wildcards or regular expressions,
+# as a token pattern with one token for each piece separated by spaces, as
+# quanteda matches dictionary values to its tokens
+dictionary_pattern <- function(value, valuetype, case_insensitive) {
+    if (valuetype == "fixed" || (valuetype == "glob" && !grepl("[*?]", value)))
+        return(value)
+    pieces <- strsplit(trimws(value), "\\s+")[[1]]
+    lapply(pieces, function(piece) {
+        if (valuetype == "regex") {
+            if (case_insensitive) piece <- paste0("(?i)", piece)
+            return(list(TEXT = list(REGEX = piece)))
+        }
+        attr <- if (case_insensitive) "LOWER" else "ORTH"
+        if (case_insensitive) piece <- tolower(piece)
+        if (!grepl("[*?]", piece)) return(stats::setNames(list(piece), attr))
+        stats::setNames(list(list(REGEX = glob_to_regex(piece))), attr)
+    })
+}
+
+# a glob as an anchored regular expression: "*" is any characters, "?" one
+glob_to_regex <- function(x) {
+    x <- gsub("([][{}()+.^$|\\\\])", "\\\\\\1", x)
+    x <- gsub("*", ".*", x, fixed = TRUE)
+    x <- gsub("?", ".", x, fixed = TRUE)
+    paste0("^", x, "$")
 }
 
 #' @export
