@@ -10,7 +10,7 @@ navbar:
   title: "spacyr"
   type: inverse
   structure:
-    left: [installation, usingspacyr, entityrules, reference]
+    left: [installation, usingspacyr, entityrules, performance, reference]
     right: [search, github]
   components:
     installation:
@@ -22,6 +22,9 @@ navbar:
     entityrules:
       text: "Entity rules"
       href: articles/entity_rules.html
+    performance:
+      text: "Performance"
+      href: articles/performance.html
     reference:
       text: "Reference"
       href: reference/index.html
