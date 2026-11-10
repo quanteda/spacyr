@@ -70,6 +70,15 @@ spacy_tokenize.character <- function(x,
                                      ...) {
     # checked before spaCy is initialized
     check_multithread(multithread, "spacy_tokenize")
+    flags <- list(remove_punct = remove_punct, remove_url = remove_url,
+                  remove_numbers = remove_numbers,
+                  remove_separators = remove_separators,
+                  remove_symbols = remove_symbols, padding = padding)
+    for (flag in names(flags)) {
+        value <- flags[[flag]]
+        if (!is.logical(value) || length(value) != 1 || is.na(value))
+            stop("`", flag, "` must be TRUE or FALSE", call. = FALSE)
+    }
     args <- pipe_args(n_process, batch_size)
     output <- match.arg(output)
     what <- match.arg(what)
