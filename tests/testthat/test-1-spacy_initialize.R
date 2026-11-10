@@ -200,6 +200,103 @@ test_that("spacy_initialize gives a helpful error for a missing model", {
   spacy_finalize()
 })
 
+test_that("spacy_initialize turns off tokenizers parallelism unless set (#233)", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  old <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)
+  on.exit({
+    if (is.na(old)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
+    else Sys.setenv(TOKENIZERS_PARALLELISM = old)
+    try(spacy_finalize(), silent = TRUE)
+  })
+  py_value <- function()
+    reticulate::import("os")$environ$get("TOKENIZERS_PARALLELISM")
+
+  Sys.unsetenv("TOKENIZERS_PARALLELISM")
+  try_spacy_initialize()
+  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM"), "false")
+  expect_identical(py_value(), "false")
+  spacy_finalize()
+
+  # a value set by the user is kept, also when Python has already started
+  Sys.setenv(TOKENIZERS_PARALLELISM = "true")
+  try_spacy_initialize()
+  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM"), "true")
+  expect_identical(py_value(), "true")
+  spacy_finalize()
+})
+
+test_that("spacy_initialize keeps an empty TOKENIZERS_PARALLELISM (#233)", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  skip_if_not(empty_env_supported(),
+              "R cannot set an empty environment variable here")
+  try(spacy_finalize(), silent = TRUE)
+  old <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)
+  on.exit({
+    if (is.na(old)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
+    else Sys.setenv(TOKENIZERS_PARALLELISM = old)
+    try(spacy_finalize(), silent = TRUE)
+  })
+  # an empty value is the user's too, and tokenizers reads it as false
+  Sys.setenv(TOKENIZERS_PARALLELISM = "")
+  try_spacy_initialize()
+  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA), "")
+  expect_identical(
+    reticulate::import("os")$environ$get("TOKENIZERS_PARALLELISM"), "")
+  spacy_finalize()
+})
+
+test_that("a failed spacy_initialize restores TOKENIZERS_PARALLELISM (#233)", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  old <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)
+  on.exit({
+    if (is.na(old)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
+    else Sys.setenv(TOKENIZERS_PARALLELISM = old)
+  })
+  py_value <- function()
+    reticulate::import("os")$environ$get("TOKENIZERS_PARALLELISM")
+
+  # Python keeps its own copy of the environment, so set it there too
+  set_both <- function(value) {
+    os <- reticulate::import("os")
+    if (is.na(value)) {
+      Sys.unsetenv("TOKENIZERS_PARALLELISM")
+      os$environ$pop("TOKENIZERS_PARALLELISM", NULL)
+    } else {
+      Sys.setenv(TOKENIZERS_PARALLELISM = value)
+      os$environ$`__setitem__`("TOKENIZERS_PARALLELISM", value)
+    }
+  }
+
+  set_both(NA)
+  expect_error(spacy_initialize(model = "xx_no_such_model"), "not installed")
+  expect_true(is.na(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)))
+  expect_null(py_value())
+
+  set_both("true")
+  expect_error(spacy_initialize(model = "xx_no_such_model"), "not installed")
+  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM"), "true")
+  expect_identical(py_value(), "true")
+
+  # R and Python can hold different values: each gets its own back
+  Sys.unsetenv("TOKENIZERS_PARALLELISM")
+  expect_error(spacy_initialize(model = "xx_no_such_model"), "not installed")
+  expect_true(is.na(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)))
+  expect_identical(py_value(), "true")
+
+  if (empty_env_supported()) {
+    set_both("")
+    expect_error(spacy_initialize(model = "xx_no_such_model"), "not installed")
+    expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA), "")
+    expect_identical(py_value(), "")
+  }
+  expect_null(getOption("spacy_initialized"))
+})
+
 test_that("spacyr leaves no variables in Python's __main__", {
   skip_on_cran()
   skip_on_os("solaris")

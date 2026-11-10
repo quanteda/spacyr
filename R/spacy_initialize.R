@@ -77,6 +77,26 @@
 #' for each label. Other token patterns are checked one by one, and so are
 #' phrases marked `case_insensitive` when the patterns also include phrases
 #' that are not, which makes parsing slower when there are many of them.
+#'
+#' Unless the environment variable `TOKENIZERS_PARALLELISM` is already set,
+#' `spacy_initialize()` sets it to `"false"`. Pipelines that use Hugging
+#' Face's **tokenizers** library, such as some built with
+#' **spacy-transformers**, otherwise print a warning about disabling
+#' parallelism, with versions of **tokenizers** before 0.22.2, again and again
+#' until R is restarted, once the R process is forked after the library has
+#' been used, for instance by `parallel::mcparallel()`; saving a file in
+#' RStudio has also been reported to trigger it. The setting controls the
+#' library's tokenizer threads; its effect on total runtime depends on the
+#' pipeline and the workload. It applies to the whole R process, Python
+#' included, and stays after [spacy_finalize()]; if initialization fails, the
+#' previous value is restored. A value set before calling
+#' `spacy_initialize()` is kept, even an empty one, which **tokenizers** reads
+#' as `"false"`. Setting `Sys.setenv(TOKENIZERS_PARALLELISM = "true")` turns
+#' off the library's safeguard against deadlocks: a forked process, such as a
+#' worker of `parallel::mclapply()`, or of `n_process` greater than 1 when the
+#' workers are started by fork, that uses **tokenizers** after the parent has
+#' used it can then hang. Leave the setting at `"false"` whenever that can
+#' happen.
 #' @seealso [as_entity_patterns()]
 #' @examples
 #' \dontrun{
@@ -141,6 +161,30 @@ spacy_initialize <- function(model = "en_core_web_sm",
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
+  # Hugging Face's tokenizers, used by some transformer pipelines, warns
+  # repeatedly once the R process forks after it has used its thread pool
+  # (#233); a value the user has set, even an empty one (which tokenizers
+  # reads as false), is kept. Python copies the environment when it starts,
+  # so it is started first, and its own value taken before anything is set,
+  # so that both can be restored if initialization fails.
+  os <- reticulate::import("os")
+  old_parallelism <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA_character_)
+  old_py_parallelism <- os$environ$get("TOKENIZERS_PARALLELISM")
+  parallelism <- if (is.na(old_parallelism)) "false" else old_parallelism
+  initialized <- FALSE
+  on.exit(if (!initialized) {
+    # Python's first, since setting os.environ also sets the process's
+    try(if (is.null(old_py_parallelism)) {
+      os$environ$pop("TOKENIZERS_PARALLELISM", NULL)
+    } else {
+      os$environ$`__setitem__`("TOKENIZERS_PARALLELISM", old_py_parallelism)
+    }, silent = TRUE)
+    if (is.na(old_parallelism)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
+    else Sys.setenv(TOKENIZERS_PARALLELISM = old_parallelism)
+  }, add = TRUE)
+  Sys.setenv(TOKENIZERS_PARALLELISM = parallelism)
+  os$environ$`__setitem__`("TOKENIZERS_PARALLELISM", parallelism)
+
   spacyr_env$module <- load_spacyr_module()
   spacy_version <- spacyr_env$module$spacy_version()
   check_spacy_version(spacy_version)
@@ -203,6 +247,7 @@ spacy_initialize <- function(model = "en_core_web_sm",
   spacyr_env$entity_patterns <- entity_patterns
   # the rules set entities even without the model's entity recognizer
   options("spacy_entity" = entity || !is.null(entity_patterns))
+  initialized <- TRUE
   message("successfully initialized (spaCy Version: ", spacy_version, ", language model: ", model, ")")
   options("spacy_initialized" = TRUE)
   
