@@ -99,6 +99,16 @@ values with a wildcard, which spacyr combines into one regular expression
 for each label. Other token patterns are checked one by one, and so are
 phrases marked \code{case_insensitive} when the patterns also include phrases
 that are not, which makes parsing slower when there are many of them.
+
+Unless the environment variable \code{TOKENIZERS_PARALLELISM} is already set,
+\code{spacy_initialize()} sets it to \code{"false"}. Transformer models, such as
+\code{en_core_web_trf}, tokenize with Hugging Face's \strong{tokenizers} library,
+which otherwise prints a warning about disabling parallelism, again and
+again until R is restarted, once the R process is forked after the model
+has been used, as RStudio does when saving a file. Turning off its
+parallelism makes little difference to speed, since the transformer itself
+takes most of the time. To keep it, set the variable before calling
+\code{spacy_initialize()}, as in \code{Sys.setenv(TOKENIZERS_PARALLELISM = "true")}.
 }
 \examples{
 \dontrun{

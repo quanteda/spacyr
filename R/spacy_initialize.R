@@ -77,6 +77,16 @@
 #' for each label. Other token patterns are checked one by one, and so are
 #' phrases marked `case_insensitive` when the patterns also include phrases
 #' that are not, which makes parsing slower when there are many of them.
+#'
+#' Unless the environment variable `TOKENIZERS_PARALLELISM` is already set,
+#' `spacy_initialize()` sets it to `"false"`. Transformer models, such as
+#' `en_core_web_trf`, tokenize with Hugging Face's **tokenizers** library,
+#' which otherwise prints a warning about disabling parallelism, again and
+#' again until R is restarted, once the R process is forked after the model
+#' has been used, as RStudio does when saving a file. Turning off its
+#' parallelism makes little difference to speed, since the transformer itself
+#' takes most of the time. To keep it, set the variable before calling
+#' `spacy_initialize()`, as in `Sys.setenv(TOKENIZERS_PARALLELISM = "true")`.
 #' @seealso [as_entity_patterns()]
 #' @examples
 #' \dontrun{
@@ -141,7 +151,19 @@ spacy_initialize <- function(model = "en_core_web_sm",
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
+  # Hugging Face's tokenizers, used by transformer models such as
+  # "en_core_web_trf", warns repeatedly once the R process forks after it
+  # has used its thread pool, as RStudio does when saving a file (#233); a
+  # value the user has set is kept
+  parallelism <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = "")
+  if (!nzchar(parallelism)) {
+    parallelism <- "false"
+    Sys.setenv(TOKENIZERS_PARALLELISM = parallelism)
+  }
+
   spacyr_env$module <- load_spacyr_module()
+  # Python copies the environment when it starts, which may have been before
+  spacyr_env$module$set_env("TOKENIZERS_PARALLELISM", parallelism)
   spacy_version <- spacyr_env$module$spacy_version()
   check_spacy_version(spacy_version)
 

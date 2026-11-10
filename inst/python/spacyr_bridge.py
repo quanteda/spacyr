@@ -8,11 +8,17 @@ import time
 import string
 import random
 import contextlib
+import os
 import re
 
 # This module is loaded by spacy_initialize() with reticulate::import_from_path().
 # It keeps no state of its own: R holds the pipeline returned by load_model()
 # and passes it, and all other values, as arguments.
+
+def set_env(name, value):
+    # os.environ is copied when Python starts, so a variable that R sets
+    # afterwards is set here too; assigning it also sets it for the process
+    os.environ[name] = value
 
 def load_model(model, entity = True, max_length = None):
     if not entity:

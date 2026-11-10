@@ -200,6 +200,33 @@ test_that("spacy_initialize gives a helpful error for a missing model", {
   spacy_finalize()
 })
 
+test_that("spacy_initialize turns off tokenizers parallelism unless set (#233)", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  old <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)
+  on.exit({
+    if (is.na(old)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
+    else Sys.setenv(TOKENIZERS_PARALLELISM = old)
+    try(spacy_finalize(), silent = TRUE)
+  })
+  py_value <- function()
+    reticulate::import("os")$environ$get("TOKENIZERS_PARALLELISM")
+
+  Sys.unsetenv("TOKENIZERS_PARALLELISM")
+  try_spacy_initialize()
+  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM"), "false")
+  expect_identical(py_value(), "false")
+  spacy_finalize()
+
+  # a value set by the user is kept, also when Python has already started
+  Sys.setenv(TOKENIZERS_PARALLELISM = "true")
+  try_spacy_initialize()
+  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM"), "true")
+  expect_identical(py_value(), "true")
+  spacy_finalize()
+})
+
 test_that("spacyr leaves no variables in Python's __main__", {
   skip_on_cran()
   skip_on_os("solaris")
