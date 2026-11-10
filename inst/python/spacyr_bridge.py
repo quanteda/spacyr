@@ -23,6 +23,48 @@ def load_model(model, entity = True, max_length = None):
         nlp.max_length = int(max_length)
     return nlp
 
+def sets_entities(nlp):
+    # whether any active component of the pipeline sets entities, as spaCy
+    # records it (ner and entity_ruler assign "doc.ents")
+    for name in nlp.pipe_names:
+        try:
+            if "doc.ents" in nlp.get_pipe_meta(name).assigns:
+                return True
+        except Exception:
+            pass
+    return False
+
+def ruler_patterns(nlp, patterns):
+    # spaCy's form of the patterns from R: a phrase marked case_insensitive
+    # becomes a token pattern matching the lower case form of each of the
+    # tokens that the pipeline's own tokenizer makes of it
+    out = []
+    for p in patterns:
+        p = dict(p)
+        if p.pop("case_insensitive", False) and isinstance(p["pattern"], str):
+            p["pattern"] = [{"LOWER": t.lower_} for t in nlp.make_doc(p["pattern"])]
+        out.append(p)
+    return out
+
+def add_entity_ruler(nlp, patterns, overwrite = True):
+    # Add spacyr's entity ruler as the last component of the pipeline, after
+    # every component that sets entities. Its own name leaves any entity_ruler
+    # saved with the model in place. Returns whether a component before it
+    # sets entities.
+    upstream = sets_entities(nlp)
+    ruler = nlp.add_pipe("entity_ruler", name = "spacyr_entity_ruler", last = True,
+                         config = {"overwrite_ents": bool(overwrite), "validate": True})
+    # the ruler makes a Doc of each phrase with the components before it;
+    # tokenizing is all that matching phrases on ORTH needs
+    others = [name for name in nlp.pipe_names if name != "spacyr_entity_ruler"]
+    try:
+        with nlp.select_pipes(disable = others):
+            ruler.add_patterns(ruler_patterns(nlp, patterns))
+    except Exception:
+        nlp.remove_pipe("spacyr_entity_ruler")
+        raise
+    return upstream
+
 def spacy_version():
     return spacy.about.__version__
 
