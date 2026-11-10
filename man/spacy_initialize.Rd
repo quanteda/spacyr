@@ -8,6 +8,8 @@ spacy_initialize(
   model = "en_core_web_sm",
   entity = TRUE,
   max_length = NULL,
+  entity_patterns = NULL,
+  overwrite_entities = TRUE,
   ...
 )
 }
@@ -28,10 +30,61 @@ default), spaCy's default of 1,000,000 is used. Larger values require
 roughly 1GB of temporary memory per 100,000 characters for the parser
 and entity recogniser.}
 
+\item{entity_patterns}{rule-based entities to add to the pipeline: a
+\code{spacyr_entity_patterns} object, or anything that \code{\link[=as_entity_patterns]{as_entity_patterns()}}
+accepts, such as a named character vector of phrases. spacyr adds
+spaCy's entity ruler, as \code{spacyr_entity_ruler}, at the end of the
+pipeline, after every component that sets entities; an entity ruler saved
+with the model stays as it is. If the model already has a component of
+that name, for instance because it was saved from a pipeline with rules
+added by spacyr, the new ruler is named \code{spacyr_entity_ruler_2} (or the
+next free number). If \code{NULL} (the default), the pipeline is not changed.}
+
+\item{overwrite_entities}{logical; where an entity matched by
+\code{entity_patterns} overlaps one found by an earlier component, such as the
+model's named entity recognizer, the rule's entity is kept if \code{TRUE} (the
+default), and the earlier one if \code{FALSE}, so that the rules only add
+entities where none were found.}
+
 \item{...}{not used.}
 }
 \description{
 Initialize spaCy to call from R.
+}
+\details{
+With \code{entity_patterns}, the entities found by the rules are returned by
+\code{\link[=spacy_parse]{spacy_parse()}} and \code{\link[=spacy_extract_entity]{spacy_extract_entity()}} like any others, also when
+\code{entity = FALSE}. Patterns that ask for an entity type (\code{ENT_TYPE}) or for
+tokens inside an entity (\code{ENT_IOB}) build on the entities of earlier
+components, such as the model's \code{ner} or a ruler saved with the model, so
+they give a warning when no earlier component sets entities, for instance
+with \code{entity = FALSE}. Phrases are tokenized with the pipeline's own
+tokenizer, and those marked \code{case_insensitive} match the lower case form of
+each token. A component that changes the tokens, such as spaCy's
+\code{merge_entities}, can stop phrases from matching when it comes before the
+ruler, which gives a warning.
+}
+\examples{
+\dontrun{
+# academic titles as part of a person's name
+titles <- c("dr", "dr.", "prof", "prof.", "professor")
+pats <- as_entity_patterns(list(
+    label = "PERSON",
+    pattern = list(list(LOWER = list(IN = titles)),
+                   list(ENT_TYPE = "PERSON", ENT_IOB = "B"),
+                   list(ENT_TYPE = "PERSON", ENT_IOB = "I", OP = "*"))))
+spacy_initialize(entity_patterns = pats)
+spacy_extract_entity("Prof. Jane Smith met Dr Bob Jones in Paris.")
+spacy_finalize()
+
+# phrases, with labels as names
+spacy_initialize(entity_patterns = c(ORG = "Acme Widgets", GPE = "Ruritania"))
+spacy_finalize()
+}
+
+}
+\seealso{
+\code{\link[=as_entity_patterns]{as_entity_patterns()}}
 }
 \author{
 Akitaka Matsuo, Johannes B. Gruber

@@ -69,7 +69,8 @@ Duplicated patterns are removed.
 Turn phrases, spaCy-style pattern lists or a data.frame of patterns into a
 \code{spacyr_entity_patterns} object: a checked set of rules for spaCy's
 \code{entity_ruler}, which finds named entities by matching phrases or sequences
-of tokens. Creating the object needs neither Python nor spaCy.
+of tokens. Creating the object needs neither Python nor spaCy; pass it to
+\code{\link[=spacy_initialize]{spacy_initialize()}} as \code{entity_patterns} to add the rules to the pipeline.
 }
 \details{
 Token patterns are checked for their structure only: that each is a list
@@ -116,5 +117,5 @@ c(as_entity_patterns(c(ORG = "Globex")),
 }
 \seealso{
 \code{\link[=entity_patterns_read]{entity_patterns_read()}} and \code{\link[=entity_patterns_write]{entity_patterns_write()}} to read
-and write patterns as files
+and write patterns as files, and \code{\link[=spacy_initialize]{spacy_initialize()}} to use them
 }

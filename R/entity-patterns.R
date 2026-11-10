@@ -3,7 +3,8 @@
 #' Turn phrases, spaCy-style pattern lists or a data.frame of patterns into a
 #' `spacyr_entity_patterns` object: a checked set of rules for spaCy's
 #' `entity_ruler`, which finds named entities by matching phrases or sequences
-#' of tokens. Creating the object needs neither Python nor spaCy.
+#' of tokens. Creating the object needs neither Python nor spaCy; pass it to
+#' [spacy_initialize()] as `entity_patterns` to add the rules to the pipeline.
 #'
 #' @param x the patterns to convert:
 #'   * a character vector of phrases, each matched exactly as a sequence of
@@ -62,7 +63,7 @@
 #' titles needs to list both `"prof"` and `"prof."`, to match titles written
 #' with and without a full stop.
 #' @seealso [entity_patterns_read()] and [entity_patterns_write()] to read
-#'   and write patterns as files
+#'   and write patterns as files, and [spacy_initialize()] to use them
 #' @examples
 #' # phrases, labelled by their names or by `label`
 #' as_entity_patterns(c(ORG = "Acme Widgets", GPE = "San Francisco"))
