@@ -14,7 +14,9 @@
 #'  all other remove functionalities (e.g. `remove_punct`) have to be set to `FALSE`. 
 #'  When `what = "sentence"`, this option will remove trailing spaces if `TRUE`.
 #' @param remove_symbols remove symbols. The symbols are either `SYM` in `pos`
-#'   field, or currency symbols.
+#'   field, or currency symbols. Since this needs the part-of-speech tags, it
+#'   runs all the components of the pipeline, which makes tokenization much
+#'   slower; the other `remove_*` options do not.
 #' @param padding if `TRUE`, leave an empty string where the removed tokens 
 #'   previously existed. This is useful if a positional match is needed between 
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
@@ -68,6 +70,15 @@ spacy_tokenize.character <- function(x,
                                      ...) {
     # checked before spaCy is initialized
     check_multithread(multithread, "spacy_tokenize")
+    flags <- list(remove_punct = remove_punct, remove_url = remove_url,
+                  remove_numbers = remove_numbers,
+                  remove_separators = remove_separators,
+                  remove_symbols = remove_symbols, padding = padding)
+    for (flag in names(flags)) {
+        value <- flags[[flag]]
+        if (!is.logical(value) || length(value) != 1 || is.na(value))
+            stop("`", flag, "` must be TRUE or FALSE", call. = FALSE)
+    }
     args <- pipe_args(n_process, batch_size)
     output <- match.arg(output)
     what <- match.arg(what)
@@ -82,10 +93,12 @@ spacy_tokenize.character <- function(x,
             remove_separators = remove_separators,
             batch_size = args$batch_size, n_process = args$n_process)
     } else {
-        turn_off_pipes <- if (all(!c(remove_punct, remove_url, remove_numbers))) TRUE else FALSE
-        if (remove_separators == FALSE & turn_off_pipes == FALSE) {
+        if (!remove_separators && any(remove_punct, remove_url, remove_numbers)) {
             stop("remove_separators = FALSE and remove_* = TRUE are not compatible", call. = FALSE)
         }
+        # only remove_symbols needs a pipeline component (the tagger, for the
+        # SYM tag); punctuation, numbers and URLs are properties of the tokens
+        turn_off_pipes <- !remove_symbols
         tokens <- spobj$tokenize(
             x, docnames,
             remove_punct = remove_punct,

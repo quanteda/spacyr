@@ -103,3 +103,22 @@ test_that("invalid arguments stop before spaCy is initialized", {
   }
   expect_null(getOption("spacy_initialized"))
 })
+
+test_that("spacy_tokenize() rejects flags that are not TRUE or FALSE", {
+  # checked before spaCy is initialized: a missing value used to be passed to
+  # Python, where it counted as TRUE or FALSE depending on the flag
+  local_mocked_bindings(spacy_initialize = function(...) stop("spacy_initialize() was called"),
+                        .package = "spacyr")
+  op <- options(spacy_initialized = NULL)
+  on.exit(options(op), add = TRUE)
+  flags <- c("remove_punct", "remove_url", "remove_numbers",
+             "remove_separators", "remove_symbols", "padding")
+  for (flag in flags) {
+    for (value in list(NA, c(TRUE, FALSE), "TRUE", 1)) {
+      args <- stats::setNames(list(txt, value), c("x", flag))
+      expect_error(do.call(spacy_tokenize, args),
+                   paste0("`", flag, "` must be TRUE or FALSE"), fixed = TRUE)
+    }
+  }
+  expect_null(getOption("spacy_initialized"))
+})
