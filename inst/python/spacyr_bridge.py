@@ -34,9 +34,10 @@ _HYPHEN_PROBES = ("a-b", "a-1", "1-a")
 _Pattern = type(re.compile(""))
 
 def splits_hyphens(nlp):
-    # whether the tokenizer splits a word joined by a hyphen; the tokenizer
-    # itself, since nlp.make_doc() checks nlp.max_length
-    return len(nlp.tokenizer("aa-bb")) > 1
+    # whether the tokenizer splits a word joined by a hyphen between letters,
+    # a digit and a letter, or a letter and a digit, each probed on its own;
+    # the tokenizer itself, since nlp.make_doc() checks nlp.max_length
+    return any(len(nlp.tokenizer(w)) > 1 for w in ("aa-bb", "2-day", "x-2"))
 
 def keep_hyphens(nlp):
     # Stop the tokenizer splitting words at a single hyphen between letters,

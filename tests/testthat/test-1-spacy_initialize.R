@@ -158,9 +158,9 @@ test_that("split_hyphens leaves a custom infix callback alone", {
   spacy <- reticulate::import("spacy")
   main <- reticulate::py_run_string("
 class HyphenSplitter:
-    def __init__(self):
+    def __init__(self, rx = '-'):
         import re
-        self.rx = re.compile('-')
+        self.rx = re.compile(rx)
     def finditer(self, text):
         return self.rx.finditer(text)
 ", local = TRUE)
@@ -169,6 +169,15 @@ class HyphenSplitter:
   res <- bridge$keep_hyphens(nlp)
   expect_false(res$changed)
   expect_true(res$splits)
+
+  # callbacks that split only one direction of a letter and a digit
+  for (rx in c("(?<=[0-9])-(?=[a-z])", "(?<=[a-z])-(?=[0-9])")) {
+    nlp <- spacy$blank("en")
+    nlp$tokenizer$infix_finditer <- main$HyphenSplitter(rx)$finditer
+    res <- bridge$keep_hyphens(nlp)
+    expect_false(res$changed, label = rx)
+    expect_true(res$splits, label = rx)
+  }
 })
 
 test_that("spacy_installed() reports an installed spaCy and models", {

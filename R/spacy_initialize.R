@@ -62,8 +62,9 @@
 #' dependencies for a hyphenated word kept whole can differ from those for its
 #' parts. Only the language's default infix rules are changed: a model saved
 #' with infix rules of its own, or whose tokenizer is not spaCy's rule-based
-#' one, as for Chinese and Japanese, is left as it is, with a warning if it
-#' still splits hyphenated words. Many languages, such as German, do not split
+#' one, as for Chinese and Japanese, is left as it is. A warning is given if
+#' the tokenizer still splits some hyphenated words, between letters or
+#' between a letter and a digit, for whatever reason. Many languages, such as German, do not split
 #' them in the first place. Phrase patterns of a ruler saved with the model,
 #' such as an `entity_ruler`, were tokenized when the model was saved, so
 #' those containing hyphenated words may no longer match; changing the
@@ -161,9 +162,8 @@ spacy_initialize <- function(model = "en_core_web_sm",
   if (!split_hyphens) {
     hyph <- spacyr_env$module$keep_hyphens(nlp)
     if (hyph$splits)
-      warning("The tokenizer of '", model, "' still splits hyphenated words, ",
-              "since its rules are not spaCy's defaults for the language",
-              call. = FALSE)
+      warning("The tokenizer of '", model, "' still splits some hyphenated ",
+              "words with split_hyphens = FALSE", call. = FALSE)
     saved <- unlist(hyph$phrase_rulers)
     if (length(saved))
       warning("Phrase patterns of ", paste0("'", saved, "'", collapse = ", "),
