@@ -60,21 +60,28 @@ invisible(spacy_parse(txt, entity = FALSE))
 
 ## Ask only for what you need, from the right function
 
-The options of `spacy_parse()`, such as `pos`, `lemma` or `dependency`, choose the columns of its output. They do not turn components of the pipeline on or off: every component runs whatever the options are, so that turning `dependency` off saves very little time ([#188](https://github.com/quanteda/spacyr/issues/188)), and turning everything on costs very little more:
+The options of `spacy_parse()`, such as `pos`, `lemma` or `dependency`, choose the columns of its output. They do not turn components of the pipeline on or off: every component runs whatever the options are. So returning the dependencies costs little more than leaving them out, as reported in [#188](https://github.com/quanteda/spacyr/issues/188), and the same holds for turning several options off, or on, together:
 
 
 ``` r
 data.frame(
-  options = c("defaults", "no pos, lemma or entity", "adding tag, dependency and nounphrase"),
+  options = c("defaults",
+              "adding dependency",
+              "no pos, lemma or entity",
+              "adding tag, dependency and nounphrase"),
   seconds = c(seconds(spacy_parse(txt)),
+              seconds(spacy_parse(txt, dependency = TRUE)),
               seconds(spacy_parse(txt, pos = FALSE, lemma = FALSE, entity = FALSE)),
               seconds(spacy_parse(txt, tag = TRUE, dependency = TRUE, nounphrase = TRUE)))
 )
 ##                                 options seconds
 ## 1                              defaults     2.6
-## 2               no pos, lemma or entity     2.5
-## 3 adding tag, dependency and nounphrase     2.7
+## 2                     adding dependency     2.7
+## 3               no pos, lemma or entity     2.6
+## 4 adding tag, dependency and nounphrase     2.8
 ```
+
+What extra time there is comes from building the extra columns, not from running the pipeline.
 
 So it is better to ask for all the columns you will need in one call, than to call `spacy_parse()` once for each. `entity_extract()` and `nounphrase_extract()` take the entities and noun phrases from the output of `spacy_parse()`, without parsing the texts again:
 
@@ -119,14 +126,14 @@ data.frame(
 ## 1                        spacy_tokenize(txt)     0.2
 ## 2   spacy_tokenize(txt, remove_punct = TRUE)     0.2
 ## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.6
-## 4     spacy_tokenize(txt, what = "sentence")     2.6
+## 4     spacy_tokenize(txt, what = "sentence")     2.5
 ```
 
-To remove symbols quickly, tokenize with `spacy_tokenize()`, and remove them afterwards, for instance with **quanteda**'s `tokens(remove_symbols = TRUE)`, which removes tokens made of symbol characters instead of using the tags, so that the two can differ.
+To remove symbols quickly, tokenize with `spacy_tokenize()`, and remove them afterwards, for instance with **quanteda**'s `tokens(remove_symbols = TRUE)`, which removes tokens made of symbol characters instead of using the tags. The two can differ: **quanteda** removes `+` and `©`, for instance, where spaCy may tag them otherwise and keep them.
 
-## Leave out the entity recogniser
+## Turn off the entity recogniser
 
-The one component that **spacyr** can leave out of the pipeline is the named entity recogniser. `spacy_initialize(entity = FALSE)` loads the model without it, which here saves about a quarter of the time:
+The one component that **spacyr** can turn off is the named entity recogniser. `spacy_initialize(entity = FALSE)` loads the model with the recogniser disabled, so that it does not run when texts are parsed, which here saves about a quarter of the parsing time:
 
 
 ``` r
@@ -139,11 +146,11 @@ invisible(spacy_parse(txt, entity = FALSE))
 without_ner <- seconds(spacy_parse(sents, entity = FALSE))
 spacy_finalize()
 
-data.frame(ner = c("in the pipeline", "left out"),
+data.frame(ner = c("in the pipeline", "disabled"),
            seconds = c(with_ner, without_ner))
 ##               ner seconds
 ## 1 in the pipeline     2.7
-## 2        left out     2.0
+## 2        disabled     2.0
 ```
 
 `spacy_parse()` then has no entities to return, and says so if asked for them, unless entity rules are added with `spacy_initialize(entity_patterns = )` (see the article on [entity rules](entity_rules.html)). The rules work without the recogniser, so long as they do not build on the entities it finds.
@@ -158,7 +165,7 @@ spacy_initialize(model = "en_core_web_lg")
 ## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_lg)
 invisible(spacy_parse(txt, entity = FALSE))
 seconds(spacy_parse(txt))
-## [1] 2.8
+## [1] 3
 spacy_finalize()
 ```
 
@@ -181,7 +188,7 @@ data.frame(batch_size = sizes,
 ## 1          1     6.0
 ## 2         10     3.7
 ## 3        100     2.8
-## 4       1000     2.7
+## 4       1000     2.8
 ```
 
 The default is usually a good choice. A batch of long documents takes more memory than one of short documents, so with long documents, a smaller batch can avoid running out of memory.
@@ -209,12 +216,12 @@ more <- unname(rep(sents, 6))
 data.frame(n_process = procs,
            seconds = sapply(procs, function(p) seconds(spacy_parse(more, n_process = p), times = 1)))
 ##   n_process seconds
-## 1         1    17.7
-## 2         2    16.1
-## 3         4    16.4
+## 1         1    16.4
+## 2         2    15.1
+## 3         4    14.9
 ```
 
-There is little to gain here, partly because a single process already uses more than one of the CPUs for some of its calculations. It will be larger with a larger model, a larger number of documents, and a machine with more CPUs, but it is worth timing on a sample of your own texts before relying on it. Since `spacy_tokenize()` runs no components, it gains nothing from more processes, and only pays the cost of starting them:
+So on this machine, with this model and these texts, there is little to gain. The gain may differ with other models, texts and machines, so time `n_process` on a sample of your own texts before relying on it. **spacyr** itself also adds some cost with more than one process, which [#289](https://github.com/quanteda/spacyr/issues/289) is about. Since `spacy_tokenize()` runs no components, it gains nothing from more processes, and only pays the costs of starting them and of sending the documents between them:
 
 
 ``` r
@@ -223,13 +230,13 @@ data.frame(n_process = c(1, 4),
                        seconds(spacy_tokenize(more, n_process = 4), times = 1)))
 ##   n_process seconds
 ## 1         1     0.8
-## 2         4    12.6
+## 2         4    11.4
 ```
 
 A few things to keep in mind with more than one process:
 
-- Each process loads its own copy of the model, so they need that much more memory.
-- On macOS and Windows, Python starts each process afresh ("spawn"), which takes longer than on Linux, where it copies the R session's Python process ("fork").
+- Each process has its own copy of the model, so they need more memory. A process started by copying the R session's Python process ("fork") can share much of that memory with it at first.
+- How Python starts the processes depends on the system and the version of Python. On macOS and Windows, it starts each process afresh ("spawn"), which takes longer. On Linux, it copies the R session's Python process ("fork"), or from Python 3.14 starts the processes from a separate server process ("forkserver"); see Python's documentation on [start methods](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods).
 - A custom pipeline component must be defined in a Python module that the other processes can import.
 - With a pipeline that uses Hugging Face's **tokenizers** library, as some transformer pipelines do, see the section below.
 
@@ -237,15 +244,15 @@ The output does not depend on `n_process` or `batch_size`: documents come back i
 
 ## Long documents
 
-spaCy accepts documents of up to 1,000,000 characters, unless `spacy_initialize(max_length = )` sets another limit. The parser and the entity recogniser need roughly 1GB of temporary memory for each 100,000 characters of a document, so very long documents can use a great deal of memory, and a document longer than the limit gives an error. Splitting long documents into paragraphs or sentences first, for instance with **quanteda**'s `corpus_reshape()`, avoids both, and gives the batches and processes more documents to share. The parser then cannot link words across the places where the documents were split, but it rarely needs to.
+spaCy accepts documents of up to 1,000,000 characters, unless `spacy_initialize(max_length = )` sets another limit, and a document longer than the limit gives an error. spaCy's rule of thumb is that the parser and the entity recogniser need roughly 1GB of temporary memory for each 100,000 characters of a document, so very long documents can use a great deal of memory. Splitting long documents into paragraphs or sentences first, for instance with **quanteda**'s `corpus_reshape()`, keeps each piece within the limit, uses less memory, and gives the batches and processes more documents to share. It has costs, however. Each piece becomes a document of its own, with its own name, so the results must be put back together by document if needed; and spaCy cannot see across the places where the documents were split, so sentence boundaries, dependencies and entities there can differ from those it would find in the whole document. Splitting at paragraphs keeps these differences fewest.
 
 ## Transformer pipelines and `TOKENIZERS_PARALLELISM`
 
-Some pipelines, such as those built with **spacy-transformers**, use Hugging Face's **tokenizers** library. `spacy_initialize()` sets the environment variable `TOKENIZERS_PARALLELISM` to `"false"`, unless it is already set, which stops older versions of that library from printing a warning again and again once the R process has been forked ([#233](https://github.com/quanteda/spacyr/issues/233)). The setting turns off the library's own threads for tokenizing, and how much that matters for the total time depends on the pipeline and the texts. Setting it to `"true"` before calling `spacy_initialize()` turns them back on, but also turns off the library's safeguard against deadlocks: a forked process, from `parallel::mclapply()` or from `n_process` greater than 1 on Linux, that uses the library after the R session has used it can then hang. Leave it at `"false"` whenever that can happen.
+Some pipelines, such as those built with **spacy-transformers**, use Hugging Face's **tokenizers** library. `spacy_initialize()` sets the environment variable `TOKENIZERS_PARALLELISM` to `"false"`, unless it is already set, which stops older versions of that library from printing a warning again and again once the R process has been forked ([#233](https://github.com/quanteda/spacyr/issues/233)). The setting turns off the library's own threads for tokenizing, and how much that matters for the total time depends on the pipeline and the texts. Setting it to `"true"` before calling `spacy_initialize()` turns them back on, but also turns off the library's safeguard against deadlocks: a process forked from the R session after the R session has used the library, such as a worker of `parallel::mclapply()`, or of `n_process` greater than 1 when the workers are started by fork, can then hang if it uses the library too. Leave it at `"false"` whenever that can happen.
 
 ## Summary
 
-- Use `spacy_tokenize()` when you need only the tokens, and remove symbols afterwards rather than with `remove_symbols`.
+- Use `spacy_tokenize()` when you need only the tokens. Its `remove_symbols` option runs the whole pipeline; removing symbols afterwards, by their characters, is faster, if that definition of a symbol suits your task.
 - Ask `spacy_parse()` for all the columns you need in a single call; turning its options off saves little time.
 - Use `spacy_initialize(entity = FALSE)` when you do not need named entities.
 - Leave `batch_size` at its default, unless memory runs short.
