@@ -1,0 +1,227 @@
+---
+title: "Adding Rule-Based Named Entities"
+author: "Kenneth Benoit"
+date: "`r Sys.Date()`"
+---
+
+<!-- An article for the pkgdown site only: vignettes/articles is in
+.Rbuildignore, so it is not part of the package. Its code needs spaCy, so its
+results are computed ahead of time: edit vignettes/articles/entity_rules.Rmd.orig,
+then run `make vignette` to knit it into vignettes/articles/entity_rules.Rmd,
+which pkgdown builds without running the code. -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "##"
+)
+```
+
+## Introduction
+
+spaCy's language models recognise named entities statistically, from what they learned in training. They often miss entities that matter for a particular study: names specific to a field, organisations the model has never seen, or entities that the model's training data marked differently from how a researcher would. A common example ([#234](https://github.com/quanteda/spacyr/issues/234)) is people's academic titles, which spaCy's English models leave out of a `PERSON` entity.
+
+spaCy solves this with an *entity ruler*, a pipeline component that adds entities by matching rules: phrases, or sequences of tokens described by their attributes. **spacyr** lets you create these rules in R, and adds them to the pipeline when it initializes spaCy:
+
+- `as_entity_patterns()` creates a set of rules from phrases, spaCy's own pattern structure, a data.frame, a **quanteda** dictionary, or entities that spaCy has already found;
+- `entity_patterns_read()` and `entity_patterns_write()` read and write rules as files, in spaCy's JSONL format;
+- `spacy_initialize(entity_patterns = )` adds the rules to the pipeline.
+
+Creating rules needs neither Python nor spaCy, so the rules are ordinary R objects that can be inspected, combined and saved.
+
+If spaCy is already running in your R session, call `spacy_finalize()` before calling `spacy_initialize()` with a new set of rules.
+
+```{r}
+library("spacyr")
+```
+
+## Phrases
+
+The simplest rule is a phrase with a label. The names of a character vector give the labels:
+
+```{r}
+pats <- as_entity_patterns(c(ORG = "Acme Widgets", GPE = "Ruritania"))
+pats
+```
+
+Without rules, the model finds some of these entities, but not as we would label them:
+
+```{r}
+txt <- "Acme Widgets opened a factory in Ruritania, said Jane Smith."
+spacy_initialize()
+spacy_extract_entity(txt)
+spacy_finalize()
+```
+
+With the rules, it finds both, with our labels, and still finds the entities that the rules say nothing about:
+
+```{r}
+spacy_initialize(entity_patterns = pats)
+spacy_extract_entity(txt)
+spacy_parse(txt, pos = FALSE, lemma = FALSE)
+spacy_finalize()
+```
+
+Phrases match spaCy's tokens exactly, including their case. With `case_insensitive = TRUE`, they match in any case:
+
+```{r}
+pats <- as_entity_patterns(c("Acme Widgets", "Globex"), label = "ORG",
+                           case_insensitive = TRUE)
+pats
+spacy_initialize(entity_patterns = pats)
+spacy_extract_entity("ACME WIDGETS and globex announced a merger.")
+spacy_finalize()
+```
+
+A phrase is split into tokens by the pipeline's own tokenizer, so `"Globex, Inc."` is matched as the three tokens `Globex`, `,` and `Inc.`, as in a text. Some rules of the tokenizer depend on case, though: spaCy's English models keep `"Inc."` as one token, but split `"inc."` into `"inc"` and `"."`. So write phrases in their usual case, even when they should match in any case.
+
+## Token patterns
+
+Rules can also describe a sequence of tokens by their attributes, in [spaCy's own structure](https://spacy.io/usage/rule-based-matching): a list with one element per token, each a named list of attributes such as `LOWER` (the token in lower case), `IS_TITLE`, `ENT_TYPE` (the type of entity a token belongs to) or `OP` (how many times the token may occur).
+
+To include academic titles in `PERSON` entities, we match a title, followed by the tokens of a person that the model has already recognised:
+
+```{r}
+titles <- c("dr", "dr.", "prof", "prof.", "professor")
+title_rule <- as_entity_patterns(list(
+  label = "PERSON",
+  pattern = list(list(LOWER = list(IN = titles)),
+                 list(ENT_TYPE = "PERSON", ENT_IOB = "B"),
+                 list(ENT_TYPE = "PERSON", ENT_IOB = "I", OP = "*"))
+))
+title_rule
+```
+
+The second token begins a `PERSON` entity (`ENT_IOB = "B"`), and the third matches the rest of that entity (`ENT_IOB = "I"`), zero or more times. A simpler rule, a title followed by `list(ENT_TYPE = "PERSON", OP = "+")`, would also match, but it would run on into a second person who directly follows the first, joining "Prof. Jane Smith" and "Bob Jones" into one entity. Both titles need to be listed with and without a full stop, since the English models keep "Prof." as one token.
+
+```{r}
+txt <- "Prof. Jane Smith Bob Jones and Dr. Kim Park spoke."
+spacy_initialize()
+spacy_extract_entity(txt)
+spacy_finalize()
+
+spacy_initialize(entity_patterns = title_rule)
+spacy_extract_entity(txt)
+spacy_finalize()
+```
+
+`as_entity_patterns()` checks the structure of token patterns, and converts them to the form spaCy expects: for instance, the values of `IN` stay a list even when there is only one. spaCy checks the attribute names and values when the rules are added, and `spacy_initialize()` shows its message if it does not accept them.
+
+## Rules and the model
+
+**spacyr** adds its entity ruler at the end of the pipeline, after the model's named entity recognizer and anything else that sets entities. This is what allows the title rule to build on the model's `PERSON` entities.
+
+Where a rule's entity overlaps one that the model found, the rule's entity is kept. With `overwrite_entities = FALSE`, the model's entity is kept instead, so that the rules only add entities where the model found none:
+
+```{r}
+txt <- "Jane Smith flew to Paris."
+spacy_initialize(entity_patterns = c(LOC = "Paris"))
+spacy_extract_entity(txt)
+spacy_finalize()
+
+spacy_initialize(entity_patterns = c(LOC = "Paris"), overwrite_entities = FALSE)
+spacy_extract_entity(txt)
+spacy_finalize()
+```
+
+When two rules overlap, spaCy prefers the match that spans more tokens. If they span the same number of tokens, the one that starts earlier takes priority. See [spaCy's entity ruler guide](https://spacy.io/usage/rule-based-matching#entityruler).
+
+Set `entity = FALSE` to disable the model's named entity recogniser (`ner`). Rules based on token attributes such as `IS_TITLE` still work:
+
+```{r}
+name_rule <- as_entity_patterns(list(
+  label = "NAME",
+  pattern = list(list(IS_TITLE = TRUE), list(IS_TITLE = TRUE))
+))
+spacy_initialize(entity = FALSE, entity_patterns = name_rule)
+spacy_parse("We met Jane Smith there.", pos = FALSE, lemma = FALSE)
+spacy_finalize()
+```
+
+The title rule relies on entity annotations (`ENT_TYPE` and `ENT_IOB`) from an earlier component. With `ner` disabled and no other component supplying entities, `spacy_initialize()` warns that the title rule will not match:
+
+```{r}
+spacy_initialize(entity = FALSE, entity_patterns = title_rule)
+spacy_finalize()
+```
+
+A saved ruler stays in the pipeline and can supply entities even with `entity = FALSE`. **spacyr** adds its own ruler after it, using `spacyr_entity_ruler` or a numbered variant if that name is already in use.
+
+## Dictionaries
+
+A **quanteda** dictionary becomes a set of rules labelled by its top-level keys. As in **quanteda**, its values match in any case, and they can have wildcards: `*` for any characters, and `?` for one. A value with wildcards matches one token for each part separated by spaces, as **quanteda** matches dictionary values to tokens, so `"dr * who"` matches three tokens.
+
+```{r, message = FALSE}
+library("quanteda")
+dict <- dictionary(list(
+  ORG = c("Acme Widgets", "Globex*", "Initech, Inc."),
+  PERSON = "dr * who"
+), tolower = FALSE)
+as_entity_patterns(dict)
+```
+
+`dictionary()` lowercases its values by default, so this one is made with `tolower = FALSE`, to keep `"Inc."` as spaCy's tokenizer expects it. Here the model's recognizer is off, so that all the entities come from the dictionary:
+
+```{r}
+spacy_initialize(entity = FALSE, entity_patterns = dict)
+spacy_extract_entity("ACME WIDGETS and Globexcorp met Dr Hal Who at INITECH, Inc.")
+spacy_finalize()
+```
+
+With `valuetype = "regex"`, each part of a value is a regular expression for one token. These are regular expressions in the dialect of Python, which differs from that of R in some details: for instance, Python does not support `"\\p{L}"` for letters. Make such a dictionary with `tolower = FALSE`, so that escapes such as `"\\D"` keep their case.
+
+## Reusing the entities found
+
+The entities that spaCy finds in one set of texts can become rules for another, for instance to make sure that the entities found in a carefully reviewed corpus are found again, or to carry entities over to a model for another language. The output of `spacy_extract_entity()` keeps the text of each entity as it was, and `as_entity_patterns()` makes a phrase of each:
+
+```{r}
+spacy_initialize()
+found <- spacy_extract_entity(c(
+  "Acme Widgets hired Jane Smith.",
+  "Jane Smith moved to Ruritania."
+))
+spacy_finalize()
+found
+```
+
+The model took "Acme Widgets" for a person. Reviewing the entities before reusing them lets us correct that, and keep only the types we want, here people and organisations. Duplicates, such as the second "Jane Smith", are dropped:
+
+```{r}
+found$ent_type[found$text == "Acme Widgets"] <- "ORG"
+found <- found[found$ent_type %in% c("PERSON", "ORG"), ]
+pats <- as_entity_patterns(found)
+pats
+
+spacy_initialize(entity = FALSE, entity_patterns = pats)
+spacy_extract_entity("Later, Jane Smith left Acme Widgets.")
+spacy_finalize()
+```
+
+`entity_extract()`, which works on the output of `spacy_parse()`, joins the tokens of each entity with an underscore. `as_entity_patterns()` converts its output too, but needs to be told the `concatenator`, since a token that itself contains one would be changed. `spacy_extract_entity()` is the better source.
+
+## Combining and saving rules
+
+Sets of rules combine with `c()`, and are data.frames, with one row per rule:
+
+```{r}
+all_rules <- c(title_rule, as_entity_patterns(c(ORG = "Acme Widgets", GPE = "Ruritania")))
+all_rules
+as.data.frame(all_rules)[, c("label", "id", "case_insensitive")]
+```
+
+`entity_patterns_write()` saves them in spaCy's JSONL format, with one rule per line, which spaCy can also load on its own, and `entity_patterns_read()` reads them back:
+
+```{r}
+file <- tempfile(fileext = ".jsonl")
+entity_patterns_write(all_rules, file)
+cat(readLines(file), sep = "\n")
+identical(entity_patterns_read(file), all_rules)
+```
+
+spacyr preserves `case_insensitive` when writing and reading JSONL. Native spaCy ignores this field, so its default ruler matches those phrases case-sensitively.
+
+`entity_patterns_read()` also reads a JSON array of rules, or a text file with one phrase per line, given a `label`.
+
+## Speed
+
+On a test with 5,000 sentences, 10,000 phrases added little parsing time when all used the same case-matching setting. **spacyr** can also combine simple single-token regular expressions, such as dictionary globs, when they share a label, ID and token attribute. Other token patterns are checked one by one. Mixing case-sensitive and case-insensitive phrases also makes large rule sets slower, because the case-insensitive phrases are matched as token patterns.

@@ -6,8 +6,16 @@ readme:
 	Rscript -e "rmarkdown::render('README.Rmd', quiet = TRUE)"
 	Rscript -e "rmarkdown::render('index.Rmd', quiet = TRUE)"
 
-# Knit the vignette's source into vignettes/using_spacyr.Rmd, with its results
-# computed ahead of time, since running its code needs spaCy. Uses this copy of
-# spacyr, so run it after changes that affect the vignette's output.
+# Knit the source of each vignette and pkgdown article, vignettes/*.Rmd.orig
+# and vignettes/articles/*.Rmd.orig, into the .Rmd of the same name, with its
+# results computed ahead of time, since running its code needs spaCy. Uses this
+# copy of spacyr and starts a fresh R session for each source.
 vignette:
-	cd vignettes && Rscript -e "pkgload::load_all('..', quiet = TRUE); knitr::knit('using_spacyr.Rmd.orig', output = 'using_spacyr.Rmd', quiet = TRUE)"
+	cd vignettes && for input in ./*.Rmd.orig articles/*.Rmd.orig; do \
+		[ -f "$$input" ] || continue; \
+		Rscript -e 'pkgload::load_all("..", quiet = TRUE)' \
+			-e 'knitr::opts_chunk$$set(error = FALSE)' \
+			-e 'input <- commandArgs(trailingOnly = TRUE)[[1L]]' \
+			-e 'knitr::knit(input, output = sub("[.]orig$$", "", input), quiet = TRUE)' \
+			"$$input" || exit $$?; \
+	done
