@@ -6,8 +6,9 @@ readme:
 	Rscript -e "rmarkdown::render('README.Rmd', quiet = TRUE)"
 	Rscript -e "rmarkdown::render('index.Rmd', quiet = TRUE)"
 
-# Knit the vignette's source into vignettes/using_spacyr.Rmd, with its results
-# computed ahead of time, since running its code needs spaCy. Uses this copy of
-# spacyr, so run it after changes that affect the vignette's output.
+# Knit each vignette's source, vignettes/*.Rmd.orig, into the .Rmd of the same
+# name, with its results computed ahead of time, since running its code needs
+# spaCy. Uses this copy of spacyr, so run it after changes that affect the
+# vignettes' output.
 vignette:
-	cd vignettes && Rscript -e "pkgload::load_all('..', quiet = TRUE); knitr::knit('using_spacyr.Rmd.orig', output = 'using_spacyr.Rmd', quiet = TRUE)"
+	cd vignettes && Rscript -e "pkgload::load_all('..', quiet = TRUE); for (f in list.files(pattern = '[.]Rmd[.]orig$$')) knitr::knit(f, output = sub('[.]orig$$', '', f), quiet = TRUE)"
