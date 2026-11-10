@@ -23,32 +23,84 @@ def load_model(model, entity = True, max_length = None):
         nlp.max_length = int(max_length)
     return nlp
 
+from spacy.lang.char_classes import ALPHA as _ALPHA
+
+# a single hyphen joining two letters, or a letter and a digit in either
+# order: the boundary that split_hyphens = FALSE keeps within a token
+_HYPHEN = "[-\u2010]"
+_HYPHEN_JOIN = ("(?:(?<=[{a}]){h}(?=[{a}0-9])|(?<=[0-9]){h}(?=[{a}]))"
+                .format(a = _ALPHA, h = _HYPHEN))
+_HYPHEN_PROBES = ("a-b", "a-1", "1-a")
+_Pattern = type(re.compile(""))
+
 def splits_hyphens(nlp):
-    # whether the tokenizer splits a word joined by a hyphen
-    return len(nlp.make_doc("aa-bb")) > 1
+    # whether the tokenizer splits a word joined by a hyphen; the tokenizer
+    # itself, since nlp.make_doc() checks nlp.max_length
+    return len(nlp.tokenizer("aa-bb")) > 1
 
 def keep_hyphens(nlp):
-    # Stop the tokenizer splitting words at hyphens between letters, or
-    # between a digit and a letter, by removing the infix rules that match the
-    # hyphen in "a-b" from the language's default rules. Leaves the tokenizer
-    # as it is when its infix rules are not the language's defaults, as in a
-    # model saved with rules of its own, or when it has none, as tokenizers
-    # that are not spaCy's own do not. Returns whether the tokenizer still
-    # splits hyphenated words.
+    # Stop the tokenizer splitting words at a single hyphen between letters,
+    # or between a letter and a digit, as in "eye-opening" or "X-1". Each of
+    # the language's default infix rules that splits one of these is changed
+    # so that it no longer matches there, and splits as before everywhere
+    # else, as at "3-4", "a--b" or the end of a word. The tokenizer is left as
+    # it is when its infix rules are not the language's defaults, as in a
+    # model saved with rules of its own, or when they are not a regular
+    # expression, as with tokenizers that are not spaCy's rule-based one.
+    # Returns whether the tokenizer was changed, whether it still splits
+    # hyphenated words, and, when it was changed, the active components with
+    # phrase patterns, which were tokenized before the change.
     tokenizer = nlp.tokenizer
     finditer = getattr(tokenizer, "infix_finditer", None)
+    owner = getattr(finditer, "__self__", None)
     infixes = list(nlp.Defaults.infixes or [])
-    if finditer is not None and infixes and \
-            getattr(finditer, "__self__", None) is not None and \
-            finditer.__self__.pattern == spacy.util.compile_infix_regex(infixes).pattern:
-        kept = [x for x in infixes if not _matches_hyphen(x)]
-        if len(kept) < len(infixes):
-            tokenizer.infix_finditer = spacy.util.compile_infix_regex(kept).finditer if kept else None
-    return splits_hyphens(nlp)
+    changed = False
+    if isinstance(owner, _Pattern) and infixes and \
+            owner.pattern == spacy.util.compile_infix_regex(infixes).pattern:
+        rules = [_guard_hyphen(x) for x in infixes]
+        if rules != infixes:
+            before = _probe_tokens(tokenizer)
+            tokenizer.infix_finditer = spacy.util.compile_infix_regex(rules).finditer
+            # a rule may match one of the probes without splitting the word,
+            # when other rules keep it whole
+            changed = _probe_tokens(tokenizer) != before
+            if not changed:
+                tokenizer.infix_finditer = finditer
+    phrase_rulers = []
+    if changed:
+        for name, proc in nlp.pipeline:
+            if any(isinstance(p.get("pattern"), str) for p in _patterns_of(proc)):
+                phrase_rulers.append(name)
+    return {"changed": changed, "splits": splits_hyphens(nlp),
+            "phrase_rulers": phrase_rulers}
 
-def _matches_hyphen(rule):
-    m = re.search(rule, "a-b")
-    return m is not None and m.start() == 1 and m.end() == 2
+def _probe_tokens(tokenizer):
+    return [t.text for t in tokenizer(" ".join("x" + p + "x" for p in _HYPHEN_PROBES))]
+
+def _patterns_of(proc):
+    # the patterns of a ruler, such as entity_ruler or span_ruler
+    try:
+        patterns = proc.patterns
+    except Exception:
+        return []
+    return [p for p in patterns if isinstance(p, dict)] if isinstance(patterns, list) else []
+
+def _guard_hyphen(rule):
+    # the rule, unable to match a hyphen that joins a word, if it splits one
+    if not any(_matches_hyphen(rule, probe) for probe in _HYPHEN_PROBES):
+        return rule
+    guarded = "(?!" + _HYPHEN_JOIN + ")(?:" + rule + ")"
+    try:
+        re.compile(guarded)
+    except re.error:
+        return rule
+    return guarded
+
+def _matches_hyphen(rule, probe):
+    try:
+        return any(m.start() <= 1 < m.end() for m in re.finditer(rule, probe))
+    except re.error:
+        return False
 
 def _pipe_meta(nlp, name):
     try:
