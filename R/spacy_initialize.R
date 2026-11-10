@@ -84,7 +84,7 @@
 #' **spacy-transformers**, otherwise print a warning about disabling
 #' parallelism, with versions of **tokenizers** before 0.22.2, again and again
 #' until R is restarted, once the R process is forked after the library has
-#' been used, for instance by [parallel::mcparallel()]; saving a file in
+#' been used, for instance by `parallel::mcparallel()`; saving a file in
 #' RStudio has also been reported to trigger it. The setting controls the
 #' library's tokenizer threads; its effect on total runtime depends on the
 #' pipeline and the workload. It applies to the whole R process, Python
@@ -93,7 +93,7 @@
 #' `spacy_initialize()` is kept, even an empty one, which **tokenizers** reads
 #' as `"false"`. Setting `Sys.setenv(TOKENIZERS_PARALLELISM = "true")` turns
 #' off the library's safeguard against deadlocks: a forked process, such as a
-#' worker of [parallel::mclapply()], or of `n_process` greater than 1 when the
+#' worker of `parallel::mclapply()`, or of `n_process` greater than 1 when the
 #' workers are started by fork, that uses **tokenizers** after the parent has
 #' used it can then hang. Leave the setting at `"false"` whenever that can
 #' happen.
