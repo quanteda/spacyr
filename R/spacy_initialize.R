@@ -16,6 +16,13 @@
 #'   default), spaCy's default of 1,000,000 is used. Larger values require
 #'   roughly 1GB of temporary memory per 100,000 characters for the parser
 #'   and entity recogniser.
+#' @param split_hyphens logical; if `TRUE` (the default), words joined by a
+#'   hyphen are split as the language model's tokenizer splits them, which for
+#'   English makes three tokens of "eye-opening": "eye", "-" and "opening". If
+#'   `FALSE`, spaCy's rule for splitting at a hyphen between letters, or
+#'   between a digit and a letter, is removed from the tokenizer, so that
+#'   "eye-opening" stays one token, and the rest of the pipeline, such as the
+#'   tagger and lemmatizer, processes it as one. See Details.
 #' @param entity_patterns rule-based entities to add to the pipeline: a
 #'   `spacyr_entity_patterns` object, or anything that [as_entity_patterns()]
 #'   accepts, such as a named character vector of phrases. spacyr adds
@@ -43,6 +50,16 @@
 #' each token. A component that changes the tokens, such as spaCy's
 #' `merge_entities`, can stop phrases from matching when it comes before the
 #' ruler, which gives a warning.
+#'
+#' With `split_hyphens = FALSE`, hyphens are still split from numbers, as in
+#' "3-4", and from the start or end of a word, and dashes standing between
+#' spaces stay tokens of their own. The models were trained on text with
+#' hyphenated words split, so their tags and dependencies for a hyphenated
+#' word kept whole can differ from those for its parts. Only the language's
+#' default infix rules are changed: a model saved with infix rules of its own,
+#' or whose tokenizer is not spaCy's rule-based one, as for Chinese and
+#' Japanese, is left as it is, with a warning if it still splits hyphenated
+#' words. Many languages, such as German, do not split them in the first place.
 #'
 #' Phrases are matched quickly, even many thousands of them, and so are
 #' patterns of a single token with a regular expression, such as dictionary
@@ -74,6 +91,7 @@
 spacy_initialize <- function(model = "en_core_web_sm",
                              entity = TRUE,
                              max_length = NULL,
+                             split_hyphens = TRUE,
                              entity_patterns = NULL,
                              overwrite_entities = TRUE,
                              ...) {
@@ -86,6 +104,9 @@ spacy_initialize <- function(model = "en_core_web_sm",
        max_length < 1 || max_length > .Machine$integer.max || max_length != round(max_length)))
     stop("max_length must be a single whole number between 1 and ", .Machine$integer.max)
 
+  if (!is.logical(split_hyphens) || length(split_hyphens) != 1 ||
+      is.na(split_hyphens))
+    stop("split_hyphens must be TRUE or FALSE")
   if (!is.logical(overwrite_entities) || length(overwrite_entities) != 1 ||
       is.na(overwrite_entities))
     stop("overwrite_entities must be TRUE or FALSE")
@@ -127,6 +148,11 @@ spacy_initialize <- function(model = "en_core_web_sm",
       stop(e)
     }
   )
+  # before the entity ruler, which tokenizes its phrases with this tokenizer
+  if (!split_hyphens && spacyr_env$module$keep_hyphens(nlp))
+    warning("The tokenizer of '", model, "' still splits hyphenated words, ",
+            "since its rules are not spaCy's defaults for the language",
+            call. = FALSE)
   if (!is.null(entity_patterns)) {
     ruler <- tryCatch(
       spacyr_env$module$add_entity_ruler(nlp, as.list(entity_patterns),

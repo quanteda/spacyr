@@ -23,6 +23,33 @@ def load_model(model, entity = True, max_length = None):
         nlp.max_length = int(max_length)
     return nlp
 
+def splits_hyphens(nlp):
+    # whether the tokenizer splits a word joined by a hyphen
+    return len(nlp.make_doc("aa-bb")) > 1
+
+def keep_hyphens(nlp):
+    # Stop the tokenizer splitting words at hyphens between letters, or
+    # between a digit and a letter, by removing the infix rules that match the
+    # hyphen in "a-b" from the language's default rules. Leaves the tokenizer
+    # as it is when its infix rules are not the language's defaults, as in a
+    # model saved with rules of its own, or when it has none, as tokenizers
+    # that are not spaCy's own do not. Returns whether the tokenizer still
+    # splits hyphenated words.
+    tokenizer = nlp.tokenizer
+    finditer = getattr(tokenizer, "infix_finditer", None)
+    infixes = list(nlp.Defaults.infixes or [])
+    if finditer is not None and infixes and \
+            getattr(finditer, "__self__", None) is not None and \
+            finditer.__self__.pattern == spacy.util.compile_infix_regex(infixes).pattern:
+        kept = [x for x in infixes if not _matches_hyphen(x)]
+        if len(kept) < len(infixes):
+            tokenizer.infix_finditer = spacy.util.compile_infix_regex(kept).finditer if kept else None
+    return splits_hyphens(nlp)
+
+def _matches_hyphen(rule):
+    m = re.search(rule, "a-b")
+    return m is not None and m.start() == 1 and m.end() == 2
+
 def _pipe_meta(nlp, name):
     try:
         return nlp.get_pipe_meta(name)

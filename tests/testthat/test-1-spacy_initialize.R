@@ -35,6 +35,47 @@ test_that("spacy_initialize max_length works", {
   spacy_finalize()
 })
 
+test_that("spacy_initialize split_hyphens works", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+
+  for (bad in list(NA, "no", c(TRUE, FALSE), 0)) {
+    expect_error(spacy_initialize(split_hyphens = bad), "split_hyphens")
+  }
+  expect_null(getOption("spacy_initialized"))
+
+  txt <- "An eye-opening, well-known X-ray: 3-4 days - or e-mail -me."
+  expect_message(spacy_initialize(), "successfully")
+  split <- spacy_tokenize(txt)[[1]]
+  expect_true(all(c("eye", "-", "opening", "well", "known") %in% split))
+  spacy_finalize()
+
+  expect_message(spacy_initialize(split_hyphens = FALSE), "successfully")
+  kept <- spacy_tokenize(txt)[[1]]
+  expect_identical(
+    kept,
+    c("An", "eye-opening", ",", "well-known", "X-ray", ":", "3", "-", "4",
+      "days", "-", "or", "e-mail", "-me", ".")
+  )
+  parsed <- spacy_parse(txt, entity = FALSE)
+  expect_identical(parsed$token, kept)
+  # phrases of the entity ruler are tokenized in the same way
+  spacy_finalize()
+  expect_message(
+    spacy_initialize(split_hyphens = FALSE,
+                     entity_patterns = c(PRODUCT = "X-ray machine")),
+    "successfully")
+  ents <- spacy_extract_entity("The X-ray machine broke.")
+  expect_identical(ents$text, "X-ray machine")
+  spacy_finalize()
+
+  # the default tokenizer is unchanged by a later initialization
+  expect_message(spacy_initialize(), "successfully")
+  expect_identical(spacy_tokenize(txt)[[1]], split)
+  spacy_finalize()
+})
+
 test_that("spacy_installed() reports an installed spaCy and models", {
   skip_on_cran()
   skip_on_os("solaris")
