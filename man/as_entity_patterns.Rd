@@ -5,6 +5,7 @@
 \alias{as_entity_patterns.character}
 \alias{as_entity_patterns.list}
 \alias{as_entity_patterns.data.frame}
+\alias{as_entity_patterns.dictionary2}
 \title{Create patterns for rule-based named entities}
 \usage{
 as_entity_patterns(x, ...)
@@ -13,7 +14,14 @@ as_entity_patterns(x, ...)
 
 \method{as_entity_patterns}{list}(x, case_insensitive = FALSE, ...)
 
-\method{as_entity_patterns}{data.frame}(x, case_insensitive = FALSE, ...)
+\method{as_entity_patterns}{data.frame}(x, case_insensitive = FALSE, concatenator = NULL, ...)
+
+\method{as_entity_patterns}{dictionary2}(
+  x,
+  case_insensitive = TRUE,
+  valuetype = c("glob", "fixed", "regex"),
+  ...
+)
 }
 \arguments{
 \item{x}{the patterns to convert:
@@ -30,6 +38,17 @@ its own, rather than in a list of patterns.
 \item a data.frame with the columns \code{label} and \code{pattern}, and optionally \code{id}
 and \code{case_insensitive}. \code{pattern} is a character column of phrases, or a
 list column holding phrases or token patterns.
+\item the entities found by \code{\link[=spacy_extract_entity]{spacy_extract_entity()}}, a data.frame with the
+columns \code{text} and \code{ent_type}, which become phrases and their labels.
+This turns the entities found in one set of texts into rules for others.
+\item the entities found by \code{\link[=entity_extract]{entity_extract()}}, with the columns \code{entity} and
+\code{entity_type}, given with the \code{concatenator} that joined their tokens.
+\item a \pkg{quanteda} dictionary, made by \code{\link[quanteda:dictionary]{quanteda::dictionary()}}. Its
+top-level keys are the labels, with the values of any nested keys under
+them. A value without wildcards becomes a phrase. A value with wildcards
+(\code{*} for any characters, \verb{?} for one) becomes a token pattern with one
+token for each part separated by spaces, as \pkg{quanteda} matches
+dictionary values to tokens, so that \code{"dr * who"} matches three tokens.
 \item a \code{spacyr_entity_patterns} object, which is checked again, since it
 may have been edited as a data.frame.
 }}
@@ -45,11 +64,23 @@ phrases or one per phrase. spaCy gives the ID of the pattern that matched
 as each entity's \code{ent_id_}.}
 
 \item{case_insensitive}{logical; if \code{TRUE}, phrases match regardless of
-case. The default, \code{FALSE}, matches them exactly, as spaCy does. It does
+case. The default, \code{FALSE}, matches them exactly, as spaCy does, except
+for a dictionary, where it is \code{TRUE}, as in \pkg{quanteda}, and also
+applies to the parts of values with wildcards. It does
 not apply to token patterns, which set case through the attribute they
 match, such as \code{ORTH} (exact) or \code{LOWER} (any case). For a list, it
 applies to the patterns that do not set \code{case_insensitive} themselves;
 for a data.frame, it applies when there is no \code{case_insensitive} column.}
+
+\item{concatenator}{for the output of \code{\link[=entity_extract]{entity_extract()}}, the character(s)
+that joined the tokens of each entity, which are replaced by spaces. It
+must be given, since a token that itself contains the concatenator, such
+as an underscore, is changed too; the output of \code{\link[=spacy_extract_entity]{spacy_extract_entity()}}
+keeps the text of each entity as it was, and is the better input.}
+
+\item{valuetype}{for a dictionary, how its values are matched: \code{"glob"}
+(the default) for wildcards, \code{"fixed"} for exact phrases, or \code{"regex"}
+for regular expressions, as in \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}}.}
 }
 \value{
 A \code{spacyr_entity_patterns} object: a data.frame with one row per
@@ -110,6 +141,21 @@ as_entity_patterns(list(
 # a data.frame of patterns
 as_entity_patterns(data.frame(label = c("ORG", "ORG"),
                               pattern = c("Acme Widgets", "Globex")))
+
+# a quanteda dictionary, with labels from its keys
+if (requireNamespace("quanteda", quietly = TRUE)) {
+  dict <- quanteda::dictionary(list(ORG = c("acme widgets", "globex*"),
+                                    PERSON = "dr * who"))
+  as_entity_patterns(dict)
+}
+
+# entities found by spaCy, to use as rules for other texts
+\dontrun{
+spacy_initialize()
+found <- spacy_extract_entity("Acme Widgets hired Jane Smith.")
+as_entity_patterns(found)
+spacy_finalize()
+}
 
 # combine sets of patterns
 c(as_entity_patterns(c(ORG = "Globex")),

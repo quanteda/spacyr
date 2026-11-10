@@ -281,3 +281,96 @@ test_that("a pipeline saved with spacyr's ruler gets a second one", {
     spacy_finalize()
     expect_null(spacyr:::spacyr_env$entity_ruler)
 })
+
+test_that("dictionaries and extracted entities work as rules", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    skip_if_not_installed("quanteda")
+    try(spacy_finalize(), silent = TRUE)
+    d <- quanteda::dictionary(list(ORG = c("acme widgets", "globex*", "Initech, Inc."),
+                                   PERSON = "dr * who"))
+    spacy_initialize(entity_patterns = d)
+    ents <- ents_of("ACME WIDGETS and Globexcorp met Dr Hal Who at INITECH, Inc.")
+    expect_identical(ents[["ACME WIDGETS"]], "ORG")
+    expect_identical(ents[["Globexcorp"]], "ORG")
+    expect_identical(ents[["Dr Hal Who"]], "PERSON")
+    expect_identical(ents[["INITECH, Inc."]], "ORG")
+
+    # entities found in one text, reused as rules for another pipeline
+    found <- spacy_extract_entity("Acme Widgets hired Jane Smith in Ruritania.")
+    found_parsed <- entity_extract(spacy_parse("Acme Widgets hired Jane Smith."),
+                                   type = "all")
+    spacy_finalize()
+    spacy_initialize(entity = FALSE, entity_patterns = found)
+    ents <- ents_of("Later, Jane Smith left Acme Widgets.")
+    expect_identical(ents[["Jane Smith"]], found$ent_type[found$text == "Jane Smith"])
+    expect_identical(ents[["Acme Widgets"]], found$ent_type[found$text == "Acme Widgets"])
+    spacy_finalize()
+
+    spacy_initialize(entity = FALSE,
+                     entity_patterns = as_entity_patterns(found_parsed, concatenator = "_"))
+    expect_true("Jane Smith" %in% names(ents_of("Later, Jane Smith left.")))
+    spacy_finalize()
+})
+
+test_that("single-token regular expressions are merged per label and id", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    try_spacy_initialize()
+    on.exit(spacy_finalize())
+    rx <- function(label, r, attr = "LOWER", id = NULL) {
+        p <- list(label = label, pattern = list(stats::setNames(list(list(REGEX = r)), attr)))
+        if (!is.null(id)) p$id <- id
+        p
+    }
+    pats <- as_entity_patterns(list(
+        rx("A", "^ab.*$"), rx("A", "^cd.*$"), rx("A", "^ef$", attr = "ORTH"),
+        rx("A", "^gh.*$", id = "g"), rx("B", "^ij.*$"),
+        rx("A", "(?i)^kl"), rx("A", "^(unclosed"),
+        list(label = "A", pattern = list(list(LOWER = list(REGEX = "^mn")),
+                                         list(LOWER = "op")))))
+    out <- spacyr:::spacyr_env$module$ruler_patterns(spacyr:::spacyr_env$nlp,
+                                                     as.list(pats))
+    regex_of <- function(p) p$pattern[[1]][[1]]$REGEX
+    labels <- vapply(out, function(p) p$label, "")
+    ids <- vapply(out, function(p) if (is.null(p$id)) NA_character_ else p$id, "")
+    regexes <- vapply(out, function(p) {
+        r <- regex_of(p); if (is.null(r)) NA_character_ else r
+    }, "")
+    expect_length(out, 7)
+    expect_true("(?:^ab.*$)|(?:^cd.*$)" %in% regexes)
+    expect_true("^ef$" %in% regexes)
+    expect_identical(ids[regexes %in% "^gh.*$"], "g")
+    expect_identical(labels[regexes %in% "^ij.*$"], "B")
+    # left as they were: inline flags, a regular expression that does not
+    # compile, and a pattern of more than one token
+    expect_true(all(c("(?i)^kl", "^(unclosed", "^mn") %in% regexes))
+})
+
+test_that("case-insensitive phrases match on LOWER when all phrases are", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    ruler_attr <- function() {
+        f <- reticulate::py_eval("lambda nlp, n: str(nlp.get_pipe(n).phrase_matcher_attr)")
+        f(spacyr:::spacyr_env$nlp, spacyr:::spacyr_env$entity_ruler)
+    }
+    pats <- as_entity_patterns(c("Acme Widgets", "Globex, Inc."), label = "ORG",
+                               case_insensitive = TRUE)
+    spacy_initialize(entity_patterns = pats)
+    expect_identical(ruler_attr(), "LOWER")
+    ents <- ents_of("ACME WIDGETS and globex, Inc. merged.")
+    expect_identical(ents[["ACME WIDGETS"]], "ORG")
+    expect_identical(ents[["globex, Inc."]], "ORG")
+    spacy_finalize()
+
+    # with an exact phrase as well, the exact one stays exact
+    spacy_initialize(entity_patterns = c(pats, as_entity_patterns(c(GPE = "Ruritania"))))
+    expect_false(identical(ruler_attr(), "LOWER"))
+    ents <- ents_of("ACME WIDGETS left RURITANIA for Ruritania.")
+    expect_identical(ents[["ACME WIDGETS"]], "ORG")
+    expect_identical(ents[["Ruritania"]], "GPE")
+    expect_false(isTRUE(ents["RURITANIA"] == "GPE"))
+    spacy_finalize()
+})

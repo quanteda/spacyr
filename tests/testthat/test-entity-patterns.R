@@ -395,3 +395,85 @@ test_that("a file named after an extension, with no dot, has no extension", {
   expect_identical(spacyr:::file_extension("dir.jsonl/patterns"), "")
   expect_identical(spacyr:::file_extension("a.b.jsonl"), "jsonl")
 })
+
+test_that("glob_to_regex anchors globs and escapes other characters", {
+    expect_identical(glob_to_regex("dr*"), "^dr.*$")
+    expect_identical(glob_to_regex("col?r"), "^col.r$")
+    expect_identical(glob_to_regex("u.s.*"), "^u\\.s\\..*$")
+    expect_identical(glob_to_regex("a+b(c)[d]{e}|^$"),
+                     "^a\\+b\\(c\\)\\[d\\]\\{e\\}\\|\\^\\$$")
+    expect_identical(glob_to_regex("x\\y"), "^x\\\\y$")
+    for (g in c("dr*", "col?r", "u.s.*", "a+b(c)"))
+        expect_true(grepl(glob_to_regex(g), sub("*", "zz", sub("?", "o", g, fixed = TRUE),
+                                                 fixed = TRUE)))
+})
+
+test_that("a quanteda dictionary becomes patterns labelled by its top-level keys", {
+    skip_if_not_installed("quanteda")
+    d <- quanteda::dictionary(list(
+        ORG = c("Acme Widgets", "globex*"),
+        PERSON = list(titled = "dr * who", plain = "jane smith")))
+    p <- as_entity_patterns(d)
+    expect_s3_class(p, "spacyr_entity_patterns")
+    expect_identical(p$label, c("ORG", "ORG", "PERSON", "PERSON"))
+    # quanteda lowercases dictionary values by default
+    expect_identical(p$pattern[[1]], "acme widgets")
+    expect_identical(p$pattern[[2]], list(list(LOWER = list(REGEX = "^globex.*$"))))
+    expect_identical(p$pattern[[3]], list(list(LOWER = "dr"),
+                                          list(LOWER = list(REGEX = "^.*$")),
+                                          list(LOWER = "who")))
+    expect_identical(p$pattern[[4]], "jane smith")
+    expect_identical(p$case_insensitive, c(TRUE, NA, NA, TRUE))
+})
+
+test_that("dictionary valuetype and case_insensitive are respected", {
+    skip_if_not_installed("quanteda")
+    d <- quanteda::dictionary(list(ORG = c("Acme*", "Big Co")), tolower = FALSE)
+    exact <- as_entity_patterns(d, case_insensitive = FALSE)
+    expect_identical(exact$pattern[[1]], list(list(ORTH = list(REGEX = "^Acme.*$"))))
+    expect_identical(exact$case_insensitive, c(NA, FALSE))
+
+    fixed <- as_entity_patterns(d, valuetype = "fixed")
+    expect_identical(fixed$pattern, list("Acme*", "Big Co"))
+    expect_identical(fixed$case_insensitive, c(TRUE, TRUE))
+
+    rx <- as_entity_patterns(quanteda::dictionary(list(ORG = "^ac.+ wid"),
+                                                  tolower = FALSE),
+                             valuetype = "regex")
+    expect_identical(rx$pattern[[1]], list(list(TEXT = list(REGEX = "(?i)^ac.+")),
+                                           list(TEXT = list(REGEX = "(?i)wid"))))
+    expect_error(as_entity_patterns(d, valuetype = "other"), "should be one of")
+})
+
+test_that("the output of spacy_extract_entity() becomes phrases", {
+    ents <- data.frame(doc_id = c("d1", "d1", "d2", "d2"),
+                       text = c("Jane Smith", "Acme, Inc.", "Jane Smith", "Paris"),
+                       ent_type = c("PERSON", "ORG", "PERSON", "GPE"),
+                       start_id = c(1, 4, 1, 6), length = c(2, 3, 2, 1))
+    p <- as_entity_patterns(ents)
+    expect_identical(p$label, c("PERSON", "ORG", "GPE"))
+    expect_identical(p$pattern, list("Jane Smith", "Acme, Inc.", "Paris"))
+    expect_identical(as_entity_patterns(ents, case_insensitive = TRUE)$case_insensitive,
+                     rep(TRUE, 3))
+})
+
+test_that("the output of entity_extract() needs its concatenator", {
+    ents <- data.frame(doc_id = "d1", sentence_id = 1,
+                       entity = c("Jane_Smith", "Acme_,_Inc.", "PUBLIC_AGENCY_X"),
+                       entity_type = c("PERSON", "ORG", "PUBLIC_AGENCY"))
+    expect_error(as_entity_patterns(ents), "concatenator = \"_\"")
+    expect_error(as_entity_patterns(ents, concatenator = ""), "non-empty")
+    p <- as_entity_patterns(ents, concatenator = "_")
+    expect_identical(p$pattern, list("Jane Smith", "Acme , Inc.", "PUBLIC AGENCY X"))
+    expect_identical(p$label, c("PERSON", "ORG", "PUBLIC_AGENCY"))
+    p2 <- as_entity_patterns(data.frame(entity = "Jane Smith", entity_type = "PERSON"),
+                             concatenator = " ")
+    expect_identical(p2$pattern, list("Jane Smith"))
+})
+
+test_that("a data.frame with label and pattern ignores the concatenator", {
+    df <- data.frame(label = "ORG", pattern = "Acme_Widgets", entity = "x",
+                     entity_type = "y")
+    expect_identical(as_entity_patterns(df, concatenator = "_")$pattern,
+                     list("Acme_Widgets"))
+})
