@@ -160,28 +160,30 @@ spacy_initialize <- function(model = "en_core_web_sm",
   }
   
   # Hugging Face's tokenizers, used by some transformer pipelines, warns
-  # repeatedly once the R process forks after it has used its thread pool, as
-  # RStudio does when saving a file (#233); a value the user has set, even an
-  # empty one (which tokenizers reads as false), is kept. If initialization
-  # fails, both R's and Python's values are restored.
+  # repeatedly once the R process forks after it has used its thread pool
+  # (#233); a value the user has set, even an empty one (which tokenizers
+  # reads as false), is kept. Python copies the environment when it starts,
+  # so it is started first, and its own value taken before anything is set,
+  # so that both can be restored if initialization fails.
+  os <- reticulate::import("os")
   old_parallelism <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA_character_)
+  old_py_parallelism <- os$environ$get("TOKENIZERS_PARALLELISM")
   parallelism <- if (is.na(old_parallelism)) "false" else old_parallelism
-  Sys.setenv(TOKENIZERS_PARALLELISM = parallelism)
-  old_py_parallelism <- NULL
-  py_set <- initialized <- FALSE
+  initialized <- FALSE
   on.exit(if (!initialized) {
-    if (py_set)
-      try(spacyr_env$module$restore_env("TOKENIZERS_PARALLELISM",
-                                        old_py_parallelism), silent = TRUE)
+    # Python's first, since setting os.environ also sets the process's
+    try(if (is.null(old_py_parallelism)) {
+      os$environ$pop("TOKENIZERS_PARALLELISM", NULL)
+    } else {
+      os$environ$`__setitem__`("TOKENIZERS_PARALLELISM", old_py_parallelism)
+    }, silent = TRUE)
     if (is.na(old_parallelism)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
     else Sys.setenv(TOKENIZERS_PARALLELISM = old_parallelism)
   }, add = TRUE)
+  Sys.setenv(TOKENIZERS_PARALLELISM = parallelism)
+  os$environ$`__setitem__`("TOKENIZERS_PARALLELISM", parallelism)
 
   spacyr_env$module <- load_spacyr_module()
-  # Python copies the environment when it starts, which may have been before
-  old_py_parallelism <- spacyr_env$module$set_env("TOKENIZERS_PARALLELISM",
-                                                  parallelism)
-  py_set <- TRUE
   spacy_version <- spacyr_env$module$spacy_version()
   check_spacy_version(spacy_version)
 

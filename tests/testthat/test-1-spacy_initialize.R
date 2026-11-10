@@ -225,12 +225,26 @@ test_that("spacy_initialize turns off tokenizers parallelism unless set (#233)",
   expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM"), "true")
   expect_identical(py_value(), "true")
   spacy_finalize()
+})
 
+test_that("spacy_initialize keeps an empty TOKENIZERS_PARALLELISM (#233)", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  skip_if_not(empty_env_supported(),
+              "R cannot set an empty environment variable here")
+  try(spacy_finalize(), silent = TRUE)
+  old <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)
+  on.exit({
+    if (is.na(old)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
+    else Sys.setenv(TOKENIZERS_PARALLELISM = old)
+    try(spacy_finalize(), silent = TRUE)
+  })
   # an empty value is the user's too, and tokenizers reads it as false
   Sys.setenv(TOKENIZERS_PARALLELISM = "")
   try_spacy_initialize()
   expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA), "")
-  expect_identical(py_value(), "")
+  expect_identical(
+    reticulate::import("os")$environ$get("TOKENIZERS_PARALLELISM"), "")
   spacy_finalize()
 })
 
@@ -263,10 +277,23 @@ test_that("a failed spacy_initialize restores TOKENIZERS_PARALLELISM (#233)", {
   expect_true(is.na(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)))
   expect_null(py_value())
 
-  set_both("")
+  set_both("true")
   expect_error(spacy_initialize(model = "xx_no_such_model"), "not installed")
-  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA), "")
-  expect_identical(py_value(), "")
+  expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM"), "true")
+  expect_identical(py_value(), "true")
+
+  # R and Python can hold different values: each gets its own back
+  Sys.unsetenv("TOKENIZERS_PARALLELISM")
+  expect_error(spacy_initialize(model = "xx_no_such_model"), "not installed")
+  expect_true(is.na(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA)))
+  expect_identical(py_value(), "true")
+
+  if (empty_env_supported()) {
+    set_both("")
+    expect_error(spacy_initialize(model = "xx_no_such_model"), "not installed")
+    expect_identical(Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA), "")
+    expect_identical(py_value(), "")
+  }
   expect_null(getOption("spacy_initialized"))
 })
 
