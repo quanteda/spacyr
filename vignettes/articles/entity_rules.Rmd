@@ -2,17 +2,13 @@
 title: "Adding Rule-Based Named Entities"
 author: "Kenneth Benoit"
 date: "2026-11-10"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Adding Rule-Based Named Entities}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
-<!-- The vignette's code needs spaCy, so its results are computed ahead of
-time: edit vignettes/entity_rules.Rmd.orig, then run `make vignette` to knit
-it into vignettes/entity_rules.Rmd, which R and pkgdown build without running
-the code. -->
+<!-- An article for the pkgdown site only: vignettes/articles is in
+.Rbuildignore, so it is not part of the package. Its code needs spaCy, so its
+results are computed ahead of time: edit vignettes/articles/entity_rules.Rmd.orig,
+then run `make vignette` to knit it into vignettes/articles/entity_rules.Rmd,
+which pkgdown builds without running the code. -->
 
 
 
@@ -52,7 +48,8 @@ Without rules, the model finds some of these entities, but not as we would label
 ``` r
 txt <- "Acme Widgets opened a factory in Ruritania, said Jane Smith."
 spacy_initialize()
-## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)
+## spaCy is already initialized
+## NULL
 spacy_extract_entity(txt)
 ##   doc_id         text ent_type start_id length
 ## 1  text1 Acme Widgets   PERSON        1      2

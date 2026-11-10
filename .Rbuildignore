@@ -22,6 +22,7 @@
 ^css/
 ^vignettes/pkgdown/
 ^vignettes/.*\.Rmd\.orig$
+^vignettes/articles$
 ^CNAME$
 ^docs/
 ^images$

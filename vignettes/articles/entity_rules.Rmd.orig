@@ -2,17 +2,13 @@
 title: "Adding Rule-Based Named Entities"
 author: "Kenneth Benoit"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Adding Rule-Based Named Entities}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
-<!-- The vignette's code needs spaCy, so its results are computed ahead of
-time: edit vignettes/entity_rules.Rmd.orig, then run `make vignette` to knit
-it into vignettes/entity_rules.Rmd, which R and pkgdown build without running
-the code. -->
+<!-- An article for the pkgdown site only: vignettes/articles is in
+.Rbuildignore, so it is not part of the package. Its code needs spaCy, so its
+results are computed ahead of time: edit vignettes/articles/entity_rules.Rmd.orig,
+then run `make vignette` to knit it into vignettes/articles/entity_rules.Rmd,
+which pkgdown builds without running the code. -->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
