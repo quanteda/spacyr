@@ -35,13 +35,20 @@ test_that("spacy_initialize checks overwrite_entities before starting", {
     expect_null(getOption("spacy_initialized"))
 })
 
-test_that("uses_entity_attrs finds ENT_TYPE and ENT_IOB in token patterns", {
-    expect_true(uses_entity_attrs(title_rule))
-    expect_true(uses_entity_attrs(as_entity_patterns(
-        list(label = "X", pattern = list(list(ent_iob = "B"))))))
-    expect_false(uses_entity_attrs(as_entity_patterns(c(ORG = "ENT_TYPE"))))
-    expect_false(uses_entity_attrs(as_entity_patterns(
-        list(label = "X", pattern = list(list(IS_TITLE = TRUE))))))
+test_that("needs_entities finds patterns that require earlier entities", {
+    one <- function(...) as_entity_patterns(list(label = "X", pattern = list(list(...))))
+    expect_true(needs_entities(title_rule))
+    expect_true(needs_entities(one(ent_iob = "B")))
+    expect_true(needs_entities(one(ENT_TYPE = list(IN = "PERSON"))))
+    expect_true(needs_entities(one(ENT_TYPE = "ORG", OP = "+")))
+    # these also match tokens outside entities
+    expect_false(needs_entities(one(ENT_TYPE = list(NOT_IN = "PERSON"))))
+    expect_false(needs_entities(one(ENT_TYPE = "")))
+    expect_false(needs_entities(one(ENT_IOB = "O")))
+    expect_false(needs_entities(one(ENT_TYPE = "PERSON", OP = "*")))
+    expect_false(needs_entities(one(ENT_TYPE = "PERSON", OP = "!")))
+    expect_false(needs_entities(as_entity_patterns(c(ORG = "ENT_TYPE"))))
+    expect_false(needs_entities(one(IS_TITLE = TRUE)))
 })
 
 test_that("a title rule extends the model's PERSON entities", {
@@ -142,7 +149,7 @@ test_that("ENT_TYPE patterns warn only when nothing sets entities", {
     try(spacy_finalize(), silent = TRUE)
     expect_warning(
         suppressMessages(spacy_initialize(entity = FALSE, entity_patterns = title_rule)),
-        "no component of the pipeline sets entities")
+        "no component before spacyr's entity ruler sets entities.*entity = TRUE")
     spacy_finalize()
 
     # a model saved with its own entity_ruler, which sets entities
@@ -186,4 +193,91 @@ test_that("spaCy's message is given for a pattern it does not accept", {
     expect_false("spacyr_entity_ruler" %in% pipes)
     spacy_finalize()
     expect_null(spacyr:::spacyr_env$entity_patterns)
+})
+
+# save a pipeline built in Python to a temporary directory, and return its path
+save_pipeline <- function(nlp) {
+    path <- tempfile("pipeline")
+    dir.create(path)
+    nlp$to_disk(path)
+    path
+}
+
+test_that("a span_ruler that annotates entities counts as setting them", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    try_spacy_initialize()
+    spacy_finalize()
+    spacy <- reticulate::import("spacy")
+    nlp <- spacy$load("en_core_web_sm", exclude = list("ner"))
+    sr <- nlp$add_pipe("span_ruler", config = list(annotate_ents = TRUE))
+    sr$add_patterns(list(list(label = "PERSON", pattern = "Jane Smith")))
+    path <- save_pipeline(nlp)
+    on.exit(unlink(path, recursive = TRUE))
+    rm(nlp, sr)
+
+    expect_silent(suppressMessages(spacy_initialize(path, entity_patterns = title_rule)))
+    expect_identical(ents_of("Prof. Jane Smith spoke.")[["Prof. Jane Smith"]], "PERSON")
+    spacy_finalize()
+
+    # a pipeline that has no ner: the warning does not suggest entity = TRUE
+    blank <- save_pipeline(spacy$blank("en"))
+    on.exit(unlink(blank, recursive = TRUE), add = TRUE)
+    w <- tryCatch(suppressMessages(spacy_initialize(blank, entity_patterns = title_rule)),
+                  warning = identity)
+    expect_match(conditionMessage(w), "will not match")
+    expect_no_match(conditionMessage(w), "entity = TRUE", fixed = TRUE)
+    try(spacy_finalize(), silent = TRUE)
+})
+
+test_that("phrases warn when an earlier component changes the tokens", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    try_spacy_initialize()
+    spacy_finalize()
+    spacy <- reticulate::import("spacy")
+    nlp <- spacy$load("en_core_web_sm")
+    ruler <- nlp$add_pipe("entity_ruler", config = list(overwrite_ents = TRUE))
+    ruler$add_patterns(list(list(label = "ORG", pattern = "Acme Widgets")))
+    nlp$add_pipe("merge_entities")
+    path <- save_pipeline(nlp)
+    on.exit(unlink(path, recursive = TRUE))
+    rm(nlp, ruler)
+
+    expect_warning(
+        suppressMessages(spacy_initialize(path, entity_patterns = c(PRODUCT = "Acme Widgets"))),
+        "'merge_entities' changes the tokens")
+    # the phrase reaches the ruler as a single token, so the rule misses
+    expect_identical(ents_of("We met Acme Widgets.")[["Acme Widgets"]], "ORG")
+    spacy_finalize()
+
+    # token patterns alone give no warning
+    expect_silent(suppressMessages(spacy_initialize(path, entity_patterns = list(
+        label = "PRODUCT", pattern = list(list(LOWER = "acme widgets"))))))
+    expect_identical(ents_of("We met Acme Widgets.")[["Acme Widgets"]], "PRODUCT")
+    spacy_finalize()
+})
+
+test_that("a pipeline saved with spacyr's ruler gets a second one", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    suppressMessages(spacy_initialize(entity_patterns = c(ORG = "Acme Widgets")))
+    path <- save_pipeline(spacyr:::spacyr_env$nlp)
+    on.exit(unlink(path, recursive = TRUE))
+    spacy_finalize()
+
+    expect_message(spacy_initialize(path, entity_patterns = c(GPE = "Ruritania")),
+                   "successfully")
+    expect_identical(spacyr:::spacyr_env$entity_ruler, "spacyr_entity_ruler_2")
+    pipes <- pipe_names()
+    expect_identical(pipes[length(pipes) - 1:0],
+                     c("spacyr_entity_ruler", "spacyr_entity_ruler_2"))
+    ents <- ents_of("Acme Widgets moved to Ruritania.")
+    expect_identical(ents[["Acme Widgets"]], "ORG")
+    expect_identical(ents[["Ruritania"]], "GPE")
+    spacy_finalize()
+    expect_null(spacyr:::spacyr_env$entity_ruler)
 })

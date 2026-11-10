@@ -35,8 +35,10 @@ and entity recogniser.}
 accepts, such as a named character vector of phrases. spacyr adds
 spaCy's entity ruler, as \code{spacyr_entity_ruler}, at the end of the
 pipeline, after every component that sets entities; an entity ruler saved
-with the model stays as it is. If \code{NULL} (the default), the pipeline is
-not changed.}
+with the model stays as it is. If the model already has a component of
+that name, for instance because it was saved from a pipeline with rules
+added by spacyr, the new ruler is named \code{spacyr_entity_ruler_2} (or the
+next free number). If \code{NULL} (the default), the pipeline is not changed.}
 
 \item{overwrite_entities}{logical; where an entity matched by
 \code{entity_patterns} overlaps one found by an earlier component, such as the
@@ -52,11 +54,15 @@ Initialize spaCy to call from R.
 \details{
 With \code{entity_patterns}, the entities found by the rules are returned by
 \code{\link[=spacy_parse]{spacy_parse()}} and \code{\link[=spacy_extract_entity]{spacy_extract_entity()}} like any others, also when
-\code{entity = FALSE}. Patterns that use \code{ENT_TYPE} or \code{ENT_IOB} build on the
-entities of earlier components, so they match nothing, with a warning, when
-no component of the pipeline sets entities, for instance with
-\code{entity = FALSE}. Phrases marked \code{case_insensitive} are tokenized with the
-pipeline's own tokenizer, and match the lower case form of each token.
+\code{entity = FALSE}. Patterns that ask for an entity type (\code{ENT_TYPE}) or for
+tokens inside an entity (\code{ENT_IOB}) build on the entities of earlier
+components, such as the model's \code{ner} or a ruler saved with the model, so
+they give a warning when no earlier component sets entities, for instance
+with \code{entity = FALSE}. Phrases are tokenized with the pipeline's own
+tokenizer, and those marked \code{case_insensitive} match the lower case form of
+each token. A component that changes the tokens, such as spaCy's
+\code{merge_entities}, can stop phrases from matching when it comes before the
+ruler, which gives a warning.
 }
 \examples{
 \dontrun{

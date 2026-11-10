@@ -21,8 +21,10 @@
 #'   accepts, such as a named character vector of phrases. spacyr adds
 #'   spaCy's entity ruler, as `spacyr_entity_ruler`, at the end of the
 #'   pipeline, after every component that sets entities; an entity ruler saved
-#'   with the model stays as it is. If `NULL` (the default), the pipeline is
-#'   not changed.
+#'   with the model stays as it is. If the model already has a component of
+#'   that name, for instance because it was saved from a pipeline with rules
+#'   added by spacyr, the new ruler is named `spacyr_entity_ruler_2` (or the
+#'   next free number). If `NULL` (the default), the pipeline is not changed.
 #' @param overwrite_entities logical; where an entity matched by
 #'   `entity_patterns` overlaps one found by an earlier component, such as the
 #'   model's named entity recognizer, the rule's entity is kept if `TRUE` (the
@@ -32,11 +34,15 @@
 #' @details
 #' With `entity_patterns`, the entities found by the rules are returned by
 #' [spacy_parse()] and [spacy_extract_entity()] like any others, also when
-#' `entity = FALSE`. Patterns that use `ENT_TYPE` or `ENT_IOB` build on the
-#' entities of earlier components, so they match nothing, with a warning, when
-#' no component of the pipeline sets entities, for instance with
-#' `entity = FALSE`. Phrases marked `case_insensitive` are tokenized with the
-#' pipeline's own tokenizer, and match the lower case form of each token.
+#' `entity = FALSE`. Patterns that ask for an entity type (`ENT_TYPE`) or for
+#' tokens inside an entity (`ENT_IOB`) build on the entities of earlier
+#' components, such as the model's `ner` or a ruler saved with the model, so
+#' they give a warning when no earlier component sets entities, for instance
+#' with `entity = FALSE`. Phrases are tokenized with the pipeline's own
+#' tokenizer, and those marked `case_insensitive` match the lower case form of
+#' each token. A component that changes the tokens, such as spaCy's
+#' `merge_entities`, can stop phrases from matching when it comes before the
+#' ruler, which gives a warning.
 #' @seealso [as_entity_patterns()]
 #' @examples
 #' \dontrun{
@@ -115,7 +121,7 @@ spacy_initialize <- function(model = "en_core_web_sm",
     }
   )
   if (!is.null(entity_patterns)) {
-    upstream <- tryCatch(
+    ruler <- tryCatch(
       spacyr_env$module$add_entity_ruler(nlp, as.list(entity_patterns),
                                          overwrite_entities),
       error = function(e) {
@@ -124,10 +130,21 @@ spacy_initialize <- function(model = "en_core_web_sm",
         stop("spaCy did not accept the entity patterns:\n", msg, call. = FALSE)
       }
     )
-    if (!upstream && uses_entity_attrs(entity_patterns))
-      warning("Patterns using ENT_TYPE or ENT_IOB will match nothing, since no ",
-              "component of the pipeline sets entities; ",
-              "use spacy_initialize(entity = TRUE)", call. = FALSE)
+    if (!ruler$sets_entities && needs_entities(entity_patterns))
+      warning("Some patterns need entities that an earlier component found ",
+              "(ENT_TYPE or ENT_IOB), but no component before spacyr's ",
+              "entity ruler sets entities, so they will not match",
+              if (ruler$ner_disabled) "; use spacy_initialize(entity = TRUE)",
+              call. = FALSE)
+    retok <- unlist(ruler$retokenizers)
+    if (length(retok) && any(vapply(entity_patterns$pattern, is.character, logical(1))))
+      warning("Phrase patterns may not match, since ",
+              paste0("'", retok, "'", collapse = ", "),
+              if (length(retok) == 1) " changes" else " change",
+              " the tokens before spacyr's entity ruler; phrases are ",
+              "tokenized without ", if (length(retok) == 1) "it" else "them",
+              call. = FALSE)
+    spacyr_env$entity_ruler <- ruler$name
   }
   spacyr_env$nlp <- nlp
   spacyr_env$entity_patterns <- entity_patterns
@@ -158,6 +175,7 @@ spacy_finalize <- function() {
   # drop the reference to the pipeline, then let Python release its memory
   spacyr_env$nlp <- NULL
   spacyr_env$entity_patterns <- NULL
+  spacyr_env$entity_ruler <- NULL
   gc()
   reticulate::import("gc")$collect()
   options("spacy_initialized" = NULL)
@@ -193,13 +211,30 @@ clear_spacy_options <- function(){
 }
 
 
-# whether any token pattern uses an attribute set by entity recognition
-uses_entity_attrs <- function(x) {
+# whether any token pattern requires entities set by an earlier component:
+# a token it must match (not optional or negated) that asks for an entity type
+# (ENT_TYPE as a non-empty string or IN), or for being inside an entity
+# (ENT_IOB "B" or "I"); ENT_TYPE with NOT_IN, for instance, also matches
+# tokens outside entities
+needs_entities <- function(x) {
   any(vapply(x$pattern, function(p) {
-    is.list(p) && any(vapply(p, function(tok) {
-      any(toupper(names(tok)) %in% c("ENT_TYPE", "ENT_IOB"))
-    }, logical(1)))
+    is.list(p) && any(vapply(p, token_needs_entities, logical(1)))
   }, logical(1)))
+}
+
+token_needs_entities <- function(tok) {
+  keys <- toupper(names(tok))
+  op <- if ("OP" %in% keys) tok[[match("OP", keys)]] else ""
+  if (op %in% c("?", "*", "!") || grepl("^\\{0?,", op)) return(FALSE)
+  # the values a token attribute asks for: a value itself, or those of IN
+  asked <- function(v) {
+    if (!is.list(v)) return(as.character(unlist(v)))
+    ops <- toupper(names(v))
+    if ("IN" %in% ops) as.character(unlist(v[[match("IN", ops)]])) else character()
+  }
+  ent_type <- unlist(lapply(tok[keys == "ENT_TYPE"], asked))
+  ent_iob <- unlist(lapply(tok[keys == "ENT_IOB"], asked))
+  any(nzchar(ent_type)) || any(ent_iob %in% c("B", "I", "1", "3"))
 }
 
 # spacyr requires spaCy 3 or later
