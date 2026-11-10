@@ -79,14 +79,22 @@
 #' that are not, which makes parsing slower when there are many of them.
 #'
 #' Unless the environment variable `TOKENIZERS_PARALLELISM` is already set,
-#' `spacy_initialize()` sets it to `"false"`. Transformer models, such as
-#' `en_core_web_trf`, tokenize with Hugging Face's **tokenizers** library,
-#' which otherwise prints a warning about disabling parallelism, again and
-#' again until R is restarted, once the R process is forked after the model
-#' has been used, as RStudio does when saving a file. Turning off its
-#' parallelism makes little difference to speed, since the transformer itself
-#' takes most of the time. To keep it, set the variable before calling
-#' `spacy_initialize()`, as in `Sys.setenv(TOKENIZERS_PARALLELISM = "true")`.
+#' `spacy_initialize()` sets it to `"false"`. Pipelines that use Hugging
+#' Face's **tokenizers** library, such as some built with
+#' **spacy-transformers**, otherwise print a warning about disabling
+#' parallelism, again and again until R is restarted, once the R process is
+#' forked after the library has been used, as RStudio does when saving a file.
+#' Turning off its parallelism makes little difference to speed, since the
+#' transformer itself takes most of the time. The setting applies to the
+#' whole R process, Python included, and stays after [spacy_finalize()]; if
+#' initialization fails, the previous value is restored. A value set before
+#' calling `spacy_initialize()` is kept, even an empty one, which
+#' **tokenizers** reads as `"false"`. Setting
+#' `Sys.setenv(TOKENIZERS_PARALLELISM = "true")` turns off the library's
+#' safeguard against deadlocks: a forked process, such as a worker of
+#' `parallel::mclapply()` or of `n_process` greater than 1, that uses
+#' **tokenizers** after the parent has used it can then hang. Leave the
+#' setting at `"false"` whenever that can happen.
 #' @seealso [as_entity_patterns()]
 #' @examples
 #' \dontrun{
@@ -151,19 +159,29 @@ spacy_initialize <- function(model = "en_core_web_sm",
     reticulate::use_virtualenv(Sys.getenv("SPACY_PYTHON", unset = "r-spacyr"))
   }
   
-  # Hugging Face's tokenizers, used by transformer models such as
-  # "en_core_web_trf", warns repeatedly once the R process forks after it
-  # has used its thread pool, as RStudio does when saving a file (#233); a
-  # value the user has set is kept
-  parallelism <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = "")
-  if (!nzchar(parallelism)) {
-    parallelism <- "false"
-    Sys.setenv(TOKENIZERS_PARALLELISM = parallelism)
-  }
+  # Hugging Face's tokenizers, used by some transformer pipelines, warns
+  # repeatedly once the R process forks after it has used its thread pool, as
+  # RStudio does when saving a file (#233); a value the user has set, even an
+  # empty one (which tokenizers reads as false), is kept. If initialization
+  # fails, both R's and Python's values are restored.
+  old_parallelism <- Sys.getenv("TOKENIZERS_PARALLELISM", unset = NA_character_)
+  parallelism <- if (is.na(old_parallelism)) "false" else old_parallelism
+  Sys.setenv(TOKENIZERS_PARALLELISM = parallelism)
+  old_py_parallelism <- NULL
+  py_set <- initialized <- FALSE
+  on.exit(if (!initialized) {
+    if (py_set)
+      try(spacyr_env$module$restore_env("TOKENIZERS_PARALLELISM",
+                                        old_py_parallelism), silent = TRUE)
+    if (is.na(old_parallelism)) Sys.unsetenv("TOKENIZERS_PARALLELISM")
+    else Sys.setenv(TOKENIZERS_PARALLELISM = old_parallelism)
+  }, add = TRUE)
 
   spacyr_env$module <- load_spacyr_module()
   # Python copies the environment when it starts, which may have been before
-  spacyr_env$module$set_env("TOKENIZERS_PARALLELISM", parallelism)
+  old_py_parallelism <- spacyr_env$module$set_env("TOKENIZERS_PARALLELISM",
+                                                  parallelism)
+  py_set <- TRUE
   spacy_version <- spacyr_env$module$spacy_version()
   check_spacy_version(spacy_version)
 
@@ -225,6 +243,7 @@ spacy_initialize <- function(model = "en_core_web_sm",
   spacyr_env$entity_patterns <- entity_patterns
   # the rules set entities even without the model's entity recognizer
   options("spacy_entity" = entity || !is.null(entity_patterns))
+  initialized <- TRUE
   message("successfully initialized (spaCy Version: ", spacy_version, ", language model: ", model, ")")
   options("spacy_initialized" = TRUE)
   

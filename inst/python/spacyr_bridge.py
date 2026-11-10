@@ -17,8 +17,17 @@ import re
 
 def set_env(name, value):
     # os.environ is copied when Python starts, so a variable that R sets
-    # afterwards is set here too; assigning it also sets it for the process
+    # afterwards is set here too; assigning it also sets it for the process.
+    # Returns the previous value, None if it was not set, for restore_env()
+    old = os.environ.get(name)
     os.environ[name] = value
+    return old
+
+def restore_env(name, value):
+    if value is None:
+        os.environ.pop(name, None)
+    else:
+        os.environ[name] = value
 
 def load_model(model, entity = True, max_length = None):
     if not entity:
