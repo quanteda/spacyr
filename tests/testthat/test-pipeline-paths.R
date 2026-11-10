@@ -95,9 +95,16 @@ test_that("documents left out by the pipeline do not shift the others' names", {
 
     expect_warning(sents <- spacy_tokenize(skipped, what = "sentence"), skipped_warning)
     expect_identical(sents, list(good = "London is in England."))
-    # word tokenization disables the pipeline components, so nothing is left out
+    # word tokenization disables the pipeline components, so nothing is left out,
+    # also when removing punctuation, numbers or URLs, which need no component
     expect_silent(toks <- spacy_tokenize(skipped))
     expect_identical(names(toks), c("bad", "good"))
+    expect_silent(toks <- spacy_tokenize(skipped, remove_punct = TRUE,
+                                         remove_numbers = TRUE, remove_url = TRUE))
+    expect_identical(toks, list(bad = c("Bad", "input"), good = c("London", "is", "in", "England")))
+    # remove_symbols needs the tagger, so the pipeline runs
+    expect_warning(toks <- spacy_tokenize(skipped, remove_symbols = TRUE), skipped_warning)
+    expect_identical(names(toks), "good")
 
     for (np in c(FALSE, TRUE)) {
       expect_warning(parsed <- spacy_parse(skipped, nounphrase = np), skipped_warning)

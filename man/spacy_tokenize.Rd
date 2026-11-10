@@ -39,7 +39,9 @@ all other remove functionalities (e.g. \code{remove_punct}) have to be set to \c
 When \code{what = "sentence"}, this option will remove trailing spaces if \code{TRUE}.}
 
 \item{remove_symbols}{remove symbols. The symbols are either \code{SYM} in \code{pos}
-field, or currency symbols.}
+field, or currency symbols. Since this needs the part-of-speech tags, it
+runs all the components of the pipeline, which makes tokenization much
+slower; the other \verb{remove_*} options do not.}
 
 \item{padding}{if \code{TRUE}, leave an empty string where the removed tokens
 previously existed. This is useful if a positional match is needed between

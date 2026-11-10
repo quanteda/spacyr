@@ -444,9 +444,10 @@ class spacyr:
                  padding = False,
                  batch_size = None,
                  n_process = 1):
-        # disable the pipeline components for plain tokenization; the context
-        # manager restores them even if tokenization fails
-        if turn_off_pipes and remove_symbols == False:
+        # disable the pipeline components unless they are needed, as for
+        # remove_symbols; the context manager restores them even if
+        # tokenization fails
+        if turn_off_pipes and not remove_symbols:
             pipes_context = self.nlp.select_pipes(disable = self.nlp.pipe_names)
         else:
             pipes_context = contextlib.nullcontext()
