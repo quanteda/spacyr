@@ -477,3 +477,10 @@ test_that("a data.frame with label and pattern ignores the concatenator", {
     expect_identical(as_entity_patterns(df, concatenator = "_")$pattern,
                      list("Acme_Widgets"))
 })
+
+test_that("NULL, as from an extraction that found no entities, gives no patterns", {
+    expect_identical(as_entity_patterns(NULL), as_entity_patterns(character()))
+    expect_identical(nrow(as_entity_patterns(NULL)), 0L)
+    expect_s3_class(c(as_entity_patterns(NULL), as_entity_patterns(c(ORG = "Acme"))),
+                    "spacyr_entity_patterns")
+})

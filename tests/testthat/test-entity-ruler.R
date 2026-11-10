@@ -287,15 +287,29 @@ test_that("dictionaries and extracted entities work as rules", {
     skip_on_os("solaris")
     skip_if_not_installed("quanteda")
     try(spacy_finalize(), silent = TRUE)
-    d <- quanteda::dictionary(list(ORG = c("acme widgets", "globex*", "Initech, Inc."),
-                                   PERSON = "dr * who"))
-    spacy_initialize(entity_patterns = d)
-    ents <- ents_of("ACME WIDGETS and Globexcorp met Dr Hal Who at INITECH, Inc.")
+    values <- list(ORG = c("acme widgets", "globex*", "Initech, Inc."),
+                   PERSON = "dr * who")
+    txt <- "ACME WIDGETS and Globexcorp met Dr Hal Who at INITECH, Inc."
+    # without the model's recognizer, so that only the rules find entities;
+    # tolower = FALSE keeps "Inc.", which spaCy's tokenizer keeps whole
+    spacy_initialize(entity = FALSE,
+                     entity_patterns = quanteda::dictionary(values, tolower = FALSE))
+    ents <- ents_of(txt)
     expect_identical(ents[["ACME WIDGETS"]], "ORG")
     expect_identical(ents[["Globexcorp"]], "ORG")
     expect_identical(ents[["Dr Hal Who"]], "PERSON")
     expect_identical(ents[["INITECH, Inc."]], "ORG")
+    spacy_finalize()
 
+    # quanteda's default lowercases "Inc." to "inc.", which spaCy splits into
+    # "inc" and ".", so that phrase no longer matches
+    spacy_initialize(entity = FALSE, entity_patterns = quanteda::dictionary(values))
+    ents <- ents_of(txt)
+    expect_identical(ents[["ACME WIDGETS"]], "ORG")
+    expect_false("INITECH, Inc." %in% names(ents))
+    spacy_finalize()
+
+    spacy_initialize()
     # entities found in one text, reused as rules for another pipeline
     found <- spacy_extract_entity("Acme Widgets hired Jane Smith in Ruritania.")
     found_parsed <- entity_extract(spacy_parse("Acme Widgets hired Jane Smith."),
@@ -348,6 +362,24 @@ test_that("single-token regular expressions are merged per label and id", {
     expect_true(all(c("(?i)^kl", "^(unclosed", "^mn") %in% regexes))
 })
 
+test_that("regular expressions with backreferences are not merged", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    pats <- as_entity_patterns(list(
+        list(label = "PAIR", pattern = list(list(TEXT = list(REGEX = "^(a)\\1$")))),
+        list(label = "PAIR", pattern = list(list(TEXT = list(REGEX = "^(b)\\1$")))),
+        list(label = "PAIR", pattern = list(list(TEXT = list(REGEX = "^c+$")))),
+        list(label = "PAIR", pattern = list(list(TEXT = list(REGEX = "^d+$"))))))
+    spacy_initialize(entity = FALSE, entity_patterns = pats)
+    on.exit(spacy_finalize())
+    ents <- ents_of("aa then bb then ab then cc then dd")
+    expect_identical(sort(names(ents)), c("aa", "bb", "cc", "dd"))
+    out <- spacyr:::spacyr_env$module$ruler_patterns(spacyr:::spacyr_env$nlp,
+                                                     as.list(pats))
+    expect_length(out, 3)
+})
+
 test_that("case-insensitive phrases match on LOWER when all phrases are", {
     skip_on_cran()
     skip_on_os("solaris")
@@ -373,4 +405,15 @@ test_that("case-insensitive phrases match on LOWER when all phrases are", {
     expect_identical(ents[["Ruritania"]], "GPE")
     expect_false(isTRUE(ents["RURITANIA"] == "GPE"))
     spacy_finalize()
+})
+
+test_that("an extraction that found no entities gives no patterns", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    try_spacy_initialize()
+    on.exit(spacy_finalize())
+    found <- spacy_extract_entity("nothing to see here")
+    expect_null(found)
+    expect_identical(as_entity_patterns(found), as_entity_patterns(character()))
 })

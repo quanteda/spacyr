@@ -49,6 +49,8 @@ them. A value without wildcards becomes a phrase. A value with wildcards
 (\code{*} for any characters, \verb{?} for one) becomes a token pattern with one
 token for each part separated by spaces, as \pkg{quanteda} matches
 dictionary values to tokens, so that \code{"dr * who"} matches three tokens.
+\item \code{NULL}, as \code{\link[=spacy_extract_entity]{spacy_extract_entity()}} returns when it finds no entities,
+which gives an empty set of patterns.
 \item a \code{spacyr_entity_patterns} object, which is checked again, since it
 may have been edited as a data.frame.
 }}
@@ -80,7 +82,14 @@ keeps the text of each entity as it was, and is the better input.}
 
 \item{valuetype}{for a dictionary, how its values are matched: \code{"glob"}
 (the default) for wildcards, \code{"fixed"} for exact phrases, or \code{"regex"}
-for regular expressions, as in \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}}.}
+for regular expressions, as in \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}}. With
+\code{"regex"}, each part of a value separated by spaces is a regular
+expression for one of spaCy's tokens, in the dialect of Python's \code{re}
+module, not of R: for instance, \code{"^\\\\p{L}+$"} works in
+\pkg{quanteda} but stops \code{\link[=spacy_initialize]{spacy_initialize()}} with the error "bad escape
+\\p". Since \code{\link[quanteda:dictionary]{quanteda::dictionary()}} lowercases values by default, which
+changes escapes such as \code{"\\\\D"} to \code{"\\\\d"}, make a dictionary of regular
+expressions with \code{tolower = FALSE}.}
 }
 \value{
 A \code{spacyr_entity_patterns} object: a data.frame with one row per
@@ -115,6 +124,14 @@ so that \code{list(LOWER = list(IN = "dr"))} stays a list of one value, rather
 than becoming a single string. Whole numbers stored as doubles, such as \code{3}
 in \code{list(LENGTH = 3)}, become integers, since spaCy does not accept
 decimal numbers in token patterns.
+
+Phrases, including dictionary values without wildcards, are split into
+tokens by the pipeline's own tokenizer, and some of its rules depend on
+case: spaCy's English models keep \code{"Inc."} as one token, but split
+\code{"inc."} into \code{"inc"} and \code{"."}. So write phrases in their usual case, even with
+\code{case_insensitive = TRUE}, and make dictionaries with
+\code{quanteda::dictionary(tolower = FALSE)}, since by default it lowercases
+their values.
 
 Patterns match spaCy's tokens, not characters. For instance, spaCy's
 English models make "Prof." a single token, so a pattern for academic

@@ -31,6 +31,8 @@
 #'   (`*` for any characters, `?` for one) becomes a token pattern with one
 #'   token for each part separated by spaces, as \pkg{quanteda} matches
 #'   dictionary values to tokens, so that `"dr * who"` matches three tokens.
+#'   * `NULL`, as [spacy_extract_entity()] returns when it finds no entities,
+#'   which gives an empty set of patterns.
 #'   * a `spacyr_entity_patterns` object, which is checked again, since it
 #'   may have been edited as a data.frame.
 #' @param label character; the entity label of each phrase, such as `"PERSON"`
@@ -70,6 +72,14 @@
 #' than becoming a single string. Whole numbers stored as doubles, such as `3`
 #' in `list(LENGTH = 3)`, become integers, since spaCy does not accept
 #' decimal numbers in token patterns.
+#'
+#' Phrases, including dictionary values without wildcards, are split into
+#' tokens by the pipeline's own tokenizer, and some of its rules depend on
+#' case: spaCy's English models keep `"Inc."` as one token, but split
+#' `"inc."` into `"inc"` and `"."`. So write phrases in their usual case, even with
+#' `case_insensitive = TRUE`, and make dictionaries with
+#' `quanteda::dictionary(tolower = FALSE)`, since by default it lowercases
+#' their values.
 #'
 #' Patterns match spaCy's tokens, not characters. For instance, spaCy's
 #' English models make "Prof." a single token, so a pattern for academic
@@ -119,6 +129,11 @@
 #' @export
 as_entity_patterns <- function(x, ...) {
     UseMethod("as_entity_patterns")
+}
+
+#' @export
+as_entity_patterns.NULL <- function(x, ...) {
+    as_entity_patterns(character())
 }
 
 #' @export
@@ -239,7 +254,14 @@ as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE,
 #' @rdname as_entity_patterns
 #' @param valuetype for a dictionary, how its values are matched: `"glob"`
 #'   (the default) for wildcards, `"fixed"` for exact phrases, or `"regex"`
-#'   for regular expressions, as in [quanteda::tokens_lookup()].
+#'   for regular expressions, as in [quanteda::tokens_lookup()]. With
+#'   `"regex"`, each part of a value separated by spaces is a regular
+#'   expression for one of spaCy's tokens, in the dialect of Python's `re`
+#'   module, not of R: for instance, `"^\\p{L}+$"` works in
+#'   \pkg{quanteda} but stops [spacy_initialize()] with the error "bad escape
+#'   \\p". Since [quanteda::dictionary()] lowercases values by default, which
+#'   changes escapes such as `"\\D"` to `"\\d"`, make a dictionary of regular
+#'   expressions with `tolower = FALSE`.
 #' @export
 as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
                                            valuetype = c("glob", "fixed", "regex"),

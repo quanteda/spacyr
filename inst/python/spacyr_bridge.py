@@ -86,8 +86,9 @@ def ruler_patterns(nlp, patterns, lower_phrases = False):
 
 def _single_regex(pattern):
     # (attribute, regular expression) for a pattern of one token with only a
-    # REGEX, or None; one with inline flags, which must start a regular
-    # expression, or that does not compile, is left as it is
+    # REGEX, or None. Left as it is: one with inline flags, which must start a
+    # regular expression; one that does not compile; and one with capturing
+    # groups, since merging renumbers them, which changes backreferences
     if not isinstance(pattern, list) or len(pattern) != 1 or len(pattern[0]) != 1:
         return None
     (attr, value), = pattern[0].items()
@@ -97,8 +98,10 @@ def _single_regex(pattern):
     if not isinstance(rx, str) or "(?" in rx:
         return None
     try:
-        re.compile(rx)
+        compiled = re.compile(rx)
     except re.error:
+        return None
+    if compiled.groups > 0:
         return None
     return attr.upper(), rx
 
