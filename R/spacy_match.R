@@ -52,7 +52,9 @@
 #'   longest; `"all"` returns every match, including those inside or
 #'   overlapping another, as spaCy does. Matches of different labels can
 #'   overlap whatever the value. It does not apply to dependency patterns,
-#'   all of whose matches are returned.
+#'   all of whose matches are returned: in a list that holds both kinds it
+#'   applies to the token patterns, and giving it when `pattern` holds only
+#'   dependency patterns is an error.
 #' @inheritParams spacy_parse
 #' @param ... not used. An argument that is not one of those above is an
 #'   error.
@@ -65,7 +67,7 @@
 #' | A match is             | a sequence of adjacent tokens | a sequence of adjacent tokens | one token for each node, anywhere in a sentence |
 #' | Matched by spaCy's     | `Matcher` | `PhraseMatcher`, or `Matcher` for values with wildcards | `DependencyMatcher` |
 #' | Patterns for one label | any number, as alternatives | any number, as alternatives | one |
-#' | `overlap`              | applies | applies | does not apply |
+#' | `overlap`              | applies | applies | does not apply, and is an error if given when there are no other patterns |
 #' | `n_process`, `batch_size` | apply | apply | apply |
 #' | Rows for one match     | one | one | one for each node |
 #' | The pipeline needs     | the components that set the attributes asked for | only its tokenizer | a dependency parse, in every document |
@@ -121,13 +123,29 @@
 #' into one for each label. Patterns that need no entities are faster after
 #' `spacy_initialize(entity = FALSE)`.
 #' @section Matches and quanteda:
-#' With `overlap = "longest"`, the default, the values of a dictionary match
-#' as they do in [quanteda::tokens_lookup()] with its default,
-#' `nested_scope = "key"`, when that is applied to spaCy's tokens,
-#' `quanteda::as.tokens(spacy_parse(x))`: no token is in two matches of the
-#' same key, and a value that lies inside a value of another key is a match
-#' for both keys. So the number of matches of each label in each document is
-#' the count that `tokens_lookup()` gives for that key.
+#' `overlap = "longest"`, the default, chooses among overlapping matches as
+#' [quanteda::tokens_lookup()] does with its default, `nested_scope = "key"`:
+#' no token is in two matches of the same key, and a value that lies inside a
+#' value of another key is a match for both keys. The two are equivalent
+#' when they start from the same candidate spans under the same keys, and
+#' then give the same number of matches for each key in each document.
+#' Applying `tokens_lookup()` to spaCy's tokens,
+#' `quanteda::as.tokens(spacy_parse(x))`, does not guarantee that. In
+#' particular:
+#'
+#' * A dictionary value without a wildcard is a phrase, which spaCy's
+#'   tokenizer splits into tokens, while \pkg{quanteda} splits every value
+#'   at its spaces. The value `"Acme, Inc."` matches the three tokens `Acme`,
+#'   `,` and `Inc.` here, where `tokens_lookup()` looks for a token `Acme,`
+#'   and finds nothing.
+#' * The values of a dictionary's nested keys are labelled here by their
+#'   top-level key, which corresponds to `tokens_lookup(levels = 1)`. Its
+#'   default, `levels = 1:5`, reports nested keys such as `place.us`
+#'   separately, and so also keeps matches of two of them that overlap.
+#'
+#' A match is a distinct pair of `doc_id` and `match_id`, not a row: count
+#' those to count matches, since a match of a dependency pattern has a row
+#' for each node.
 #'
 #' [quanteda::kwic()] follows a different rule, which no value of `overlap`
 #' gives: it drops a match only when every one of its tokens is in another
@@ -193,6 +211,13 @@
 #'                 list(TAG = "VBN"))
 #' spacy_match(txt, list(PASSIVE = passive))
 #'
+#' # adjectives before a noun: the longest match where matches of a label
+#' # overlap, which is the default, or every match
+#' adj_noun <- list(ADJ_NOUN = list(list(POS = "ADJ", OP = "+"),
+#'                                  list(POS = "NOUN")))
+#' spacy_match("A big red shiny ball.", adj_noun)
+#' spacy_match("A big red shiny ball.", adj_noun, overlap = "all")
+#'
 #' # two labels, the second with alternative patterns
 #' spacy_match(txt, list(
 #'   DET_NOUN = list(list(POS = "DET"), list(POS = "NOUN")),
@@ -241,10 +266,18 @@ spacy_match.character <- function(x, pattern,
                                   n_process = 1L, batch_size = NULL, ...) {
     # checked before spaCy is initialized
     check_unused_args(match.call(expand.dots = FALSE)$...)
+    overlap_given <- !missing(overlap)
     overlap <- match.arg(overlap)
     args <- pipe_args(n_process, batch_size)
     if (missing(pattern)) stop("pattern must be supplied", call. = FALSE)
     pattern <- match_patterns(pattern)
+    # an argument that cannot apply is an error, as an unused one is
+    sequences <- length(pattern$phrases) > 0L ||
+        any(vapply(pattern$patterns, length, integer(1)) > 0L)
+    if (overlap_given && !sequences)
+        stop("overlap applies to sequences of tokens, and pattern holds only ",
+             "dependency patterns, all of whose matches are returned; leave ",
+             "overlap out", call. = FALSE)
 
     input <- spacy_input(x)
 

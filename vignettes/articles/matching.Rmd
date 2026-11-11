@@ -206,7 +206,7 @@ spacy_match(txt, dict)
 ## 6     d2        2 place <NA>           1        8 New York        8      2
 ```
 
-Since "york" is itself a value, it also matches inside each "New York". With the default, `overlap = "longest"`, such a nested match of the same key is dropped, which is what `quanteda::tokens_lookup()` does with its own default, `nested_scope = "key"`. So the number of matches of each label is the count that `tokens_lookup()` gives for that key, when it is applied to spaCy's tokens, which `quanteda::as.tokens()` takes from the output of `spacy_parse()`. With `overlap = "all"`, the nested matches are counted too:
+Since "york" is itself a value, it also matches inside each "New York". With the default, `overlap = "longest"`, such a nested match of the same key is dropped, which is what `quanteda::tokens_lookup()` does with its own default, `nested_scope = "key"`. For this dictionary and these texts, the number of matches of each label is then the count that `tokens_lookup()` gives for that key, when it is applied to spaCy's tokens, which `quanteda::as.tokens()` takes from the output of `spacy_parse()`. Each match of a dictionary value is one row, so `table()` counts matches. With `overlap = "all"`, the nested matches are counted too:
 
 
 ``` r
@@ -224,7 +224,26 @@ table(spacy_match(txt, dict, overlap = "all")$label)
 ##     9     1
 ```
 
-The counts can differ from a lookup on `quanteda::tokens(txt)`, because the tokens are then **quanteda**'s and not spaCy's. What `spacy_match()` adds to a lookup is where each match is, in a form that joins to the output of `spacy_parse()`. A dictionary's phrases and wildcard values can be combined with token patterns by converting it with `as_entity_patterns()` and joining the two with `c()`.
+The two agree whenever they start from the same candidate matches under the same keys, since they then choose among overlapping matches by the same rule. Using spaCy's tokens for both does not guarantee that:
+
+- A value without a wildcard is a phrase, which spaCy's tokenizer splits into tokens, while **quanteda** splits every value at its spaces. The value `"Acme, Inc."` is the three tokens `Acme`, `,` and `Inc.` for `spacy_match()`, which finds it; `tokens_lookup()` looks for a token `Acme,` and finds nothing:
+
+
+``` r
+acme <- "She joined Acme, Inc. last year."
+acme_dict <- quanteda::dictionary(list(ORG = "Acme, Inc."), tolower = FALSE)
+spacy_match(acme, acme_dict)[, c("label", "text", "start_id", "length")]
+##   label       text start_id length
+## 1   ORG Acme, Inc.        3      3
+quanteda::tokens_lookup(quanteda::as.tokens(spacy_parse(acme)), acme_dict)
+## tokens of 1 document (0 tokens, 1 type).
+## text1 :
+## character(0)
+```
+
+- For a dictionary with nested keys, the labels here are the top-level keys, which corresponds to `tokens_lookup(levels = 1)`. Its default, `levels = 1:5`, counts nested keys such as `place.us` separately.
+
+The counts can also differ from a lookup on `quanteda::tokens(txt)`, because the tokens are then **quanteda**'s and not spaCy's. What `spacy_match()` adds to a lookup is where each match is, in a form that joins to the output of `spacy_parse()`. A dictionary's phrases and wildcard values can be combined with token patterns by converting it with `as_entity_patterns()` and joining the two with `c()`.
 
 `quanteda::kwic()` follows another rule than `tokens_lookup()`, which no value of `overlap` gives: it drops a match only when all of its tokens are in another match, of any pattern. It would drop a "New York" that lies inside another label's "New York Times", which `overlap = "longest"` keeps, since labels are separate; and it would keep both of two matches of one label that partly overlap, where `overlap = "longest"` keeps one.
 
@@ -310,7 +329,7 @@ m[m$node %in% c("subject", "verb", "agent"), c("doc_id", "node", "text")]
 ## 5     p1   agent    Jane
 ```
 
-Each label has one dependency pattern, so alternatives, such as passives with and without an agent, get labels of their own. The other relations that `REL_OP` can take, such as `">>"` for a dependent at any depth and `"."` for the next token, are listed in spaCy's [documentation](https://spacy.io/usage/rule-based-matching#dependencymatcher). `overlap` does not apply to dependency patterns: every match is returned.
+Each label has one dependency pattern, so alternatives, such as passives with and without an agent, get labels of their own. The other relations that `REL_OP` can take, such as `">>"` for a dependent at any depth and `"."` for the next token, are listed in spaCy's [documentation](https://spacy.io/usage/rule-based-matching#dependencymatcher). `overlap` does not apply to dependency patterns: every match is returned, and giving `overlap` with nothing but dependency patterns is an error.
 
 ### Both kinds of pattern together
 
@@ -327,7 +346,7 @@ both
 ## 4     p1        2  CLAUSE     aux           1        3         was        3      1
 ```
 
-Within a document, matches are in the order of the position of their first row, which for a dependency pattern is the token of its first node, and `match_id` numbers the two kinds together. Every row is a span of tokens with a `start_id` and a `length`, so the rows of both kinds can be handled alike: here, to look up each in the output of `spacy_parse()`.
+Within a document, matches are in the order of the position of their first row, which for a dependency pattern is the token of its first node, and `match_id` numbers the two kinds together. A match is a distinct pair of `doc_id` and `match_id`, not a row: `both` has two matches in four rows. `overlap` applies to the token patterns of such a list. Every row is a span of tokens with a `start_id` and a `length`, so the rows of both kinds can be handled alike: here, to look up each in the output of `spacy_parse()`.
 
 
 ``` r

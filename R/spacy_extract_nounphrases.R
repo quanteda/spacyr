@@ -14,9 +14,11 @@
 #'   function returns a `data.frame` with the following fields.
 #' \describe{\item{`text`}{contents of noun-phrase}
 #' \item{`root_text`}{contents of root token}
-#' \item{`start_id`}{serial number ID of starting token. This number
-#' corresponds with the number of `data.frame` returned from
-#' `spacy_tokenize(x)` with default options.}
+#' \item{`start_id`}{serial number ID of starting token: its position in
+#' the document, starting at 1 and counting every token of spaCy's, as the
+#' rows of `spacy_parse(x)` do. Whitespace tokens are counted, so where a
+#' document has them this is not the position among the tokens of
+#' `spacy_tokenize(x)` with default options, which leaves them out.}
 #' \item{`root_id`}{serial number ID of root token}
 #' \item{`length`}{number of words (tokens) included in a noun-phrase (e.g.
 #' for a noun-phrase, "individual car owners", `length = 3`)}}

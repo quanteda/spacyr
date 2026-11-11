@@ -60,7 +60,9 @@ keeps the one that starts first, and of those with the same start the
 longest; \code{"all"} returns every match, including those inside or
 overlapping another, as spaCy does. Matches of different labels can
 overlap whatever the value. It does not apply to dependency patterns,
-all of whose matches are returned.}
+all of whose matches are returned: in a list that holds both kinds it
+applies to the token patterns, and giving it when \code{pattern} holds only
+dependency patterns is an error.}
 
 \item{n_process}{the number of processes for spaCy's \code{nlp.pipe()} to use:
 \code{1} (the default) processes the documents in the current R session's Python
@@ -188,7 +190,7 @@ What applies to each kind of pattern:\tabular{llll}{
    A match is \tab a sequence of adjacent tokens \tab a sequence of adjacent tokens \tab one token for each node, anywhere in a sentence \cr
    Matched by spaCy's \tab \code{Matcher} \tab \code{PhraseMatcher}, or \code{Matcher} for values with wildcards \tab \code{DependencyMatcher} \cr
    Patterns for one label \tab any number, as alternatives \tab any number, as alternatives \tab one \cr
-   \code{overlap} \tab applies \tab applies \tab does not apply \cr
+   \code{overlap} \tab applies \tab applies \tab does not apply, and is an error if given when there are no other patterns \cr
    \code{n_process}, \code{batch_size} \tab apply \tab apply \tab apply \cr
    Rows for one match \tab one \tab one \tab one for each node \cr
    The pipeline needs \tab the components that set the attributes asked for \tab only its tokenizer \tab a dependency parse, in every document \cr
@@ -202,13 +204,30 @@ patterns.
 
 \section{Matches and quanteda}{
 
-With \code{overlap = "longest"}, the default, the values of a dictionary match
-as they do in \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}} with its default,
-\code{nested_scope = "key"}, when that is applied to spaCy's tokens,
-\code{quanteda::as.tokens(spacy_parse(x))}: no token is in two matches of the
-same key, and a value that lies inside a value of another key is a match
-for both keys. So the number of matches of each label in each document is
-the count that \code{tokens_lookup()} gives for that key.
+\code{overlap = "longest"}, the default, chooses among overlapping matches as
+\code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}} does with its default, \code{nested_scope = "key"}:
+no token is in two matches of the same key, and a value that lies inside a
+value of another key is a match for both keys. The two are equivalent
+when they start from the same candidate spans under the same keys, and
+then give the same number of matches for each key in each document.
+Applying \code{tokens_lookup()} to spaCy's tokens,
+\code{quanteda::as.tokens(spacy_parse(x))}, does not guarantee that. In
+particular:
+\itemize{
+\item A dictionary value without a wildcard is a phrase, which spaCy's
+tokenizer splits into tokens, while \pkg{quanteda} splits every value
+at its spaces. The value \code{"Acme, Inc."} matches the three tokens \code{Acme},
+\verb{,} and \code{Inc.} here, where \code{tokens_lookup()} looks for a token \verb{Acme,}
+and finds nothing.
+\item The values of a dictionary's nested keys are labelled here by their
+top-level key, which corresponds to \code{tokens_lookup(levels = 1)}. Its
+default, \code{levels = 1:5}, reports nested keys such as \code{place.us}
+separately, and so also keeps matches of two of them that overlap.
+}
+
+A match is a distinct pair of \code{doc_id} and \code{match_id}, not a row: count
+those to count matches, since a match of a dependency pattern has a row
+for each node.
 
 \code{\link[quanteda:kwic]{quanteda::kwic()}} follows a different rule, which no value of \code{overlap}
 gives: it drops a match only when every one of its tokens is in another
@@ -233,6 +252,13 @@ passive <- list(list(DEP = "auxpass"),
                      OP = "*"),
                 list(TAG = "VBN"))
 spacy_match(txt, list(PASSIVE = passive))
+
+# adjectives before a noun: the longest match where matches of a label
+# overlap, which is the default, or every match
+adj_noun <- list(ADJ_NOUN = list(list(POS = "ADJ", OP = "+"),
+                                 list(POS = "NOUN")))
+spacy_match("A big red shiny ball.", adj_noun)
+spacy_match("A big red shiny ball.", adj_noun, overlap = "all")
 
 # two labels, the second with alternative patterns
 spacy_match(txt, list(

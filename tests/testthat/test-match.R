@@ -144,6 +144,23 @@ test_that("spacy_match checks its arguments before starting spaCy", {
     expect_null(getOption("spacy_initialized"))
 })
 
+test_that("overlap is an error when pattern holds only dependency patterns", {
+    try(spacy_finalize(), silent = TRUE)
+    only <- "overlap applies to sequences of tokens.*only dependency patterns"
+    for (overlap in c("longest", "all", "first"))
+        expect_error(spacy_match("a", list(CLAUSE = clause), overlap = overlap), only)
+    expect_error(spacy_match("a", list(CLAUSE = clause), "all"), only)
+    expect_error(spacy_match("a", list(CLAUSE = clause, AGAIN = clause), overlap = "all"),
+                 only)
+    # also from a TIF data.frame, whose method passes overlap on
+    tif <- data.frame(doc_id = "d1", text = "a")
+    expect_error(spacy_match(tif, list(CLAUSE = clause), overlap = "all"), only)
+    # an overlap that is not one of the three is that error first
+    expect_error(spacy_match("a", list(CLAUSE = clause), overlap = "none"),
+                 "should be one of")
+    expect_null(getOption("spacy_initialized"))
+})
+
 test_that("spacy_match stops on arguments it does not use", {
     try(spacy_finalize(), silent = TRUE)
     expect_error(spacy_match("a", passive, nonsense = 1),
@@ -518,7 +535,11 @@ test_that("sequences and dependency patterns give rows of one table", {
     expect_identical(same$match_id, 1:3)
     expect_identical(same$start_id, c(4L, 4L, 4L))
 
-    # overlap applies to the sequences only
+    # overlap applies to the sequences of a list with both kinds, and its
+    # default is silent for dependency patterns alone
+    expect_silent(spacy_match(txt, list(CLAUSE = clause)))
+    expect_silent(spacy_match(data.frame(doc_id = names(txt), text = unname(txt)),
+                              list(CLAUSE = clause)))
     child <- list(
         list(RIGHT_ID = "verb", RIGHT_ATTRS = list(POS = "VERB")),
         list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "child", RIGHT_ATTRS = list()))
@@ -530,6 +551,14 @@ test_that("sequences and dependency patterns give rows of one table", {
     expect_identical(as.vector(n("all")[c("ADJ_NOUN", "VERB_CHILD")]), c(2L, 4L))
     expect_identical(as.vector(n("longest")[c("ADJ_NOUN", "VERB_CHILD")]), c(1L, 4L))
     expect_identical(as.vector(n("first")[c("ADJ_NOUN", "VERB_CHILD")]), c(1L, 4L))
+    # overlap passes through the TIF data.frame method, by name or position
+    tif_x <- data.frame(doc_id = "text1", text = x)
+    for (overlap in c("all", "longest", "first")) {
+        expect_identical(spacy_match(tif_x, pats, overlap = overlap),
+                         spacy_match(x, pats, overlap = overlap), info = overlap)
+        expect_identical(spacy_match(tif_x, pats, overlap),
+                         spacy_match(x, pats, overlap = overlap), info = overlap)
+    }
 
     # the same from a TIF data.frame and with two processes
     tif <- data.frame(doc_id = names(txt), text = unname(txt))
@@ -602,6 +631,9 @@ test_that("overlap = 'longest' gives the matches of tokens_lookup for each key",
         lookup <- quanteda::tokens_lookup(toks, d, nested_scope = "key")
         expect_identical(sort(m$label), sort(as.character(lookup)), info = info)
     }
+    # a match is a distinct doc_id and match_id, which for sequences is a row
+    m <- spacy_match(nyt, quanteda::dictionary(cases[[1]][[2]]))
+    expect_identical(nrow(unique(m[, c("doc_id", "match_id")])), nrow(m))
     # every match, which is more in the cases with nested or overlapping values
     all <- vapply(cases, function(case)
         nrow(spacy_match(case[[1]], quanteda::dictionary(case[[2]]), overlap = "all")), 1L)
@@ -670,4 +702,37 @@ test_that("documents left out by the pipeline are reported", {
                    "did not return 1 document, which is left out of the output: bad")
     expect_identical(m$doc_id, "good")
     expect_identical(m$start_id, 3L)
+})
+
+test_that("dictionary matches differ from tokens_lookup where the candidates differ", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+
+    # a value without a wildcard is a phrase that spaCy tokenizes, where
+    # quanteda splits it at its spaces and looks for the token "Acme,"
+    x <- "She joined Acme, Inc. last year."
+    d <- quanteda::dictionary(list(ORG = "Acme, Inc."), tolower = FALSE)
+    m <- spacy_match(x, d)
+    expect_identical(m$text, "Acme, Inc.")
+    expect_identical(m$start_id, 3L)
+    expect_identical(m$length, 3L)
+    toks <- quanteda::as.tokens(spacy_parse(x))
+    expect_identical(as.character(toks)[3:5], c("Acme", ",", "Inc."))
+    expect_identical(quanteda::ntoken(quanteda::tokens_lookup(toks, d, nested_scope = "key")),
+                     c(text1 = 0L))
+
+    # the values of nested keys are labelled by their top-level key, as with
+    # levels = 1, which is not the default of tokens_lookup()
+    y <- "New York is larger than York."
+    nested <- quanteda::dictionary(list(place = list(us = "new york", uk = "york")))
+    m <- spacy_match(y, nested)
+    expect_identical(m$label, c("place", "place"))
+    expect_identical(m$text, c("New York", "York"))
+    toks <- quanteda::as.tokens(spacy_parse(y))
+    expect_identical(as.character(quanteda::tokens_lookup(toks, nested, levels = 1)),
+                     m$label)
+    expect_identical(as.character(quanteda::tokens_lookup(toks, nested)),
+                     c("place.us", "place.uk", "place.uk"))
 })
