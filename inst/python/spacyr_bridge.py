@@ -5,6 +5,7 @@
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
 import spacy
 from spacy.matcher import Matcher, PhraseMatcher, DependencyMatcher
+from spacy.tokens import Doc
 import time
 import string
 import random
@@ -225,6 +226,13 @@ def any_sets_entities(nlp):
 def retokenizers(nlp):
     # the active components that change the tokens, as merge_entities does
     return [name for name in nlp.pipe_names if retokenizes(nlp, name)]
+
+def lower_strings(nlp, strings):
+    # each string in lower case as the vocabulary has it in LOWER, which is
+    # what a phrase matcher on LOWER compares
+    if isinstance(strings, str):
+        strings = [strings]
+    return [nlp.vocab[s].lower_ for s in strings]
 
 def filter_overlaps(matches, greedy):
     # Keep one of the overlapping matches of each label, as spaCy's Matcher
@@ -576,15 +584,18 @@ class spacyr:
         # labels holds every label, in the order that sorts matches; patterns
         # is parallel to it, with the alternative token patterns of each
         # label, which may be none; phrases is a list of dicts with the label,
-        # text and case_insensitive of each phrase; and dependency a list of
+        # case_insensitive and either the text or the words of each phrase;
+        # and dependency a list of
         # dicts with the label and the one dependency pattern of each label
         # that has one.
         # Token patterns are matched by spaCy's Matcher, after merging those
         # of a single regular expression as for the entity ruler. Phrases are
         # matched by its PhraseMatcher, which is far faster for many phrases
         # than token patterns: on the tokens' text (ORTH), or on their lower
-        # case form (LOWER) for phrases marked case_insensitive, each phrase
-        # being tokenized by the pipeline's own tokenizer. The same span found
+        # case form (LOWER) for phrases marked case_insensitive. A phrase
+        # given as text is tokenized by the pipeline's own tokenizer; one
+        # given as words is a document of those words as its tokens, so that
+        # the caller sets the token boundaries. The same span found
         # for a label by more than one pattern or matcher is one match.
         # Overlapping matches of a label are filtered here (greedy "FIRST" or
         # "LONGEST"), over the matches of these matchers together.
@@ -634,7 +645,14 @@ class spacyr:
             by_label = {}
             for p in phrases or []:
                 if bool(p.get("case_insensitive", False)) == lower:
-                    by_label.setdefault(p["label"], []).append(self.nlp.make_doc(p["text"]))
+                    if p.get("words") is not None:
+                        words = p["words"]
+                        if isinstance(words, str):
+                            words = [words]
+                        phrase = Doc(vocab, words = list(words))
+                    else:
+                        phrase = self.nlp.make_doc(p["text"])
+                    by_label.setdefault(p["label"], []).append(phrase)
             if by_label:
                 matcher = PhraseMatcher(vocab, attr = "LOWER" if lower else "ORTH")
                 for label, docs in by_label.items():

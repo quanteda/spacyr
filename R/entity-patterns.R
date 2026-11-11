@@ -269,6 +269,14 @@ as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
                                            ...) {
     check_case_insensitive(case_insensitive)
     valuetype <- match.arg(valuetype)
+    dictionary_entity_patterns(x, valuetype, case_insensitive)
+}
+
+# The entity patterns of a dictionary. lower is the function that lowercases
+# the pieces of values with wildcards: spacy_match() gives spaCy's own, so
+# that they match as its phrases do.
+dictionary_entity_patterns <- function(x, valuetype, case_insensitive,
+                                       lower = tolower) {
     if (!requireNamespace("quanteda", quietly = TRUE))
         stop("Converting a dictionary needs the quanteda package", call. = FALSE)
     # quanteda's own as.list(): base's ignores flatten and levels, and leaves
@@ -278,7 +286,7 @@ as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
     values <- unlist(values, use.names = FALSE)
     if (is.null(values)) values <- character()
     pattern <- lapply(values, dictionary_pattern, valuetype = valuetype,
-                      case_insensitive = case_insensitive)
+                      case_insensitive = case_insensitive, lower = lower)
     new_entity_patterns(label, pattern, rep(NA_character_, length(values)),
                         rep(case_insensitive, length(values)))
 }
@@ -286,28 +294,45 @@ as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
 # A dictionary value as a phrase, or, with wildcards or regular expressions,
 # as a token pattern with one token for each piece separated by spaces, as
 # quanteda matches dictionary values to its tokens
-dictionary_pattern <- function(value, valuetype, case_insensitive) {
+dictionary_pattern <- function(value, valuetype, case_insensitive,
+                               lower = tolower) {
     if (valuetype == "fixed" || (valuetype == "glob" && !grepl("[*?]", value)))
         return(value)
     pieces <- strsplit(trimws(value), "\\s+")[[1]]
-    lapply(pieces, function(piece) {
-        if (valuetype == "regex") {
-            if (case_insensitive) piece <- paste0("(?i)", piece)
-            return(list(TEXT = list(REGEX = piece)))
-        }
-        attr <- if (case_insensitive) "LOWER" else "ORTH"
-        if (case_insensitive) piece <- tolower(piece)
-        if (!grepl("[*?]", piece)) return(stats::setNames(list(piece), attr))
-        stats::setNames(list(list(REGEX = glob_to_regex(piece))), attr)
+    lexical_tokens(pieces, valuetype, case_insensitive, lower)
+}
+
+# The pieces of a lexical pattern as the attributes of one spaCy token each:
+# a regular expression on the token's text, with (?i) to ignore case; a glob
+# with a wildcard as a regular expression for the whole of the token's text
+# (ORTH) or of its lower case form (LOWER); and anything else as the value
+# of ORTH or LOWER. lower lowercases the pieces to compare with LOWER: for
+# these to match as phrases do, it must be spaCy's own, spacy_lower().
+# Shared by dictionary values and the character patterns of spacy_match().
+lexical_tokens <- function(pieces, valuetype, case_insensitive,
+                           lower = tolower) {
+    if (valuetype == "regex") {
+        if (case_insensitive) pieces <- paste0("(?i)", pieces)
+        return(lapply(pieces, function(p) list(TEXT = list(REGEX = p))))
+    }
+    attr <- if (case_insensitive) "LOWER" else "ORTH"
+    if (case_insensitive) pieces <- lower(pieces)
+    lapply(pieces, function(p) {
+        if (valuetype == "glob" && grepl("[*?]", p))
+            p <- list(REGEX = glob_to_regex(p))
+        stats::setNames(list(p), attr)
     })
 }
 
-# a glob as an anchored regular expression: "*" is any characters, "?" one
+# A glob as a regular expression of Python for the whole of a string: "*" is
+# any characters and "?" any one, including newlines, which "." leaves out;
+# and \Z is the end of the string, where "$" also matches before a last
+# newline. spaCy has tokens of newlines.
 glob_to_regex <- function(x) {
     x <- gsub("([][{}()+.^$|\\\\])", "\\\\\\1", x)
-    x <- gsub("*", ".*", x, fixed = TRUE)
-    x <- gsub("?", ".", x, fixed = TRUE)
-    paste0("^", x, "$")
+    x <- gsub("*", "[\\s\\S]*", x, fixed = TRUE)
+    x <- gsub("?", "[\\s\\S]", x, fixed = TRUE)
+    paste0("\\A", x, "\\Z")
 }
 
 #' @export

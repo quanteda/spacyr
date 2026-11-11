@@ -7,6 +7,8 @@
 spacy_match(
   x,
   pattern,
+  valuetype = c("glob", "regex", "fixed"),
+  case_insensitive = TRUE,
   overlap = c("longest", "all", "first"),
   n_process = 1L,
   batch_size = NULL,
@@ -17,7 +19,39 @@ spacy_match(
 \item{x}{a character object, a \strong{quanteda} corpus, or a TIF-compliant
 corpus data.frame (see \url{https://github.com/ropensci/tif})}
 
-\item{pattern}{the patterns to match, either:
+\item{pattern}{the patterns to match. The first four kinds are \emph{lexical
+patterns}, which describe tokens by their text and to which \code{valuetype}
+and \code{case_insensitive} apply, as in \strong{quanteda}:
+\itemize{
+\item a character vector, in which each element describes one token, such
+as \code{"tax*"}. The label of a match is the name of the element, or its
+text when it has no name; elements with the same name are alternatives
+for that label. An element is one token even when it contains a space,
+so \code{"new york"} matches nothing: give a sequence of tokens with
+\code{\link[quanteda:phrase]{quanteda::phrase()}}.
+\item a \code{\link[quanteda:phrase]{quanteda::phrase()}} object, or a list of character vectors, in
+which each element is a sequence of adjacent tokens, with one string
+for each token: \code{phrase("new york*")} is the same as
+\code{list(c("new", "york*"))}. The strings are used as they are given, and
+are not tokenized by spaCy, so that they set the token boundaries:
+\code{phrase("Acme , Inc.")} describes three tokens. The label is the name
+of the element, or else its strings joined by a space.
+\item a \strong{quanteda} dictionary, which is converted with
+\code{\link[=as_entity_patterns]{as_entity_patterns()}}, given \code{valuetype} and \code{case_insensitive}: the
+top-level keys are the labels. A value that has no wildcard (or any
+value, with \code{valuetype = "fixed"}) is a phrase that spaCy tokenizes; a
+value with a wildcard, or a regular expression, is split at its
+spaces, with one part for each token.
+\item the collocations found by \code{quanteda.textstats::textstat_collocations()},
+each of which is a sequence of its words, labelled by the collocation.
+The words are matched as they are, as \strong{quanteda} matches
+collocations: only \code{case_insensitive} applies, and a \code{*} matches a
+\code{*}. Use \code{phrase()} on the collocations to have them read according
+to \code{valuetype}.
+}
+
+The others are in spaCy's own structure, and set how they match
+themselves:
 \itemize{
 \item a named list, in which each name is the label of a pattern, and each
 element is a pattern in spaCy's structure. The names must be unique.
@@ -41,17 +75,34 @@ of the earlier one. An element whose nodes have these keys is
 read as a dependency pattern. Each label has one dependency
 pattern: give alternative patterns labels of their own.
 }
+
+Such a list can also hold character vectors, which are sequences as
+in a list of character vectors, and need no name.
 \item a \code{spacyr_entity_patterns} object from \code{\link[=as_entity_patterns]{as_entity_patterns()}}, whose
 labels become the labels of the matches. Patterns with the same label
 are alternatives for that label, and the IDs of the patterns are
-ignored. The object can hold phrases as well as token patterns; this
-is the way to match phrases, exactly or, with
-\code{case_insensitive = TRUE}, in any case.
-\item a \strong{quanteda} dictionary, which is converted with
-\code{\link[=as_entity_patterns]{as_entity_patterns()}} and its defaults: the top-level keys are the
-labels, and values match in any case, with wildcards as in
-\strong{quanteda}. Call \code{\link[=as_entity_patterns]{as_entity_patterns()}} yourself to change these.
+ignored. The object can hold phrases as well as token patterns; its
+phrases are tokenized by spaCy, and match exactly or in any case as
+the object says.
 }}
+
+\item{valuetype}{how the strings of lexical patterns are read: \code{"glob"}
+(the default) for wildcards, where \code{*} stands for any number of
+characters and \verb{?} for one; \code{"regex"} for regular expressions; or
+\code{"fixed"} for exact matching, as in \strong{quanteda}. Each string is
+compared with one token, and a glob or a fixed string must match the
+whole of it, while a regular expression can match any part. Regular
+expressions are those of Python's \code{re} module, not of R or of
+\strong{quanteda}: \code{"^\\\\p{L}+$"}, for instance, works in \strong{quanteda} and
+is an error here.}
+
+\item{case_insensitive}{logical; if \code{TRUE} (the default, as in
+\strong{quanteda}), lexical patterns match in any case.
+
+\code{valuetype} and \code{case_insensitive} are an error when they are given and
+\code{pattern} holds no lexical pattern: only spaCy's token or dependency
+patterns, or a \code{spacyr_entity_patterns} object, whose phrases have
+their own \code{case_insensitive}.}
 
 \item{overlap}{which matches of sequences to return where matches of the
 same label overlap: \code{"longest"} (the default) keeps the longest of them,
@@ -129,9 +180,11 @@ either a sequence of adjacent tokens, or tokens that are connected in the
 dependency parse, wherever they are in the sentence: the verb of a passive
 clause together with its subject and its agent, for instance. A token is
 described by its attributes, which can be those that the language model
-assigns, such as the part of speech or the dependency relation. Phrases,
-and the values of a \strong{quanteda} dictionary, can be matched too. Every
-kind of pattern gives rows of the same table. Unlike the patterns given to
+assigns, such as the part of speech or the dependency relation. Words and
+phrases can be matched too, given as in \strong{quanteda}: as a character
+vector, a \code{\link[quanteda:phrase]{quanteda::phrase()}} object or a dictionary, with wildcards or
+regular expressions according to \code{valuetype}. Every kind of pattern gives
+rows of the same table. Unlike the patterns given to
 \code{\link[=spacy_initialize]{spacy_initialize()}} as \code{entity_patterns}, these do not change the
 pipeline or the entities of a document.
 }
@@ -151,10 +204,35 @@ The values of spaCy's set operators (\code{IN}, \code{NOT_IN}, \code{IS_SUBSET},
 \code{IS_SUPERSET} and \code{INTERSECTS}) can be vectors of any length, and whole
 numbers need not be integers, as for \code{\link[=as_entity_patterns]{as_entity_patterns()}}.
 
-Phrases are split into tokens by spaCy's tokenizer, and match the same
-sequence of tokens in a document, as described for
+Lexical patterns are compared with spaCy's tokens, which differ from
+those of \code{\link[quanteda:tokens]{quanteda::tokens()}}: spaCy's English models split \code{"U.K.-based"}
+into three tokens, for instance. A string of a lexical pattern is one
+token, and matches only where spaCy made the same token:
+\code{phrase("Acme, Inc.")} asks for a token \verb{Acme,}, which spaCy does not
+make, while \code{phrase("Acme , Inc.")} matches the three tokens of
+\code{"Acme, Inc."}.
+\code{spacy_tokenize()} shows the tokens of a text. spaCy also makes a token of
+a space that follows another space, which a pattern of a space matches.
+To match as \strong{quanteda} does on the same tokens, with its regular
+expressions, apply \code{\link[quanteda:index]{quanteda::index()}} or \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}} to
+\code{quanteda::as.tokens(spacy_parse(x))}.
+
+A string without a wildcard is compared with the token's text or, with
+\code{case_insensitive = TRUE}, its lower case form (spaCy's \code{ORTH} and
+\code{LOWER}). A glob with a wildcard becomes a regular expression for the
+whole of that text or lower case form, in which a wildcard stands for any
+characters, including the newlines of spaCy's whitespace tokens. Lower
+case is spaCy's throughout, so that a pattern ignores case in the same
+way with a wildcard as without. A regular expression is applied to
+the token's text, with the flag \code{(?i)} when \code{case_insensitive = TRUE}.
+
+The phrases of a \code{spacyr_entity_patterns} object, and dictionary values
+without a wildcard, are split into tokens by spaCy's tokenizer, and match
+the same sequence of tokens in a document, as described for
 \code{\link[=as_entity_patterns]{as_entity_patterns()}}. They are matched with spaCy's \code{PhraseMatcher},
-which stays fast for many thousands of phrases. A phrase that matches in
+which stays fast for many thousands of phrases, as are the sequences of
+lexical patterns that have no wildcard or regular expression. A phrase
+that matches in
 any case, as dictionary values do, is tokenized as it is written, and
 spaCy's tokenizer can split the same word differently in another case:
 it keeps \code{"Inc."} as one token but splits \code{"inc."} into two, so the phrase
@@ -162,7 +240,7 @@ it keeps \code{"Inc."} as one token but splits \code{"inc."} into two, so the ph
 while the phrase \code{"Acme Widgets, Inc."} in any case does. A warning is
 given when
 a component of the pipeline, such as \code{merge_entities}, changes the tokens
-of the documents, since phrases may then not match.
+of the documents, since these phrases may then not match.
 
 The operators in the \code{REL_OP} of a dependency pattern are spaCy's: among
 others, \code{"A > B"} when B is a direct dependent of A, \code{"A < B"} when B is
@@ -178,23 +256,37 @@ matches.
 
 Matching adds little to the time that parsing takes, except for many
 token patterns: a few thousand make it much slower, so give phrases as
-phrases where you can, not as token patterns. Dictionary values with
-wildcards are token patterns, but those of a single word are combined
-into one for each label. Patterns that need no entities are faster after
+lexical patterns or phrases where you can, not as token patterns. Lexical
+patterns and dictionary values with wildcards or regular expressions are
+token patterns, but those of a single token are combined into one for
+each label. Patterns that need no entities are faster after
 \code{spacy_initialize(entity = FALSE)}.
 }
 \section{Kinds of pattern}{
 
-What applies to each kind of pattern:\tabular{llll}{
-    \tab Token patterns \tab Phrases and dictionary values \tab Dependency patterns \cr
-   Given in \code{pattern} as \tab an element of a named list, or in a \code{spacyr_entity_patterns} object \tab a \code{spacyr_entity_patterns} object or a dictionary \tab an element of a named list \cr
-   A match is \tab a sequence of adjacent tokens \tab a sequence of adjacent tokens \tab one token for each node, anywhere in a sentence \cr
-   Matched by spaCy's \tab \code{Matcher} \tab \code{PhraseMatcher}, or \code{Matcher} for values with wildcards \tab \code{DependencyMatcher} \cr
-   Patterns for one label \tab any number, as alternatives \tab any number, as alternatives \tab one \cr
-   \code{overlap} \tab applies \tab applies \tab does not apply, and has no effect when there are no other patterns \cr
-   \code{n_process}, \code{batch_size} \tab apply \tab apply \tab apply \cr
-   Rows for one match \tab one \tab one \tab one for each node \cr
-   The pipeline needs \tab the components that set the attributes asked for \tab only its tokenizer \tab a dependency parse, in every document \cr
+What \code{pattern} can be, and which arguments apply to each kind:\tabular{lllll}{
+   \code{pattern} \tab Meaning \tab Label \tab \code{valuetype}, \code{case_insensitive} \tab \code{overlap} \cr
+   character vector \tab each element describes one token \tab its name, or else its text \tab apply \tab applies \cr
+   \code{phrase()} object, or a list of character vectors \tab each element is a sequence, with one string for each token; the strings are not tokenized again \tab its name, or else its strings joined by a space \tab apply, to each string \tab applies \cr
+   \strong{quanteda} dictionary \tab converted by \code{\link[=as_entity_patterns]{as_entity_patterns()}}: a value without a wildcard is a phrase that spaCy tokenizes, and one with a wildcard or a regular expression is split at its spaces \tab the top-level key \tab apply \tab applies \cr
+   collocations \tab each is a sequence of its words, matched as they are \tab the collocation \tab only \code{case_insensitive} applies; a \code{valuetype} other than \code{"fixed"} is an error \tab applies \cr
+   named list of spaCy token patterns \tab a sequence of tokens described by their attributes \tab the name \tab an error if given \tab applies \cr
+   \code{spacyr_entity_patterns} object \tab its phrases, tokenized by spaCy, and its token patterns \tab its \code{label} \tab an error if given \tab applies \cr
+   named list of dependency patterns \tab one token for each node, anywhere in a sentence \tab the name \tab an error if given \tab does not apply, and has no effect when there are no other patterns \cr
+}
+
+
+A list can hold character vectors, token patterns and dependency
+patterns together; \code{valuetype} and \code{case_insensitive} then apply to its
+character vectors.
+
+How each kind is matched:\tabular{lll}{
+    \tab Sequences of tokens \tab Dependency patterns \cr
+   Matched by spaCy's \tab \code{PhraseMatcher}, for lexical patterns and dictionary values without a wildcard or a regular expression, and for the phrases of entity patterns; otherwise \code{Matcher} \tab \code{DependencyMatcher} \cr
+   Patterns for one label \tab any number, as alternatives \tab one \cr
+   \code{n_process}, \code{batch_size} \tab apply \tab apply \cr
+   Rows for one match \tab one \tab one for each node \cr
+   The pipeline needs \tab the components that set the attributes asked for: only its tokenizer for lexical patterns and phrases \tab a dependency parse, in every document \cr
 }
 
 
@@ -245,6 +337,26 @@ spacy_initialize()
 txt <- c(doc1 = "The book was written by Jane. Jane wrote the book.",
          doc2 = "Mistakes were made, and the report is being rewritten.")
 
+# words, with wildcards as in quanteda, in any case
+spacy_match(txt, "writ*")
+# labelled by their names
+spacy_match(txt, c(WRITE = "*writ*", WRITE = "wrote", ERROR = "mistake*"))
+
+# a sequence of tokens needs phrase(): a character element is one token,
+# also when it contains a space, so the first of these matches nothing
+spacy_match(txt, "the book*")
+spacy_match(txt, quanteda::phrase("the book*"))
+# the same, as a list of character vectors, with a label
+spacy_match(txt, list(TITLE = c("the", "book*")))
+
+# regular expressions, which are Python's
+spacy_match(txt, "^(re)?writ", valuetype = "regex")
+
+# matching case
+spacy_match(txt, c("the", "jane"), case_insensitive = FALSE)
+spacy_match(txt, quanteda::phrase("The book"), valuetype = "fixed",
+            case_insensitive = FALSE)
+
 # passive verbs, by the dependency and tag labels of the English models:
 # a passive auxiliary, any adverbs or further auxiliaries, and a past
 # participle
@@ -268,7 +380,7 @@ spacy_match(txt, list(
                list(list(LEMMA = "rewrite")))
 ))
 
-# phrases, matched exactly or in any case
+# phrases that spaCy tokenizes, matched exactly or in any case
 spacy_match(txt, as_entity_patterns(c(TITLE = "the book")))
 spacy_match(txt, as_entity_patterns(c(TITLE = "the book"),
                                     case_insensitive = TRUE))
@@ -277,6 +389,7 @@ spacy_match(txt, as_entity_patterns(c(TITLE = "the book"),
 dict <- quanteda::dictionary(list(writing = c("writ*", "wrote", "the book"),
                                   error = "mistake*"))
 spacy_match(txt, dict)
+spacy_match(txt, dict, case_insensitive = FALSE)
 
 # a dependency pattern for passive clauses: a past participle with a
 # passive subject and a passive auxiliary as its dependents
