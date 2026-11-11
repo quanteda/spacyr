@@ -484,3 +484,41 @@ test_that("NULL, as from an extraction that found no entities, gives no patterns
     expect_s3_class(c(as_entity_patterns(NULL), as_entity_patterns(c(ORG = "Acme"))),
                     "spacyr_entity_patterns")
 })
+
+test_that("the values of all set operators become lists, also when empty", {
+  for (op in c("IN", "NOT_IN", "IS_SUBSET", "IS_SUPERSET", "INTERSECTS",
+               "is_subset", "intersects")) {
+    one <- as_entity_patterns(list(label = "X", pattern = list(
+      stats::setNames(list(stats::setNames(list("Voice=Pass"), op)), "MORPH"))))
+    expect_identical(one$pattern[[1]][[1]]$MORPH[[op]], list("Voice=Pass"), info = op)
+    none <- as_entity_patterns(list(label = "X", pattern = list(
+      stats::setNames(list(stats::setNames(list(list()), op)), "MORPH"))))
+    expect_identical(none$pattern[[1]][[1]]$MORPH[[op]], list(), info = op)
+    expect_null(names(none$pattern[[1]][[1]]$MORPH[[op]]), info = op)
+  }
+  x <- as_entity_patterns(list(label = "X", pattern = list(
+    list(MORPH = list(IS_SUPERSET = c(a = "Number=Sing", b = "Case=Nom"))),
+    list(LENGTH = list(INTERSECTS = c(3, 4))))))
+  expect_identical(x$pattern[[1]][[1]],
+                   list(MORPH = list(IS_SUPERSET = list("Number=Sing", "Case=Nom"))))
+  expect_identical(x$pattern[[1]][[2]], list(LENGTH = list(INTERSECTS = list(3L, 4L))))
+})
+
+test_that("other empty lists become named lists, which reach Python as dicts", {
+  empty <- structure(list(), names = character(0))
+  p <- normalize_pattern(list(
+    list(),
+    list(`_` = list()),
+    list(RIGHT_ID = "a", RIGHT_ATTRS = list()),
+    list(RIGHT_ID = "b", RIGHT_ATTRS = list(DEP = list(IN = "nsubj"), `_` = list()))
+  ), 1)
+  expect_identical(p[[1]], empty)
+  expect_identical(p[[2]], list(`_` = empty))
+  expect_identical(p[[3]], list(RIGHT_ID = "a", RIGHT_ATTRS = empty))
+  expect_identical(p[[4]], list(RIGHT_ID = "b",
+                                RIGHT_ATTRS = list(DEP = list(IN = list("nsubj")),
+                                                   `_` = empty)))
+  skip_if_not_installed("jsonlite")
+  expect_identical(as.character(jsonlite::toJSON(p[[3]], auto_unbox = TRUE)),
+                   '{"RIGHT_ID":"a","RIGHT_ATTRS":{}}')
+})
