@@ -110,7 +110,13 @@ numbers need not be integers, as for \code{\link[=as_entity_patterns]{as_entity_
 Phrases are split into tokens by spaCy's tokenizer, and match the same
 sequence of tokens in a document, as described for
 \code{\link[=as_entity_patterns]{as_entity_patterns()}}. They are matched with spaCy's \code{PhraseMatcher},
-which stays fast for many thousands of phrases. A warning is given when
+which stays fast for many thousands of phrases. A phrase that matches in
+any case, as dictionary values do, is tokenized as it is written, and
+spaCy's tokenizer can split the same word differently in another case:
+it keeps \code{"Inc."} as one token but splits \code{"inc."} into two, so the phrase
+\code{"acme widgets, inc."} does not match the text \code{"Acme Widgets, Inc."},
+while the phrase \code{"Acme Widgets, Inc."} in any case does. A warning is
+given when
 a component of the pipeline, such as \code{merge_entities}, changes the tokens
 of the documents, since phrases may then not match.
 

@@ -54,7 +54,13 @@
 #' Phrases are split into tokens by spaCy's tokenizer, and match the same
 #' sequence of tokens in a document, as described for
 #' [as_entity_patterns()]. They are matched with spaCy's `PhraseMatcher`,
-#' which stays fast for many thousands of phrases. A warning is given when
+#' which stays fast for many thousands of phrases. A phrase that matches in
+#' any case, as dictionary values do, is tokenized as it is written, and
+#' spaCy's tokenizer can split the same word differently in another case:
+#' it keeps `"Inc."` as one token but splits `"inc."` into two, so the phrase
+#' `"acme widgets, inc."` does not match the text `"Acme Widgets, Inc."`,
+#' while the phrase `"Acme Widgets, Inc."` in any case does. A warning is
+#' given when
 #' a component of the pipeline, such as `merge_entities`, changes the tokens
 #' of the documents, since phrases may then not match.
 #'

@@ -169,10 +169,14 @@ def _single_regex(pattern):
     # (attribute, regular expression) for a pattern of one token with only a
     # REGEX, or None. Left as it is: one with inline flags, which must start a
     # regular expression; one that does not compile; and one with capturing
-    # groups, since merging renumbers them, which changes backreferences
+    # groups, since merging renumbers them, which changes backreferences;
+    # and one on "_", where REGEX is the name of a custom attribute whose
+    # value must equal the string, not an operator
     if not isinstance(pattern, list) or len(pattern) != 1 or len(pattern[0]) != 1:
         return None
     (attr, value), = pattern[0].items()
+    if attr == "_":
+        return None
     if not isinstance(value, dict) or list(value.keys()) != ["REGEX"]:
         return None
     rx = value["REGEX"]

@@ -220,10 +220,12 @@ test_that("custom attributes named like operators are not read as operators", {
         "from spacy.tokens import Token",
         "Token.set_extension('is_subset', default = 'x', force = True)",
         "Token.set_extension('spacyr_tags', default = ['a', 'b'], force = True)",
+        "Token.set_extension('REGEX', default = 'x', force = True)",
         sep = "\n"))
     on.exit(reticulate::py_run_string(paste(
         "Token.remove_extension('is_subset')",
-        "Token.remove_extension('spacyr_tags')", sep = "\n")))
+        "Token.remove_extension('spacyr_tags')",
+        "Token.remove_extension('REGEX')", sep = "\n")))
 
     run <- function(...) spacy_extract_matches("red ball", list(X = list(list(`_` = list(...)))))
     expect_identical(run(is_subset = "x")$text, c("red", "ball"))
@@ -232,6 +234,20 @@ test_that("custom attributes named like operators are not read as operators", {
     expect_identical(run(is_subset = list(IN = "x"))$text, c("red", "ball"))
     expect_identical(run(spacyr_tags = list(IS_SUPERSET = "a"))$text, c("red", "ball"))
     expect_identical(nrow(run(spacyr_tags = list(IS_SUPERSET = "z"))), 0L)
+
+    # an extension called REGEX: its alternatives are equality checks, which
+    # must not be merged into one regular expression
+    alt <- list(X = list(list(list(`_` = list(REGEX = "x"))),
+                         list(list(`_` = list(REGEX = "y")))))
+    expect_identical(spacy_extract_matches("red ball", alt)$text, c("red", "ball"))
+    none <- list(X = list(list(list(`_` = list(REGEX = "y"))),
+                          list(list(`_` = list(REGEX = "z")))))
+    expect_identical(nrow(spacy_extract_matches("red ball", none)), 0L)
+    # a regular expression on a custom attribute still works
+    rx <- list(X = list(list(list(`_` = list(is_subset = list(REGEX = "^[xy]$")))),
+                        list(list(LOWER = list(REGEX = "^b"))),
+                        list(list(LOWER = list(REGEX = "^r")))))
+    expect_identical(spacy_extract_matches("red ball", rx)$text, c("red", "ball"))
 })
 
 test_that("phrases of entity patterns match exactly or in any case", {
@@ -259,6 +275,14 @@ test_that("phrases of entity patterns match exactly or in any case", {
     m <- spacy_extract_matches(x, both)
     expect_identical(m$text, c("Acme Widgets", "New York", "new york"))
     expect_identical(spacy_extract_matches(x, both, n_process = 2), m)
+
+    # case can change how spaCy tokenizes a phrase: "Inc." is one token,
+    # "inc." two
+    inc <- "We sued Acme Widgets, Inc. today."
+    expect_identical(nrow(spacy_extract_matches(inc, as_entity_patterns(
+        c(ORG = "acme widgets, inc."), case_insensitive = TRUE))), 0L)
+    expect_identical(spacy_extract_matches(inc, as_entity_patterns(
+        c(ORG = "ACME Widgets, Inc."), case_insensitive = TRUE))$text, "Acme Widgets, Inc.")
 
     # phrases are split into spaCy's tokens, not at spaces
     comma <- spacy_extract_matches("We met Smith, Jones and Brown.",
