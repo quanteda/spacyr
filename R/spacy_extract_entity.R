@@ -18,10 +18,13 @@
 #' @details When the option `output = "data.frame"` is selected, the
 #'   function returns a `data.frame` with the following fields.
 #'   \describe{\item{`text`}{contents of entity}
-#'   \item{`entity_type`}{type of entity (e.g. `ORG` for
-#'   organizations)} \item{`start_id`}{serial number ID of starting token.
-#'   This number corresponds with the number of `data.frame` returned from
-#'   `spacy_tokenize(x)` with default options.} \item{`length`}{number
+#'   \item{`ent_type`}{type of entity (e.g. `ORG` for
+#'   organizations)} \item{`start_id`}{serial number ID of starting token:
+#'   its position in the document, starting at 1 and counting every token
+#'   of spaCy's, as the rows of `spacy_parse(x)` do. Whitespace tokens are
+#'   counted, so where a document has them this is not the position among
+#'   the tokens of `spacy_tokenize(x)` with default options, which leaves
+#'   them out.} \item{`length`}{number
 #'   of words (tokens) included in a named entity (e.g. for an entity, "New York
 #'   Stock Exchange"", `length = 4`)}}
 #' 
