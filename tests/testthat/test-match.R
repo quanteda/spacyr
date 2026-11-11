@@ -118,16 +118,15 @@ test_that("match_patterns rejects patterns it cannot use", {
     expect_error(match_patterns(list(A = tok, tok)), "must be a named list")
     expect_error(match_patterns(list(A = tok, A = tok)), "must be unique.*: A$")
     expect_error(match_patterns(list()), "holds no patterns")
-    expect_error(match_patterns("a b"), "must be a named list")
-    expect_error(match_patterns(data.frame(label = "A")), "must be a named list")
-    expect_error(match_patterns(list(A = "new york")),
-                 "'A' is a phrase.*as_entity_patterns")
+    expect_error(match_patterns(1:2), "must be a character vector, a phrase")
+    expect_error(match_patterns(data.frame(label = "A")), "must be a character vector")
+    expect_error(match_patterns(character()), "holds no patterns")
     expect_error(match_patterns(list(A = list())),
                  "'A' is not a list of tokens \\(a token pattern\\) or of nodes")
     expect_error(match_patterns(list(A = list(LOWER = "a"))),
                  "Pattern 'A' is a single token pattern")
     expect_error(match_patterns(list(A = list(tok, "b"))),
-                 "Pattern 'A' \\(alternative 2\\) is a phrase")
+                 "Pattern 'A' \\(alternative 2\\) is a character vector")
     expect_error(match_patterns(list(A = list(tok, list(1)))),
                  "Token 1 of pattern 'A' \\(alternative 2\\)")
     # entity patterns are for sequences of tokens
@@ -164,18 +163,193 @@ test_that("spacy_match stops on arguments it does not use", {
                  "does not use the argument overlaps$")
     expect_error(spacy_match("a", patterns = passive),
                  "does not use the argument patterns$")
-    expect_error(spacy_match("a", passive, "all", 1L, NULL, "extra", nonsense = 1),
+    expect_error(spacy_match("a", passive, "glob", TRUE, "all", 1L, NULL, "extra",
+                             nonsense = 1),
                  "does not use the arguments nonsense, 1 without a name$")
-    # quanteda's arguments for lexical patterns are not arguments here
-    expect_error(spacy_match("a", passive, valuetype = "regex"),
-                 "does not use the argument valuetype; .*as_entity_patterns\\(\\)$")
-    expect_error(spacy_match("a", passive, case_insensitive = FALSE, valuetype = "fixed"),
-                 "does not use the arguments case_insensitive, valuetype; ")
-    # also from a TIF data.frame, whose method passes its arguments on
-    tif <- data.frame(doc_id = "d1", text = "a")
-    expect_error(spacy_match(tif, passive, valuetype = "regex"),
-                 "does not use the argument valuetype")
     expect_null(getOption("spacy_initialized"))
+})
+
+# lexical patterns: character vectors, phrase() objects and lists of
+# character vectors, collocations and dictionaries
+
+# what quanteda.textstats::textstat_collocations() returns, as far as
+# spacy_match() reads it
+collocations <- function(x) {
+    structure(data.frame(collocation = x, count = 1L, stringsAsFactors = FALSE),
+              class = c("collocations", "textstat", "data.frame"))
+}
+
+test_that("a character vector is one token for each element", {
+    m <- match_patterns(c("tax", "new york", B = "b*", B = "c", "Tax"))
+    # labelled by the name, or else by the text
+    expect_identical(m$labels, c("tax", "new york", "B", "Tax"))
+    # without a wildcard, the words of a phrase: an element with a space is
+    # still one word
+    expect_identical(m$phrases, list(
+        list(label = "tax", words = list("tax"), case_insensitive = TRUE),
+        list(label = "new york", words = list("new york"), case_insensitive = TRUE),
+        list(label = "B", words = list("c"), case_insensitive = TRUE),
+        list(label = "Tax", words = list("Tax"), case_insensitive = TRUE)))
+    # with a wildcard, a token pattern
+    expect_identical(m$patterns, list(list(), list(),
+                                      list(list(list(LOWER = list(REGEX = "^b.*$")))),
+                                      list()))
+    expect_identical(m$dependency, list())
+    # the same text without a name is the same label
+    expect_identical(match_patterns(c("a", "a", "b"))$labels, c("a", "b"))
+})
+
+test_that("valuetype and case_insensitive set how each string matches", {
+    tokens_of <- function(...) match_patterns(...)$patterns[[1]][[1]]
+    # glob: the lower case form, or the text when case matters
+    expect_identical(tokens_of("Tax*"), list(list(LOWER = list(REGEX = "^tax.*$"))))
+    expect_identical(tokens_of("Tax?", case_insensitive = FALSE),
+                     list(list(ORTH = list(REGEX = "^Tax.$"))))
+    # other characters of a glob are literal
+    expect_identical(tokens_of("a.b*"), list(list(LOWER = list(REGEX = "^a\\.b.*$"))))
+    # regex: on the text, with (?i) for any case
+    expect_identical(tokens_of("^Tax", "regex"), list(list(TEXT = list(REGEX = "(?i)^Tax"))))
+    expect_identical(tokens_of("^Tax", "regex", FALSE),
+                     list(list(TEXT = list(REGEX = "^Tax"))))
+    # fixed: always the words of a phrase, wildcards included
+    m <- match_patterns(c("Tax*", "a"), "fixed", FALSE)
+    expect_identical(m$patterns, list(list(), list()))
+    expect_identical(m$phrases, list(
+        list(label = "Tax*", words = list("Tax*"), case_insensitive = FALSE),
+        list(label = "a", words = list("a"), case_insensitive = FALSE)))
+})
+
+test_that("phrase() objects and lists of character vectors are sequences", {
+    skip_if_not_installed("quanteda")
+    p <- quanteda::phrase(c("new york*", "the big apple"))
+    m <- match_patterns(p)
+    # labelled by the strings joined by a space
+    expect_identical(m$labels, c("new york*", "the big apple"))
+    # one token for each string where any has a wildcard, the strings as
+    # they are otherwise
+    expect_identical(m$patterns, list(
+        list(list(list(LOWER = "new"), list(LOWER = list(REGEX = "^york.*$")))),
+        list()))
+    expect_identical(m$phrases, list(
+        list(label = "the big apple", words = list("the", "big", "apple"),
+             case_insensitive = TRUE)))
+    # a list is the same, and its names are labels
+    expect_identical(match_patterns(list(c("new", "york*"), c("the", "big", "apple"))), m)
+    named <- match_patterns(list(NY = c("new", "york*"), NY = c("the", "big", "apple"),
+                                 c("Acme", ",", "Inc.")), case_insensitive = FALSE)
+    expect_identical(named$labels, c("NY", "Acme , Inc."))
+    expect_identical(named$patterns, list(
+        list(list(list(ORTH = "new"), list(ORTH = list(REGEX = "^york.*$")))), list()))
+    expect_identical(vapply(named$phrases, `[[`, "", "label"), c("NY", "Acme , Inc."))
+    expect_identical(named$phrases[[2]]$words, list("Acme", ",", "Inc."))
+    # names given to a phrase() object are labels too
+    names(p) <- c("NY", "NYC")
+    expect_identical(match_patterns(p)$labels, c("NY", "NYC"))
+    # the strings are never split again
+    expect_identical(match_patterns(list(c("new york", "city")))$phrases[[1]]$words,
+                     list("new york", "city"))
+})
+
+test_that("collocations are sequences of their words, taken literally", {
+    col <- collocations(c("new york", "a * b", "York?"))
+    m <- match_patterns(col)
+    expect_identical(m$labels, c("new york", "a * b", "York?"))
+    # a * is a *, and nothing is a token pattern
+    expect_identical(m$patterns, list(list(), list(), list()))
+    expect_identical(lapply(m$phrases, `[[`, "words"),
+                     list(list("new", "york"), list("a", "*", "b"), list("York?")))
+    expect_true(all(vapply(m$phrases, `[[`, NA, "case_insensitive")))
+    # only case_insensitive applies
+    expect_false(match_patterns(col, case_insensitive = FALSE,
+                                explicit = "case_insensitive")$phrases[[1]]$case_insensitive)
+    expect_identical(match_patterns(col, "fixed", explicit = "valuetype"), m)
+    expect_error(match_patterns(col, "glob", explicit = "valuetype"),
+                 "valuetype = \"glob\" does not apply to collocations.*phrase\\(pattern\\)")
+    expect_error(match_patterns(col, "regex", explicit = "valuetype"),
+                 "valuetype = \"regex\" does not apply to collocations")
+    # phrase() on collocations gives the wildcard reading
+    skip_if_not_installed("quanteda")
+    g <- match_patterns(quanteda::phrase(col))
+    expect_identical(g$patterns[[2]], list(list(list(LOWER = "a"),
+                                                list(LOWER = list(REGEX = "^.*$")),
+                                                list(LOWER = "b"))))
+})
+
+test_that("a dictionary is converted with valuetype and case_insensitive", {
+    skip_if_not_installed("quanteda")
+    dict <- quanteda::dictionary(list(tax = c("Tax*", "income tax")), tolower = FALSE)
+    m <- match_patterns(dict, "glob", FALSE, c("valuetype", "case_insensitive"))
+    expect_identical(m$patterns, list(list(list(list(ORTH = list(REGEX = "^Tax.*$"))))))
+    expect_identical(m$phrases, list(list(label = "tax", text = "income tax",
+                                          case_insensitive = FALSE)))
+    r <- match_patterns(dict, "regex", TRUE, "valuetype")
+    expect_identical(r$patterns[[1]][[1]], list(list(TEXT = list(REGEX = "(?i)Tax*"))))
+    f <- match_patterns(dict, "fixed")
+    expect_identical(vapply(f$phrases, `[[`, "", "text"), c("Tax*", "income tax"))
+    # the defaults are those of as_entity_patterns() for a dictionary
+    expect_identical(match_patterns(dict),
+                     match_patterns(as_entity_patterns(dict)))
+})
+
+test_that("a list can hold character vectors with spaCy's patterns", {
+    tok <- list(list(LOWER = "a"))
+    m <- match_patterns(list(A = tok, c("new", "york*"), A = c("b", "c"), P = clause, "d"))
+    expect_identical(m$labels, c("A", "new york*", "P", "d"))
+    expect_identical(m$patterns[[1]], list(tok))
+    expect_length(m$patterns[[2]], 1)
+    expect_identical(vapply(m$phrases, `[[`, "", "label"), c("A", "d"))
+    expect_identical(m$dependency, list(list(label = "P", pattern = clause)))
+    # spaCy's patterns still need names, which must be unique among them
+    expect_error(match_patterns(list(tok, "a")), "must be a named list")
+    expect_error(match_patterns(list(A = tok, A = tok, "a")), "must be unique.*: A$")
+})
+
+test_that("strings of lexical patterns must be non-empty", {
+    expect_error(match_patterns(c("a", NA)), "Element 2 of pattern is not a character")
+    expect_error(match_patterns(c("a", "")), "Element 2 of pattern is not a character")
+    expect_error(match_patterns(list(A = c("a", ""))),
+                 "Element 1 of pattern \\('A'\\) is not a character")
+    expect_error(match_patterns(list("a", character())), "Element 2 of pattern")
+    # a space is a string: spaCy makes tokens of spaces
+    expect_identical(match_patterns(" ")$phrases[[1]]$words, list(" "))
+})
+
+test_that("lexical options that cannot apply are an error", {
+    try(spacy_finalize(), silent = TRUE)
+    tif <- data.frame(doc_id = "d1", text = "a")
+    ep <- as_entity_patterns(c(ORG = "Acme"))
+    # token patterns, dependency patterns, both, and entity patterns
+    expect_error(spacy_match("a", passive, valuetype = "regex"),
+                 "^valuetype does not apply to pattern, which holds only spaCy's token")
+    expect_error(spacy_match("a", passive, case_insensitive = TRUE),
+                 "^case_insensitive does not apply to pattern")
+    expect_error(spacy_match("a", list(CLAUSE = clause), case_insensitive = FALSE,
+                             valuetype = "fixed"),
+                 "^valuetype and case_insensitive do not apply to pattern")
+    expect_error(spacy_match("a", c(passive, list(CLAUSE = clause)), valuetype = "glob"),
+                 "^valuetype does not apply to pattern")
+    expect_error(spacy_match("a", ep, case_insensitive = TRUE),
+                 "case_insensitive does not apply to pattern, which holds only a spacyr_entity_patterns object.*as_entity_patterns\\(\\)")
+    expect_error(spacy_match("a", ep, valuetype = "fixed"), "^valuetype does not apply")
+    # also from a TIF data.frame, whose method passes its arguments on
+    expect_error(spacy_match(tif, passive, valuetype = "regex"),
+                 "^valuetype does not apply to pattern")
+    # a value that is not valid is an error whatever the patterns
+    expect_error(spacy_match("a", passive, valuetype = "wild"), "should be one of")
+    expect_error(spacy_match("a", "a", valuetype = "wild"), "should be one of")
+    expect_error(spacy_match("a", "a", case_insensitive = NA),
+                 "case_insensitive must be TRUE or FALSE")
+    expect_error(spacy_match("a", collocations("a b"), valuetype = "glob"),
+                 "does not apply to collocations")
+    # overlap is accepted whatever the patterns
+    expect_error(spacy_match("a", list(CLAUSE = clause), overlap = "all",
+                             valuetype = "glob"), "^valuetype does not apply")
+    expect_null(getOption("spacy_initialized"))
+    # the pattern functions agree: no error once anything lexical is there
+    expect_silent(match_patterns(c(passive, list("a")), "regex", FALSE,
+                                 c("valuetype", "case_insensitive")))
+    expect_silent(match_patterns(passive))
+    expect_silent(match_patterns(ep))
 })
 
 test_that("spacy_match finds passives by dependency and tag", {
@@ -535,8 +709,6 @@ test_that("sequences and dependency patterns give rows of one table", {
     for (overlap in c("longest", "all", "first")) {
         expect_identical(spacy_match(txt, list(CLAUSE = clause), overlap = overlap),
                          dep_only, info = overlap)
-        expect_identical(spacy_match(txt, list(CLAUSE = clause), overlap),
-                         dep_only, info = overlap)
         expect_identical(spacy_match(tif, list(CLAUSE = clause), overlap = overlap),
                          dep_only, info = overlap)
     }
@@ -553,12 +725,10 @@ test_that("sequences and dependency patterns give rows of one table", {
     expect_identical(as.vector(n("all")[c("ADJ_NOUN", "VERB_CHILD")]), c(2L, 4L))
     expect_identical(as.vector(n("longest")[c("ADJ_NOUN", "VERB_CHILD")]), c(1L, 4L))
     expect_identical(as.vector(n("first")[c("ADJ_NOUN", "VERB_CHILD")]), c(1L, 4L))
-    # overlap passes through the TIF data.frame method, by name or position
+    # overlap passes through the TIF data.frame method
     tif_x <- data.frame(doc_id = "text1", text = x)
     for (overlap in c("all", "longest", "first")) {
         expect_identical(spacy_match(tif_x, pats, overlap = overlap),
-                         spacy_match(x, pats, overlap = overlap), info = overlap)
-        expect_identical(spacy_match(tif_x, pats, overlap),
                          spacy_match(x, pats, overlap = overlap), info = overlap)
     }
 
@@ -736,4 +906,218 @@ test_that("dictionary matches differ from tokens_lookup where the candidates dif
                      m$label)
     expect_identical(as.character(quanteda::tokens_lookup(toks, nested)),
                      c("place.us", "place.uk", "place.uk"))
+})
+
+# lexical patterns, with spaCy
+
+lex <- c(d1 = "Taxes and taxation in New York. New Yorkers pay tax; new york has a Tax.",
+         d2 = "The New York Times is not the York Times.")
+
+test_that("a character vector matches one token for each element", {
+    skip_on_cran()
+    try_spacy_initialize()
+    m <- spacy_match(lex, "tax*")
+    expect_identical(vapply(m, class, ""), match_columns)
+    expect_identical(m$text, c("Taxes", "taxation", "tax", "Tax"))
+    expect_identical(m$label, rep("tax*", 4))
+    expect_identical(m$start_id, c(1L, 3L, 11L, 17L))
+    expect_true(all(m$length == 1L) && all(is.na(m$node)))
+    # names are labels, and elements with the same name are alternatives
+    m <- spacy_match(lex, c(TAX = "tax*", TAX = "pay", PLACE = "york"))
+    expect_identical(m$label[m$doc_id == "d1"], c("TAX", "TAX", "PLACE", "TAX", "TAX", "PLACE", "TAX"))
+    expect_identical(m$text[m$doc_id == "d1"],
+                     c("Taxes", "taxation", "York", "pay", "tax", "york", "Tax"))
+    # case, and the other value types
+    expect_identical(spacy_match(lex, "tax*", case_insensitive = FALSE)$text,
+                     c("taxation", "tax"))
+    expect_identical(spacy_match(lex, "Tax", case_insensitive = FALSE)$text, "Tax")
+    expect_identical(spacy_match(lex, "TAX")$text, c("tax", "Tax"))
+    expect_identical(spacy_match(lex, "^tax(es|ation)$", valuetype = "regex")$text,
+                     c("Taxes", "taxation"))
+    # a regular expression can match a part of a token
+    expect_identical(spacy_match(lex, "T.x", valuetype = "regex",
+                                 case_insensitive = FALSE)$text, c("Taxes", "Tax"))
+    expect_identical(nrow(spacy_match(lex, "tax*", valuetype = "fixed")), 0L)
+    expect_identical(spacy_match(lex, "tax", valuetype = "fixed")$text, c("tax", "Tax"))
+    # from a TIF data.frame and a corpus
+    tif <- data.frame(doc_id = names(lex), text = lex, stringsAsFactors = FALSE)
+    expect_identical(spacy_match(tif, "tax*", case_insensitive = FALSE),
+                     spacy_match(lex, "tax*", case_insensitive = FALSE))
+    skip_if_not_installed("quanteda")
+    expect_identical(spacy_match(quanteda::corpus(lex), "tax*"), spacy_match(lex, "tax*"))
+})
+
+test_that("a character element with a space is one token, without a message", {
+    skip_on_cran()
+    try_spacy_initialize()
+    expect_silent(m <- spacy_match(lex, "new york"))
+    expect_identical(nrow(m), 0L)
+    expect_identical(vapply(m, class, ""), match_columns)
+    # spaCy makes a token of a space after a space, which a pattern can match
+    m <- spacy_match("A  New York office", c(SPACE = " "))
+    expect_identical(m$start_id, 2L)
+    expect_identical(m$text, " ")
+})
+
+test_that("phrase() patterns match as quanteda's index() on spaCy's tokens", {
+    skip_on_cran()
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+    toks <- quanteda::as.tokens(spacy_parse(lex))
+    same_as_index <- function(pattern, ...) {
+        m <- spacy_match(lex, pattern, overlap = "all", ...)
+        idx <- as.data.frame(quanteda::index(toks, pattern, ...))
+        idx <- idx[order(match(idx$docname, names(lex)), idx$from, idx$to), ]
+        expect_identical(m$doc_id, idx$docname)
+        expect_identical(m$start_id, idx$from)
+        expect_identical(m$start_id + m$length - 1L, idx$to)
+        expect_identical(m$label, as.character(idx$pattern))
+        m
+    }
+    m <- same_as_index(quanteda::phrase("new york*"))
+    expect_identical(m$text, c("New York", "New Yorkers", "new york", "New York"))
+    expect_identical(m$label, rep("new york*", 4))
+    m <- same_as_index(quanteda::phrase("new york*"), case_insensitive = FALSE)
+    expect_identical(m$text, "new york")
+    same_as_index(quanteda::phrase(c("new york", "york times", "tax*")))
+    same_as_index(quanteda::phrase("New York"), valuetype = "fixed",
+                  case_insensitive = FALSE)
+    same_as_index(quanteda::phrase("^new$ ^york"), valuetype = "regex")
+    same_as_index(c("tax*", "york", "new york"))
+    # a list of character vectors is the same, with its names as labels
+    l <- spacy_match(lex, list(NY = c("new", "york*")))
+    expect_identical(l[-3], spacy_match(lex, quanteda::phrase("new york*"))[-3])
+    expect_identical(unique(l$label), "NY")
+})
+
+test_that("the strings of a phrase are the tokens, not tokenized again", {
+    skip_on_cran()
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+    acme <- "She joined Acme, Inc. last year."
+    # spaCy's tokens are Acme , Inc.
+    expect_identical(nrow(spacy_match(acme, quanteda::phrase("Acme, Inc."))), 0L)
+    m <- spacy_match(acme, quanteda::phrase("Acme , Inc."))
+    expect_identical(m$text, "Acme, Inc.")
+    expect_identical(m$label, "Acme , Inc.")
+    expect_identical(c(m$start_id, m$length), c(3L, 3L))
+    # as in quanteda on the same tokens
+    idx <- quanteda::index(quanteda::as.tokens(spacy_parse(acme)),
+                           quanteda::phrase("Acme , Inc."))
+    expect_identical(c(idx$from, idx$to), c(3L, 5L))
+    # case is compared token by token, whatever case does to tokenization
+    expect_identical(spacy_match(acme, list(c("acme", ",", "inc.")))$text, "Acme, Inc.")
+    # no warning for a component that changes the tokens: the words are the
+    # caller's
+    expect_silent(spacy_match(acme, list(c("acme", ",", "inc."))))
+})
+
+test_that("collocations match their words literally", {
+    skip_on_cran()
+    try_spacy_initialize()
+    star <- c(d1 = "New York and new yorkers.", d2 = "a * b and a c b")
+    col <- collocations(c("new york", "a * b", "new york*"))
+    m <- spacy_match(star, col)
+    expect_identical(m$text, c("New York", "a * b"))
+    expect_identical(m$label, c("new york", "a * b"))
+    expect_identical(spacy_match(star, col, case_insensitive = FALSE)$text, "a * b")
+    expect_identical(spacy_match(star, col, valuetype = "fixed"), m)
+    # phrase() on the collocations reads the wildcards
+    skip_if_not_installed("quanteda")
+    g <- spacy_match(star, quanteda::phrase(col), overlap = "all")
+    expect_identical(g$text, c("New York", "New York", "new yorkers", "a * b", "a c b"))
+    # as quanteda matches both on the same tokens
+    toks <- quanteda::as.tokens(spacy_parse(star))
+    idx <- as.data.frame(quanteda::index(toks, col))
+    expect_identical(paste(m$doc_id, m$start_id, m$start_id + m$length - 1L),
+                     paste(idx$docname, idx$from, idx$to))
+})
+
+test_that("valuetype and case_insensitive apply to a dictionary", {
+    skip_on_cran()
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+    dict <- quanteda::dictionary(list(tax = c("tax*", "new york")))
+    expect_identical(spacy_match(lex["d1"], dict)$text,
+                     c("Taxes", "taxation", "New York", "tax", "new york", "Tax"))
+    expect_identical(spacy_match(lex["d1"], dict, case_insensitive = FALSE)$text,
+                     c("taxation", "tax", "new york"))
+    expect_identical(spacy_match(lex["d1"], dict, valuetype = "fixed")$text,
+                     c("New York", "new york"))
+    rx <- quanteda::dictionary(list(tax = "^tax.+"))
+    expect_identical(spacy_match(lex["d1"], rx, valuetype = "regex")$text,
+                     c("Taxes", "taxation"))
+    expect_identical(spacy_match(lex["d1"], dict),
+                     spacy_match(lex["d1"], as_entity_patterns(dict)))
+})
+
+test_that("overlap applies to the matches of lexical patterns", {
+    skip_on_cran()
+    try_spacy_initialize()
+    # words and tokens patterns of one label, and another label
+    pats <- list(P = c("new", "york", "times"), P = c("new", "york"), P = "york",
+                 P = c("york", "t*"), Q = "york")
+    all <- spacy_match(lex["d2"], pats, overlap = "all")
+    expect_identical(paste(all$label, all$start_id, all$length),
+                     c("P 2 2", "P 2 3", "P 3 1", "Q 3 1", "P 3 2", "P 8 1", "Q 8 1", "P 8 2"))
+    longest <- spacy_match(lex["d2"], pats, overlap = "longest")
+    expect_identical(longest, spacy_match(lex["d2"], pats))
+    expect_identical(paste(longest$label, longest$start_id, longest$length),
+                     c("P 2 3", "Q 3 1", "Q 8 1", "P 8 2"))
+    first <- spacy_match(lex["d2"], pats, overlap = "first")
+    expect_identical(paste(first$label, first$start_id, first$length),
+                     c("P 2 3", "Q 3 1", "Q 8 1", "P 8 2"))
+    expect_identical(longest$match_id, 1:4)
+    # with a dependency pattern in the list, to which it does not apply
+    mixed <- spacy_match("The New York book was written.",
+                         list(c("new", "york"), "york", CLAUSE = clause))
+    expect_identical(mixed$label, c("new york", "york", rep("CLAUSE", 3)))
+})
+
+test_that("phrases as words give the same matches as token patterns", {
+    skip_on_cran()
+    try_spacy_initialize()
+    set.seed(42)
+    words <- unique(replicate(600, paste(sample(letters, 4, TRUE), collapse = "")))
+    seqs <- c(lapply(seq(1, 499, 2), function(i) words[i:(i + 1)]),
+              list(c("new", "york"), c("york", "times"), "tax", c("New", "York", "Times"),
+                   c("the", "york", "times", ".")))
+    labels <- vapply(seqs, paste, "", collapse = " ")
+    for (ci in c(TRUE, FALSE)) {
+        fast <- match_patterns(seqs, case_insensitive = ci)
+        expect_identical(fast$patterns, rep(list(list()), length(seqs)))
+        expect_length(fast$phrases, length(seqs))
+        attr <- if (ci) "LOWER" else "ORTH"
+        slow <- stats::setNames(lapply(seqs, function(p) lapply(p, function(w)
+            stats::setNames(list(if (ci) tolower(w) else w), attr))), labels)
+        for (overlap in c("all", "longest")) {
+            m <- spacy_match(lex, seqs, case_insensitive = ci, overlap = overlap)
+            expect_identical(m, spacy_match(lex, slow, overlap = overlap))
+            expect_gt(nrow(m), 2)
+        }
+    }
+    # and with two processes
+    expect_identical(spacy_match(lex, seqs, n_process = 2L), spacy_match(lex, seqs))
+})
+
+test_that("lexical patterns can be mixed with spaCy's patterns", {
+    skip_on_cran()
+    try_spacy_initialize()
+    m <- spacy_match("The New York book was written.",
+                     list(NY = c("new", "york*"), DET = list(list(POS = "DET")),
+                          CLAUSE = clause), case_insensitive = FALSE)
+    # case_insensitive applies to the character vector only
+    expect_identical(m$label, c("DET", rep("CLAUSE", 3)))
+    m <- spacy_match("The New York book was written.",
+                     list(NY = c("new", "york*"), DET = list(list(POS = "DET")),
+                          NY = list(list(LOWER = "book"))))
+    expect_identical(m$label, c("DET", "NY", "NY"))
+    expect_identical(m$text, c("The", "New York", "book"))
+})
+
+test_that("a regular expression that Python does not accept is an error", {
+    skip_on_cran()
+    try_spacy_initialize()
+    expect_error(spacy_match(lex, "^\\p{L}+$", valuetype = "regex"),
+                 "spaCy could not match the patterns")
 })

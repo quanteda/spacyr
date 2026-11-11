@@ -290,16 +290,26 @@ dictionary_pattern <- function(value, valuetype, case_insensitive) {
     if (valuetype == "fixed" || (valuetype == "glob" && !grepl("[*?]", value)))
         return(value)
     pieces <- strsplit(trimws(value), "\\s+")[[1]]
-    lapply(pieces, function(piece) {
-        if (valuetype == "regex") {
-            if (case_insensitive) piece <- paste0("(?i)", piece)
-            return(list(TEXT = list(REGEX = piece)))
-        }
-        attr <- if (case_insensitive) "LOWER" else "ORTH"
-        if (case_insensitive) piece <- tolower(piece)
-        if (!grepl("[*?]", piece)) return(stats::setNames(list(piece), attr))
-        stats::setNames(list(list(REGEX = glob_to_regex(piece))), attr)
-    })
+    lapply(pieces, lexical_token, valuetype = valuetype,
+           case_insensitive = case_insensitive)
+}
+
+# One piece of a lexical pattern as the attributes of one spaCy token: a
+# regular expression on the token's text, with (?i) to ignore case; a glob
+# with a wildcard as an anchored regular expression on the token's text
+# (ORTH) or its lower case form (LOWER); and anything else as the value of
+# ORTH or LOWER. Shared by dictionary values and the character patterns of
+# spacy_match().
+lexical_token <- function(piece, valuetype, case_insensitive) {
+    if (valuetype == "regex") {
+        if (case_insensitive) piece <- paste0("(?i)", piece)
+        return(list(TEXT = list(REGEX = piece)))
+    }
+    attr <- if (case_insensitive) "LOWER" else "ORTH"
+    if (case_insensitive) piece <- tolower(piece)
+    if (valuetype == "fixed" || !grepl("[*?]", piece))
+        return(stats::setNames(list(piece), attr))
+    stats::setNames(list(list(REGEX = glob_to_regex(piece))), attr)
 }
 
 # a glob as an anchored regular expression: "*" is any characters, "?" one
