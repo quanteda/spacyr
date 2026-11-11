@@ -131,6 +131,7 @@ spacy_extract_matches(txt, list(
 }
 }
 \seealso{
-\code{\link[=as_entity_patterns]{as_entity_patterns()}} and \code{\link[=spacy_initialize]{spacy_initialize()}} to make matches
-named entities.
+\code{\link[=spacy_extract_dependency_matches]{spacy_extract_dependency_matches()}} for tokens connected in the
+dependency parse; \code{\link[=as_entity_patterns]{as_entity_patterns()}} and \code{\link[=spacy_initialize]{spacy_initialize()}} to make
+matches named entities.
 }

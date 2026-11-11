@@ -68,8 +68,9 @@
 #'   Rows are in the order of the documents in `x`; within a document, by
 #'   `start_id`, then by `length` (the shortest first), then by the order of
 #'   the labels in `patterns`. The order does not depend on `overlap`.
-#' @seealso [as_entity_patterns()] and [spacy_initialize()] to make matches
-#'   named entities.
+#' @seealso [spacy_extract_dependency_matches()] for tokens connected in the
+#'   dependency parse; [as_entity_patterns()] and [spacy_initialize()] to make
+#'   matches named entities.
 #' @export
 #' @examples
 #' \dontrun{
@@ -231,8 +232,7 @@ check_no_dependency <- function(labels, patterns) {
     }, logical(1))
     if (any(dep))
         stop("Pattern '", labels[dep][1], "' is a dependency pattern (with ",
-             "RIGHT_ID and RIGHT_ATTRS), for spaCy's DependencyMatcher; ",
-             "spacy_extract_matches() matches sequences of tokens",
-             call. = FALSE)
+             "RIGHT_ID and RIGHT_ATTRS); use ",
+             "spacy_extract_dependency_matches()", call. = FALSE)
     invisible(TRUE)
 }

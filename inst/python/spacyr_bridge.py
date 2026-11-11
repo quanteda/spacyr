@@ -4,7 +4,7 @@
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
 import spacy
-from spacy.matcher import Matcher
+from spacy.matcher import Matcher, DependencyMatcher
 import time
 import string
 import random
@@ -574,6 +574,61 @@ class spacyr:
                 cols["text"].append(span.text)
                 cols["start_id"].append(span.start + 1)
                 cols["length"].append(span.end - span.start)
+        return cols
+
+    def dependency_match_table(self, texts, docnames, labels, patterns,
+                               batch_size = None, n_process = 1):
+        # The columns of spacy_extract_dependency_matches(): one row for each
+        # token of each match of spaCy's DependencyMatcher. labels and
+        # patterns are parallel lists, with one pattern for each label: the
+        # matcher returns a label and one token for each node of the pattern,
+        # in the order of the nodes, which would not say which of several
+        # patterns of a label had matched. The nodes are named by their
+        # RIGHT_ID. spaCy returns matches grouped by label, so each
+        # document's matches are sorted by the positions of their tokens,
+        # taken in the order of the nodes, then by the order of the labels,
+        # and numbered from 1 in that order. Positions are as in match_table().
+        # A pattern with relations between nodes needs the dependency parse:
+        # without it, spaCy gives an error (E155) only when a node asks for
+        # an attribute such as DEP, and otherwise finds nothing, as if the
+        # document had no match. So a document with tokens and no dependency
+        # annotation is an error, whichever component would have set it.
+        texts, docnames = _as_list(texts, docnames)
+        if not isinstance(labels, list):
+            labels = [labels]
+            patterns = [patterns]
+        matcher = DependencyMatcher(self.nlp.vocab, validate = True)
+        nodes = {}
+        for label, pattern in zip(labels, patterns):
+            matcher.add(label, [pattern])
+            nodes[label] = [node["RIGHT_ID"] for node in pattern]
+        relations = any(len(ids) > 1 for ids in nodes.values())
+        order = dict((label, k) for k, label in enumerate(labels))
+        strings = self.nlp.vocab.strings
+        cols = {"doc_id": [], "match_id": [], "label": [], "node": [],
+                "sentence_id": [], "token_id": [], "start_id": [], "token": []}
+        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+            if relations and len(doc) > 0 and not doc.has_annotation("DEP"):
+                raise ValueError(
+                    "Document '" + str(id_) + "' has no dependency parse, which "
+                    "patterns with relations between nodes need. The pipeline "
+                    "needs a parser, or another component that sets dependencies.")
+            matches = [(strings[key], token_ids) for key, token_ids in matcher(doc)]
+            if not matches:
+                continue
+            matches.sort(key = lambda m: (m[1], order[m[0]]))
+            positions = sentence_positions(doc)
+            for match_id, (label, token_ids) in enumerate(matches, 1):
+                for node, i in zip(nodes[label], token_ids):
+                    sent_id, token_id = positions[i] if positions else (0, 0)
+                    cols["doc_id"].append(id_)
+                    cols["match_id"].append(match_id)
+                    cols["label"].append(label)
+                    cols["node"].append(node)
+                    cols["sentence_id"].append(sent_id)
+                    cols["token_id"].append(token_id)
+                    cols["start_id"].append(i + 1)
+                    cols["token"].append(doc[i].text)
         return cols
 
     def ntokens(self, timestamps):
