@@ -9,6 +9,7 @@ condaenv
 Cython
 CMD
 docnames
+Dockerfile
 dplyr
 env
 equivalencies
