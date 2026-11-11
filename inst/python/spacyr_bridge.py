@@ -568,29 +568,51 @@ class spacyr:
         return df_all
 
     def match_table(self, texts, docnames, labels, patterns, phrases = None,
-                    greedy = None, batch_size = None, n_process = 1):
-        # The columns of spacy_extract_matches(): one row for each match.
-        # labels and patterns are parallel lists, with the alternative token
-        # patterns of each label, which may be none; phrases is a list of
-        # dicts with the label, text and case_insensitive of each phrase.
+                    dependency = None, greedy = None, batch_size = None,
+                    n_process = 1):
+        # The columns of spacy_match(): one row for each match of a sequence
+        # of tokens, and one row for each node of each match of a dependency
+        # pattern, from one pass over the documents.
+        # labels holds every label, in the order that sorts matches; patterns
+        # is parallel to it, with the alternative token patterns of each
+        # label, which may be none; phrases is a list of dicts with the label,
+        # text and case_insensitive of each phrase; and dependency a list of
+        # dicts with the label and the one dependency pattern of each label
+        # that has one.
         # Token patterns are matched by spaCy's Matcher, after merging those
         # of a single regular expression as for the entity ruler. Phrases are
         # matched by its PhraseMatcher, which is far faster for many phrases
         # than token patterns: on the tokens' text (ORTH), or on their lower
         # case form (LOWER) for phrases marked case_insensitive, each phrase
-        # being tokenized by the pipeline's own tokenizer.
+        # being tokenized by the pipeline's own tokenizer. The same span found
+        # for a label by more than one pattern or matcher is one match.
+        # Overlapping matches of a label are filtered here (greedy "FIRST" or
+        # "LONGEST"), over the matches of these matchers together.
+        # Dependency patterns are matched by spaCy's DependencyMatcher, which
+        # returns a label and one token for each node of the pattern, in the
+        # order of the nodes; that would not say which of several patterns of
+        # a label had matched, so a label has one. The nodes are named by
+        # their RIGHT_ID. A pattern with relations between nodes needs the
+        # dependency parse: without it, spaCy gives an error (E155) only when
+        # a node asks for an attribute such as DEP, and otherwise finds
+        # nothing, as if the document had no match. So a document with tokens
+        # and no dependency annotation is an error, whichever component would
+        # have set it. greedy does not apply to these matches.
         # The matchers run here, on each document as nlp.pipe() returns it,
         # also when n_process > 1. Labels are read as strings, since match
-        # IDs are 64-bit hashes that R cannot hold. The same span found for a
-        # label by more than one pattern or matcher is one match. Overlapping
-        # matches of a label are filtered here (greedy "FIRST" or "LONGEST"),
-        # over the matches of all the matchers together. spaCy returns
-        # matches grouped by label rather than in document order, so each
-        # document's matches are sorted by their first token, then their
-        # length, then the order of the labels.
+        # IDs are 64-bit hashes that R cannot hold.
+        # spaCy returns matches grouped by label rather than in document
+        # order, so each document's matches are sorted by the position of
+        # their first row: the first token of a sequence, or the token of the
+        # first node of a dependency match. Of those at the same position,
+        # sequences come first, by their length and then the order of the
+        # labels; then dependency matches, by the positions of their other
+        # nodes, in the order of the nodes, and then the order of the labels.
+        # match_id numbers them from 1 in that order.
         # start_id counts tokens from 1 in the document; sentence_id and
-        # token_id are those of the first token, as in spacy_parse(), or 0
-        # when the document has no sentence boundaries.
+        # token_id are those of the row's first token, as in spacy_parse(),
+        # or 0 when the document has no sentence boundaries. node is "" for a
+        # sequence.
         texts, docnames = _as_list(texts, docnames)
         if not isinstance(labels, list):
             labels = [labels]
@@ -618,85 +640,57 @@ class spacyr:
                 for label, docs in by_label.items():
                     matcher.add(label, docs)
                 matchers.append(matcher)
-        order = dict((label, k) for k, label in enumerate(labels))
-        strings = vocab.strings
-        cols = {"doc_id": [], "sentence_id": [], "token_id": [], "label": [],
-                "text": [], "start_id": [], "length": []}
-        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
-            found = set()
-            for matcher in matchers:
-                for key, start, end in matcher(doc):
-                    found.add((strings[key], start, end))
-            if not found:
-                continue
-            if greedy is not None:
-                found = filter_overlaps(found, greedy)
-            found = sorted(found, key = lambda m: (m[1], m[2], order[m[0]]))
-            positions = sentence_positions(doc)
-            for label, start, end in found:
-                sent_id, token_id = positions[start] if positions else (0, 0)
-                cols["doc_id"].append(id_)
-                cols["sentence_id"].append(sent_id)
-                cols["token_id"].append(token_id)
-                cols["label"].append(label)
-                cols["text"].append(doc[start:end].text)
-                cols["start_id"].append(start + 1)
-                cols["length"].append(end - start)
-        return cols
-
-    def dependency_match_table(self, texts, docnames, labels, patterns,
-                               batch_size = None, n_process = 1):
-        # The columns of spacy_extract_dependency_matches(): one row for each
-        # token of each match of spaCy's DependencyMatcher. labels and
-        # patterns are parallel lists, with one pattern for each label: the
-        # matcher returns a label and one token for each node of the pattern,
-        # in the order of the nodes, which would not say which of several
-        # patterns of a label had matched. The nodes are named by their
-        # RIGHT_ID. spaCy returns matches grouped by label, so each
-        # document's matches are sorted by the positions of their tokens,
-        # taken in the order of the nodes, then by the order of the labels,
-        # and numbered from 1 in that order. Positions are as in match_table().
-        # A pattern with relations between nodes needs the dependency parse:
-        # without it, spaCy gives an error (E155) only when a node asks for
-        # an attribute such as DEP, and otherwise finds nothing, as if the
-        # document had no match. So a document with tokens and no dependency
-        # annotation is an error, whichever component would have set it.
-        texts, docnames = _as_list(texts, docnames)
-        if not isinstance(labels, list):
-            labels = [labels]
-            patterns = [patterns]
-        matcher = DependencyMatcher(self.nlp.vocab, validate = True)
+        dependency_matcher = None
         nodes = {}
-        for label, pattern in zip(labels, patterns):
-            matcher.add(label, [pattern])
-            nodes[label] = [node["RIGHT_ID"] for node in pattern]
+        for p in dependency or []:
+            if dependency_matcher is None:
+                dependency_matcher = DependencyMatcher(vocab, validate = True)
+            dependency_matcher.add(p["label"], [p["pattern"]])
+            nodes[p["label"]] = [node["RIGHT_ID"] for node in p["pattern"]]
         relations = any(len(ids) > 1 for ids in nodes.values())
         order = dict((label, k) for k, label in enumerate(labels))
-        strings = self.nlp.vocab.strings
+        strings = vocab.strings
         cols = {"doc_id": [], "match_id": [], "label": [], "node": [],
-                "sentence_id": [], "token_id": [], "start_id": [], "token": []}
+                "sentence_id": [], "token_id": [], "text": [], "start_id": [],
+                "length": []}
         for id_, doc in self.docs(texts, docnames, batch_size, n_process):
             if relations and len(doc) > 0 and not doc.has_annotation("DEP"):
                 raise ValueError(
                     "Document '" + str(id_) + "' has no dependency parse, which "
                     "patterns with relations between nodes need. The pipeline "
                     "needs a parser, or another component that sets dependencies.")
-            matches = [(strings[key], token_ids) for key, token_ids in matcher(doc)]
+            found = set()
+            for matcher in matchers:
+                for key, start, end in matcher(doc):
+                    found.add((strings[key], start, end))
+            if found and greedy is not None:
+                found = filter_overlaps(found, greedy)
+            # (sort key, label, rows), each row the (node, start, end) of a span
+            matches = [((start, 0, (end,), order[label]), label, [("", start, end)])
+                       for label, start, end in found]
+            if dependency_matcher is not None:
+                for key, token_ids in dependency_matcher(doc):
+                    label = strings[key]
+                    matches.append(((token_ids[0], 1, tuple(token_ids), order[label]),
+                                    label,
+                                    [(node, i, i + 1)
+                                     for node, i in zip(nodes[label], token_ids)]))
             if not matches:
                 continue
-            matches.sort(key = lambda m: (m[1], order[m[0]]))
+            matches.sort(key = lambda m: m[0])
             positions = sentence_positions(doc)
-            for match_id, (label, token_ids) in enumerate(matches, 1):
-                for node, i in zip(nodes[label], token_ids):
-                    sent_id, token_id = positions[i] if positions else (0, 0)
+            for match_id, (_, label, rows) in enumerate(matches, 1):
+                for node, start, end in rows:
+                    sent_id, token_id = positions[start] if positions else (0, 0)
                     cols["doc_id"].append(id_)
                     cols["match_id"].append(match_id)
                     cols["label"].append(label)
                     cols["node"].append(node)
                     cols["sentence_id"].append(sent_id)
                     cols["token_id"].append(token_id)
-                    cols["start_id"].append(i + 1)
-                    cols["token"].append(doc[i].text)
+                    cols["text"].append(doc[start:end].text)
+                    cols["start_id"].append(start + 1)
+                    cols["length"].append(end - start)
         return cols
 
     def ntokens(self, timestamps):

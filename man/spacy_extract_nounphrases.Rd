@@ -52,9 +52,11 @@ When the option \code{output = "data.frame"} is selected, the
 function returns a \code{data.frame} with the following fields.
 \describe{\item{\code{text}}{contents of noun-phrase}
 \item{\code{root_text}}{contents of root token}
-\item{\code{start_id}}{serial number ID of starting token. This number
-corresponds with the number of \code{data.frame} returned from
-\code{spacy_tokenize(x)} with default options.}
+\item{\code{start_id}}{serial number ID of starting token: its position in
+the document, starting at 1 and counting every token of spaCy's, as the
+rows of \code{spacy_parse(x)} do. Whitespace tokens are counted, so where a
+document has them this is not the position among the tokens of
+\code{spacy_tokenize(x)} with default options, which leaves them out.}
 \item{\code{root_id}}{serial number ID of root token}
 \item{\code{length}}{number of words (tokens) included in a noun-phrase (e.g.
 for a noun-phrase, "individual car owners", \code{length = 3})}}
