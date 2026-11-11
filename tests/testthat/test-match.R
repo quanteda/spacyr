@@ -144,20 +144,14 @@ test_that("spacy_match checks its arguments before starting spaCy", {
     expect_null(getOption("spacy_initialized"))
 })
 
-test_that("overlap is an error when pattern holds only dependency patterns", {
+test_that("an overlap that is not one of the three is an error", {
     try(spacy_finalize(), silent = TRUE)
-    only <- "overlap applies to sequences of tokens.*only dependency patterns"
-    for (overlap in c("longest", "all", "first"))
-        expect_error(spacy_match("a", list(CLAUSE = clause), overlap = overlap), only)
-    expect_error(spacy_match("a", list(CLAUSE = clause), "all"), only)
-    expect_error(spacy_match("a", list(CLAUSE = clause, AGAIN = clause), overlap = "all"),
-                 only)
-    # also from a TIF data.frame, whose method passes overlap on
+    # whatever the kinds of pattern, and from a TIF data.frame
     tif <- data.frame(doc_id = "d1", text = "a")
-    expect_error(spacy_match(tif, list(CLAUSE = clause), overlap = "all"), only)
-    # an overlap that is not one of the three is that error first
-    expect_error(spacy_match("a", list(CLAUSE = clause), overlap = "none"),
-                 "should be one of")
+    for (pattern in list(passive, list(CLAUSE = clause), c(passive, list(CLAUSE = clause)))) {
+        expect_error(spacy_match("a", pattern, overlap = "none"), "should be one of")
+        expect_error(spacy_match(tif, pattern, overlap = "none"), "should be one of")
+    }
     expect_null(getOption("spacy_initialized"))
 })
 
@@ -535,11 +529,19 @@ test_that("sequences and dependency patterns give rows of one table", {
     expect_identical(same$match_id, 1:3)
     expect_identical(same$start_id, c(4L, 4L, 4L))
 
-    # overlap applies to the sequences of a list with both kinds, and its
-    # default is silent for dependency patterns alone
-    expect_silent(spacy_match(txt, list(CLAUSE = clause)))
-    expect_silent(spacy_match(data.frame(doc_id = names(txt), text = unname(txt)),
-                              list(CLAUSE = clause)))
+    # overlap has no effect on dependency patterns alone, so it can be given
+    # whatever the patterns: the matches are those found without it
+    tif <- data.frame(doc_id = names(txt), text = unname(txt))
+    for (overlap in c("longest", "all", "first")) {
+        expect_identical(spacy_match(txt, list(CLAUSE = clause), overlap = overlap),
+                         dep_only, info = overlap)
+        expect_identical(spacy_match(txt, list(CLAUSE = clause), overlap),
+                         dep_only, info = overlap)
+        expect_identical(spacy_match(tif, list(CLAUSE = clause), overlap = overlap),
+                         dep_only, info = overlap)
+    }
+
+    # overlap applies to the sequences of a list with both kinds
     child <- list(
         list(RIGHT_ID = "verb", RIGHT_ATTRS = list(POS = "VERB")),
         list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "child", RIGHT_ATTRS = list()))
@@ -561,7 +563,6 @@ test_that("sequences and dependency patterns give rows of one table", {
     }
 
     # the same from a TIF data.frame and with two processes
-    tif <- data.frame(doc_id = names(txt), text = unname(txt))
     expect_identical(spacy_match(tif, c(passive, list(CLAUSE = clause), book)), both)
     expect_identical(spacy_match(txt, c(passive, list(CLAUSE = clause), book),
                                  n_process = 2), both)

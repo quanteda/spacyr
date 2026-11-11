@@ -227,7 +227,7 @@ m <- spacy_match(passive_txt, list(PASSIVE_AGENT = agent))
 m[m$node %in% c("subject", "verb", "agent"), c("doc_id", "node", "text")]
 ```
 
-Each label has one dependency pattern, so alternatives, such as passives with and without an agent, get labels of their own. The other relations that `REL_OP` can take, such as `">>"` for a dependent at any depth and `"."` for the next token, are listed in spaCy's [documentation](https://spacy.io/usage/rule-based-matching#dependencymatcher). `overlap` does not apply to dependency patterns: every match is returned, and giving `overlap` with nothing but dependency patterns is an error.
+Each label has one dependency pattern, so alternatives, such as passives with and without an agent, get labels of their own. The other relations that `REL_OP` can take, such as `">>"` for a dependent at any depth and `"."` for the next token, are listed in spaCy's [documentation](https://spacy.io/usage/rule-based-matching#dependencymatcher). `overlap` does not apply to dependency patterns: every match is returned, whatever its value.
 
 ### Both kinds of pattern together
 

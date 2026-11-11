@@ -61,8 +61,9 @@ longest; \code{"all"} returns every match, including those inside or
 overlapping another, as spaCy does. Matches of different labels can
 overlap whatever the value. It does not apply to dependency patterns,
 all of whose matches are returned: in a list that holds both kinds it
-applies to the token patterns, and giving it when \code{pattern} holds only
-dependency patterns is an error.}
+applies to the token patterns, and it has no effect when \code{pattern}
+holds only dependency patterns, so that it can be given whatever the
+patterns are.}
 
 \item{n_process}{the number of processes for spaCy's \code{nlp.pipe()} to use:
 \code{1} (the default) processes the documents in the current R session's Python
@@ -190,7 +191,7 @@ What applies to each kind of pattern:\tabular{llll}{
    A match is \tab a sequence of adjacent tokens \tab a sequence of adjacent tokens \tab one token for each node, anywhere in a sentence \cr
    Matched by spaCy's \tab \code{Matcher} \tab \code{PhraseMatcher}, or \code{Matcher} for values with wildcards \tab \code{DependencyMatcher} \cr
    Patterns for one label \tab any number, as alternatives \tab any number, as alternatives \tab one \cr
-   \code{overlap} \tab applies \tab applies \tab does not apply, and is an error if given when there are no other patterns \cr
+   \code{overlap} \tab applies \tab applies \tab does not apply, and has no effect when there are no other patterns \cr
    \code{n_process}, \code{batch_size} \tab apply \tab apply \tab apply \cr
    Rows for one match \tab one \tab one \tab one for each node \cr
    The pipeline needs \tab the components that set the attributes asked for \tab only its tokenizer \tab a dependency parse, in every document \cr

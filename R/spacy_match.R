@@ -53,8 +53,9 @@
 #'   overlapping another, as spaCy does. Matches of different labels can
 #'   overlap whatever the value. It does not apply to dependency patterns,
 #'   all of whose matches are returned: in a list that holds both kinds it
-#'   applies to the token patterns, and giving it when `pattern` holds only
-#'   dependency patterns is an error.
+#'   applies to the token patterns, and it has no effect when `pattern`
+#'   holds only dependency patterns, so that it can be given whatever the
+#'   patterns are.
 #' @inheritParams spacy_parse
 #' @param ... not used. An argument that is not one of those above is an
 #'   error.
@@ -67,7 +68,7 @@
 #' | A match is             | a sequence of adjacent tokens | a sequence of adjacent tokens | one token for each node, anywhere in a sentence |
 #' | Matched by spaCy's     | `Matcher` | `PhraseMatcher`, or `Matcher` for values with wildcards | `DependencyMatcher` |
 #' | Patterns for one label | any number, as alternatives | any number, as alternatives | one |
-#' | `overlap`              | applies | applies | does not apply, and is an error if given when there are no other patterns |
+#' | `overlap`              | applies | applies | does not apply, and has no effect when there are no other patterns |
 #' | `n_process`, `batch_size` | apply | apply | apply |
 #' | Rows for one match     | one | one | one for each node |
 #' | The pipeline needs     | the components that set the attributes asked for | only its tokenizer | a dependency parse, in every document |
@@ -266,18 +267,10 @@ spacy_match.character <- function(x, pattern,
                                   n_process = 1L, batch_size = NULL, ...) {
     # checked before spaCy is initialized
     check_unused_args(match.call(expand.dots = FALSE)$...)
-    overlap_given <- !missing(overlap)
     overlap <- match.arg(overlap)
     args <- pipe_args(n_process, batch_size)
     if (missing(pattern)) stop("pattern must be supplied", call. = FALSE)
     pattern <- match_patterns(pattern)
-    # an argument that cannot apply is an error, as an unused one is
-    sequences <- length(pattern$phrases) > 0L ||
-        any(vapply(pattern$patterns, length, integer(1)) > 0L)
-    if (overlap_given && !sequences)
-        stop("overlap applies to sequences of tokens, and pattern holds only ",
-             "dependency patterns, all of whose matches are returned; leave ",
-             "overlap out", call. = FALSE)
 
     input <- spacy_input(x)
 
