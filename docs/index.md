@@ -85,6 +85,12 @@ if none is found. On Windows, `install_python()` requires
 If you run into any problems, you can try the manual installation path
 described below.
 
+### Using Docker
+
+See [Using spacyr with
+Docker](https://spacyr.quanteda.io/articles/docker.html) for a
+Dockerfile that installs spaCy and its language model during the build.
+
 ### Changing the Python version
 
 An existing environment keeps the version of Python it was created with.
