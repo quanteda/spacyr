@@ -75,6 +75,19 @@ test_that("match_patterns converts a quanteda dictionary", {
     expect_length(m$patterns[[2]], 0)
 })
 
+test_that("match_patterns labels the values of nested dictionary keys", {
+    skip_if_not_installed("quanteda")
+    d <- quanteda::dictionary(list(
+        writing = c("writ*", "wrote"),
+        place = list(us = c("new york", "new york city"), error = "mistake*")))
+    m <- expect_silent(match_patterns(d))
+    expect_identical(m$labels, c("writing", "place"))
+    expect_identical(vapply(m$phrases, `[[`, "", "label"),
+                     c("writing", "place", "place"))
+    expect_length(m$patterns[[1]], 1)
+    expect_length(m$patterns[[2]], 1)
+})
+
 test_that("match_patterns rejects patterns it cannot use", {
     tok <- list(list(LOWER = "a"))
     expect_error(match_patterns(list(tok)), "must be a named list")

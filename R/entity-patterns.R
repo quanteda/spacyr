@@ -271,7 +271,9 @@ as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
     valuetype <- match.arg(valuetype)
     if (!requireNamespace("quanteda", quietly = TRUE))
         stop("Converting a dictionary needs the quanteda package", call. = FALSE)
-    values <- as.list(x, flatten = TRUE, levels = 1)
+    # quanteda's own as.list(): base's ignores flatten and levels, and leaves
+    # the values of nested keys under their keys
+    values <- quanteda::as.list(x, flatten = TRUE, levels = 1)
     label <- rep(names(values), lengths(values))
     values <- unlist(values, use.names = FALSE)
     if (is.null(values)) values <- character()
@@ -331,6 +333,8 @@ new_entity_patterns <- function(label, pattern, id, case_insensitive) {
     pattern <- unname(pattern)
     id <- unname(id)
     case_insensitive <- unname(case_insensitive)
+    if (length(label) != n || length(id) != n || length(case_insensitive) != n)
+        stop("label, pattern, id and case_insensitive differ in length", call. = FALSE)
     bad <- is.na(label) | !nzchar(label)
     if (any(bad))
         stop("Pattern ", which(bad)[1], " has a missing or empty label", call. = FALSE)
