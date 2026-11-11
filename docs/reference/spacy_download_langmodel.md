@@ -27,6 +27,12 @@ spacy_download_langmodel(lang_models = "en_core_web_sm", force = FALSE)
 
 Invisibly returns the installation log.
 
+## Details
+
+Models are downloaded from GitHub. If a download fails, for instance
+because of a temporary server error, it is tried twice more, after 10
+and 30 seconds, and a warning is given if all three attempts fail.
+
 ## Examples
 
 ``` r

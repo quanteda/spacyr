@@ -1,13 +1,18 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://spacyr.quanteda.io/404.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/articles/entity_rules.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/articles/index.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/articles/matching.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/articles/performance.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/articles/using_spacyr.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/authors.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/index.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/news/index.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/reference/as_entity_patterns.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/data_char_paragraph.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/data_char_sentences.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/entity_extract.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/reference/entity_patterns_read.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/find_spacy.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/get-functions.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/index.html</loc></url>
@@ -15,7 +20,9 @@
 <url><loc>https://spacyr.quanteda.io/reference/process_document.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_download_langmodel.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_download_langmodel_virtualenv.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_extract_entity.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/reference/spacy_extract_matches.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_finalize.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_initialize.html</loc></url>

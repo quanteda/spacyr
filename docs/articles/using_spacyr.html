@@ -31,8 +31,16 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../index.html">Installation</a></li>
-<li class="active nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
+<li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+    <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
+    <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
+  </ul>
+</li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -207,7 +215,7 @@ name):</p>
 <span><span class="co">## [8] "Carolina" "."</span></span></code></pre></div>
 <p>but it can also output a data.frame:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span><span class="op">(</span><span class="va">txt</span>, remove_punct <span class="op">=</span> <span class="cn">TRUE</span>, output <span class="op">=</span> <span class="st">"data.frame"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span><span class="op">(</span><span class="va">txt</span>, remove_punct <span class="op">=</span> <span class="cn">TRUE</span>, output <span class="op">=</span> <span class="st">"data.frame"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">##    doc_id    token</span></span>
 <span><span class="co">## 11     d2    spent</span></span>
@@ -243,7 +251,7 @@ cardinal or ordinal quantities.</p>
 compound multi-word entities into single “tokens” (as they would in a
 language like German):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/entity_extract.html">entity_consolidate</a></span><span class="op">(</span><span class="va">parsedtxt</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/entity_extract.html">entity_consolidate</a></span><span class="op">(</span><span class="va">parsedtxt</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">##    doc_id sentence_id token_id          token    pos entity_type</span></span>
 <span><span class="co">## 11     d2           1        2          Smith ENTITY      PERSON</span></span>

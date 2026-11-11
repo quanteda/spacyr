@@ -4,6 +4,136 @@
 
 ### New features
 
+- New function
+  [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  creates patterns for rule-based named entities, as used by spaCy’s
+  `entity_ruler`, from phrases, lists of patterns in spaCy’s own
+  structure, or a data.frame
+  ([\#234](https://github.com/quanteda/spacyr/issues/234)). Patterns are
+  checked for their structure, and converted so that they reach spaCy in
+  the form it expects: the values of spaCy’s set operators (`IN`,
+  `NOT_IN`, `IS_SUBSET`, `IS_SUPERSET` and `INTERSECTS`) stay lists even
+  when they hold a single value or none, other empty lists become empty
+  dictionaries, and whole numbers become integers. Phrases can match
+  regardless of case with `case_insensitive = TRUE`. The new functions
+  [`entity_patterns_read()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
+  and
+  [`entity_patterns_write()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
+  read patterns from, and write them to, spaCy’s JSONL format, JSON
+  arrays, or (for reading) a text file of phrases; reading and writing
+  JSON needs the **jsonlite** package, now suggested. Pass the patterns
+  to
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  with its new argument `entity_patterns`.
+- [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  also converts the entities found by
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md),
+  so that entities found in one set of texts can be rules for others,
+  and those found by
+  [`entity_extract()`](https://spacyr.quanteda.io/reference/entity_extract.md),
+  given the `concatenator` that joined their tokens. It converts
+  **quanteda** dictionaries too, labelling patterns by their top-level
+  keys and matching regardless of case by default. Dictionary values
+  with wildcards (`valuetype = "glob"`, the default) become token
+  patterns with a regular expression for each part that has a wildcard,
+  and `valuetype = "regex"` and `"fixed"` are also supported.
+- A new article on the package website, “Adding Rule-Based Named
+  Entities”, shows how to add entities by rules: phrases, token patterns
+  such as academic titles, rules and the model’s own entities,
+  **quanteda** dictionaries, reusing the entities found, and saving
+  rules to files.
+- A new article on the package website, “Rule-Based Matching”, shows how
+  to find sequences of tokens, phrases and dictionary values with
+  [`spacy_extract_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_matches.md),
+  and tokens connected in the dependency parse with
+  [`spacy_extract_dependency_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.md),
+  with passive verbs as the example, and what to keep in mind about
+  language models and their parses
+  ([\#204](https://github.com/quanteda/spacyr/issues/204)).
+- A new article on the package website, “Improving Performance”, shows
+  what makes parsing faster or slower: choosing between
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+  and
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  leaving out the named entity recognizer, the language model,
+  `batch_size` and `n_process`, and long documents
+  ([\#226](https://github.com/quanteda/spacyr/issues/226)).
+- New function
+  [`spacy_extract_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_matches.md)
+  finds sequences of tokens that match patterns, using spaCy’s
+  rule-based `Matcher`
+  ([\#204](https://github.com/quanteda/spacyr/issues/204)). Patterns are
+  a named list of token patterns in spaCy’s own structure, with
+  alternatives for a label given as a list of patterns, or an
+  [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  object, whose phrases are matched too, exactly or in any case, or a
+  **quanteda** dictionary, with its wildcards; they can use any token
+  attribute, including those the model assigns, such as `POS`, `TAG`,
+  `DEP` and `LEMMA`. It returns a data.frame with one row per match: the
+  document, the sentence and token position of its first token as in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  the label, the matched text, and its position in the document and
+  length as in
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md);
+  nothing matching gives a data.frame with no rows. All matches are
+  returned by default, and `overlap = "longest"` or `"first"` keeps one
+  of the overlapping matches of a label. Unlike `entity_patterns`, the
+  patterns do not change the pipeline or a document’s entities.
+- New function
+  [`spacy_extract_dependency_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.md)
+  finds tokens that are connected in the dependency parse as a pattern
+  describes, using spaCy’s `DependencyMatcher`
+  ([\#204](https://github.com/quanteda/spacyr/issues/204)): a passive
+  verb with its subject and agent, for instance, wherever they are in
+  the sentence. Patterns are a named list of dependency patterns in
+  spaCy’s own structure, one for each label, whose nodes are named by
+  `RIGHT_ID`. It returns a data.frame with one row for each node of the
+  pattern in each match: the document, the number of the match within
+  it, the label, the name of the node, and the token it matched with its
+  position, as in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md).
+  The pipeline needs a dependency parser, or another component that sets
+  dependencies; a document without a dependency parse is an error, not a
+  document without matches.
+- [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  has new arguments `entity_patterns` and `overwrite_entities`, to add
+  rule-based named entities to the pipeline
+  ([\#234](https://github.com/quanteda/spacyr/issues/234)).
+  `entity_patterns` takes anything
+  [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  accepts, and adds spaCy’s entity ruler as `spacyr_entity_ruler`, after
+  every component that sets entities, so that an `entity_ruler` saved
+  with the model stays in place (if the model already has a
+  `spacyr_entity_ruler`, the new one is `spacyr_entity_ruler_2`). Where
+  a rule’s entity overlaps one the model found, the rule’s is kept,
+  unless `overwrite_entities = FALSE`. Phrases marked `case_insensitive`
+  are tokenized with the pipeline’s own tokenizer. The rules’ entities
+  are returned by
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  and
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  also when `entity = FALSE`, and patterns that need entities found by
+  an earlier component (with `ENT_TYPE` or `ENT_IOB`) give a warning
+  when no component before the ruler sets entities. Phrase patterns give
+  a warning when an earlier component, such as `merge_entities`, changes
+  the tokens. spaCy’s message is shown for a pattern it does not accept.
+- [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  has a new argument `split_hyphens`
+  ([\#250](https://github.com/quanteda/spacyr/issues/250)). With
+  `split_hyphens = FALSE`, spaCy’s tokenizer no longer splits words at a
+  single hyphen between letters, or between a letter and a digit, so
+  that “eye-opening” stays one token for the whole pipeline, including
+  the tagger and lemmatizer, instead of becoming “eye”, “-” and
+  “opening”. The tokenizer still splits wherever else it did, as between
+  numbers (“3-4”, which **quanteda**’s `tokens(split_hyphens = FALSE)`
+  keeps whole), at two or more hyphens and at the start or end of a
+  word. Only the language’s default infix rules are changed; a model
+  saved with rules of its own, or with a tokenizer that is not spaCy’s
+  rule-based one, gives a warning if it still splits some hyphenated
+  words, and so does a ruler saved with the model whose phrase patterns
+  were tokenized before the change. The default, `TRUE`, keeps the
+  model’s tokenization, unlike the default of
+  [`quanteda::tokens()`](https://quanteda.io/reference/tokens.html).
 - [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
   [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
   [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
@@ -65,6 +195,39 @@
 
 ### Changes
 
+- [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  now sets the environment variable `TOKENIZERS_PARALLELISM` to
+  `"false"`, unless it is already set
+  ([\#233](https://github.com/quanteda/spacyr/issues/233)). With
+  versions of Hugging Face’s **tokenizers** library before 0.22.2,
+  pipelines that use it, such as some built with **spacy-transformers**,
+  printed “The current process just got forked, after parallelism has
+  already been used. Disabling parallelism to avoid deadlocks…” again
+  and again, until R was restarted, once the R process had been forked
+  after the library was used, for instance by
+  [`parallel::mcparallel()`](https://rdrr.io/r/parallel/mcparallel.html);
+  saving a file in RStudio was also reported to trigger it. The setting
+  controls the library’s tokenizer threads; its effect on total runtime
+  depends on the pipeline and the workload. It applies to the whole R
+  process and stays after
+  [`spacy_finalize()`](https://spacyr.quanteda.io/reference/spacy_finalize.md);
+  if initialization fails, the previous value is restored. A value set
+  beforehand, even an empty one, is kept. Setting it to `"true"` turns
+  off the library’s safeguard against deadlocks, so a forked worker,
+  from
+  [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html) or
+  from `n_process` greater than 1 when the workers are started by fork,
+  that uses **tokenizers** after the parent has used it can hang; leave
+  it at `"false"` whenever that can happen.
+
+- [`spacy_download_langmodel()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel.md),
+  also used by
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md),
+  now tries a failed model download twice more, after 10 and 30 seconds,
+  and warns if all three attempts fail. Models come from GitHub, which
+  sometimes answers with a temporary server error that pip does not
+  retry. Previously a failed download gave no warning from **spacyr**.
+
 - spacyr now requires spaCy 3.0.0 or later, and Python 3.
   [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
   stops with an error if an earlier version of spaCy is installed, and
@@ -72,8 +235,10 @@
   refuses a `version` that allows only earlier versions, whether a bare
   version (`"2.3.9"`), a pip-style pin (`"==2.3.9"`,
   `"[cuda102]==2.3.9"`) or a range (`"<3"`). A range without a lower
-  bound of 3 or above gets `>=3.0.0` added. The code for Python 2 and
-  spaCy 2 has been removed. The `deal_utf8` argument of
+  bound of 3 or above gets `>=3.0.0` added. A `version` that is not a
+  valid pip requirement, such as `"1.10.1a"`, is passed to pip
+  unchanged, so that pip’s error shows what was given. The code for
+  Python 2 and spaCy 2 has been removed. The `deal_utf8` argument of
   [`get_attrs()`](https://spacyr.quanteda.io/reference/get-functions.md)
   is no longer used.
 
@@ -108,6 +273,27 @@
   [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
   failed.
 
+- [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+  with `remove_punct`, `remove_numbers` or `remove_url`, and without
+  `remove_symbols`, no longer runs the components of the pipeline, which
+  these options do not need, so they are now about as fast as tokenizing
+  without them ([\#226](https://github.com/quanteda/spacyr/issues/226)).
+  With the standard spaCy models, the tokens are the same as before.
+  With a pipeline whose components change the tokens or their
+  attributes, such as spaCy’s `merge_entities`, or that fail on some
+  documents and leave them out, these options now give the tokens that
+  plain tokenization gives, from all the documents, since those
+  components no longer run. `remove_symbols` still runs all the
+  components, since it needs the part-of-speech tags, whatever the other
+  options.
+
+- [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+  now stops with an error when `remove_punct`, `remove_url`,
+  `remove_numbers`, `remove_separators`, `remove_symbols` or `padding`
+  is not `TRUE` or `FALSE`. Previously a missing value (`NA`) either
+  gave an unclear error or was taken as `TRUE` or `FALSE` without
+  warning.
+
 - spacyr now loads its Python code as a module with
   [`reticulate::import_from_path()`](https://rstudio.github.io/reticulate/reference/import.html)
   and calls its functions with arguments, instead of running Python code
@@ -136,6 +322,16 @@
   - An empty character vector no longer gives a warning that two
     documents (`text1` and `text0`) were left out.
 
+### Bug fixes
+
+- [`entity_extract()`](https://spacyr.quanteda.io/reference/entity_extract.md)
+  and
+  [`entity_consolidate()`](https://spacyr.quanteda.io/reference/entity_extract.md)
+  now keep entity labels that contain underscores, such as a custom
+  `PUBLIC_AGENCY` label. Previously they cut the label at its first
+  underscore, giving `PUBLIC`. The labels of spaCy’s standard models
+  have no underscores, so their results are unchanged.
+
 ### Documentation
 
 - The vignette and help pages are updated for spaCy 3: language models
@@ -154,10 +350,13 @@
   built with **R.rsp**, which had not been updated with the vignette’s
   source, and **R.rsp** is no longer a suggested package. The pkgdown
   site is rebuilt with pkgdown 2.2.1, and now uses Bootstrap 5 with the
-  same theme and styling as the **quanteda** site.
+  same theme and styling as the **quanteda** site. The site’s search
+  box, which pkgdown provides without an outside service, is restored.
 
 ### Tests
 
+- The `saved-output` CI job now tries installing the pinned spaCy and
+  model versions up to three times, for the same reason.
 - Added saved-output tests that compare the results of
   [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
   [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),

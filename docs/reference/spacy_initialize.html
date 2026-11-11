@@ -16,8 +16,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../index.html">Installation</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+    <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
+    <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
+  </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/quanteda/spacyr" aria-label="View on Github"><span class="fa fa-github fa-lg"></span></a></li>
@@ -44,6 +50,9 @@
 <span>  model <span class="op">=</span> <span class="st">"en_core_web_sm"</span>,</span>
 <span>  entity <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  max_length <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  split_hyphens <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  entity_patterns <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  overwrite_entities <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -74,15 +83,128 @@ roughly 1GB of temporary memory per 100,000 characters for the parser
 and entity recogniser.</p></dd>
 
 
+<dt id="arg-split-hyphens">split_hyphens<a class="anchor" aria-label="anchor" href="#arg-split-hyphens"></a></dt>
+<dd><p>logical; if <code>TRUE</code> (the default), words joined by a
+hyphen are split as the language model's tokenizer splits them, which for
+English makes three tokens of "eye-opening": "eye", "-" and "opening". If
+<code>FALSE</code>, the tokenizer no longer splits at a single hyphen between
+letters, or between a letter and a digit, so that "eye-opening" stays one
+token, and the rest of the pipeline, such as the tagger and lemmatizer,
+processes it as one. Note that the default differs from that of
+<strong>quanteda</strong>'s <code><a href="https://quanteda.io/reference/tokens.html" class="external-link">quanteda::tokens()</a></code>, whose <code>split_hyphens = FALSE</code> keeps
+hyphenated words together by default. See Details.</p></dd>
+
+
+<dt id="arg-entity-patterns">entity_patterns<a class="anchor" aria-label="anchor" href="#arg-entity-patterns"></a></dt>
+<dd><p>rule-based entities to add to the pipeline: a
+<code>spacyr_entity_patterns</code> object, or anything that <code><a href="as_entity_patterns.html">as_entity_patterns()</a></code>
+accepts, such as a named character vector of phrases. spacyr adds
+spaCy's entity ruler, as <code>spacyr_entity_ruler</code>, at the end of the
+pipeline, after every component that sets entities; an entity ruler saved
+with the model stays as it is. If the model already has a component of
+that name, for instance because it was saved from a pipeline with rules
+added by spacyr, the new ruler is named <code>spacyr_entity_ruler_2</code> (or the
+next free number). If <code>NULL</code> (the default), the pipeline is not changed.</p></dd>
+
+
+<dt id="arg-overwrite-entities">overwrite_entities<a class="anchor" aria-label="anchor" href="#arg-overwrite-entities"></a></dt>
+<dd><p>logical; where an entity matched by
+<code>entity_patterns</code> overlaps one found by an earlier component, such as the
+model's named entity recognizer, the rule's entity is kept if <code>TRUE</code> (the
+default), and the earlier one if <code>FALSE</code>, so that the rules only add
+entities where none were found.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>not used.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>With <code>entity_patterns</code>, the entities found by the rules are returned by
+<code><a href="spacy_parse.html">spacy_parse()</a></code> and <code><a href="spacy_extract_entity.html">spacy_extract_entity()</a></code> like any others, also when
+<code>entity = FALSE</code>. Patterns that ask for an entity type (<code>ENT_TYPE</code>) or for
+tokens inside an entity (<code>ENT_IOB</code>) build on the entities of earlier
+components, such as the model's <code>ner</code> or a ruler saved with the model, so
+they give a warning when no earlier component sets entities, for instance
+with <code>entity = FALSE</code>. Phrases are tokenized with the pipeline's own
+tokenizer, and those marked <code>case_insensitive</code> match the lower case form of
+each token. A component that changes the tokens, such as spaCy's
+<code>merge_entities</code>, can stop phrases from matching when it comes before the
+ruler, which gives a warning.</p>
+<p>With <code>split_hyphens = FALSE</code>, the tokenizer still splits wherever the
+model's tokenizer did other than at a single hyphen within a word: between
+numbers, so that "3-4" is still three tokens ("3", "-" and "4"), where
+<strong>quanteda</strong>'s <code>tokens(split_hyphens = FALSE)</code> keeps it as one; at two or
+more hyphens, as in "a–b"; and at the start or end of a word. The models
+were trained on text with hyphenated words split, so their tags, lemmas and
+dependencies for a hyphenated word kept whole can differ from those for its
+parts. Only the language's default infix rules are changed: a model saved
+with infix rules of its own, or whose tokenizer is not spaCy's rule-based
+one, as for Chinese and Japanese, is left as it is. A warning is given if
+the tokenizer still splits some hyphenated words, between letters or
+between a letter and a digit, for whatever reason. Many languages, such as German, do not split
+them in the first place. Phrase patterns of a ruler saved with the model,
+such as an <code>entity_ruler</code>, were tokenized when the model was saved, so
+those containing hyphenated words may no longer match; changing the
+tokenizer gives a warning when an active component has phrase patterns.
+Those of <code>entity_patterns</code> are tokenized after the change.</p>
+<p>Phrases are matched quickly, even many thousands of them, and so are
+patterns of a single token with a regular expression, such as dictionary
+values with a wildcard, which spacyr combines into one regular expression
+for each label. Other token patterns are checked one by one, and so are
+phrases marked <code>case_insensitive</code> when the patterns also include phrases
+that are not, which makes parsing slower when there are many of them.</p>
+<p>Unless the environment variable <code>TOKENIZERS_PARALLELISM</code> is already set,
+<code>spacy_initialize()</code> sets it to <code>"false"</code>. Pipelines that use Hugging
+Face's <strong>tokenizers</strong> library, such as some built with
+<strong>spacy-transformers</strong>, otherwise print a warning about disabling
+parallelism, with versions of <strong>tokenizers</strong> before 0.22.2, again and again
+until R is restarted, once the R process is forked after the library has
+been used, for instance by <code><a href="https://rdrr.io/r/parallel/mcparallel.html" class="external-link">parallel::mcparallel()</a></code>; saving a file in
+RStudio has also been reported to trigger it. The setting controls the
+library's tokenizer threads; its effect on total runtime depends on the
+pipeline and the workload. It applies to the whole R process, Python
+included, and stays after <code><a href="spacy_finalize.html">spacy_finalize()</a></code>; if initialization fails, the
+previous value is restored. A value set before calling
+<code>spacy_initialize()</code> is kept, even an empty one, which <strong>tokenizers</strong> reads
+as <code>"false"</code>. Setting <code>Sys.setenv(TOKENIZERS_PARALLELISM = "true")</code> turns
+off the library's safeguard against deadlocks: a forked process, such as a
+worker of <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code>, or of <code>n_process</code> greater than 1 when the
+workers are started by fork, that uses <strong>tokenizers</strong> after the parent has
+used it can then hang. Leave the setting at <code>"false"</code> whenever that can
+happen.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="as_entity_patterns.html">as_entity_patterns()</a></code></p></div>
+    </div>
+    <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p>Akitaka Matsuo, Johannes B. Gruber</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># academic titles as part of a person's name</span></span></span>
+<span class="r-in"><span><span class="va">titles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dr"</span>, <span class="st">"dr."</span>, <span class="st">"prof"</span>, <span class="st">"prof."</span>, <span class="st">"professor"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pats</span> <span class="op">&lt;-</span> <span class="fu"><a href="as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    label <span class="op">=</span> <span class="st">"PERSON"</span>,</span></span>
+<span class="r-in"><span>    pattern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LOWER <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>IN <span class="op">=</span> <span class="va">titles</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ENT_TYPE <span class="op">=</span> <span class="st">"PERSON"</span>, ENT_IOB <span class="op">=</span> <span class="st">"B"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ENT_TYPE <span class="op">=</span> <span class="st">"PERSON"</span>, ENT_IOB <span class="op">=</span> <span class="st">"I"</span>, OP <span class="op">=</span> <span class="st">"*"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">spacy_initialize</span><span class="op">(</span>entity_patterns <span class="op">=</span> <span class="va">pats</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="spacy_extract_entity.html">spacy_extract_entity</a></span><span class="op">(</span><span class="st">"Prof. Jane Smith met Dr Bob Jones in Paris."</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># phrases, with labels as names</span></span></span>
+<span class="r-in"><span><span class="fu">spacy_initialize</span><span class="op">(</span>entity_patterns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"Acme Widgets"</span>, GPE <span class="op">=</span> <span class="st">"Ruritania"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

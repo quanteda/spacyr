@@ -64,7 +64,9 @@ spacy_tokenize(
 - remove_symbols:
 
   remove symbols. The symbols are either `SYM` in `pos` field, or
-  currency symbols.
+  currency symbols. Since this needs the part-of-speech tags, it runs
+  all the components of the pipeline, which makes tokenization much
+  slower; the other `remove_*` options do not.
 
 - padding:
 

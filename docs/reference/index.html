@@ -16,8 +16,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../index.html">Installation</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+    <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
+    <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
+  </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/quanteda/spacyr" aria-label="View on Github"><span class="fa fa-github fa-lg"></span></a></li>
@@ -44,6 +50,13 @@
 
       <dl><dt>
 
+          <code><a href="as_entity_patterns.html">as_entity_patterns()</a></code>
+
+        </dt>
+        <dd>Create patterns for rule-based named entities</dd>
+
+        <dt>
+
           <code><a href="data_char_paragraph.html">data_char_paragraph</a></code>
 
         </dt>
@@ -62,6 +75,13 @@
 
         </dt>
         <dd>Extract or consolidate entities from parsed documents</dd>
+
+        <dt>
+
+          <code><a href="entity_patterns_read.html">entity_patterns_read()</a></code> <code><a href="entity_patterns_read.html">entity_patterns_write()</a></code>
+
+        </dt>
+        <dd>Read and write entity patterns</dd>
 
         <dt>
 
@@ -86,10 +106,24 @@
 
         <dt>
 
+          <code><a href="spacy_extract_dependency_matches.html">spacy_extract_dependency_matches()</a></code>
+
+        </dt>
+        <dd>Extract matches of dependency patterns from texts using spaCy</dd>
+
+        <dt>
+
           <code><a href="spacy_extract_entity.html">spacy_extract_entity()</a></code>
 
         </dt>
         <dd>Extract named entities from texts using spaCy</dd>
+
+        <dt>
+
+          <code><a href="spacy_extract_matches.html">spacy_extract_matches()</a></code>
+
+        </dt>
+        <dd>Extract matches of token patterns and phrases from texts using spaCy</dd>
 
         <dt>
 
