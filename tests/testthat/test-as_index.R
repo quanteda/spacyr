@@ -138,3 +138,45 @@ test_that("a concordance from as_index() follows overlap, not kwic()'s own rule"
     own <- quanteda::kwic(toks, quanteda::phrase(c("new york times", "new york")))
     expect_identical(paste(own$from, own$to), c("2 4", "7 8"))
 })
+
+test_that("as_index() checks the end position before converting it", {
+    big <- .Machine$integer.max
+    m <- data.frame(doc_id = "d1", label = "a", start_id = big, length = 1)
+    expect_identical(as_index(m)$to, big)
+    expect_identical(as_index(m)$from, big)
+    m$length <- 2
+    expect_error(as_index(m), "beyond the largest integer")
+    m <- data.frame(doc_id = "d1", label = "a", start_id = 1e10, length = 1)
+    expect_error(as_index(m), "beyond the largest integer")
+})
+
+test_that("as_index() gives document names in composed form", {
+    skip_if_not_installed("stringi")
+    skip_if_not(l10n_info()[["UTF-8"]])
+    m <- data.frame(doc_id = c("de\u0301comp", "plain"), label = "a",
+                    start_id = 1:2, length = 1)
+    expect_identical(as_index(m)$docname, c("d\u00e9comp", "plain"))
+})
+
+test_that("kwic() keeps matches of documents with decomposed names", {
+    skip_if_not_installed("quanteda")
+    skip_if_not_installed("stringi")
+    skip_if_not(l10n_info()[["UTF-8"]])
+    skip_on_cran()
+    try_spacy_initialize()
+    on.exit(try(spacy_finalize(), silent = TRUE))
+    txt <- c("New York is big.", "I like New York.")
+    names(txt) <- c("de\u0301comp", "plain")
+    m <- spacy_match(txt, quanteda::phrase("new york"))
+    toks <- quanteda::as.tokens(spacy_parse(txt))
+    kw <- quanteda::kwic(toks, index = as_index(m))
+    expect_identical(nrow(kw), 2L)
+    expect_identical(kw$keyword, m$text)
+    # the same names when a corpus is the input of both
+    crp <- quanteda::corpus(txt)
+    m2 <- spacy_match(crp, quanteda::phrase("new york"))
+    expect_identical(as_index(m2)$docname, quanteda::docnames(crp)[c(1, 2)])
+    kw2 <- quanteda::kwic(quanteda::as.tokens(spacy_parse(crp)),
+                          index = as_index(m2))
+    expect_identical(nrow(kw2), 2L)
+})

@@ -18,7 +18,8 @@ An object of class \code{index}, as \code{\link[quanteda:index]{quanteda::index(
 data.frame with one row for each row of \code{x}, in the same order, and the
 columns
 \itemize{
-\item \code{docname} the document, from \code{doc_id};
+\item \code{docname} the document, from \code{doc_id}, in Unicode's composed form
+(NFC), as the details describe;
 \item \code{from} and \code{to} the positions of the first and last token, from
 \code{start_id} and \code{length};
 \item \code{pattern} a factor: the \code{label} of a match, the \code{ent_type} of an
@@ -41,6 +42,22 @@ default leaves out whitespace. So give \code{\link[quanteda:kwic]{quanteda::kwic
 \code{\link[=spacy_parse]{spacy_parse()}}, as in the examples. \code{\link[quanteda:kwic]{quanteda::kwic()}} does not check
 that an index was made from the tokens it is given: with other tokens, it
 shows whatever is at those positions.
+
+\code{\link[=spacy_parse]{spacy_parse()}} needs the sentences of each document, which come from the
+parser of the language model or from a sentence segmenter. In a pipeline
+that sets no sentence boundaries, \code{\link[=spacy_match]{spacy_match()}} still returns the
+positions of its matches, but \code{\link[=spacy_parse]{spacy_parse()}} fails, and so cannot give
+the tokens for a concordance.
+
+\pkg{quanteda} keeps the names of documents in Unicode's composed form
+(NFC), so that an "e" followed by a combining accent becomes the single
+accented character. \code{as_index()} does the same to \code{doc_id} when the
+\pkg{stringi} package is installed, which \pkg{quanteda} needs: the
+matches of a document whose name is not in that form then keep their
+place in the concordance, which would otherwise drop them without a
+message. Giving the same \code{\link[quanteda:corpus]{quanteda::corpus()}} to \code{\link[=spacy_match]{spacy_match()}} and to
+\code{\link[=spacy_parse]{spacy_parse()}} has the same effect, since the names in a corpus are
+already in that form.
 
 A match of a dependency pattern has one row for each of its nodes, and so
 one row in the index for each node, also when two nodes are the same

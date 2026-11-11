@@ -13,7 +13,8 @@
 #' @returns An object of class `index`, as [quanteda::index()] returns: a
 #'   data.frame with one row for each row of `x`, in the same order, and the
 #'   columns
-#'   * `docname` the document, from `doc_id`;
+#'   * `docname` the document, from `doc_id`, in Unicode's composed form
+#'   (NFC), as the details describe;
 #'   * `from` and `to` the positions of the first and last token, from
 #'   `start_id` and `length`;
 #'   * `pattern` a factor: the `label` of a match, the `ent_type` of an
@@ -28,6 +29,22 @@
 #' [spacy_parse()], as in the examples. [quanteda::kwic()] does not check
 #' that an index was made from the tokens it is given: with other tokens, it
 #' shows whatever is at those positions.
+#'
+#' [spacy_parse()] needs the sentences of each document, which come from the
+#' parser of the language model or from a sentence segmenter. In a pipeline
+#' that sets no sentence boundaries, [spacy_match()] still returns the
+#' positions of its matches, but [spacy_parse()] fails, and so cannot give
+#' the tokens for a concordance.
+#'
+#' \pkg{quanteda} keeps the names of documents in Unicode's composed form
+#' (NFC), so that an "e" followed by a combining accent becomes the single
+#' accented character. `as_index()` does the same to `doc_id` when the
+#' \pkg{stringi} package is installed, which \pkg{quanteda} needs: the
+#' matches of a document whose name is not in that form then keep their
+#' place in the concordance, which would otherwise drop them without a
+#' message. Giving the same [quanteda::corpus()] to [spacy_match()] and to
+#' [spacy_parse()] has the same effect, since the names in a corpus are
+#' already in that form.
 #'
 #' A match of a dependency pattern has one row for each of its nodes, and so
 #' one row in the index for each node, also when two nodes are the same
@@ -101,12 +118,27 @@ as_index <- function(x) {
     }
     if (anyNA(pattern) || anyNA(x[["doc_id"]]))
         stop("doc_id and the label of each row must not be missing", call. = FALSE)
-    from <- as.integer(from)
-    result <- data.frame(docname = as.character(x[["doc_id"]]),
-                         from = from,
-                         to = from + as.integer(len) - 1L,
+    # the end is computed as a double: adding integers could overflow
+    to <- from + len - 1
+    if (any(to > .Machine$integer.max))
+        stop("start_id and length give a position beyond the largest ",
+             "integer, ", .Machine$integer.max, call. = FALSE)
+    result <- data.frame(docname = nfc(as.character(x[["doc_id"]])),
+                         from = as.integer(from),
+                         to = as.integer(to),
                          pattern = factor(pattern, levels = unique(pattern)),
                          stringsAsFactors = FALSE)
     class(result) <- c("index", "data.frame")
     result
+}
+
+# Unicode's composed form (NFC) of strings, as quanteda keeps the names of
+# documents. Needs stringi, which quanteda imports: without it the strings
+# are returned as they are.
+nfc <- function(x) {
+    ascii <- !grepl("[^\\x01-\\x7f]", x, perl = TRUE, useBytes = TRUE)
+    if (all(is.na(x) | ascii) ||
+        !requireNamespace("stringi", quietly = TRUE))
+        return(x)
+    stringi::stri_trans_nfc(x)
 }
