@@ -557,7 +557,7 @@ class spacyr:
         for label, alternatives in zip(labels, patterns):
             matcher.add(label, alternatives, greedy = greedy)
         order = dict((label, k) for k, label in enumerate(labels))
-        cols = {"doc_id": [], "sentence_id": [], "token_id": [], "pattern": [],
+        cols = {"doc_id": [], "sentence_id": [], "token_id": [], "label": [],
                 "text": [], "start_id": [], "length": []}
         for id_, doc in self.docs(texts, docnames, batch_size, n_process):
             spans = matcher(doc, as_spans = True)
@@ -570,7 +570,7 @@ class spacyr:
                 cols["doc_id"].append(id_)
                 cols["sentence_id"].append(sent_id)
                 cols["token_id"].append(token_id)
-                cols["pattern"].append(span.label_)
+                cols["label"].append(span.label_)
                 cols["text"].append(span.text)
                 cols["start_id"].append(span.start + 1)
                 cols["length"].append(span.end - span.start)

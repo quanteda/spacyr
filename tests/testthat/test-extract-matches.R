@@ -6,7 +6,7 @@ passive <- list(
                    list(TAG = "VBN")))
 txt <- c(doc1 = "The book was written by Jane. Jane wrote the book.",
          doc2 = "Mistakes were made, and the report is being rewritten.")
-match_columns <- c("doc_id", "sentence_id", "token_id", "pattern", "text",
+match_columns <- c("doc_id", "sentence_id", "token_id", "label", "text",
                    "start_id", "length")
 
 # match_patterns() needs no Python, so these tests also run on CRAN
@@ -93,7 +93,7 @@ test_that("spacy_extract_matches finds passives by dependency and tag", {
     expect_named(m, match_columns)
     expect_identical(m$doc_id, c("doc1", "doc2", "doc2"))
     expect_identical(m$text, c("was written", "were made", "being rewritten"))
-    expect_identical(m$pattern, rep("PASSIVE", 3))
+    expect_identical(m$label, rep("PASSIVE", 3))
     expect_identical(m$start_id, c(3L, 2L, 9L))
     expect_identical(m$length, c(2L, 2L, 2L))
 
@@ -112,7 +112,7 @@ test_that("positions agree with spacy_parse, also across sentences", {
                  # crosses the sentence boundary
                  CROSS = list(list(IS_PUNCT = TRUE), list(POS = "PROPN")))
     m <- spacy_extract_matches(txt["doc1"], pats)
-    expect_identical(m$pattern, c("BOOK", "CROSS", "BOOK"))
+    expect_identical(m$label, c("BOOK", "CROSS", "BOOK"))
     expect_identical(m$text, c("book", ". Jane", "book"))
     expect_identical(m$sentence_id, c(1L, 1L, 2L))
     expect_identical(m$token_id, c(2L, 7L, 4L))
@@ -137,18 +137,32 @@ test_that("overlap keeps all, the longest or the first matches of a label", {
     # by start, then length, then the order of the labels
     expect_identical(all$text, c("big red shiny ball", "red shiny", "red shiny ball",
                                  "shiny ball"))
-    expect_identical(all$pattern, c("A", "B", "A", "A"))
+    expect_identical(all$label, c("A", "B", "A", "A"))
     expect_identical(spacy_extract_matches(big, pats, overlap = "all"), all)
     for (overlap in c("longest", "first")) {
         m <- spacy_extract_matches(big, pats, overlap = overlap)
         # matches of different labels still overlap
         expect_identical(m$text, c("big red shiny ball", "red shiny"), info = overlap)
-        expect_identical(m$pattern, c("A", "B"), info = overlap)
+        expect_identical(m$label, c("A", "B"), info = overlap)
     }
+    # where the match that starts first is the shorter one, "first" and
+    # "longest" differ
+    alt <- list(X = list(list(list(LOWER = "a"), list(LOWER = "b")),
+                         list(list(LOWER = "b"), list(LOWER = "c"),
+                              list(LOWER = "d"), list(LOWER = "e"))))
+    expect_identical(spacy_extract_matches("a b c d e", alt)$text, c("a b", "b c d e"))
+    expect_identical(spacy_extract_matches("a b c d e", alt, overlap = "first")$text, "a b")
+    expect_identical(spacy_extract_matches("a b c d e", alt, overlap = "longest")$text,
+                     "b c d e")
+    # the shortest of the matches with the same start comes first
+    starts <- spacy_extract_matches("a b c", list(
+        LONG = list(list(LOWER = "a"), list(LOWER = "b"), list(LOWER = "c")),
+        SHORT = list(list(LOWER = "a"))))
+    expect_identical(starts$label, c("SHORT", "LONG"))
     # equal spans are ordered by label
     same <- spacy_extract_matches("red", list(Z = list(list(LOWER = "red")),
                                               A = list(list(IS_ALPHA = TRUE))))
-    expect_identical(same$pattern, c("Z", "A"))
+    expect_identical(same$label, c("Z", "A"))
 })
 
 test_that("alternatives, entity patterns and set operators match", {
@@ -173,6 +187,28 @@ test_that("alternatives, entity patterns and set operators match", {
     expect_identical(any$text, c("Jane", "wrote", "books", "."))
 })
 
+test_that("custom attributes named like operators are not read as operators", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try_spacy_initialize()
+    reticulate::py_run_string(paste(
+        "from spacy.tokens import Token",
+        "Token.set_extension('is_subset', default = 'x', force = True)",
+        "Token.set_extension('spacyr_tags', default = ['a', 'b'], force = True)",
+        sep = "\n"))
+    on.exit(reticulate::py_run_string(paste(
+        "Token.remove_extension('is_subset')",
+        "Token.remove_extension('spacyr_tags')", sep = "\n")))
+
+    run <- function(...) spacy_extract_matches("red ball", list(X = list(list(`_` = list(...)))))
+    expect_identical(run(is_subset = "x")$text, c("red", "ball"))
+    expect_identical(nrow(run(is_subset = "y")), 0L)
+    # operators still apply within the value of a custom attribute
+    expect_identical(run(is_subset = list(IN = "x"))$text, c("red", "ball"))
+    expect_identical(run(spacyr_tags = list(IS_SUPERSET = "a"))$text, c("red", "ball"))
+    expect_identical(nrow(run(spacyr_tags = list(IS_SUPERSET = "z"))), 0L)
+})
+
 test_that("no matches give a data.frame with no rows", {
     skip_on_cran()
     skip_on_os("solaris")
@@ -185,7 +221,7 @@ test_that("no matches give a data.frame with no rows", {
         expect_identical(nrow(m), 0L)
         expect_identical(vapply(m, typeof, ""),
                          c(doc_id = "character", sentence_id = "integer",
-                           token_id = "integer", pattern = "character",
+                           token_id = "integer", label = "character",
                            text = "character", start_id = "integer", length = "integer"))
     }
 })

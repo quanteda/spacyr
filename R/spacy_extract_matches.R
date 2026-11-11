@@ -19,8 +19,9 @@
 #'     that label. The names must be unique.
 #'   * a `spacyr_entity_patterns` object from [as_entity_patterns()], whose
 #'     labels become the labels of the matches. Patterns with the same label
-#'     are alternatives for that label. Only token patterns are matched: an
-#'     object that holds phrases is an error.
+#'     are alternatives for that label, and the IDs of the patterns are
+#'     ignored. Only token patterns are matched: an object that holds phrases
+#'     is an error.
 #' @param overlap which matches to return where matches of the same label
 #'   overlap: `"all"` (the default) returns every match, including those
 #'   inside or overlapping another, as spaCy does; `"longest"` keeps the
@@ -56,15 +57,17 @@
 #'   given the sentence of its first token. Both are `NA` when the document
 #'   has no sentence boundaries, as when the pipeline has neither a parser
 #'   nor a sentence segmenter.}
-#'   \item{`pattern`}{the label of the pattern}
+#'   \item{`label`}{the label of the pattern that matched. It does not say
+#'   which of a label's alternative patterns matched, which spaCy does not
+#'   report.}
 #'   \item{`text`}{the matched text}
 #'   \item{`start_id`}{the position of the first token of the match in the
 #'   document, starting at 1, as in [spacy_extract_entity()]}
 #'   \item{`length`}{the number of tokens matched}
 #'   }
 #'   Rows are in the order of the documents in `x`; within a document, by
-#'   `start_id`, then by `length`, then by the order of the labels in
-#'   `patterns`.
+#'   `start_id`, then by `length` (the shortest first), then by the order of
+#'   the labels in `patterns`. The order does not depend on `overlap`.
 #' @seealso [as_entity_patterns()] and [spacy_initialize()] to make matches
 #'   named entities.
 #' @export
@@ -138,7 +141,7 @@ spacy_extract_matches.character <- function(x, patterns,
     out <- data.frame(doc_id = chr(res$doc_id),
                       sentence_id = int(res$sentence_id),
                       token_id = int(res$token_id),
-                      pattern = chr(res$pattern),
+                      label = chr(res$label),
                       text = chr(res$text),
                       start_id = int(res$start_id),
                       length = int(res$length),

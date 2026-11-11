@@ -522,3 +522,20 @@ test_that("other empty lists become named lists, which reach Python as dicts", {
   expect_identical(as.character(jsonlite::toJSON(p[[3]], auto_unbox = TRUE)),
                    '{"RIGHT_ID":"a","RIGHT_ATTRS":{}}')
 })
+
+test_that("names inside _ are custom attributes, not operators", {
+  x <- as_entity_patterns(list(label = "X", pattern = list(
+    list(`_` = list(is_subset = "x", IN = 3, flag = TRUE)),
+    list(`_` = list(is_subset = list(IN = "x"), tags = list(IS_SUPERSET = c("a", "b")))),
+    list(LOWER = list(IN = "a"), `_` = list(in_ = list(NOT_IN = 1))))))
+  p <- x$pattern[[1]]
+  expect_identical(p[[1]], list(`_` = list(is_subset = "x", IN = 3L, flag = TRUE)))
+  expect_identical(p[[2]], list(`_` = list(is_subset = list(IN = list("x")),
+                                           tags = list(IS_SUPERSET = list("a", "b")))))
+  expect_identical(p[[3]], list(LOWER = list(IN = list("a")),
+                                `_` = list(in_ = list(NOT_IN = list(1L)))))
+  # the same in the attributes of a dependency pattern's node
+  node <- normalize_pattern(list(list(RIGHT_ID = "a",
+                                      RIGHT_ATTRS = list(`_` = list(is_subset = "x")))), 1)
+  expect_identical(node[[1]]$RIGHT_ATTRS, list(`_` = list(is_subset = "x")))
+})

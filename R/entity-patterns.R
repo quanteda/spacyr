@@ -392,15 +392,24 @@ empty_dict <- function() structure(list(), names = character(0))
 # The values of the set operators become unnamed lists, also when empty or of
 # length one. Any other empty list is the value of an attribute, of a
 # dependency pattern's RIGHT_ATTRS or of "_", which spaCy expects as a dict.
-normalize_values <- function(x) {
+# The names directly inside "_" are those of custom attributes, which can be
+# the same as an operator's (an extension called "is_subset", for instance),
+# so they are never read as operators (extension = TRUE); operators apply
+# again within the value of each custom attribute.
+normalize_values <- function(x, extension = FALSE) {
     nms <- names(x)
     for (k in seq_along(x)) {
         v <- x[[k]]
         # spaCy accepts the operators in either case, with an array as value
-        if (!is.null(nms) && toupper(nms[k]) %in% set_operators) {
+        if (!extension && !is.null(nms) && toupper(nms[k]) %in% set_operators) {
             v <- unname(lapply(as.list(v), whole_to_integer))
         } else if (is.list(v)) {
-            v <- if (length(v)) normalize_values(v) else empty_dict()
+            v <- if (length(v)) {
+                normalize_values(v, extension = !extension && !is.null(nms) &&
+                                     identical(nms[k], "_"))
+            } else {
+                empty_dict()
+            }
         } else {
             v <- whole_to_integer(v)
         }

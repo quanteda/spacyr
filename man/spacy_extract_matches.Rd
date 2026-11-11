@@ -27,8 +27,9 @@ also be a list of such token patterns, which are then alternatives for
 that label. The names must be unique.
 \item a \code{spacyr_entity_patterns} object from \code{\link[=as_entity_patterns]{as_entity_patterns()}}, whose
 labels become the labels of the matches. Patterns with the same label
-are alternatives for that label. Only token patterns are matched: an
-object that holds phrases is an error.
+are alternatives for that label, and the IDs of the patterns are
+ignored. Only token patterns are matched: an object that holds phrases
+is an error.
 }}
 
 \item{overlap}{which matches to return where matches of the same label
@@ -63,15 +64,17 @@ match, and the position of that token in its sentence, both starting at
 given the sentence of its first token. Both are \code{NA} when the document
 has no sentence boundaries, as when the pipeline has neither a parser
 nor a sentence segmenter.}
-\item{\code{pattern}}{the label of the pattern}
+\item{\code{label}}{the label of the pattern that matched. It does not say
+which of a label's alternative patterns matched, which spaCy does not
+report.}
 \item{\code{text}}{the matched text}
 \item{\code{start_id}}{the position of the first token of the match in the
 document, starting at 1, as in \code{\link[=spacy_extract_entity]{spacy_extract_entity()}}}
 \item{\code{length}}{the number of tokens matched}
 }
 Rows are in the order of the documents in \code{x}; within a document, by
-\code{start_id}, then by \code{length}, then by the order of the labels in
-\code{patterns}.
+\code{start_id}, then by \code{length} (the shortest first), then by the order of
+the labels in \code{patterns}. The order does not depend on \code{overlap}.
 }
 \description{
 Find sequences of tokens that match patterns, using spaCy's rule-based
