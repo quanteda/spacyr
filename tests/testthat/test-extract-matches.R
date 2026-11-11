@@ -71,7 +71,7 @@ test_that("match_patterns rejects patterns it cannot use", {
                 list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "subject",
                      RIGHT_ATTRS = list(DEP = "nsubjpass")))
     expect_error(match_patterns(list(A = tok, P = dep)),
-                 "Pattern 'P' is a dependency pattern")
+                 "Pattern 'P' is a dependency pattern.*spacy_extract_dependency_matches")
 })
 
 test_that("spacy_extract_matches checks its arguments before starting spaCy", {
