@@ -434,3 +434,24 @@ test_that("an extraction that found no entities gives no patterns", {
     expect_null(found)
     expect_identical(as_entity_patterns(found), as_entity_patterns(character()))
 })
+
+test_that("phrases with wildcards and dictionary levels become entities", {
+    skip_on_cran()
+    skip_if_not_installed("quanteda")
+    try(spacy_finalize(), silent = TRUE)
+    on.exit(try(spacy_finalize(), silent = TRUE))
+    txt <- "Acme Widgets and Globex Corporation have offices in Boston and London."
+    spacy_initialize(entity = FALSE, entity_patterns = as_entity_patterns(
+        c(ORG = "acme wid*", ORG = "globex corp*"), valuetype = "glob",
+        case_insensitive = TRUE))
+    e <- spacy_extract_entity(txt)
+    expect_identical(e$text, c("Acme Widgets", "Globex Corporation"))
+    expect_identical(e$ent_type, c("ORG", "ORG"))
+    spacy_finalize()
+    d <- quanteda::dictionary(list(place = list(us = "boston", uk = "lond*")))
+    spacy_initialize(entity = FALSE,
+                     entity_patterns = as_entity_patterns(d, levels = 1:2))
+    e <- spacy_extract_entity(txt)
+    expect_identical(e$text, c("Boston", "London"))
+    expect_identical(e$ent_type, c("place.us", "place.uk"))
+})

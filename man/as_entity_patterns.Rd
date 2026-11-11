@@ -10,7 +10,14 @@
 \usage{
 as_entity_patterns(x, ...)
 
-\method{as_entity_patterns}{character}(x, label = NULL, id = NULL, case_insensitive = FALSE, ...)
+\method{as_entity_patterns}{character}(
+  x,
+  label = NULL,
+  id = NULL,
+  case_insensitive = FALSE,
+  valuetype = c("fixed", "glob", "regex"),
+  ...
+)
 
 \method{as_entity_patterns}{list}(x, case_insensitive = FALSE, ...)
 
@@ -19,7 +26,8 @@ as_entity_patterns(x, ...)
 \method{as_entity_patterns}{dictionary2}(
   x,
   case_insensitive = TRUE,
-  valuetype = c("glob", "fixed", "regex"),
+  valuetype = c("glob", "regex", "fixed"),
+  levels = 1,
   ...
 )
 }
@@ -27,7 +35,9 @@ as_entity_patterns(x, ...)
 \item{x}{the patterns to convert:
 \itemize{
 \item a character vector of phrases, each matched exactly as a sequence of
-spaCy's tokens. Labels come from the names of \code{x}, as in \code{c(ORG = "Acme Widgets")}, or from \code{label}.
+spaCy's tokens. Labels come from the names of \code{x}, as in \code{c(ORG = "Acme Widgets")}, or from \code{label}. With \code{valuetype = "glob"} or \code{"regex"},
+they can have wildcards or be regular expressions, as the values of a
+dictionary can.
 \item a list of patterns in spaCy's own structure, each a list with the
 elements \code{label}, \code{pattern} and optionally \code{id}. \code{pattern} is either a
 single phrase or a list of token patterns, one per token, each a named
@@ -45,7 +55,8 @@ This turns the entities found in one set of texts into rules for others.
 \code{entity_type}, given with the \code{concatenator} that joined their tokens.
 \item a \pkg{quanteda} dictionary, made by \code{\link[quanteda:dictionary]{quanteda::dictionary()}}. Its
 top-level keys are the labels, with the values of any nested keys under
-them. A value without wildcards becomes a phrase. A value with wildcards
+them, unless \code{levels} says otherwise. A value without wildcards becomes
+a phrase. A value with wildcards
 (\code{*} for any characters, \verb{?} for one) becomes a token pattern with one
 token for each part separated by spaces, as \pkg{quanteda} matches
 dictionary values to tokens, so that \code{"dr * who"} matches three tokens.
@@ -67,12 +78,28 @@ as each entity's \code{ent_id_}.}
 
 \item{case_insensitive}{logical; if \code{TRUE}, phrases match regardless of
 case. The default, \code{FALSE}, matches them exactly, as spaCy does, except
-for a dictionary, where it is \code{TRUE}, as in \pkg{quanteda}, and also
-applies to the parts of values with wildcards. It does
+for a dictionary, where it is \code{TRUE}, as in \pkg{quanteda}. It also
+applies to the parts of phrases and dictionary values that have
+wildcards or are regular expressions. It does
 not apply to token patterns, which set case through the attribute they
 match, such as \code{ORTH} (exact) or \code{LOWER} (any case). For a list, it
 applies to the patterns that do not set \code{case_insensitive} themselves;
 for a data.frame, it applies when there is no \code{case_insensitive} column.}
+
+\item{valuetype}{how phrases and the values of a dictionary are read:
+\code{"fixed"} for exact phrases, \code{"glob"} for wildcards (\code{*} for any
+characters, \verb{?} for one), or \code{"regex"} for regular expressions, as in
+\code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}}. The default is \code{"fixed"} for a character
+vector, as suits the names of entities, and \code{"glob"} for a dictionary,
+as in \pkg{quanteda}. A phrase or value with a wildcard, and any with
+\code{"regex"}, becomes a token pattern with one token for each part
+separated by spaces; any other is a phrase, which spaCy tokenizes. With
+\code{"regex"}, each part is a regular expression for one of spaCy's tokens,
+in the dialect of Python's \code{re} module, not of R: for instance, \code{"^\\\\p{L}+$"} works in
+\pkg{quanteda} but stops \code{\link[=spacy_initialize]{spacy_initialize()}} with the error "bad escape
+\\p". Since \code{\link[quanteda:dictionary]{quanteda::dictionary()}} lowercases values by default, which
+changes escapes such as \code{"\\\\D"} to \code{"\\\\d"}, make a dictionary of regular
+expressions with \code{tolower = FALSE}.}
 
 \item{concatenator}{for the output of \code{\link[=entity_extract]{entity_extract()}}, the character(s)
 that joined the tokens of each entity, which are replaced by spaces. It
@@ -80,16 +107,17 @@ must be given, since a token that itself contains the concatenator, such
 as an underscore, is changed too; the output of \code{\link[=spacy_extract_entity]{spacy_extract_entity()}}
 keeps the text of each entity as it was, and is the better input.}
 
-\item{valuetype}{for a dictionary, how its values are matched: \code{"glob"}
-(the default) for wildcards, \code{"fixed"} for exact phrases, or \code{"regex"}
-for regular expressions, as in \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}}. With
-\code{"regex"}, each part of a value separated by spaces is a regular
-expression for one of spaCy's tokens, in the dialect of Python's \code{re}
-module, not of R: for instance, \code{"^\\\\p{L}+$"} works in
-\pkg{quanteda} but stops \code{\link[=spacy_initialize]{spacy_initialize()}} with the error "bad escape
-\\p". Since \code{\link[quanteda:dictionary]{quanteda::dictionary()}} lowercases values by default, which
-changes escapes such as \code{"\\\\D"} to \code{"\\\\d"}, make a dictionary of regular
-expressions with \code{tolower = FALSE}.}
+\item{levels}{for a dictionary, the levels of its keys that become
+labels, as in \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}}. The default, \code{1}, labels
+every value by its top-level key. With more than one level, a value is
+labelled by its keys at those levels, joined by \code{"."}: with
+\code{levels = 1:2}, the values under \code{us} in \code{place} have the label
+\code{"place.us"}. Values with no key at any of the levels are left out.
+
+\code{valuetype} and \code{levels} are an error for an input that has no use for
+them: \code{levels} for anything but a dictionary, and \code{valuetype} for a
+list, a data.frame or a \code{spacyr_entity_patterns} object, whose phrases
+are matched as they are.}
 }
 \value{
 A \code{spacyr_entity_patterns} object: a data.frame with one row per
@@ -134,6 +162,17 @@ case: spaCy's English models keep \code{"Inc."} as one token, but split
 \code{quanteda::dictionary(tolower = FALSE)}, since by default it lowercases
 their values.
 
+With \code{case_insensitive = TRUE}, the parts of a phrase or dictionary value
+that has a wildcard are put in lower case by R when the patterns are
+made, since making them does not need spaCy, while spaCy compares them
+with its own lower case form of each token. The two differ for a few
+characters, such as the dotted capital I of Turkish, and a value with
+such a character and a wildcard may then not match. This holds wherever
+the patterns are used, in \code{\link[=spacy_initialize]{spacy_initialize()}} or in \code{\link[=spacy_match]{spacy_match()}}.
+Given the character vector or the dictionary itself, and not patterns
+made from it, \code{\link[=spacy_match]{spacy_match()}} lowercases with spaCy and does not have
+this limit.
+
 Patterns match spaCy's tokens, not characters. For instance, spaCy's
 English models make "Prof." a single token, so a pattern for academic
 titles needs to list both \code{"prof"} and \code{"prof."}, to match titles written
@@ -143,6 +182,10 @@ with and without a full stop.
 # phrases, labelled by their names or by `label`
 as_entity_patterns(c(ORG = "Acme Widgets", GPE = "San Francisco"))
 as_entity_patterns(c("Acme Widgets", "Globex"), label = "ORG")
+
+# phrases with wildcards, in any case
+as_entity_patterns(c(ORG = "acme*", ORG = "globex corp*"),
+                   valuetype = "glob", case_insensitive = TRUE)
 
 # a token pattern for people with academic titles: a title, followed by
 # the first token of a person the model recognises (ENT_IOB "B") and the
@@ -165,6 +208,12 @@ if (requireNamespace("quanteda", quietly = TRUE)) {
   dict <- quanteda::dictionary(list(ORG = c("acme widgets", "globex*"),
                                     PERSON = "dr * who"))
   as_entity_patterns(dict)
+
+  # labels from the first two levels of its keys
+  nested <- quanteda::dictionary(list(
+    place = list(us = c("new york", "boston"), uk = "london")))
+  as_entity_patterns(nested)
+  as_entity_patterns(nested, levels = 1:2)
 }
 
 # entities found by spaCy, to use as rules for other texts
