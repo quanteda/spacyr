@@ -39,3 +39,4 @@ installation.md
 ^Makefile$
 ^tests/testthat/fixtures/saved-output-1\.4\.0\.rds$
 ^design$
+^\.claude$
