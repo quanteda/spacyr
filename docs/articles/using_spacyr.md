@@ -160,7 +160,7 @@ document name is the list element name):
 but it can also output a data.frame:
 
 \
-[`spacy_tokenize`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)`(``txt``, remove_punct ``=`` ``TRUE``, output ``=`` ``"data.frame"``)`` ``%>%`\
+[`spacy_tokenize`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)`(``txt``, remove_punct ``=`` ``TRUE``, output ``=`` ``"data.frame"``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)\
 `    `[`tail`](https://rdrr.io/r/utils/head.html)`(``)`\
 `##    doc_id    token`\
 `## 11     d2    spent`\
@@ -201,7 +201,7 @@ compound multi-word entities into single “tokens” (as they would in a
 language like German):
 
 \
-[`entity_consolidate`](https://spacyr.quanteda.io/reference/entity_extract.md)`(``parsedtxt``)`` ``%>%`\
+[`entity_consolidate`](https://spacyr.quanteda.io/reference/entity_extract.md)`(``parsedtxt``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)\
 `    `[`tail`](https://rdrr.io/r/utils/head.html)`(``)`\
 `##    doc_id sentence_id token_id          token    pos entity_type`\
 `## 11     d2           1        2          Smith ENTITY      PERSON`\

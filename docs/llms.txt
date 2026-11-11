@@ -221,6 +221,8 @@ commands to customise your setup.
 
 ## All functions
 
+- [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  : Create patterns for rule-based named entities
 - [`data_char_paragraph`](https://spacyr.quanteda.io/reference/data_char_paragraph.md)
   : A short paragraph of text for testing
 - [`data_char_sentences`](https://spacyr.quanteda.io/reference/data_char_sentences.md)
@@ -228,6 +230,9 @@ commands to customise your setup.
 - [`entity_extract()`](https://spacyr.quanteda.io/reference/entity_extract.md)
   [`entity_consolidate()`](https://spacyr.quanteda.io/reference/entity_extract.md)
   : Extract or consolidate entities from parsed documents
+- [`entity_patterns_read()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
+  [`entity_patterns_write()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
+  : Read and write entity patterns
 - [`nounphrase_extract()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   [`nounphrase_consolidate()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   : Extract or consolidate noun phrases from parsed documents
@@ -235,8 +240,12 @@ commands to customise your setup.
   : Download spaCy language models
 - [`spacy_download_langmodel_virtualenv()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel_virtualenv.md)
   : Install a language model in a conda or virtual environment
+- [`spacy_extract_dependency_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.md)
+  : Extract matches of dependency patterns from texts using spaCy
 - [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
   : Extract named entities from texts using spaCy
+- [`spacy_extract_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_matches.md)
+  : Extract matches of token patterns and phrases from texts using spaCy
 - [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
   : Extract noun phrases from texts using spaCy
 - [`spacy_finalize()`](https://spacyr.quanteda.io/reference/spacy_finalize.md)
@@ -265,5 +274,11 @@ commands to customise your setup.
 
 ### All vignettes
 
+- [Adding Rule-Based Named
+  Entities](https://spacyr.quanteda.io/articles/entity_rules.md):
+- [Rule-Based
+  Matching](https://spacyr.quanteda.io/articles/matching.md):
+- [Improving
+  Performance](https://spacyr.quanteda.io/articles/performance.md):
 - [A Guide to Using
   spacyr](https://spacyr.quanteda.io/articles/using_spacyr.md):

@@ -2,8 +2,11 @@ pandoc: '3.11'
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
+  articles/entity_rules: entity_rules.html
+  articles/matching: matching.html
+  articles/performance: performance.html
   using_spacyr: using_spacyr.html
-last_built: 2026-11-07T13:54Z
+last_built: 2026-11-11T07:01Z
 urls:
   reference: https://spacyr.quanteda.io/reference
   article: https://spacyr.quanteda.io/articles

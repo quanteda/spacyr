@@ -19,6 +19,9 @@ lemmatization, or named entity recognition) of texts using spaCy."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../index.html">Installation</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/entity_rules.html">Entity rules</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/matching.html">Matching</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/performance.html">Performance</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -99,7 +102,9 @@ When <code>what = "sentence"</code>, this option will remove trailing spaces if 
 
 <dt id="arg-remove-symbols">remove_symbols<a class="anchor" aria-label="anchor" href="#arg-remove-symbols"></a></dt>
 <dd><p>remove symbols. The symbols are either <code>SYM</code> in <code>pos</code>
-field, or currency symbols.</p></dd>
+field, or currency symbols. Since this needs the part-of-speech tags, it
+runs all the components of the pipeline, which makes tokenization much
+slower; the other <code>remove_*</code> options do not.</p></dd>
 
 
 <dt id="arg-padding">padding<a class="anchor" aria-label="anchor" href="#arg-padding"></a></dt>
