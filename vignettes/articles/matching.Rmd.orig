@@ -1,0 +1,231 @@
+---
+title: "Rule-Based Matching"
+author: "Kenneth Benoit"
+date: "`r Sys.Date()`"
+---
+
+<!-- An article for the pkgdown site only: vignettes/articles is in
+.Rbuildignore, so it is not part of the package. Its code needs spaCy, so its
+results are computed ahead of time: edit vignettes/articles/matching.Rmd.orig,
+then run `make vignette` to knit it into vignettes/articles/matching.Rmd,
+which pkgdown builds without running the code. -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "##"
+)
+```
+
+## Introduction
+
+`spacy_parse()` returns what spaCy knows about each token: its lemma, its part of speech, its place in the dependency parse. Many questions about a text are about combinations of tokens: a passive verb, an adjective before a noun, a verb with its subject and object. spaCy answers these with *rule-based matching*, which finds the tokens that fit a pattern. **spacyr** has two functions for it:
+
+- `spacy_extract_matches()` finds *sequences of adjacent tokens*, using spaCy's `Matcher`. It also matches phrases, and the values of a **quanteda** dictionary.
+- `spacy_extract_dependency_matches()` finds *tokens connected in the dependency parse*, wherever they are in the sentence, using spaCy's `DependencyMatcher`.
+
+Both take patterns written as R lists, in the structure that spaCy documents in its guide to [rule-based matching](https://spacy.io/usage/rule-based-matching), and both return a data.frame. Neither changes the pipeline or the entities of a document: to turn matches into named entities, see the article on [rule-based named entities](entity_rules.html).
+
+```{r}
+library("spacyr")
+spacy_initialize()
+```
+
+## Token patterns
+
+A token pattern is a list with one element for each token, and each element is a named list of the attributes that the token must have. This pattern matches the two tokens "new" and "york", in any case:
+
+```{r}
+txt <- c(d1 = "New York is larger than York. I prefer new York.",
+         d2 = "The New York Times is printed in New York.")
+spacy_extract_matches(txt, list(NY = list(list(LOWER = "new"), list(LOWER = "york"))))
+```
+
+The name of the pattern, `NY`, is its label. For each match, the result has:
+
+- the document, and the sentence and token of the first token of the match, numbered as in `spacy_parse()`;
+- the label and the matched text;
+- `start_id`, the position of the first token in the document, and `length`, the number of tokens.
+
+Attributes can be any that spaCy sets on a token, including those that the language model assigns: `LEMMA`, `POS` and `TAG` for the part of speech, `DEP` for the dependency relation, and `ENT_TYPE` for the entity type. A token can also have an operator, `OP`, that says how often it may occur: `"?"` for optional, `"+"` for one or more, `"*"` for none or more. This pattern finds nouns with the adjectives before them:
+
+```{r}
+ball <- "A big red shiny ball and a small blue box."
+adj_noun <- list(ADJ_NOUN = list(list(POS = "ADJ", OP = "+"), list(POS = "NOUN")))
+spacy_extract_matches(ball, adj_noun)
+```
+
+### Overlapping matches
+
+That result has more rows than nouns, since spaCy returns every sequence that fits the pattern: "shiny ball" matches, and so do "red shiny ball" and "big red shiny ball". This is the default, `overlap = "all"`, so that nothing is left out unless you ask. With `overlap = "longest"`, only the longest of the overlapping matches is kept, and with `"first"`, the one that starts first:
+
+```{r}
+spacy_extract_matches(ball, adj_noun, overlap = "longest")
+```
+
+`overlap` applies to the matches of one label. Matches of different labels can still overlap.
+
+### Several patterns
+
+A list can hold several patterns, each with its own label. A label can also have alternative patterns, given as a list of token patterns:
+
+```{r}
+pats <- list(
+  ADJ_NOUN = list(list(POS = "ADJ", OP = "+"), list(POS = "NOUN")),
+  COLOUR = list(list(list(LOWER = "red")),
+                list(list(LOWER = "blue")))
+)
+spacy_extract_matches(ball, pats, overlap = "longest")
+```
+
+The values that an attribute may take can be listed with `IN`, so the two colours could also be one pattern, `list(list(LOWER = list(IN = c("red", "blue"))))`. Rows are in the order of the documents and, within a document, of the matches' positions.
+
+## Example: passive verbs
+
+Patterns can use the dependency relations that the parser assigns, which makes them a way to find grammatical constructions. The labels of these relations differ between language models, so the first step is to look at how the model in use parses an example. This is `en_core_web_sm`:
+
+```{r}
+passive_txt <- c(p1 = "The book was written by Jane. Jane wrote the book.",
+                 p2 = "Mistakes were made, and the report has not been finished.")
+parsed <- spacy_parse(passive_txt, tag = TRUE, dependency = TRUE,
+                      lemma = FALSE, entity = FALSE)
+parsed[parsed$doc_id == "p1" & parsed$sentence_id == 1, ]
+```
+
+The English models label the auxiliary of a passive `auxpass`, and tag the past participle `VBN`. A pattern for a passive verb is then a passive auxiliary, any adverbs or negations in between, and a past participle:
+
+```{r}
+passive <- list(
+  PASSIVE = list(list(DEP = "auxpass"),
+                 list(DEP = list(IN = c("advmod", "neg")), OP = "*"),
+                 list(TAG = "VBN"))
+)
+spacy_extract_matches(passive_txt, passive)
+```
+
+It finds the three passives, and not "Jane wrote the book". Because `sentence_id` and `token_id` are numbered as in `spacy_parse()`, matches can be joined to the parsed tokens, for instance to count the passive sentences of each document:
+
+```{r}
+matches <- spacy_extract_matches(passive_txt, passive)
+table(unique(matches[, c("doc_id", "sentence_id")])$doc_id)
+```
+
+## Phrases and dictionaries
+
+Phrases are simpler to write than token patterns, and much faster to match when there are many of them. They are given as an `as_entity_patterns()` object, which records the label of each phrase and whether it matches exactly or in any case:
+
+```{r}
+spacy_extract_matches(txt, as_entity_patterns(c(PLACE = "New York")))
+spacy_extract_matches(txt, as_entity_patterns(c(PLACE = "New York"),
+                                              case_insensitive = TRUE))
+```
+
+A **quanteda** dictionary can be given directly. Its keys become the labels, and its values match in any case, with wildcards as in **quanteda**:
+
+```{r}
+dict <- quanteda::dictionary(list(place = c("new york", "york"),
+                                  size = c("larg*", "small*", "big*")))
+spacy_extract_matches(txt, dict)
+```
+
+Since "york" is itself a value, it also matches inside "New York"; `overlap = "longest"` would keep only the longer match.
+
+This is like `quanteda::tokens_lookup()` or `kwic()`, with two differences: the tokens are spaCy's, and the result says where each match is, in a form that joins to the output of `spacy_parse()`. A dictionary's phrases and wildcard values can be combined with token patterns by converting it with `as_entity_patterns()` and joining the two with `c()`.
+
+Phrases are split into tokens by spaCy's tokenizer, and match the same sequence of tokens in a text. spaCy sometimes splits a word differently in another case: it keeps `"Inc."` as one token, but splits `"inc."` into two. So a phrase written as `"acme widgets, inc."` does not match the text `"Acme Widgets, Inc."` even when it matches in any case, while the phrase `"Acme Widgets, Inc."` does:
+
+```{r}
+inc <- "We wrote to Acme Widgets, Inc. yesterday."
+nrow(spacy_extract_matches(inc, as_entity_patterns(c(ORG = "acme widgets, inc."),
+                                                   case_insensitive = TRUE)))
+spacy_extract_matches(inc, as_entity_patterns(c(ORG = "Acme Widgets, Inc."),
+                                              case_insensitive = TRUE))
+```
+
+## Dependency patterns
+
+A token pattern finds tokens that are next to each other. The parts of a grammatical construction often are not: the subject of a passive verb can be many words before it. A *dependency pattern* describes tokens by their relations in the parse instead. It is a list of nodes, and each node is a named list with:
+
+- `RIGHT_ID`, a name for the node;
+- `RIGHT_ATTRS`, the attributes of the token, as in a token pattern;
+- for every node but the first, `LEFT_ID`, the name of an earlier node, and `REL_OP`, the relation between that node and this one. `">"` means that this node is a direct dependent of the earlier one.
+
+This pattern is a past participle, with a passive subject and a passive auxiliary as its dependents:
+
+```{r}
+passive_dep <- list(
+  list(RIGHT_ID = "verb", RIGHT_ATTRS = list(TAG = "VBN")),
+  list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "subject",
+       RIGHT_ATTRS = list(DEP = "nsubjpass")),
+  list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "aux",
+       RIGHT_ATTRS = list(DEP = "auxpass"))
+)
+m <- spacy_extract_dependency_matches(passive_txt, list(PASSIVE = passive_dep))
+m
+```
+
+The result has one row for each node of the pattern in each match. `node` says which part of the pattern the token matched, and `match_id` numbers the matches within each document, so that `doc_id` and `match_id` together identify a match. Unlike the token pattern, this one also returns the subject of each passive, and finds the subject "report" although three words separate it from its verb.
+
+To get one row for each match, with a column for each node, reshape the result:
+
+```{r}
+wide <- reshape(m[, c("doc_id", "match_id", "node", "token")],
+                idvar = c("doc_id", "match_id"), timevar = "node",
+                direction = "wide")
+names(wide) <- sub("^token\\.", "", names(wide))
+wide
+```
+
+A pattern can follow the parse further. Adding the agent, "by" and its object, finds who did what to what, for the passives that say so:
+
+```{r}
+agent <- c(passive_dep, list(
+  list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "by",
+       RIGHT_ATTRS = list(DEP = "agent")),
+  list(LEFT_ID = "by", REL_OP = ">", RIGHT_ID = "agent",
+       RIGHT_ATTRS = list(DEP = "pobj"))
+))
+m <- spacy_extract_dependency_matches(passive_txt, list(PASSIVE_AGENT = agent))
+m[m$node %in% c("subject", "verb", "agent"), c("doc_id", "node", "token")]
+```
+
+Each label has one dependency pattern, so alternatives, such as passives with and without an agent, get labels of their own. The other relations that `REL_OP` can take, such as `">>"` for a dependent at any depth and `"."` for the next token, are listed in spaCy's [documentation](https://spacy.io/usage/rule-based-matching#dependencymatcher).
+
+## What to keep in mind
+
+**Labels belong to the model.** The tags and dependency labels above are those of spaCy's English models. Other languages' models use other labels, and some do not mark the passive at all. Look at the output of `spacy_parse(x, tag = TRUE, dependency = TRUE)` for the model you use before writing a pattern.
+
+**A match is only as good as the parse.** The model tags and parses by prediction, and makes mistakes. It also makes choices that a pattern has to follow. Here the second verb of a coordination, "edited", is attached to the first as `conj` and has no subject or auxiliary of its own, so neither passive pattern above finds it:
+
+```{r}
+coord <- "The book was written and edited by Jane."
+spacy_extract_matches(coord, passive)
+spacy_extract_dependency_matches(coord, list(PASSIVE = passive_dep))[, c("node", "token")]
+```
+
+A further pattern, for a participle coordinated with a passive verb, finds it:
+
+```{r}
+conj <- list(
+  list(RIGHT_ID = "first", RIGHT_ATTRS = list(TAG = "VBN")),
+  list(LEFT_ID = "first", REL_OP = ">", RIGHT_ID = "aux",
+       RIGHT_ATTRS = list(DEP = "auxpass")),
+  list(LEFT_ID = "first", REL_OP = ">", RIGHT_ID = "verb",
+       RIGHT_ATTRS = list(TAG = "VBN", DEP = "conj"))
+)
+spacy_extract_dependency_matches(coord, list(PASSIVE_CONJ = conj))[, c("node", "token")]
+```
+
+Testing patterns on examples of the constructions you want, and of those you do not, is the way to find such cases.
+
+**The pipeline has to set what a pattern asks for.** A pattern on `DEP` needs the parser, and a dependency pattern needs a dependency parse; both give an error without one. A pattern on `ENT_TYPE` gives a warning when no component sets entities, as after `spacy_initialize(entity = FALSE)`, since it would match nothing.
+
+## Speed
+
+Matching adds little to the time that spaCy takes to parse the texts. On a test with 5,000 sentences, a dictionary of 10,000 phrases and several hundred wildcard values took no longer than a single token pattern. Token patterns are slower in large numbers, since spaCy checks each one against the text: give phrases as phrases, not as token patterns, when there are thousands of them.
+
+Patterns that do not use entities are faster after `spacy_initialize(entity = FALSE)`, which leaves out the named entity recognizer. See the article on [improving performance](performance.html) for this and for `n_process` and `batch_size`, which both functions also take.
+
+```{r}
+spacy_finalize()
+```
