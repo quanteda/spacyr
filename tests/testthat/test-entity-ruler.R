@@ -362,6 +362,23 @@ test_that("single-token regular expressions are merged per label and id", {
     expect_true(all(c("(?i)^kl", "^(unclosed", "^mn") %in% regexes))
 })
 
+test_that("values of a custom attribute called REGEX are not merged", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    try_spacy_initialize()
+    on.exit(spacy_finalize())
+    # inside "_", REGEX is the name of an extension, compared for equality
+    pats <- as_entity_patterns(list(
+        list(label = "A", pattern = list(list(`_` = list(REGEX = "x")))),
+        list(label = "A", pattern = list(list(`_` = list(REGEX = "y"))))))
+    out <- spacyr:::spacyr_env$module$ruler_patterns(spacyr:::spacyr_env$nlp,
+                                                     as.list(pats))
+    expect_length(out, 2)
+    expect_identical(vapply(out, function(p) p$pattern[[1]][["_"]]$REGEX, ""),
+                     c("x", "y"))
+})
+
 test_that("regular expressions with backreferences are not merged", {
     skip_on_cran()
     skip_on_os("solaris")

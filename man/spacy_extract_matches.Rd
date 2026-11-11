@@ -2,7 +2,7 @@
 % Please edit documentation in R/spacy_extract_matches.R
 \name{spacy_extract_matches}
 \alias{spacy_extract_matches}
-\title{Extract matches of token patterns from texts using spaCy}
+\title{Extract matches of token patterns and phrases from texts using spaCy}
 \usage{
 spacy_extract_matches(
   x,
@@ -28,8 +28,13 @@ that label. The names must be unique.
 \item a \code{spacyr_entity_patterns} object from \code{\link[=as_entity_patterns]{as_entity_patterns()}}, whose
 labels become the labels of the matches. Patterns with the same label
 are alternatives for that label, and the IDs of the patterns are
-ignored. Only token patterns are matched: an object that holds phrases
-is an error.
+ignored. The object can hold phrases as well as token patterns; this
+is the way to match phrases, exactly or, with
+\code{case_insensitive = TRUE}, in any case.
+\item a \strong{quanteda} dictionary, which is converted with
+\code{\link[=as_entity_patterns]{as_entity_patterns()}} and its defaults: the top-level keys are the
+labels, and values match in any case, with wildcards as in
+\strong{quanteda}. Call \code{\link[=as_entity_patterns]{as_entity_patterns()}} yourself to change these.
 }}
 
 \item{overlap}{which matches to return where matches of the same label
@@ -81,7 +86,8 @@ Find sequences of tokens that match patterns, using spaCy's rule-based
 \code{Matcher} (see \url{https://spacy.io/usage/rule-based-matching}). A pattern
 describes each token of a sequence by its attributes, which can be those
 that the language model assigns, such as the part of speech or the
-dependency relation. Unlike the patterns given to
+dependency relation. Phrases, and the values of a \strong{quanteda} dictionary,
+can be matched too. Unlike the patterns given to
 \code{\link[=spacy_initialize]{spacy_initialize()}} as \code{entity_patterns}, these do not change the
 pipeline or the entities of a document.
 }
@@ -101,8 +107,25 @@ The values of spaCy's set operators (\code{IN}, \code{NOT_IN}, \code{IS_SUBSET},
 \code{IS_SUPERSET} and \code{INTERSECTS}) can be vectors of any length, and whole
 numbers need not be integers, as for \code{\link[=as_entity_patterns]{as_entity_patterns()}}.
 
-Matching adds little to the time that parsing takes. Patterns that need
-no entities are faster after \code{spacy_initialize(entity = FALSE)}.
+Phrases are split into tokens by spaCy's tokenizer, and match the same
+sequence of tokens in a document, as described for
+\code{\link[=as_entity_patterns]{as_entity_patterns()}}. They are matched with spaCy's \code{PhraseMatcher},
+which stays fast for many thousands of phrases. A phrase that matches in
+any case, as dictionary values do, is tokenized as it is written, and
+spaCy's tokenizer can split the same word differently in another case:
+it keeps \code{"Inc."} as one token but splits \code{"inc."} into two, so the phrase
+\code{"acme widgets, inc."} does not match the text \code{"Acme Widgets, Inc."},
+while the phrase \code{"Acme Widgets, Inc."} in any case does. A warning is
+given when
+a component of the pipeline, such as \code{merge_entities}, changes the tokens
+of the documents, since phrases may then not match.
+
+Matching adds little to the time that parsing takes, except for many
+token patterns: a few thousand make it much slower, so give phrases as
+phrases where you can, not as token patterns. Dictionary values with
+wildcards are token patterns, but those of a single word are combined
+into one for each label. Patterns that need no entities are faster after
+\code{spacy_initialize(entity = FALSE)}.
 }
 \examples{
 \dontrun{
@@ -128,6 +151,16 @@ spacy_extract_matches(txt, list(
   WRITE = list(list(list(LEMMA = "write")),
                list(list(LEMMA = "rewrite")))
 ))
+
+# phrases, matched exactly or in any case
+spacy_extract_matches(txt, as_entity_patterns(c(TITLE = "the book")))
+spacy_extract_matches(txt, as_entity_patterns(c(TITLE = "the book"),
+                                              case_insensitive = TRUE))
+
+# a quanteda dictionary, with its wildcards
+dict <- quanteda::dictionary(list(writing = c("writ*", "wrote", "the book"),
+                                  error = "mistake*"))
+spacy_extract_matches(txt, dict)
 }
 }
 \seealso{
