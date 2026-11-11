@@ -23,11 +23,11 @@ processing” Python library from <https://spacy.io>.
 
     - From GitHub:
 
-      To install the latest package from source, you can simply run the
-      following.
+      To install the development version, run the following.
 
     \
-    `remotes``::`[`install_github`](https://remotes.r-lib.org/reference/install_github.html)`(``"quanteda/spacyr"``)`
+    `# install.packages("pak")`\
+    `pak``::`[`pak`](https://pak.r-lib.org/reference/pak.html)`(``"quanteda/spacyr"``)`
 
 2.  Install spaCy and requirements
 
@@ -37,15 +37,21 @@ processing” Python library from <https://spacy.io>.
     [`library`](https://rdrr.io/r/base/library.html)`(`[`spacyr`](https://spacyr.quanteda.io)`)`\
     [`spacy_install`](https://spacyr.quanteda.io/reference/spacy_install.md)`(``)`
 
-    If you want to install a specific version, simply add it to the
-    install command:
+    This installs the latest version of spaCy. To install a specific
+    version, give its number:
 
     \
-    [`library`](https://rdrr.io/r/base/library.html)`(`[`spacyr`](https://spacyr.quanteda.io)`)`\
+    [`spacy_install`](https://spacyr.quanteda.io/reference/spacy_install.md)`(``version ``=`` ``"3.8.7"``)`
+
+    `version` can also name one of spaCy’s optional sets of extra
+    dependencies, such as `"apple"`, which makes spaCy faster on Macs
+    with Apple silicon:
+
+    \
     [`spacy_install`](https://spacyr.quanteda.io/reference/spacy_install.md)`(``version ``=`` ``"apple"``)`
 
-    Check the helpful version tool on <https://spacy.io/usage> and to
-    see what is available.
+    The install tool on <https://spacy.io/usage> shows the versions and
+    extras that are available.
 
 3.  (optional) Add more language models
 
@@ -152,9 +158,19 @@ we can provide you with more targeted help.
 
     The function returns the path to the Python executable file. You can
     run this again at any time to get that path (the installation is
-    skipped if the files are already present). If you prefer to use a
-    specific version of Python, you can use this function to install it
-    and it will be picked up by `spacyr`.
+    skipped if the files are already present).
+
+    Without a `version`, this installs the default version of Python of
+    the **reticulate** package, which may not be one that spaCy
+    supports: each spaCy release works with a range of Python versions,
+    shown as “Requires: Python” on its [PyPI
+    page](https://pypi.org/project/spacy/).
+    [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+    checks this for you; when installing manually, name a supported
+    version if the default is not one:
+
+    \
+    `python_exe`` ``<-`` ``reticulate``::`[`install_python`](https://rstudio.github.io/reticulate/reference/install_python.html)`(``version ``=`` ``"3.12:latest"``)`
 
 2.  Set up a virtual environment
 

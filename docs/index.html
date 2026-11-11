@@ -75,11 +75,12 @@
 <ul>
 <li>
 <p>From GitHub:</p>
-<p>To install the latest package from source, you can simply run the following.</p>
+<p>To install the development version, run the following.</p>
 </li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"quanteda/spacyr"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"quanteda/spacyr"</span><span class="op">)</span></span></code></pre></div>
 </li>
 <li>
 <p>Install spaCy and requirements</p>
@@ -87,20 +88,22 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spacyr.quanteda.io">spacyr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>If you want to install a specific version, simply add it to the install command:</p>
+<p>This installs the latest version of spaCy. To install a specific version, give its number:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://spacyr.quanteda.io">spacyr</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"apple"</span><span class="op">)</span></span></code></pre></div>
-<p>Check the helpful version tool on <a href="https://spacy.io/usage" class="external-link uri">https://spacy.io/usage</a> and to see what is available.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"3.8.7"</span><span class="op">)</span></span></code></pre></div>
+<p><code>version</code> can also name one of spaCy’s optional sets of extra dependencies, such as <code>"apple"</code>, which makes spaCy faster on Macs with Apple silicon:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"apple"</span><span class="op">)</span></span></code></pre></div>
+<p>The install tool on <a href="https://spacy.io/usage" class="external-link uri">https://spacy.io/usage</a> shows the versions and extras that are available.</p>
 </li>
 <li>
 <p>(optional) Add more language models</p>
 <p>If left unchanged, <code><a href="reference/spacy_install.html">spacy_install()</a></code> adds the default “en_core_web_sm” model. You can add more language models with <code><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel()</a></code>. For instance, to install a small and efficient German language model:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span><span class="op">(</span><span class="st">"de_core_news_sm"</span><span class="op">)</span></span></code></pre></div>
 <p>Check out available models at <a href="https://spacy.io/usage/models" class="external-link uri">https://spacy.io/usage/models</a>.</p>
 <p>You can check whether spaCy and a model are ready to use, without starting Python, with:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_installed.html">spacy_installed</a></span><span class="op">(</span><span class="st">"en_core_web_sm"</span><span class="op">)</span></span></code></pre></div>
 </li>
 </ol>
@@ -110,7 +113,7 @@
 <h3 id="changing-the-python-version">Changing the Python version<a class="anchor" aria-label="anchor" href="#changing-the-python-version"></a>
 </h3>
 <p>An existing environment keeps the version of Python it was created with. If that version is too old or too new for the spaCy release you want, <code><a href="reference/spacy_install.html">spacy_install()</a></code> stops with an error. To recreate the environment with a suitable Python, remove it and install again:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_uninstall.html">spacy_uninstall</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/spacy_install.html">spacy_install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>To use a particular Python, create the environment yourself first (see step 2 of the manual installation below), then run <code><a href="reference/spacy_install.html">spacy_install()</a></code>.</p>
@@ -119,7 +122,7 @@
 <h3 id="using-an-existing-python-or-conda-environment">Using an existing Python or conda environment<a class="anchor" aria-label="anchor" href="#using-an-existing-python-or-conda-environment"></a>
 </h3>
 <p>If you already have a Python environment with spaCy installed, for instance a conda environment, point <strong>spacyr</strong> to its Python executable through the <code>RETICULATE_PYTHON</code> environment variable before calling <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RETICULATE_PYTHON <span class="op">=</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/conda-tools.html" class="external-link">conda_python</a></span><span class="op">(</span><span class="st">"my-spacy-env"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"en_core_web_sm"</span><span class="op">)</span></span></code></pre></div>
 <p>You can also set <code>RETICULATE_PYTHON</code> in your <code>.Renviron</code> file. When it is set, <strong>spacyr</strong> uses that Python instead of its own environment.</p>
@@ -128,7 +131,7 @@
 <h3 id="using-local-or-custom-language-models">Using local or custom language models<a class="anchor" aria-label="anchor" href="#using-local-or-custom-language-models"></a>
 </h3>
 <p>Besides the names of installed models, <code><a href="reference/spacy_initialize.html">spacy_initialize()</a></code> accepts the path to a model directory, for instance a model you have trained or downloaded yourself:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"path/to/my_model"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -140,39 +143,42 @@
 <li>
 <p>Install Python</p>
 <p>You can use your own installation of Python for the steps below. By default, <code><a href="reference/spacy_install.html">spacy_install()</a></code> downloads and installs a minimal Python version in the default directory used by the <code>reticulate</code> package for simplicity. This can be done with a single command:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">python_exe</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">install_python</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>The function returns the path to the Python executable file. You can run this again at any time to get that path (the installation is skipped if the files are already present). If you prefer to use a specific version of Python, you can use this function to install it and it will be picked up by <code>spacyr</code>.</p>
+<p>The function returns the path to the Python executable file. You can run this again at any time to get that path (the installation is skipped if the files are already present).</p>
+<p>Without a <code>version</code>, this installs the default version of Python of the <strong>reticulate</strong> package, which may not be one that spaCy supports: each spaCy release works with a range of Python versions, shown as “Requires: Python” on its <a href="https://pypi.org/project/spacy/" class="external-link">PyPI page</a>. <code><a href="reference/spacy_install.html">spacy_install()</a></code> checks this for you; when installing manually, name a supported version if the default is not one:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">python_exe</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">install_python</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"3.12:latest"</span><span class="op">)</span></span></code></pre></div>
 </li>
 <li>
 <p>Set up a virtual environment</p>
 <p>By default, <code>spacyr</code> uses an environment called “r-spacyr”, which is located in a directory managed by <code>reticulate</code>. We can create it with:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/virtualenv-tools.html" class="external-link">virtualenv_create</a></span><span class="op">(</span><span class="st">"r-spacyr"</span>, python <span class="op">=</span> <span class="va">python_exe</span><span class="op">)</span></span></code></pre></div>
 <p>If this causes trouble for some reason, you can install the environment in any location that is convenient for you like so:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/virtualenv-tools.html" class="external-link">virtualenv_create</a></span><span class="op">(</span><span class="st">"path/to/directory"</span>, python <span class="op">=</span> <span class="va">python_exe</span><span class="op">)</span></span></code></pre></div>
 <p>Note, that <code>spacyr</code> does not know of the existence of this environment unless you tell it through the environment variable <code>SPACY_PYTHON</code>. You can do that either in each session with:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>SPACY_PYTHON <span class="op">=</span> <span class="st">"path/to/directory"</span><span class="op">)</span></span></code></pre></div>
 <p>or you put it into your <code>.Renviron</code> file. You can use this little helper function to make the change permanent:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html" class="external-link">edit_r_environ</a></span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"user"</span><span class="op">)</span></span></code></pre></div>
 <p>We also need to tell <code>reticulate</code> that it should use this environment from now on.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/use_python.html" class="external-link">use_virtualenv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SPACY_PYTHON"</span>, unset <span class="op">=</span> <span class="st">"r-spacyr"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We use <code>Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")</code> to check if <code>SPACY_PYTHON</code> is set and use the default otherwise.</p>
 </li>
 <li>
 <p>Install spaCy</p>
 <p>Installing <code>spaCy</code> and its dependencies is again done through <code>reticulate</code>. We check again if SPACY_PYTHON is set, in case you chose a non-default folder.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/reticulate/reference/py_install.html" class="external-link">py_install</a></span><span class="op">(</span><span class="st">"spacy"</span>, envname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SPACY_PYTHON"</span>, unset <span class="op">=</span> <span class="st">"r-spacyr"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </li>
 <li>
 <p>Install spaCy language models</p>
 <p>The language models are not available through <code>pip</code> by name, so they are installed with spaCy’s own download command, which <code><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel()</a></code> runs for you:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">spacyr</span><span class="fu">::</span><span class="fu"><a href="reference/spacy_download_langmodel.html">spacy_download_langmodel</a></span><span class="op">(</span><span class="st">"en_core_web_sm"</span><span class="op">)</span></span></code></pre></div>
 </li>
 </ol>
