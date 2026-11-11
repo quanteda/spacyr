@@ -239,7 +239,9 @@
 #' match, of any pattern. So it drops "New York" inside another label's "New
 #' York Times", which `overlap = "longest"` keeps, and keeps both of two
 #' matches of one label that partly overlap, of which `overlap = "longest"`
-#' keeps one.
+#' keeps one. A concordance of the matches themselves, with
+#' `kwic(index = as_index(m))`, shows the matches that `overlap` kept: see
+#' [as_index()].
 #' @returns A `data.frame` with the same columns for every kind of pattern,
 #'   and no rows when nothing matches. A match of a sequence is one row. A
 #'   match of a dependency pattern is one row for each node of the pattern,
@@ -280,7 +282,8 @@
 #'   matches together, and the rows of a dependency match are in the order of
 #'   the pattern's nodes. The order does not depend on `overlap`.
 #' @seealso [as_entity_patterns()] and [spacy_initialize()] to make matches
-#'   named entities.
+#'   named entities, and [as_index()] to show matches in their context with
+#'   [quanteda::kwic()].
 #' @export
 #' @examples
 #' \dontrun{
