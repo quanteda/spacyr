@@ -426,6 +426,22 @@ test_that("a quanteda dictionary becomes patterns labelled by its top-level keys
     expect_identical(p$case_insensitive, c(TRUE, NA, NA, TRUE))
 })
 
+test_that("the values of nested dictionary keys get the top-level key as label", {
+    skip_if_not_installed("quanteda")
+    # nested keys with other numbers of values than there are keys
+    d <- quanteda::dictionary(list(
+        writing = c("writ*", "wrote", "the book"),
+        place = list(us = c("new york", "new york city"), error = "mistake*"),
+        deep = list(a = list(b = c("x y", "z*", "w")))))
+    p <- as_entity_patterns(d)
+    expect_identical(p$label, rep(c("writing", "place", "deep"), each = 3))
+    expect_identical(p$pattern[[5]], "new york city")
+    expect_identical(p$pattern[[6]], list(list(LOWER = list(REGEX = "^mistake.*$"))))
+    expect_identical(p$pattern[[9]], "w")
+    expect_identical(lengths(unclass(p)), c(label = 9L, pattern = 9L, id = 9L,
+                                            case_insensitive = 9L))
+})
+
 test_that("dictionary valuetype and case_insensitive are respected", {
     skip_if_not_installed("quanteda")
     d <- quanteda::dictionary(list(ORG = c("Acme*", "Big Co")), tolower = FALSE)
