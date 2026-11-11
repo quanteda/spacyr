@@ -461,6 +461,70 @@ test_that("dictionary valuetype and case_insensitive are respected", {
     expect_error(as_entity_patterns(d, valuetype = "other"), "should be one of")
 })
 
+test_that("valuetype has quanteda's order for a dictionary", {
+    expect_identical(eval(formals(spacyr:::as_entity_patterns.dictionary2)$valuetype),
+                     c("glob", "regex", "fixed"))
+    expect_identical(eval(formals(spacyr:::as_entity_patterns.character)$valuetype),
+                     c("fixed", "glob", "regex"))
+})
+
+test_that("levels sets the keys of a dictionary that label its values", {
+    skip_if_not_installed("quanteda")
+    d <- quanteda::dictionary(list(
+        place = list(us = c("ny", "la*"), uk = "london", "paris"),
+        org = "acme"))
+    expect_identical(as_entity_patterns(d), as_entity_patterns(d, levels = 1))
+    expect_identical(as_entity_patterns(d)$label, c(rep("place", 4), "org"))
+    p <- as_entity_patterns(d, levels = 1:2)
+    expect_identical(p$label, c("place.us", "place.us", "place.uk", "place", "org"))
+    expect_identical(p$pattern[[2]],
+                     list(list(LOWER = list(REGEX = "\\Ala[\\s\\S]*\\Z"))))
+    # as quanteda labels them
+    expect_identical(unique(p$label),
+                     names(quanteda::as.list(d, flatten = TRUE, levels = 1:2)))
+    expect_identical(as_entity_patterns(d, levels = 1:5), p)
+    expect_identical(as_entity_patterns(d, levels = 2)$label, c("us", "us", "uk"))
+    expect_identical(nrow(as_entity_patterns(d, levels = 3)), 0L)
+    expect_identical(as_entity_patterns(d, levels = 2L, valuetype = "fixed")$pattern,
+                     list("ny", "la*", "london"))
+    for (bad in list(0, -1, 1.5, NA, "1", numeric(), NULL))
+        expect_error(as_entity_patterns(d, levels = bad), "levels must be whole numbers")
+})
+
+test_that("phrases take valuetype, with exact phrases as the default", {
+    x <- c(ORG = "Acme*", ORG = "Big Co", PERSON = "Dr * Who")
+    expect_identical(as_entity_patterns(x), as_entity_patterns(x, valuetype = "fixed"))
+    expect_identical(as_entity_patterns(x)$pattern, list("Acme*", "Big Co", "Dr * Who"))
+    glob <- as_entity_patterns(x, valuetype = "glob")
+    expect_identical(glob$pattern[[1]],
+                     list(list(ORTH = list(REGEX = "\\AAcme[\\s\\S]*\\Z"))))
+    expect_identical(glob$pattern[[2]], "Big Co")
+    expect_identical(glob$pattern[[3]],
+                     list(list(ORTH = "Dr"), list(ORTH = list(REGEX = "\\A[\\s\\S]*\\Z")),
+                          list(ORTH = "Who")))
+    expect_identical(glob$case_insensitive, c(NA, FALSE, NA))
+    any_case <- as_entity_patterns(x, valuetype = "glob", case_insensitive = TRUE,
+                                   id = c("a", "b", "c"))
+    expect_identical(any_case$pattern[[1]],
+                     list(list(LOWER = list(REGEX = "\\Aacme[\\s\\S]*\\Z"))))
+    expect_identical(any_case$case_insensitive, c(NA, TRUE, NA))
+    expect_identical(any_case$id, c("a", "b", "c"))
+    rx <- as_entity_patterns(c("^Ac.+ Wid", "Co$"), label = "ORG", valuetype = "regex")
+    expect_identical(rx$pattern, list(
+        list(list(TEXT = list(REGEX = "^Ac.+")), list(TEXT = list(REGEX = "Wid"))),
+        list(list(TEXT = list(REGEX = "Co$")))))
+    expect_identical(as_entity_patterns("co$", label = "ORG", valuetype = "regex",
+                                        case_insensitive = TRUE)$pattern[[1]],
+                     list(list(TEXT = list(REGEX = "(?i)co$"))))
+    expect_error(as_entity_patterns(x, valuetype = "other"), "should be one of")
+    # as the same values of a dictionary
+    skip_if_not_installed("quanteda")
+    d <- quanteda::dictionary(list(ORG = c("Acme*", "Big Co"), PERSON = "Dr * Who"),
+                              tolower = FALSE)
+    expect_identical(as_entity_patterns(x, valuetype = "glob", case_insensitive = TRUE),
+                     as_entity_patterns(d))
+})
+
 test_that("the output of spacy_extract_entity() becomes phrases", {
     ents <- data.frame(doc_id = c("d1", "d1", "d2", "d2"),
                        text = c("Jane Smith", "Acme, Inc.", "Jane Smith", "Paris"),

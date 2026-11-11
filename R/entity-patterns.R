@@ -9,7 +9,9 @@
 #' @param x the patterns to convert:
 #'   * a character vector of phrases, each matched exactly as a sequence of
 #'   spaCy's tokens. Labels come from the names of `x`, as in `c(ORG = "Acme
-#'   Widgets")`, or from `label`.
+#'   Widgets")`, or from `label`. With `valuetype = "glob"` or `"regex"`,
+#'   they can have wildcards or be regular expressions, as the values of a
+#'   dictionary can.
 #'   * a list of patterns in spaCy's own structure, each a list with the
 #'   elements `label`, `pattern` and optionally `id`. `pattern` is either a
 #'   single phrase or a list of token patterns, one per token, each a named
@@ -27,7 +29,8 @@
 #'   `entity_type`, given with the `concatenator` that joined their tokens.
 #'   * a \pkg{quanteda} dictionary, made by [quanteda::dictionary()]. Its
 #'   top-level keys are the labels, with the values of any nested keys under
-#'   them. A value without wildcards becomes a phrase. A value with wildcards
+#'   them, unless `levels` says otherwise. A value without wildcards becomes
+#'   a phrase. A value with wildcards
 #'   (`*` for any characters, `?` for one) becomes a token pattern with one
 #'   token for each part separated by spaces, as \pkg{quanteda} matches
 #'   dictionary values to tokens, so that `"dr * who"` matches three tokens.
@@ -43,8 +46,9 @@
 #'   as each entity's `ent_id_`.
 #' @param case_insensitive logical; if `TRUE`, phrases match regardless of
 #'   case. The default, `FALSE`, matches them exactly, as spaCy does, except
-#'   for a dictionary, where it is `TRUE`, as in \pkg{quanteda}, and also
-#'   applies to the parts of values with wildcards. It does
+#'   for a dictionary, where it is `TRUE`, as in \pkg{quanteda}. It also
+#'   applies to the parts of phrases and dictionary values that have
+#'   wildcards or are regular expressions. It does
 #'   not apply to token patterns, which set case through the attribute they
 #'   match, such as `ORTH` (exact) or `LOWER` (any case). For a list, it
 #'   applies to the patterns that do not set `case_insensitive` themselves;
@@ -82,6 +86,14 @@
 #' `quanteda::dictionary(tolower = FALSE)`, since by default it lowercases
 #' their values.
 #'
+#' With `case_insensitive = TRUE`, the parts of a phrase or dictionary value
+#' that has a wildcard are put in lower case by R, since making patterns
+#' does not need spaCy, while spaCy compares them with its own lower case
+#' form of each token. The two differ for a few characters, such as the
+#' dotted capital I of Turkish, and a value with such a character and a
+#' wildcard may then not match; [spacy_match()], which lowercases with
+#' spaCy, does not have this limit.
+#'
 #' Patterns match spaCy's tokens, not characters. For instance, spaCy's
 #' English models make "Prof." a single token, so a pattern for academic
 #' titles needs to list both `"prof"` and `"prof."`, to match titles written
@@ -92,6 +104,10 @@
 #' # phrases, labelled by their names or by `label`
 #' as_entity_patterns(c(ORG = "Acme Widgets", GPE = "San Francisco"))
 #' as_entity_patterns(c("Acme Widgets", "Globex"), label = "ORG")
+#'
+#' # phrases with wildcards, in any case
+#' as_entity_patterns(c(ORG = "acme*", ORG = "globex corp*"),
+#'                    valuetype = "glob", case_insensitive = TRUE)
 #'
 #' # a token pattern for people with academic titles: a title, followed by
 #' # the first token of a person the model recognises (ENT_IOB "B") and the
@@ -114,6 +130,12 @@
 #'   dict <- quanteda::dictionary(list(ORG = c("acme widgets", "globex*"),
 #'                                     PERSON = "dr * who"))
 #'   as_entity_patterns(dict)
+#'
+#'   # labels from the first two levels of its keys
+#'   nested <- quanteda::dictionary(list(
+#'     place = list(us = c("new york", "boston"), uk = "london")))
+#'   as_entity_patterns(nested)
+#'   as_entity_patterns(nested, levels = 1:2)
 #' }
 #'
 #' # entities found by spaCy, to use as rules for other texts
@@ -146,8 +168,11 @@ as_entity_patterns.default <- function(x, ...) {
 #' @rdname as_entity_patterns
 #' @export
 as_entity_patterns.character <- function(x, label = NULL, id = NULL,
-                                         case_insensitive = FALSE, ...) {
+                                         case_insensitive = FALSE,
+                                         valuetype = c("fixed", "glob", "regex"),
+                                         ...) {
     check_case_insensitive(case_insensitive)
+    valuetype <- match.arg(valuetype)
     n <- length(x)
     if (is.null(label)) {
         label <- if (n) names(x) else character(0)
@@ -157,8 +182,10 @@ as_entity_patterns.character <- function(x, label = NULL, id = NULL,
     }
     label <- recycle_arg(label, n, "label")
     id <- if (is.null(id)) rep(NA_character_, n) else recycle_arg(id, n, "id")
-    new_entity_patterns(label, as.list(unname(x)), id,
-                        rep(case_insensitive, n))
+    # with wildcards or regular expressions, as the values of a dictionary
+    pattern <- lapply(unname(x), dictionary_pattern, valuetype = valuetype,
+                      case_insensitive = case_insensitive)
+    new_entity_patterns(label, pattern, id, rep(case_insensitive, n))
 }
 
 #' @rdname as_entity_patterns
@@ -253,35 +280,49 @@ as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE,
 }
 
 #' @rdname as_entity_patterns
-#' @param valuetype for a dictionary, how its values are matched: `"glob"`
-#'   (the default) for wildcards, `"fixed"` for exact phrases, or `"regex"`
-#'   for regular expressions, as in [quanteda::tokens_lookup()]. With
-#'   `"regex"`, each part of a value separated by spaces is a regular
-#'   expression for one of spaCy's tokens, in the dialect of Python's `re`
-#'   module, not of R: for instance, `"^\\p{L}+$"` works in
+#' @param valuetype how phrases and the values of a dictionary are read:
+#'   `"fixed"` for exact phrases, `"glob"` for wildcards (`*` for any
+#'   characters, `?` for one), or `"regex"` for regular expressions, as in
+#'   [quanteda::tokens_lookup()]. The default is `"fixed"` for a character
+#'   vector, as suits the names of entities, and `"glob"` for a dictionary,
+#'   as in \pkg{quanteda}. A phrase or value with a wildcard, and any with
+#'   `"regex"`, becomes a token pattern with one token for each part
+#'   separated by spaces; any other is a phrase, which spaCy tokenizes. With
+#'   `"regex"`, each part is a regular expression for one of spaCy's tokens,
+#'   in the dialect of Python's `re` module, not of R: for instance, `"^\\p{L}+$"` works in
 #'   \pkg{quanteda} but stops [spacy_initialize()] with the error "bad escape
 #'   \\p". Since [quanteda::dictionary()] lowercases values by default, which
 #'   changes escapes such as `"\\D"` to `"\\d"`, make a dictionary of regular
 #'   expressions with `tolower = FALSE`.
+#' @param levels for a dictionary, the levels of its keys that become
+#'   labels, as in [quanteda::tokens_lookup()]. The default, `1`, labels
+#'   every value by its top-level key. With more than one level, a value is
+#'   labelled by its keys at those levels, joined by `"."`: with
+#'   `levels = 1:2`, the values under `us` in `place` have the label
+#'   `"place.us"`. Values with no key at any of the levels are left out.
 #' @export
 as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
-                                           valuetype = c("glob", "fixed", "regex"),
-                                           ...) {
+                                           valuetype = c("glob", "regex", "fixed"),
+                                           levels = 1, ...) {
     check_case_insensitive(case_insensitive)
     valuetype <- match.arg(valuetype)
-    dictionary_entity_patterns(x, valuetype, case_insensitive)
+    if (!is.numeric(levels) || !length(levels) || anyNA(levels) ||
+        any(levels < 1) || any(levels != round(levels)))
+        stop("levels must be whole numbers from 1, the levels of the ",
+             "dictionary's keys", call. = FALSE)
+    dictionary_entity_patterns(x, valuetype, case_insensitive, levels = levels)
 }
 
 # The entity patterns of a dictionary. lower is the function that lowercases
 # the pieces of values with wildcards: spacy_match() gives spaCy's own, so
 # that they match as its phrases do.
 dictionary_entity_patterns <- function(x, valuetype, case_insensitive,
-                                       lower = tolower) {
+                                       lower = tolower, levels = 1) {
     if (!requireNamespace("quanteda", quietly = TRUE))
         stop("Converting a dictionary needs the quanteda package", call. = FALSE)
     # quanteda's own as.list(): base's ignores flatten and levels, and leaves
     # the values of nested keys under their keys
-    values <- quanteda::as.list(x, flatten = TRUE, levels = 1)
+    values <- quanteda::as.list(x, flatten = TRUE, levels = levels)
     label <- rep(names(values), lengths(values))
     values <- unlist(values, use.names = FALSE)
     if (is.null(values)) values <- character()
