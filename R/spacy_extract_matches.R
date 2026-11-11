@@ -1,10 +1,11 @@
-#' Extract matches of token patterns from texts using spaCy
+#' Extract matches of token patterns and phrases from texts using spaCy
 #'
 #' Find sequences of tokens that match patterns, using spaCy's rule-based
 #' `Matcher` (see <https://spacy.io/usage/rule-based-matching>). A pattern
 #' describes each token of a sequence by its attributes, which can be those
 #' that the language model assigns, such as the part of speech or the
-#' dependency relation. Unlike the patterns given to
+#' dependency relation. Phrases, and the values of a **quanteda** dictionary,
+#' can be matched too. Unlike the patterns given to
 #' [spacy_initialize()] as `entity_patterns`, these do not change the
 #' pipeline or the entities of a document.
 #'
@@ -20,8 +21,13 @@
 #'   * a `spacyr_entity_patterns` object from [as_entity_patterns()], whose
 #'     labels become the labels of the matches. Patterns with the same label
 #'     are alternatives for that label, and the IDs of the patterns are
-#'     ignored. Only token patterns are matched: an object that holds phrases
-#'     is an error.
+#'     ignored. The object can hold phrases as well as token patterns; this
+#'     is the way to match phrases, exactly or, with
+#'     `case_insensitive = TRUE`, in any case.
+#'   * a **quanteda** dictionary, which is converted with
+#'     [as_entity_patterns()] and its defaults: the top-level keys are the
+#'     labels, and values match in any case, with wildcards as in
+#'     **quanteda**. Call [as_entity_patterns()] yourself to change these.
 #' @param overlap which matches to return where matches of the same label
 #'   overlap: `"all"` (the default) returns every match, including those
 #'   inside or overlapping another, as spaCy does; `"longest"` keeps the
@@ -45,8 +51,19 @@
 #' `IS_SUPERSET` and `INTERSECTS`) can be vectors of any length, and whole
 #' numbers need not be integers, as for [as_entity_patterns()].
 #'
-#' Matching adds little to the time that parsing takes. Patterns that need
-#' no entities are faster after `spacy_initialize(entity = FALSE)`.
+#' Phrases are split into tokens by spaCy's tokenizer, and match the same
+#' sequence of tokens in a document, as described for
+#' [as_entity_patterns()]. They are matched with spaCy's `PhraseMatcher`,
+#' which stays fast for many thousands of phrases. A warning is given when
+#' a component of the pipeline, such as `merge_entities`, changes the tokens
+#' of the documents, since phrases may then not match.
+#'
+#' Matching adds little to the time that parsing takes, except for many
+#' token patterns: a few thousand make it much slower, so give phrases as
+#' phrases where you can, not as token patterns. Dictionary values with
+#' wildcards are token patterns, but those of a single word are combined
+#' into one for each label. Patterns that need no entities are faster after
+#' `spacy_initialize(entity = FALSE)`.
 #' @returns A `data.frame` with one row for each match, and no rows when
 #'   nothing matches:
 #'   \describe{
@@ -96,6 +113,16 @@
 #'   WRITE = list(list(list(LEMMA = "write")),
 #'                list(list(LEMMA = "rewrite")))
 #' ))
+#'
+#' # phrases, matched exactly or in any case
+#' spacy_extract_matches(txt, as_entity_patterns(c(TITLE = "the book")))
+#' spacy_extract_matches(txt, as_entity_patterns(c(TITLE = "the book"),
+#'                                               case_insensitive = TRUE))
+#'
+#' # a quanteda dictionary, with its wildcards
+#' dict <- quanteda::dictionary(list(writing = c("writ*", "wrote", "the book"),
+#'                                   error = "mistake*"))
+#' spacy_extract_matches(txt, dict)
 #' }
 spacy_extract_matches <- function(x, patterns,
                                   overlap = c("all", "longest", "first"),
@@ -122,12 +149,23 @@ spacy_extract_matches.character <- function(x, patterns,
                 "component of the pipeline sets entities, so they will not match",
                 call. = FALSE)
 
+    if (length(patterns$phrases)) {
+        retok <- unlist(module$retokenizers(spacyr_env$nlp))
+        if (length(retok))
+            warning("Phrases may not match, since ",
+                    paste0("'", retok, "'", collapse = ", "),
+                    if (length(retok) == 1) " changes" else " change",
+                    " the tokens of the documents; phrases are tokenized without ",
+                    if (length(retok) == 1) "it" else "them", call. = FALSE)
+    }
+
     spobj <- new_spobj()
     greedy <- switch(overlap, all = NULL, longest = "LONGEST", first = "FIRST")
     res <- tryCatch(
         spobj$match_table(texts = input$x, docnames = input$docnames,
                           labels = as.list(patterns$labels),
-                          patterns = patterns$patterns, greedy = greedy,
+                          patterns = patterns$patterns,
+                          phrases = patterns$phrases, greedy = greedy,
                           batch_size = args$batch_size, n_process = args$n_process),
         error = function(e) {
             msg <- sub("\\s*Run `reticulate::py_last_error\\(\\)`.*$", "",
@@ -158,24 +196,28 @@ spacy_extract_matches.data.frame <- function(x, ...) {
     spacy_extract_matches(tif_texts(x), ...)
 }
 
-# The labels and token patterns for spaCy's Matcher: labels is a character
-# vector, and patterns a list with, for each label, the list of its
-# alternative token patterns, each normalized as for as_entity_patterns().
+# The labels and patterns for spaCy's matchers: labels is a character vector;
+# patterns a list with, for each label, the list of its alternative token
+# patterns (which may be empty), each normalized as for as_entity_patterns();
+# and phrases a list with the label, text and case_insensitive of each
+# phrase, which only an entity patterns object or a dictionary can hold.
 match_patterns <- function(x) {
-    if (inherits(x, "spacyr_entity_patterns")) {
+    if (inherits(x, c("spacyr_entity_patterns", "dictionary2"))) {
         x <- as_entity_patterns(x)
         if (!nrow(x)) stop("patterns holds no patterns", call. = FALSE)
-        if (any(vapply(x$pattern, is.character, logical(1))))
-            stop("patterns holds phrases, which spacy_extract_matches() does not ",
-                 "match; it matches token patterns only", call. = FALSE)
+        phrase <- vapply(x$pattern, is.character, logical(1))
         labels <- unique(x$label)
-        patterns <- lapply(labels, function(l) unname(x$pattern[x$label == l]))
+        patterns <- lapply(labels, function(l) unname(x$pattern[x$label == l & !phrase]))
+        phrases <- lapply(which(phrase), function(i)
+            list(label = x$label[i], text = x$pattern[[i]],
+                 case_insensitive = isTRUE(x$case_insensitive[i])))
         check_no_dependency(labels, patterns)
-        return(list(labels = labels, patterns = patterns))
+        return(list(labels = labels, patterns = patterns, phrases = phrases))
     }
     if (!is.list(x) || is.data.frame(x))
-        stop("patterns must be a named list of token patterns, or a ",
-             "spacyr_entity_patterns object", call. = FALSE)
+        stop("patterns must be a named list of token patterns, a ",
+             "spacyr_entity_patterns object or a quanteda dictionary",
+             call. = FALSE)
     if (!length(x)) stop("patterns holds no patterns", call. = FALSE)
     labels <- names(x)
     if (is.null(labels) || any(is.na(labels) | !nzchar(labels)))
@@ -191,8 +233,9 @@ match_patterns <- function(x) {
         p <- x[[i]]
         what <- paste0("'", labels[i], "'")
         if (is.character(p))
-            stop("Pattern ", what, " is a phrase, which spacy_extract_matches() ",
-                 "does not match; it matches token patterns only", call. = FALSE)
+            stop("Pattern ", what, " is a phrase; in a list, patterns are ",
+                 "token patterns. Give phrases as an as_entity_patterns() ",
+                 "object", call. = FALSE)
         if (!is.list(p) || !length(p))
             stop("Pattern ", what, " is not a list of token patterns", call. = FALSE)
         # one token pattern, or a list of alternative token patterns
@@ -203,14 +246,14 @@ match_patterns <- function(x) {
         lapply(seq_along(p), function(j) {
             alt <- paste0(what, " (alternative ", j, ")")
             if (is.character(p[[j]]))
-                stop("Pattern ", alt, " is a phrase, which ",
-                     "spacy_extract_matches() does not match; it matches ",
-                     "token patterns only", call. = FALSE)
+                stop("Pattern ", alt, " is a phrase; in a list, patterns are ",
+                     "token patterns. Give phrases as an as_entity_patterns() ",
+                     "object", call. = FALSE)
             normalize_pattern(p[[j]], alt)
         })
     })
     check_no_dependency(labels, patterns)
-    list(labels = labels, patterns = patterns)
+    list(labels = labels, patterns = patterns, phrases = list())
 }
 
 # a token of a token pattern: a named list of attributes, or an empty list,

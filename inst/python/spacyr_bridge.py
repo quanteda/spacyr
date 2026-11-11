@@ -4,7 +4,7 @@
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
 import spacy
-from spacy.matcher import Matcher, DependencyMatcher
+from spacy.matcher import Matcher, PhraseMatcher, DependencyMatcher
 import time
 import string
 import random
@@ -217,6 +217,33 @@ def add_entity_ruler(nlp, patterns, overwrite = True):
 def any_sets_entities(nlp):
     # whether any active component of the pipeline sets entities
     return any(sets_entities(nlp, name) for name in nlp.pipe_names)
+
+def retokenizers(nlp):
+    # the active components that change the tokens, as merge_entities does
+    return [name for name in nlp.pipe_names if retokenizes(nlp, name)]
+
+def filter_overlaps(matches, greedy):
+    # Keep one of the overlapping matches of each label, as spaCy's Matcher
+    # does with greedy = "FIRST" or "LONGEST": the matches of a label are
+    # taken in order of their start (the longest of those with the same
+    # start first), or of their length (the earliest of those with the same
+    # length first), and a match is kept when none of its tokens is in a
+    # match already kept. matches are (label, start, end) tuples.
+    by_label = {}
+    for label, start, end in matches:
+        by_label.setdefault(label, []).append((start, end))
+    kept = []
+    for label, pairs in by_label.items():
+        if greedy == "FIRST":
+            pairs.sort(key = lambda x: (x[0], -x[1]))
+        else:
+            pairs.sort(key = lambda x: (x[1] - x[0], -x[0]), reverse = True)
+        taken = set()
+        for start, end in pairs:
+            if taken.isdisjoint(range(start, end)):
+                kept.append((label, start, end))
+                taken.update(range(start, end))
+    return kept
 
 def sentence_positions(doc):
     # (sentence_id, token_id) of each token, both starting at 1 as in
@@ -536,16 +563,27 @@ class spacyr:
             df_all[id_] = df_doc
         return df_all
 
-    def match_table(self, texts, docnames, labels, patterns, greedy = None,
-                    batch_size = None, n_process = 1):
-        # The columns of spacy_extract_matches(): one row for each match of
-        # spaCy's Matcher. labels and patterns are parallel lists, with the
-        # alternative token patterns of each label. The matcher runs here, on
-        # each document as nlp.pipe() returns it, also when n_process > 1.
-        # Labels are read from the spans, since match IDs are 64-bit hashes
-        # that R cannot hold. spaCy returns matches grouped by label rather
-        # than in document order, so each document's matches are sorted by
-        # their first token, then their length, then the order of the labels.
+    def match_table(self, texts, docnames, labels, patterns, phrases = None,
+                    greedy = None, batch_size = None, n_process = 1):
+        # The columns of spacy_extract_matches(): one row for each match.
+        # labels and patterns are parallel lists, with the alternative token
+        # patterns of each label, which may be none; phrases is a list of
+        # dicts with the label, text and case_insensitive of each phrase.
+        # Token patterns are matched by spaCy's Matcher, after merging those
+        # of a single regular expression as for the entity ruler. Phrases are
+        # matched by its PhraseMatcher, which is far faster for many phrases
+        # than token patterns: on the tokens' text (ORTH), or on their lower
+        # case form (LOWER) for phrases marked case_insensitive, each phrase
+        # being tokenized by the pipeline's own tokenizer.
+        # The matchers run here, on each document as nlp.pipe() returns it,
+        # also when n_process > 1. Labels are read as strings, since match
+        # IDs are 64-bit hashes that R cannot hold. The same span found for a
+        # label by more than one pattern or matcher is one match. Overlapping
+        # matches of a label are filtered here (greedy "FIRST" or "LONGEST"),
+        # over the matches of all the matchers together. spaCy returns
+        # matches grouped by label rather than in document order, so each
+        # document's matches are sorted by their first token, then their
+        # length, then the order of the labels.
         # start_id counts tokens from 1 in the document; sentence_id and
         # token_id are those of the first token, as in spacy_parse(), or 0
         # when the document has no sentence boundaries.
@@ -553,27 +591,53 @@ class spacyr:
         if not isinstance(labels, list):
             labels = [labels]
             patterns = [patterns]
-        matcher = Matcher(self.nlp.vocab, validate = True)
-        for label, alternatives in zip(labels, patterns):
-            matcher.add(label, alternatives, greedy = greedy)
+        vocab = self.nlp.vocab
+        matchers = []
+        token_patterns = [{"label": label, "pattern": pattern}
+                          for label, alternatives in zip(labels, patterns)
+                          for pattern in alternatives]
+        if token_patterns:
+            by_label = {}
+            for p in ruler_patterns(self.nlp, token_patterns):
+                by_label.setdefault(p["label"], []).append(p["pattern"])
+            matcher = Matcher(vocab, validate = True)
+            for label, alternatives in by_label.items():
+                matcher.add(label, alternatives)
+            matchers.append(matcher)
+        for lower in (False, True):
+            by_label = {}
+            for p in phrases or []:
+                if bool(p.get("case_insensitive", False)) == lower:
+                    by_label.setdefault(p["label"], []).append(self.nlp.make_doc(p["text"]))
+            if by_label:
+                matcher = PhraseMatcher(vocab, attr = "LOWER" if lower else "ORTH")
+                for label, docs in by_label.items():
+                    matcher.add(label, docs)
+                matchers.append(matcher)
         order = dict((label, k) for k, label in enumerate(labels))
+        strings = vocab.strings
         cols = {"doc_id": [], "sentence_id": [], "token_id": [], "label": [],
                 "text": [], "start_id": [], "length": []}
         for id_, doc in self.docs(texts, docnames, batch_size, n_process):
-            spans = matcher(doc, as_spans = True)
-            if not spans:
+            found = set()
+            for matcher in matchers:
+                for key, start, end in matcher(doc):
+                    found.add((strings[key], start, end))
+            if not found:
                 continue
-            spans.sort(key = lambda s: (s.start, s.end, order[s.label_]))
+            if greedy is not None:
+                found = filter_overlaps(found, greedy)
+            found = sorted(found, key = lambda m: (m[1], m[2], order[m[0]]))
             positions = sentence_positions(doc)
-            for span in spans:
-                sent_id, token_id = positions[span.start] if positions else (0, 0)
+            for label, start, end in found:
+                sent_id, token_id = positions[start] if positions else (0, 0)
                 cols["doc_id"].append(id_)
                 cols["sentence_id"].append(sent_id)
                 cols["token_id"].append(token_id)
-                cols["label"].append(span.label_)
-                cols["text"].append(span.text)
-                cols["start_id"].append(span.start + 1)
-                cols["length"].append(span.end - span.start)
+                cols["label"].append(label)
+                cols["text"].append(doc[start:end].text)
+                cols["start_id"].append(start + 1)
+                cols["length"].append(end - start)
         return cols
 
     def dependency_match_table(self, texts, docnames, labels, patterns,

@@ -45,10 +45,34 @@ test_that("match_patterns groups entity patterns with the same label", {
     expect_identical(m$patterns, list(list(list(list(LEMMA = "write")),
                                            list(list(LEMMA = "rewrite"))),
                                       list(list(list(LOWER = "book")))))
-    expect_error(match_patterns(as_entity_patterns(c(ORG = "Acme Widgets"))),
-                 "holds phrases")
-    expect_error(match_patterns(c(ep, as_entity_patterns(c(ORG = "Acme")))),
-                 "holds phrases")
+    expect_identical(m$phrases, list())
+    expect_identical(match_patterns(list(A = list(list(LOWER = "a"))))$phrases, list())
+})
+
+test_that("match_patterns separates the phrases of entity patterns", {
+    ep <- c(as_entity_patterns(c(ORG = "Acme Widgets", GPE = "New York")),
+            as_entity_patterns(c(ORG = "globex"), case_insensitive = TRUE),
+            as_entity_patterns(list(label = "GPE", pattern = list(list(LOWER = "paris")))))
+    m <- match_patterns(ep)
+    expect_identical(m$labels, c("ORG", "GPE"))
+    # a label can have phrases only, token patterns only, or both
+    expect_identical(m$patterns, list(list(), list(list(list(LOWER = "paris")))))
+    expect_identical(m$phrases, list(
+        list(label = "ORG", text = "Acme Widgets", case_insensitive = FALSE),
+        list(label = "GPE", text = "New York", case_insensitive = FALSE),
+        list(label = "ORG", text = "globex", case_insensitive = TRUE)))
+})
+
+test_that("match_patterns converts a quanteda dictionary", {
+    skip_if_not_installed("quanteda")
+    d <- quanteda::dictionary(list(tax = c("tax*", "new york"), org = "acme widgets"))
+    m <- match_patterns(d)
+    expect_identical(m, match_patterns(as_entity_patterns(d)))
+    expect_identical(m$labels, c("tax", "org"))
+    expect_identical(vapply(m$phrases, `[[`, "", "text"), c("new york", "acme widgets"))
+    expect_true(all(vapply(m$phrases, `[[`, NA, "case_insensitive")))
+    expect_length(m$patterns[[1]], 1)
+    expect_length(m$patterns[[2]], 0)
 })
 
 test_that("match_patterns rejects patterns it cannot use", {
@@ -59,7 +83,8 @@ test_that("match_patterns rejects patterns it cannot use", {
     expect_error(match_patterns(list()), "holds no patterns")
     expect_error(match_patterns("a b"), "must be a named list")
     expect_error(match_patterns(data.frame(label = "A")), "must be a named list")
-    expect_error(match_patterns(list(A = "new york")), "'A' is a phrase")
+    expect_error(match_patterns(list(A = "new york")),
+                 "'A' is a phrase.*as_entity_patterns")
     expect_error(match_patterns(list(A = list())), "'A' is not a list of token patterns")
     expect_error(match_patterns(list(A = list(LOWER = "a"))),
                  "Pattern 'A' is a single token pattern")
@@ -207,6 +232,130 @@ test_that("custom attributes named like operators are not read as operators", {
     expect_identical(run(is_subset = list(IN = "x"))$text, c("red", "ball"))
     expect_identical(run(spacyr_tags = list(IS_SUPERSET = "a"))$text, c("red", "ball"))
     expect_identical(nrow(run(spacyr_tags = list(IS_SUPERSET = "z"))), 0L)
+})
+
+test_that("phrases of entity patterns match exactly or in any case", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try_spacy_initialize()
+
+    x <- c(d1 = "Acme Widgets sued ACME WIDGETS in New York.",
+           d2 = "Trade between new york and Paris.")
+    ep <- c(as_entity_patterns(c(ORG = "Acme Widgets", GPE = "New York")),
+            as_entity_patterns(list(label = "GPE", pattern = list(list(LOWER = "paris")))))
+    m <- spacy_extract_matches(x, ep)
+    expect_named(m, match_columns)
+    expect_identical(m$text, c("Acme Widgets", "New York", "Paris"))
+    expect_identical(m$label, c("ORG", "GPE", "GPE"))
+    expect_identical(m$start_id, c(1L, 7L, 6L))
+    expect_identical(m$length, c(2L, 2L, 1L))
+
+    any <- spacy_extract_matches(x, as_entity_patterns(c(ORG = "acme widgets", GPE = "NEW YORK"),
+                                                       case_insensitive = TRUE))
+    expect_identical(any$text, c("Acme Widgets", "ACME WIDGETS", "New York", "new york"))
+    # exact and any-case phrases together, with two processes
+    both <- c(as_entity_patterns(c(ORG = "Acme Widgets")),
+              as_entity_patterns(c(GPE = "new york"), case_insensitive = TRUE))
+    m <- spacy_extract_matches(x, both)
+    expect_identical(m$text, c("Acme Widgets", "New York", "new york"))
+    expect_identical(spacy_extract_matches(x, both, n_process = 2), m)
+
+    # phrases are split into spaCy's tokens, not at spaces
+    comma <- spacy_extract_matches("We met Smith, Jones and Brown.",
+                                   as_entity_patterns(c(NAMES = "Smith, Jones")))
+    expect_identical(comma$text, "Smith, Jones")
+    expect_identical(comma$length, 3L)
+
+    # the same span found by a phrase and a token pattern is one match
+    twice <- c(as_entity_patterns(c(GPE = "New York")),
+               as_entity_patterns(list(label = "GPE", pattern = list(
+                   list(LOWER = "new"), list(LOWER = "york")))))
+    m <- spacy_extract_matches(x, twice)
+    expect_identical(m$text, c("New York", "new york"))
+    expect_identical(nrow(spacy_extract_matches("Nothing here.", twice)), 0L)
+})
+
+test_that("overlap applies to the phrases and token patterns of a label together", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try_spacy_initialize()
+
+    ep <- c(as_entity_patterns(c(X = "a b", Y = "b c")),
+            as_entity_patterns(list(label = "X", pattern = list(
+                list(LOWER = "b"), list(LOWER = "c"), list(LOWER = "d"), list(LOWER = "e")))))
+    all <- spacy_extract_matches("a b c d e", ep)
+    expect_identical(all$text, c("a b", "b c", "b c d e"))
+    expect_identical(all$label, c("X", "Y", "X"))
+    first <- spacy_extract_matches("a b c d e", ep, overlap = "first")
+    expect_identical(first$text, c("a b", "b c"))
+    longest <- spacy_extract_matches("a b c d e", ep, overlap = "longest")
+    expect_identical(longest$text, c("b c", "b c d e"))
+    expect_identical(longest$label, c("Y", "X"))
+})
+
+test_that("overlap agrees with the greedy option of spaCy's Matcher", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try_spacy_initialize()
+
+    x <- paste("The big red shiny ball and a small blue box sat on the old",
+               "brown wooden kitchen table near a very large open window.")
+    pats <- list(A = list(list(POS = "ADJ", OP = "+"), list(POS = "NOUN", OP = "+")),
+                 B = list(list(list(POS = "DET"), list(POS = "ADJ", OP = "*")),
+                          list(list(POS = "ADJ"), list(POS = "ADJ"))),
+                 C = list(list(), list(OP = "?"), list(POS = "NOUN")))
+    spacy_greedy <- reticulate::py_eval(paste(
+        "lambda nlp, text, labels, patterns, greedy:",
+        "(lambda m, d: [m.add(l, p, greedy = greedy) for l, p in zip(labels, patterns)] and",
+        "sorted([nlp.vocab.strings[k], s + 1, e - s] for k, s, e in m(d)))",
+        "(__import__('spacy').matcher.Matcher(nlp.vocab), nlp(text))"))
+    mp <- match_patterns(pats)
+    for (overlap in c("first", "longest")) {
+        ours <- spacy_extract_matches(x, pats, overlap = overlap)
+        theirs <- spacy_greedy(spacyr:::spacyr_env$nlp, x, as.list(mp$labels), mp$patterns,
+                               toupper(overlap))
+        theirs <- do.call(rbind, lapply(theirs, function(r)
+            data.frame(label = r[[1]], start_id = r[[2]], length = r[[3]])))
+        ours <- ours[order(ours$label, ours$start_id, ours$length), ]
+        expect_gt(nrow(ours), 5)
+        expect_identical(ours$label, theirs$label, info = overlap)
+        expect_identical(ours$start_id, as.integer(theirs$start_id), info = overlap)
+        expect_identical(ours$length, as.integer(theirs$length), info = overlap)
+    }
+})
+
+test_that("a quanteda dictionary is matched with its wildcards", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+
+    x <- c(d1 = "Taxes rose in New York.", d2 = "The taxation of Acme Widgets.")
+    d <- quanteda::dictionary(list(tax = c("tax*", "new york"), org = "acme widgets"))
+    m <- spacy_extract_matches(x, d)
+    expect_identical(m$text, c("Taxes", "New York", "taxation", "Acme Widgets"))
+    expect_identical(m$label, c("tax", "tax", "tax", "org"))
+    # many wildcard values of a label are matched as one regular expression
+    many <- quanteda::dictionary(list(t = c("tax*", "ros?", "wid*")))
+    expect_identical(spacy_extract_matches(x, many)$text,
+                     c("Taxes", "rose", "taxation", "Widgets"))
+    # entities are not changed
+    expect_false("tax" %in% spacy_extract_entity(x)$ent_type)
+})
+
+test_that("phrases warn when a component changes the tokens", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    try_spacy_initialize()
+    on.exit(spacy_finalize())
+    spacyr:::spacyr_env$nlp$add_pipe("merge_entities")
+
+    expect_warning(spacy_extract_matches("He lives in New York.",
+                                         as_entity_patterns(c(GPE = "New York"))),
+                   "Phrases may not match, since 'merge_entities' changes the tokens")
+    expect_silent(spacy_extract_matches("He lives in New York.",
+                                        list(GPE = list(list(LOWER = "new york")))))
 })
 
 test_that("no matches give a data.frame with no rows", {
