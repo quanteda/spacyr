@@ -231,9 +231,9 @@ dict <- dictionary(list(
 as_entity_patterns(dict)
 ## Entity patterns: 4 patterns (ORG: 3, PERSON: 1)
 ##   ORG     "Acme Widgets" (any case)
-##   ORG     [LOWER ~ /^globex.*$/]
+##   ORG     [LOWER ~ /\Aglobex[\s\S]*\Z/]
 ##   ORG     "Initech, Inc." (any case)
-##   PERSON  [LOWER = dr] [LOWER ~ /^.*$/] [LOWER = who]
+##   PERSON  [LOWER = dr] [LOWER ~ /\A[\s\S]*\Z/] [LOWER = who]
 ```
 
 `dictionary()` lowercases its values by default, so this one is made with `tolower = FALSE`, to keep `"Inc."` as spaCy's tokenizer expects it. Here the model's recognizer is off, so that all the entities come from the dictionary:
