@@ -112,7 +112,12 @@ labels, as in \code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}}. T
 every value by its top-level key. With more than one level, a value is
 labelled by its keys at those levels, joined by \code{"."}: with
 \code{levels = 1:2}, the values under \code{us} in \code{place} have the label
-\code{"place.us"}. Values with no key at any of the levels are left out.}
+\code{"place.us"}. Values with no key at any of the levels are left out.
+
+\code{valuetype} and \code{levels} are an error for an input that has no use for
+them: \code{levels} for anything but a dictionary, and \code{valuetype} for a
+list, a data.frame or a \code{spacyr_entity_patterns} object, whose phrases
+are matched as they are.}
 }
 \value{
 A \code{spacyr_entity_patterns} object: a data.frame with one row per
@@ -158,12 +163,15 @@ case: spaCy's English models keep \code{"Inc."} as one token, but split
 their values.
 
 With \code{case_insensitive = TRUE}, the parts of a phrase or dictionary value
-that has a wildcard are put in lower case by R, since making patterns
-does not need spaCy, while spaCy compares them with its own lower case
-form of each token. The two differ for a few characters, such as the
-dotted capital I of Turkish, and a value with such a character and a
-wildcard may then not match; \code{\link[=spacy_match]{spacy_match()}}, which lowercases with
-spaCy, does not have this limit.
+that has a wildcard are put in lower case by R when the patterns are
+made, since making them does not need spaCy, while spaCy compares them
+with its own lower case form of each token. The two differ for a few
+characters, such as the dotted capital I of Turkish, and a value with
+such a character and a wildcard may then not match. This holds wherever
+the patterns are used, in \code{\link[=spacy_initialize]{spacy_initialize()}} or in \code{\link[=spacy_match]{spacy_match()}}.
+Given the character vector or the dictionary itself, and not patterns
+made from it, \code{\link[=spacy_match]{spacy_match()}} lowercases with spaCy and does not have
+this limit.
 
 Patterns match spaCy's tokens, not characters. For instance, spaCy's
 English models make "Prof." a single token, so a pattern for academic

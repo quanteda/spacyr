@@ -487,7 +487,7 @@ test_that("levels sets the keys of a dictionary that label its values", {
     expect_identical(nrow(as_entity_patterns(d, levels = 3)), 0L)
     expect_identical(as_entity_patterns(d, levels = 2L, valuetype = "fixed")$pattern,
                      list("ny", "la*", "london"))
-    for (bad in list(0, -1, 1.5, NA, "1", numeric(), NULL))
+    for (bad in list(0, -1, 1.5, NA, "1", numeric(), NULL, Inf, c(1, Inf), NaN))
         expect_error(as_entity_patterns(d, levels = bad), "levels must be whole numbers")
 })
 
@@ -523,6 +523,38 @@ test_that("phrases take valuetype, with exact phrases as the default", {
                               tolower = FALSE)
     expect_identical(as_entity_patterns(x, valuetype = "glob", case_insensitive = TRUE),
                      as_entity_patterns(d))
+})
+
+test_that("a missing or empty phrase is an error with every valuetype", {
+    for (vt in c("fixed", "glob", "regex")) for (ci in c(TRUE, FALSE)) {
+        for (bad in list(NA_character_, "", "  ", c("Acme", NA)))
+            expect_error(as_entity_patterns(bad, label = "ORG", valuetype = vt,
+                                            case_insensitive = ci),
+                         "is not a single, non-empty phrase")
+    }
+    expect_error(as_entity_patterns(c(ORG = "Acme", ORG = NA), valuetype = "regex"),
+                 "Pattern 2 is not")
+})
+
+test_that("valuetype and levels are errors for inputs that do not use them", {
+    df <- data.frame(label = "ORG", pattern = "Acme*")
+    lst <- list(label = "ORG", pattern = "Acme*")
+    obj <- as_entity_patterns(c(ORG = "Acme*"))
+    for (x in list(df, lst, list(lst), obj)) {
+        expect_error(as_entity_patterns(x, valuetype = "glob"),
+                     "valuetype does not apply to")
+        expect_error(as_entity_patterns(x, levels = 1),
+                     "levels does not apply to .*it applies to a quanteda dictionary")
+        expect_identical(as_entity_patterns(x)$pattern, list("Acme*"))
+    }
+    expect_error(as_entity_patterns(df, valuetype = "glob"),
+                 "a data.frame of patterns; it applies to a character vector")
+    expect_error(as_entity_patterns(c(ORG = "Acme*"), levels = 1),
+                 "levels does not apply to a character vector of phrases")
+    expect_error(as_entity_patterns(NULL, levels = 1), "levels does not apply to NULL")
+    expect_identical(nrow(as_entity_patterns(NULL)), 0L)
+    # case_insensitive still applies to them
+    expect_identical(as_entity_patterns(df, case_insensitive = TRUE)$case_insensitive, TRUE)
 })
 
 test_that("the output of spacy_extract_entity() becomes phrases", {

@@ -87,12 +87,15 @@
 #' their values.
 #'
 #' With `case_insensitive = TRUE`, the parts of a phrase or dictionary value
-#' that has a wildcard are put in lower case by R, since making patterns
-#' does not need spaCy, while spaCy compares them with its own lower case
-#' form of each token. The two differ for a few characters, such as the
-#' dotted capital I of Turkish, and a value with such a character and a
-#' wildcard may then not match; [spacy_match()], which lowercases with
-#' spaCy, does not have this limit.
+#' that has a wildcard are put in lower case by R when the patterns are
+#' made, since making them does not need spaCy, while spaCy compares them
+#' with its own lower case form of each token. The two differ for a few
+#' characters, such as the dotted capital I of Turkish, and a value with
+#' such a character and a wildcard may then not match. This holds wherever
+#' the patterns are used, in [spacy_initialize()] or in [spacy_match()].
+#' Given the character vector or the dictionary itself, and not patterns
+#' made from it, [spacy_match()] lowercases with spaCy and does not have
+#' this limit.
 #'
 #' Patterns match spaCy's tokens, not characters. For instance, spaCy's
 #' English models make "Prof." a single token, so a pattern for academic
@@ -156,6 +159,7 @@ as_entity_patterns <- function(x, ...) {
 
 #' @export
 as_entity_patterns.NULL <- function(x, ...) {
+    check_lexical_dots(list(...), "levels", "NULL")
     as_entity_patterns(character())
 }
 
@@ -171,6 +175,7 @@ as_entity_patterns.character <- function(x, label = NULL, id = NULL,
                                          case_insensitive = FALSE,
                                          valuetype = c("fixed", "glob", "regex"),
                                          ...) {
+    check_lexical_dots(list(...), "levels", "a character vector of phrases")
     check_case_insensitive(case_insensitive)
     valuetype <- match.arg(valuetype)
     n <- length(x)
@@ -182,6 +187,12 @@ as_entity_patterns.character <- function(x, label = NULL, id = NULL,
     }
     label <- recycle_arg(label, n, "label")
     id <- if (is.null(id)) rep(NA_character_, n) else recycle_arg(id, n, "id")
+    # checked here, before a phrase becomes a token pattern: as a regular
+    # expression, NA would match the letters "NA", and "" any token
+    bad <- is.na(x) | !nzchar(trimws(x))
+    if (any(bad))
+        stop("Pattern ", which(bad)[1], " is not a single, non-empty phrase",
+             call. = FALSE)
     # with wildcards or regular expressions, as the values of a dictionary
     pattern <- lapply(unname(x), dictionary_pattern, valuetype = valuetype,
                       case_insensitive = case_insensitive)
@@ -191,6 +202,7 @@ as_entity_patterns.character <- function(x, label = NULL, id = NULL,
 #' @rdname as_entity_patterns
 #' @export
 as_entity_patterns.list <- function(x, case_insensitive = FALSE, ...) {
+    check_lexical_dots(list(...), c("valuetype", "levels"), "a list of patterns")
     check_case_insensitive(case_insensitive)
     # a single pattern given on its own
     if (!is.null(names(x)) && all(c("label", "pattern") %in% names(x)))
@@ -237,6 +249,7 @@ as_entity_patterns.list <- function(x, case_insensitive = FALSE, ...) {
 #' @export
 as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE,
                                           concatenator = NULL, ...) {
+    check_lexical_dots(list(...), c("valuetype", "levels"), "a data.frame of patterns")
     check_case_insensitive(case_insensitive)
     if (!all(c("label", "pattern") %in% names(x))) {
         if (all(c("text", "ent_type") %in% names(x))) {
@@ -300,13 +313,18 @@ as_entity_patterns.data.frame <- function(x, case_insensitive = FALSE,
 #'   labelled by its keys at those levels, joined by `"."`: with
 #'   `levels = 1:2`, the values under `us` in `place` have the label
 #'   `"place.us"`. Values with no key at any of the levels are left out.
+#'
+#'   `valuetype` and `levels` are an error for an input that has no use for
+#'   them: `levels` for anything but a dictionary, and `valuetype` for a
+#'   list, a data.frame or a `spacyr_entity_patterns` object, whose phrases
+#'   are matched as they are.
 #' @export
 as_entity_patterns.dictionary2 <- function(x, case_insensitive = TRUE,
                                            valuetype = c("glob", "regex", "fixed"),
                                            levels = 1, ...) {
     check_case_insensitive(case_insensitive)
     valuetype <- match.arg(valuetype)
-    if (!is.numeric(levels) || !length(levels) || anyNA(levels) ||
+    if (!is.numeric(levels) || !length(levels) || !all(is.finite(levels)) ||
         any(levels < 1) || any(levels != round(levels)))
         stop("levels must be whole numbers from 1, the levels of the ",
              "dictionary's keys", call. = FALSE)
@@ -330,6 +348,18 @@ dictionary_entity_patterns <- function(x, valuetype, case_insensitive,
                       case_insensitive = case_insensitive, lower = lower)
     new_entity_patterns(label, pattern, rep(NA_character_, length(values)),
                         rep(case_insensitive, length(values)))
+}
+
+# The error for a valuetype or levels given to a method that has no use for
+# it: ignoring it would give other patterns than the call asks for. dots is
+# the method's list(...), and what describes its input.
+check_lexical_dots <- function(dots, unsupported, what) {
+    given <- intersect(unsupported, names(dots))
+    if (!length(given)) return(invisible(TRUE))
+    applies <- c(valuetype = "a character vector of phrases or a quanteda dictionary",
+                 levels = "a quanteda dictionary")
+    stop(given[1], " does not apply to ", what, "; it applies to ",
+         applies[[given[1]]], call. = FALSE)
 }
 
 # A dictionary value as a phrase, or, with wildcards or regular expressions,
@@ -378,6 +408,8 @@ glob_to_regex <- function(x) {
 
 #' @export
 as_entity_patterns.spacyr_entity_patterns <- function(x, ...) {
+    check_lexical_dots(list(...), c("valuetype", "levels"),
+                       "a spacyr_entity_patterns object")
     # the object may have been edited as a data.frame, so check it again
     cols <- c("label", "pattern", "id", "case_insensitive")
     missing_cols <- setdiff(cols, names(x))
