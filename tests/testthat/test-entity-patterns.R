@@ -397,15 +397,15 @@ test_that("a file named after an extension, with no dot, has no extension", {
 })
 
 test_that("glob_to_regex anchors globs and escapes other characters", {
-    expect_identical(glob_to_regex("dr*"), "^dr.*$")
-    expect_identical(glob_to_regex("col?r"), "^col.r$")
-    expect_identical(glob_to_regex("u.s.*"), "^u\\.s\\..*$")
+    expect_identical(glob_to_regex("dr*"), "\\Adr[\\s\\S]*\\Z")
+    expect_identical(glob_to_regex("col?r"), "\\Acol[\\s\\S]r\\Z")
+    expect_identical(glob_to_regex("u.s.*"), "\\Au\\.s\\.[\\s\\S]*\\Z")
     expect_identical(glob_to_regex("a+b(c)[d]{e}|^$"),
-                     "^a\\+b\\(c\\)\\[d\\]\\{e\\}\\|\\^\\$$")
-    expect_identical(glob_to_regex("x\\y"), "^x\\\\y$")
+                     "\\Aa\\+b\\(c\\)\\[d\\]\\{e\\}\\|\\^\\$\\Z")
+    expect_identical(glob_to_regex("x\\y"), "\\Ax\\\\y\\Z")
     for (g in c("dr*", "col?r", "u.s.*", "a+b(c)"))
         expect_true(grepl(glob_to_regex(g), sub("*", "zz", sub("?", "o", g, fixed = TRUE),
-                                                 fixed = TRUE)))
+                                                 fixed = TRUE), perl = TRUE))
 })
 
 test_that("a quanteda dictionary becomes patterns labelled by its top-level keys", {
@@ -418,9 +418,9 @@ test_that("a quanteda dictionary becomes patterns labelled by its top-level keys
     expect_identical(p$label, c("ORG", "ORG", "PERSON", "PERSON"))
     # quanteda lowercases dictionary values by default
     expect_identical(p$pattern[[1]], "acme widgets")
-    expect_identical(p$pattern[[2]], list(list(LOWER = list(REGEX = "^globex.*$"))))
+    expect_identical(p$pattern[[2]], list(list(LOWER = list(REGEX = "\\Aglobex[\\s\\S]*\\Z"))))
     expect_identical(p$pattern[[3]], list(list(LOWER = "dr"),
-                                          list(LOWER = list(REGEX = "^.*$")),
+                                          list(LOWER = list(REGEX = "\\A[\\s\\S]*\\Z")),
                                           list(LOWER = "who")))
     expect_identical(p$pattern[[4]], "jane smith")
     expect_identical(p$case_insensitive, c(TRUE, NA, NA, TRUE))
@@ -436,7 +436,7 @@ test_that("the values of nested dictionary keys get the top-level key as label",
     p <- as_entity_patterns(d)
     expect_identical(p$label, rep(c("writing", "place", "deep"), each = 3))
     expect_identical(p$pattern[[5]], "new york city")
-    expect_identical(p$pattern[[6]], list(list(LOWER = list(REGEX = "^mistake.*$"))))
+    expect_identical(p$pattern[[6]], list(list(LOWER = list(REGEX = "\\Amistake[\\s\\S]*\\Z"))))
     expect_identical(p$pattern[[9]], "w")
     expect_identical(lengths(unclass(p)), c(label = 9L, pattern = 9L, id = 9L,
                                             case_insensitive = 9L))
@@ -446,7 +446,7 @@ test_that("dictionary valuetype and case_insensitive are respected", {
     skip_if_not_installed("quanteda")
     d <- quanteda::dictionary(list(ORG = c("Acme*", "Big Co")), tolower = FALSE)
     exact <- as_entity_patterns(d, case_insensitive = FALSE)
-    expect_identical(exact$pattern[[1]], list(list(ORTH = list(REGEX = "^Acme.*$"))))
+    expect_identical(exact$pattern[[1]], list(list(ORTH = list(REGEX = "\\AAcme[\\s\\S]*\\Z"))))
     expect_identical(exact$case_insensitive, c(NA, FALSE))
 
     fixed <- as_entity_patterns(d, valuetype = "fixed")

@@ -168,7 +168,10 @@
 #' A string without a wildcard is compared with the token's text or, with
 #' `case_insensitive = TRUE`, its lower case form (spaCy's `ORTH` and
 #' `LOWER`). A glob with a wildcard becomes a regular expression for the
-#' whole of that text or lower case form. A regular expression is applied to
+#' whole of that text or lower case form, in which a wildcard stands for any
+#' characters, including the newlines of spaCy's whitespace tokens. Lower
+#' case is spaCy's throughout, so that a pattern ignores case in the same
+#' way with a wildcard as without. A regular expression is applied to
 #' the token's text, with the flag `(?i)` when `case_insensitive = TRUE`.
 #'
 #' The phrases of a `spacyr_entity_patterns` object, and dictionary values
@@ -384,7 +387,8 @@ spacy_match.character <- function(x, pattern,
     overlap <- match.arg(overlap)
     args <- pipe_args(n_process, batch_size)
     if (missing(pattern)) stop("pattern must be supplied", call. = FALSE)
-    pattern <- match_patterns(pattern, valuetype, case_insensitive, explicit)
+    pattern <- match_patterns(pattern, valuetype, case_insensitive, explicit,
+                              lower = spacy_lower)
 
     input <- spacy_input(x)
 
@@ -483,11 +487,11 @@ check_unused_args <- function(dots, fun = "spacy_match") {
 # collocations and dictionaries. explicit names those of the two that the
 # caller gave, which is an error when pattern holds no lexical pattern.
 match_patterns <- function(x, valuetype = "glob", case_insensitive = TRUE,
-                           explicit = character()) {
+                           explicit = character(), lower = tolower) {
     if (inherits(x, c("spacyr_entity_patterns", "dictionary2"))) {
         if (inherits(x, "dictionary2")) {
-            x <- as_entity_patterns(x, valuetype = valuetype,
-                                    case_insensitive = case_insensitive)
+            x <- dictionary_entity_patterns(x, valuetype, case_insensitive,
+                                            lower)
         } else {
             check_lexical_args(explicit, paste0(
                 "a spacyr_entity_patterns object, whose phrases have their ",
@@ -567,7 +571,7 @@ match_patterns <- function(x, valuetype = "glob", case_insensitive = TRUE,
         k <- index[i]
         what <- paste0("'", nms[i], "'")
         if (lexical[i]) {
-            p <- lexical_pattern(x[[i]], valuetype, case_insensitive)
+            p <- lexical_pattern(x[[i]], valuetype, case_insensitive, lower)
             if (is.character(p)) {
                 phrases[[i]] <- list(label = nms[i], words = as.list(p),
                                      case_insensitive = case_insensitive)
@@ -600,11 +604,25 @@ check_lexical_args <- function(explicit, holds) {
 # when no element has a wildcard or is a regular expression, the words as
 # they are, to match as a phrase; otherwise a token pattern, with one token
 # for each element, as for the values of a dictionary.
-lexical_pattern <- function(words, valuetype, case_insensitive) {
+lexical_pattern <- function(words, valuetype, case_insensitive,
+                            lower = tolower) {
     if (valuetype == "fixed" || (valuetype == "glob" && !any(grepl("[*?]", words))))
         return(words)
-    lapply(words, lexical_token, valuetype = valuetype,
-           case_insensitive = case_insensitive)
+    lexical_tokens(words, valuetype, case_insensitive, lower)
+}
+
+# Strings in lower case as spaCy has them in a token's LOWER, which is what
+# its phrase matcher compares. R's tolower() differs from it for some
+# characters, and with the locale: "\u0130" (a dotted capital I) is "i" and a
+# combining dot in spaCy. Strings of ASCII characters, for which the two
+# agree, do not need spaCy.
+spacy_lower <- function(x) {
+    ascii <- !grepl("[^ -~]", x, perl = TRUE, useBytes = TRUE)
+    x[ascii] <- tolower(x[ascii])
+    if (!all(ascii))
+        x[!ascii] <- as.character(unlist(
+            spacyr_module()$lower_strings(spacyr_env$nlp, as.list(x[!ascii]))))
+    x
 }
 
 # The alternative token patterns of one label of a list, each normalized as

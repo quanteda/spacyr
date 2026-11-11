@@ -227,6 +227,13 @@ def retokenizers(nlp):
     # the active components that change the tokens, as merge_entities does
     return [name for name in nlp.pipe_names if retokenizes(nlp, name)]
 
+def lower_strings(nlp, strings):
+    # each string in lower case as the vocabulary has it in LOWER, which is
+    # what a phrase matcher on LOWER compares
+    if isinstance(strings, str):
+        strings = [strings]
+    return [nlp.vocab[s].lower_ for s in strings]
+
 def filter_overlaps(matches, greedy):
     # Keep one of the overlapping matches of each label, as spaCy's Matcher
     # does with greedy = "FIRST" or "LONGEST": the matches of a label are

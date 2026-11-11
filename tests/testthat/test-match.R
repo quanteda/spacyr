@@ -192,7 +192,7 @@ test_that("a character vector is one token for each element", {
         list(label = "Tax", words = list("Tax"), case_insensitive = TRUE)))
     # with a wildcard, a token pattern
     expect_identical(m$patterns, list(list(), list(),
-                                      list(list(list(LOWER = list(REGEX = "^b.*$")))),
+                                      list(list(list(LOWER = list(REGEX = "\\Ab[\\s\\S]*\\Z")))),
                                       list()))
     expect_identical(m$dependency, list())
     # the same text without a name is the same label
@@ -202,11 +202,11 @@ test_that("a character vector is one token for each element", {
 test_that("valuetype and case_insensitive set how each string matches", {
     tokens_of <- function(...) match_patterns(...)$patterns[[1]][[1]]
     # glob: the lower case form, or the text when case matters
-    expect_identical(tokens_of("Tax*"), list(list(LOWER = list(REGEX = "^tax.*$"))))
+    expect_identical(tokens_of("Tax*"), list(list(LOWER = list(REGEX = "\\Atax[\\s\\S]*\\Z"))))
     expect_identical(tokens_of("Tax?", case_insensitive = FALSE),
-                     list(list(ORTH = list(REGEX = "^Tax.$"))))
+                     list(list(ORTH = list(REGEX = "\\ATax[\\s\\S]\\Z"))))
     # other characters of a glob are literal
-    expect_identical(tokens_of("a.b*"), list(list(LOWER = list(REGEX = "^a\\.b.*$"))))
+    expect_identical(tokens_of("a.b*"), list(list(LOWER = list(REGEX = "\\Aa\\.b[\\s\\S]*\\Z"))))
     # regex: on the text, with (?i) for any case
     expect_identical(tokens_of("^Tax", "regex"), list(list(TEXT = list(REGEX = "(?i)^Tax"))))
     expect_identical(tokens_of("^Tax", "regex", FALSE),
@@ -228,7 +228,7 @@ test_that("phrase() objects and lists of character vectors are sequences", {
     # one token for each string where any has a wildcard, the strings as
     # they are otherwise
     expect_identical(m$patterns, list(
-        list(list(list(LOWER = "new"), list(LOWER = list(REGEX = "^york.*$")))),
+        list(list(list(LOWER = "new"), list(LOWER = list(REGEX = "\\Ayork[\\s\\S]*\\Z")))),
         list()))
     expect_identical(m$phrases, list(
         list(label = "the big apple", words = list("the", "big", "apple"),
@@ -239,7 +239,7 @@ test_that("phrase() objects and lists of character vectors are sequences", {
                                  c("Acme", ",", "Inc.")), case_insensitive = FALSE)
     expect_identical(named$labels, c("NY", "Acme , Inc."))
     expect_identical(named$patterns, list(
-        list(list(list(ORTH = "new"), list(ORTH = list(REGEX = "^york.*$")))), list()))
+        list(list(list(ORTH = "new"), list(ORTH = list(REGEX = "\\Ayork[\\s\\S]*\\Z")))), list()))
     expect_identical(vapply(named$phrases, `[[`, "", "label"), c("NY", "Acme , Inc."))
     expect_identical(named$phrases[[2]]$words, list("Acme", ",", "Inc."))
     # names given to a phrase() object are labels too
@@ -271,7 +271,7 @@ test_that("collocations are sequences of their words, taken literally", {
     skip_if_not_installed("quanteda")
     g <- match_patterns(quanteda::phrase(col))
     expect_identical(g$patterns[[2]], list(list(list(LOWER = "a"),
-                                                list(LOWER = list(REGEX = "^.*$")),
+                                                list(LOWER = list(REGEX = "\\A[\\s\\S]*\\Z")),
                                                 list(LOWER = "b"))))
 })
 
@@ -279,7 +279,7 @@ test_that("a dictionary is converted with valuetype and case_insensitive", {
     skip_if_not_installed("quanteda")
     dict <- quanteda::dictionary(list(tax = c("Tax*", "income tax")), tolower = FALSE)
     m <- match_patterns(dict, "glob", FALSE, c("valuetype", "case_insensitive"))
-    expect_identical(m$patterns, list(list(list(list(ORTH = list(REGEX = "^Tax.*$"))))))
+    expect_identical(m$patterns, list(list(list(list(ORTH = list(REGEX = "\\ATax[\\s\\S]*\\Z"))))))
     expect_identical(m$phrases, list(list(label = "tax", text = "income tax",
                                           case_insensitive = FALSE)))
     r <- match_patterns(dict, "regex", TRUE, "valuetype")
@@ -1120,4 +1120,47 @@ test_that("a regular expression that Python does not accept is an error", {
     try_spacy_initialize()
     expect_error(spacy_match(lex, "^\\p{L}+$", valuetype = "regex"),
                  "spaCy could not match the patterns")
+})
+
+test_that("a glob matches tokens of newlines, as quanteda's does", {
+    skip_on_cran()
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+    txt <- c(d1 = "A\n\nB", d2 = "A\nB")
+    m <- spacy_match(txt, "*")
+    idx <- quanteda::index(quanteda::as.tokens(spacy_parse(txt)), "*")
+    expect_identical(m$start_id, idx$from)
+    expect_identical(m$doc_id, idx$docname)
+    expect_identical(m$start_id, c(1:3, 1:3))
+    # and so do its other wildcards
+    expect_identical(spacy_match(txt, "?*")$start_id, c(1:3, 1:3))
+    expect_identical(spacy_match(txt, "?")$text, c("A", "B", "A", "\n", "B"))
+    # the whole of a token: "$" would match before a last newline
+    expect_identical(spacy_match(txt, c("a*", "?"), case_insensitive = TRUE,
+                                 overlap = "all")$text,
+                     c("A", "A", "B", "A", "A", "\n", "B"))
+    expect_identical(spacy_match(txt, list(c("a", "*", "b")))$doc_id, c("d1", "d2"))
+})
+
+test_that("a phrase with a wildcard ignores case as one without does", {
+    skip_on_cran()
+    skip_if_not(l10n_info()[["UTF-8"]], "not a UTF-8 locale")
+    try_spacy_initialize()
+    # R's tolower() and spaCy's LOWER differ for a dotted capital I
+    txt <- "\u0130stanbul office and \u00c9COLE Normale"
+    whole <- spacy_match(txt, list(c("\u0130stanbul", "office"),
+                                   c("\u00e9cole", "normale")))
+    glob <- spacy_match(txt, list(c("\u0130stanbul", "off*"),
+                                  c("\u00e9cole", "norm*")))
+    expect_identical(whole$text, c("\u0130stanbul office", "\u00c9COLE Normale"))
+    expect_identical(glob$text, whole$text)
+    expect_identical(spacy_match(txt, "\u0130stanb*")$text, "\u0130stanbul")
+    expect_identical(spacy_lower(c("New", "\u0130stanbul", "\u00c9COLE", "a b")),
+                     c("new", "i\u0307stanbul", "\u00e9cole", "a b"))
+    skip_if_not_installed("quanteda")
+    dict <- quanteda::dictionary(list(CITY = c("\u0130stanbul office",
+                                               "\u0130stanbul off*")),
+                                 tolower = FALSE)
+    expect_identical(spacy_match(txt, dict, overlap = "all")$text,
+                     "\u0130stanbul office")
 })

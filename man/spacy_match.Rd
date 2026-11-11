@@ -220,7 +220,10 @@ expressions, apply \code{\link[quanteda:index]{quanteda::index()}} or \code{\lin
 A string without a wildcard is compared with the token's text or, with
 \code{case_insensitive = TRUE}, its lower case form (spaCy's \code{ORTH} and
 \code{LOWER}). A glob with a wildcard becomes a regular expression for the
-whole of that text or lower case form. A regular expression is applied to
+whole of that text or lower case form, in which a wildcard stands for any
+characters, including the newlines of spaCy's whitespace tokens. Lower
+case is spaCy's throughout, so that a pattern ignores case in the same
+way with a wildcard as without. A regular expression is applied to
 the token's text, with the flag \code{(?i)} when \code{case_insensitive = TRUE}.
 
 The phrases of a \code{spacyr_entity_patterns} object, and dictionary values
