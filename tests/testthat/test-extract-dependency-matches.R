@@ -123,6 +123,9 @@ test_that("matches are ordered by position, then label, and numbered", {
     m <- spacy_extract_dependency_matches(txt["doc1"], list(PASSIVE_AGENT = agent,
                                                             PASSIVE = passive))
     expect_identical(m$match_id, rep(1:2, c(3, 5)))
+    # match_id starts again in each document
+    two <- spacy_extract_dependency_matches(txt, list(PASSIVE = passive))
+    expect_identical(unique(two[, c("doc_id", "match_id")])$match_id, c(1L, 1L, 2L))
     expect_identical(m$label, rep(c("PASSIVE", "PASSIVE_AGENT"), c(3, 5)))
     expect_identical(m$node, c("verb", "subject", "aux",
                                "verb", "subject", "aux", "by", "agent"))
@@ -191,9 +194,31 @@ test_that("dependency patterns need the parser, and warn about missing entities"
     expect_identical(nrow(m), 0L)
     expect_silent(spacy_extract_dependency_matches(txt, list(PASSIVE = passive)))
 
+    # nodes that ask for no dependency label: spaCy would find nothing
+    # without a parse, instead of giving an error
+    verb_noun <- list(VERB_NOUN = list(
+        list(RIGHT_ID = "verb", RIGHT_ATTRS = list(POS = "VERB")),
+        list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "noun",
+             RIGHT_ATTRS = list(POS = "NOUN"))))
+    verb <- list(VERB = verb_noun$VERB_NOUN[1])
+    x <- c(a = "", b = "Jane wrote the book.")
+    expect_identical(spacy_extract_dependency_matches(x, verb_noun)$token,
+                     c("wrote", "book"))
+
     spacyr:::spacyr_env$nlp$disable_pipe("parser")
-    expect_error(spacy_extract_dependency_matches(txt, list(PASSIVE = passive)),
-                 "spaCy could not match the patterns:.*E155.*parser")
+    no_parse <- "spaCy could not match the patterns:.*Document 'b' has no dependency parse"
+    expect_error(spacy_extract_dependency_matches(x, verb_noun), no_parse)
+    expect_error(spacy_extract_dependency_matches(x, list(PASSIVE = passive)), no_parse)
+    expect_error(spacy_extract_dependency_matches(x, c(verb, verb_noun)), no_parse)
+    # an empty document has nothing to parse
+    expect_identical(nrow(spacy_extract_dependency_matches(x["a"], verb_noun)), 0L)
+    # a single node has no relations, and needs no parse; its sentence is
+    # then unknown
+    m <- spacy_extract_dependency_matches(x, verb)
+    expect_identical(m$token, "wrote")
+    expect_identical(m$start_id, 2L)
+    expect_identical(m$sentence_id, NA_integer_)
+    expect_identical(m$token_id, NA_integer_)
 
     spacy_finalize()
     suppressMessages(spacy_initialize())

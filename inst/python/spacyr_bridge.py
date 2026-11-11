@@ -588,6 +588,11 @@ class spacyr:
         # document's matches are sorted by the positions of their tokens,
         # taken in the order of the nodes, then by the order of the labels,
         # and numbered from 1 in that order. Positions are as in match_table().
+        # A pattern with relations between nodes needs the dependency parse:
+        # without it, spaCy gives an error (E155) only when a node asks for
+        # an attribute such as DEP, and otherwise finds nothing, as if the
+        # document had no match. So a document with tokens and no dependency
+        # annotation is an error, whichever component would have set it.
         texts, docnames = _as_list(texts, docnames)
         if not isinstance(labels, list):
             labels = [labels]
@@ -597,11 +602,17 @@ class spacyr:
         for label, pattern in zip(labels, patterns):
             matcher.add(label, [pattern])
             nodes[label] = [node["RIGHT_ID"] for node in pattern]
+        relations = any(len(ids) > 1 for ids in nodes.values())
         order = dict((label, k) for k, label in enumerate(labels))
         strings = self.nlp.vocab.strings
         cols = {"doc_id": [], "match_id": [], "label": [], "node": [],
                 "sentence_id": [], "token_id": [], "start_id": [], "token": []}
         for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+            if relations and len(doc) > 0 and not doc.has_annotation("DEP"):
+                raise ValueError(
+                    "Document '" + str(id_) + "' has no dependency parse, which "
+                    "patterns with relations between nodes need. The pipeline "
+                    "needs a parser, or another component that sets dependencies.")
             matches = [(strings[key], token_ids) for key, token_ids in matcher(doc)]
             if not matches:
                 continue

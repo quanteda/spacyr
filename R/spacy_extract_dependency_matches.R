@@ -32,8 +32,10 @@
 #' when B is anywhere below A, and `"A . B"` when B directly follows A. See
 #' the link above for all of them.
 #'
-#' The pipeline needs a dependency parser. The labels of dependency
-#' relations and tags differ between language models;
+#' The pipeline needs a dependency parser, or another component that sets
+#' dependencies: a pattern that relates nodes gives an error for a document
+#' that has no dependency parse, rather than no matches. The labels of
+#' dependency relations and tags differ between language models;
 #' `spacy_parse(x, tag = TRUE, dependency = TRUE)` shows those of the model
 #' in use. A match is only as good as the model's parse of the text.
 #'
@@ -41,17 +43,20 @@
 #' dependents gives one match for each dependent. Patterns that ask for an
 #' entity type (`ENT_TYPE` or `ENT_IOB`) give a warning when no component
 #' sets entities, since they then match nothing.
-#' @returns A `data.frame` with one row for each token of each match, and no
-#'   rows when nothing matches:
+#' @returns A `data.frame` with one row for each node of the pattern in each
+#'   match, and no rows when nothing matches. Two nodes of a pattern can
+#'   match the same token, which then has a row for each:
 #'   \describe{
 #'   \item{`doc_id`}{the document}
 #'   \item{`match_id`}{the number of the match within the document, starting
-#'   at 1}
+#'   at 1 in each document, so that `doc_id` and `match_id` together
+#'   identify a match}
 #'   \item{`label`}{the label of the pattern}
 #'   \item{`node`}{the name of the node that the token matched, from
 #'   `RIGHT_ID`}
-#'   \item{`sentence_id`, `token_id`}{the sentence of the token, and its
-#'   position in that sentence, both starting at 1 as in [spacy_parse()]}
+#'   \item{`sentence_id`, `token_id`}{the sentence of the token that the
+#'   node matched, and its position in that sentence, both starting at 1 as
+#'   in [spacy_parse()]}
 #'   \item{`start_id`}{the position of the token in the document, starting
 #'   at 1}
 #'   \item{`token`}{the text of the token}
