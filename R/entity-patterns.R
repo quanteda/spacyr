@@ -67,9 +67,10 @@
 #' errors then.
 #'
 #' Two conversions make patterns from R reach spaCy in the form it expects.
-#' The values of the `IN` and `NOT_IN` operators are always stored as lists,
-#' so that `list(LOWER = list(IN = "dr"))` stays a list of one value, rather
-#' than becoming a single string. Whole numbers stored as doubles, such as `3`
+#' The values of spaCy's set operators (`IN`, `NOT_IN`, `IS_SUBSET`,
+#' `IS_SUPERSET` and `INTERSECTS`) are always stored as lists, so that
+#' `list(LOWER = list(IN = "dr"))` stays a list of one value, rather than
+#' becoming a single string. Whole numbers stored as doubles, such as `3`
 #' in `list(LENGTH = 3)`, become integers, since spaCy does not accept
 #' decimal numbers in token patterns.
 #'
@@ -355,8 +356,8 @@ new_entity_patterns <- function(label, pattern, id, case_insensitive) {
 }
 
 # A phrase is returned as a UTF-8 string; a token pattern as a list of named
-# lists, with IN and NOT_IN values as lists and whole-number doubles as
-# integers.
+# lists, with the values of the set operators (such as IN) as lists and
+# whole-number doubles as integers.
 normalize_pattern <- function(p, i) {
     if (is.character(p)) {
         if (length(p) != 1 || is.na(p) || !nzchar(trimws(p)))
@@ -376,20 +377,39 @@ normalize_pattern <- function(p, i) {
                                                 any(!nzchar(names(tok))))))
             stop("Token ", j, " of pattern ", i, " is not a named list of attributes",
                  call. = FALSE)
-        if (!length(tok)) return(structure(list(), names = character(0)))
+        if (!length(tok)) return(empty_dict())
         normalize_values(tok)
     })
 }
 
-normalize_values <- function(x) {
+# The operators whose value is a set, which spaCy accepts as an array only;
+# reticulate would pass a value of length one as a string.
+set_operators <- c("IN", "NOT_IN", "IS_SUBSET", "IS_SUPERSET", "INTERSECTS")
+
+# a list that reaches Python as an empty dict, where list() gives an empty list
+empty_dict <- function() structure(list(), names = character(0))
+
+# The values of the set operators become unnamed lists, also when empty or of
+# length one. Any other empty list is the value of an attribute, of a
+# dependency pattern's RIGHT_ATTRS or of "_", which spaCy expects as a dict.
+# The names directly inside "_" are those of custom attributes, which can be
+# the same as an operator's (an extension called "is_subset", for instance),
+# so they are never read as operators (extension = TRUE); operators apply
+# again within the value of each custom attribute.
+normalize_values <- function(x, extension = FALSE) {
     nms <- names(x)
     for (k in seq_along(x)) {
         v <- x[[k]]
         # spaCy accepts the operators in either case, with an array as value
-        if (!is.null(nms) && toupper(nms[k]) %in% c("IN", "NOT_IN")) {
+        if (!extension && !is.null(nms) && toupper(nms[k]) %in% set_operators) {
             v <- unname(lapply(as.list(v), whole_to_integer))
         } else if (is.list(v)) {
-            v <- normalize_values(v)
+            v <- if (length(v)) {
+                normalize_values(v, extension = !extension && !is.null(nms) &&
+                                     identical(nms[k], "_"))
+            } else {
+                empty_dict()
+            }
         } else {
             v <- whole_to_integer(v)
         }

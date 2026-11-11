@@ -4,6 +4,7 @@
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
 import spacy
+from spacy.matcher import Matcher
 import time
 import string
 import random
@@ -212,6 +213,22 @@ def add_entity_ruler(nlp, patterns, overwrite = True):
         raise
     info["name"] = name
     return info
+
+def any_sets_entities(nlp):
+    # whether any active component of the pipeline sets entities
+    return any(sets_entities(nlp, name) for name in nlp.pipe_names)
+
+def sentence_positions(doc):
+    # (sentence_id, token_id) of each token, both starting at 1 as in
+    # spacy_parse(), or None when the document has no sentence boundaries,
+    # since doc.sents then raises E030
+    if not doc.has_annotation("SENT_START"):
+        return None
+    positions = [None] * len(doc)
+    for sent_id, sent in enumerate(doc.sents, 1):
+        for token_id, w in enumerate(sent, 1):
+            positions[w.i] = (sent_id, token_id)
+    return positions
 
 def spacy_version():
     return spacy.about.__version__
@@ -518,6 +535,46 @@ class spacyr:
                 continue
             df_all[id_] = df_doc
         return df_all
+
+    def match_table(self, texts, docnames, labels, patterns, greedy = None,
+                    batch_size = None, n_process = 1):
+        # The columns of spacy_extract_matches(): one row for each match of
+        # spaCy's Matcher. labels and patterns are parallel lists, with the
+        # alternative token patterns of each label. The matcher runs here, on
+        # each document as nlp.pipe() returns it, also when n_process > 1.
+        # Labels are read from the spans, since match IDs are 64-bit hashes
+        # that R cannot hold. spaCy returns matches grouped by label rather
+        # than in document order, so each document's matches are sorted by
+        # their first token, then their length, then the order of the labels.
+        # start_id counts tokens from 1 in the document; sentence_id and
+        # token_id are those of the first token, as in spacy_parse(), or 0
+        # when the document has no sentence boundaries.
+        texts, docnames = _as_list(texts, docnames)
+        if not isinstance(labels, list):
+            labels = [labels]
+            patterns = [patterns]
+        matcher = Matcher(self.nlp.vocab, validate = True)
+        for label, alternatives in zip(labels, patterns):
+            matcher.add(label, alternatives, greedy = greedy)
+        order = dict((label, k) for k, label in enumerate(labels))
+        cols = {"doc_id": [], "sentence_id": [], "token_id": [], "label": [],
+                "text": [], "start_id": [], "length": []}
+        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+            spans = matcher(doc, as_spans = True)
+            if not spans:
+                continue
+            spans.sort(key = lambda s: (s.start, s.end, order[s.label_]))
+            positions = sentence_positions(doc)
+            for span in spans:
+                sent_id, token_id = positions[span.start] if positions else (0, 0)
+                cols["doc_id"].append(id_)
+                cols["sentence_id"].append(sent_id)
+                cols["token_id"].append(token_id)
+                cols["label"].append(span.label_)
+                cols["text"].append(span.text)
+                cols["start_id"].append(span.start + 1)
+                cols["length"].append(span.end - span.start)
+        return cols
 
     def ntokens(self, timestamps):
         ntok = []

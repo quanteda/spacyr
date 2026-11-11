@@ -119,9 +119,10 @@ and values when the patterns are added to a pipeline, and reports any
 errors then.
 
 Two conversions make patterns from R reach spaCy in the form it expects.
-The values of the \code{IN} and \code{NOT_IN} operators are always stored as lists,
-so that \code{list(LOWER = list(IN = "dr"))} stays a list of one value, rather
-than becoming a single string. Whole numbers stored as doubles, such as \code{3}
+The values of spaCy's set operators (\code{IN}, \code{NOT_IN}, \code{IS_SUBSET},
+\code{IS_SUPERSET} and \code{INTERSECTS}) are always stored as lists, so that
+\code{list(LOWER = list(IN = "dr"))} stays a list of one value, rather than
+becoming a single string. Whole numbers stored as doubles, such as \code{3}
 in \code{list(LENGTH = 3)}, become integers, since spaCy does not accept
 decimal numbers in token patterns.
 
