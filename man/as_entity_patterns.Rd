@@ -230,5 +230,7 @@ c(as_entity_patterns(c(ORG = "Globex")),
 }
 \seealso{
 \code{\link[=entity_patterns_read]{entity_patterns_read()}} and \code{\link[=entity_patterns_write]{entity_patterns_write()}} to read
-and write patterns as files, and \code{\link[=spacy_initialize]{spacy_initialize()}} to use them
+and write patterns as files, \code{\link[=spacy_initialize]{spacy_initialize()}} to use them, and
+\code{\link[=as.dictionary.spacyr_entity_patterns]{as.dictionary.spacyr_entity_patterns()}} to make a \pkg{quanteda}
+dictionary of patterns that are all phrases
 }

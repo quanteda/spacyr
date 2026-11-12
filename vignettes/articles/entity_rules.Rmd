@@ -1,7 +1,7 @@
 ---
 title: "Adding Rule-Based Named Entities"
 author: "Kenneth Benoit"
-date: "2026-11-11"
+date: "2026-11-12"
 ---
 
 <!-- An article for the pkgdown site only: vignettes/articles is in
@@ -323,6 +323,36 @@ spacy_finalize()
 ```
 
 `entity_extract()`, which works on the output of `spacy_parse()`, joins the tokens of each entity with an underscore. `as_entity_patterns()` converts its output too, but needs to be told the `concatenator`, since a token that itself contains one would be changed. `spacy_extract_entity()` is the better source.
+
+The same entities can become a **quanteda** dictionary, for use with `tokens_lookup()` or `kwic()`. Either make one from the table, with the entity types as keys, or convert the rules with `as.dictionary()`, which works for rules that are all phrases. Both keep each phrase once, and `tolower = FALSE` keeps the entities in their own case. The first needs a table, and `spacy_extract_entity()` returns `NULL` when it finds no entities; `as.dictionary(as_entity_patterns(found))` works then too, and gives a dictionary with no keys:
+
+
+``` r
+dictionary(lapply(split(found$text, found$ent_type), unique), tolower = FALSE)
+## Dictionary object with 2 key entries.
+## - [ORG]:
+##   - Acme Widgets
+## - [PERSON]:
+##   - Jane Smith
+as.dictionary(pats)
+## Dictionary object with 2 key entries.
+## - [ORG]:
+##   - Acme Widgets
+## - [PERSON]:
+##   - Jane Smith
+```
+
+A dictionary holds only words and phrases, so `as.dictionary()` stops when a set of rules has token patterns. It also drops what a dictionary cannot hold: the `id` of a rule, and whether its phrase matches in any case, which **quanteda** sets where a dictionary is used. To turn such a dictionary back into rules for exact phrases in their own case, say so, since the values of a dictionary are otherwise wildcard patterns that match in any case:
+
+
+``` r
+as_entity_patterns(as.dictionary(pats), valuetype = "fixed", case_insensitive = FALSE)
+## Entity patterns: 2 patterns (ORG: 1, PERSON: 1)
+##   ORG     "Acme Widgets"
+##   PERSON  "Jane Smith"
+```
+
+In a dictionary, **quanteda** reads `*` and `?` as wildcards, so `as.dictionary()` warns when a phrase has one; `tokens_lookup(valuetype = "fixed")` matches such values as they are written.
 
 ## Combining and saving rules
 
