@@ -333,6 +333,40 @@ nrow(quanteda::kwic(spacy_tokens, quanteda::phrase(c("new york", "york"))))
 quanteda::kwic(spacy_tokens, index = as_index(spacy_extract_entity(txt)), window = 3)
 ```
 
+## Counting matches
+
+`quanteda::tokens_lookup()` replaces the tokens of each document by the keys of the dictionary values found in it, and a document-feature matrix of the result counts each key in each document. The matches of `spacy_match()` give the same kind of object in two steps. The first keeps one row for each match, which is a distinct pair of `doc_id` and `match_id`. The second splits the labels by document, and makes tokens of them:
+
+```{r}
+m <- spacy_match(txt, dict)
+m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]
+labels <- quanteda::as.tokens(split(m1$label, factor(m1$doc_id, levels = names(txt))))
+labels
+quanteda::dfm(labels, tolower = FALSE)
+```
+
+Three details matter:
+
+- The levels of the factor are the names of all the documents, so a document without a match stays in the result, with no tokens. Without them, `split()` would leave it out. They have to be the identifiers that `spacy_match()` gives in `doc_id`: `names(x)` for a named character vector, as here; `sprintf("text%d", seq_along(x))` for an unnamed one; `as.character(x$doc_id)` for a data.frame with the columns `doc_id` and `text`; and `quanteda::docnames(x)` for a corpus.
+- `tolower = FALSE` keeps the labels as they are: `dfm()` would otherwise put a label such as `PASSIVE` in lower case.
+- The matrix has a column for each label that was found. `tokens_lookup()` gives one for every key, also for a key that matched nothing; `quanteda::dfm_match(x, names(dict))` adds those, in the order of the dictionary.
+
+For this dictionary and these texts, the result is the matrix that `tokens_lookup()` gives on spaCy's tokens, since the two find the same candidate matches under the same keys, as described [above](#dictionaries):
+
+```{r}
+quanteda::dfm(quanteda::tokens_lookup(spacy_tokens, dict), tolower = FALSE)
+```
+
+The first step matters for dependency patterns, whose matches have one row for each node. Counting rows would count each passive clause here three times:
+
+```{r}
+dep <- spacy_match(passive_txt, list(CLAUSE = passive_dep))
+table(dep$doc_id, dep$label)
+dep1 <- dep[!duplicated(dep[c("doc_id", "match_id")]), ]
+quanteda::dfm(quanteda::as.tokens(split(dep1$label, factor(dep1$doc_id, levels = names(passive_txt)))),
+              tolower = FALSE)
+```
+
 ## What to keep in mind
 
 **Labels belong to the model.** The tags and dependency labels above are those of spaCy's English models. Other languages' models use other labels, and some do not mark the passive at all. Look at the output of `spacy_parse(x, tag = TRUE, dependency = TRUE)` for the model you use before writing a pattern.

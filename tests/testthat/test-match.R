@@ -1164,3 +1164,57 @@ test_that("a phrase with a wildcard ignores case as one without does", {
     expect_identical(spacy_match(txt, dict, overlap = "all")$text,
                      "\u0130stanbul office")
 })
+
+test_that("labels of matches give the counts of tokens_lookup()", {
+    skip_on_cran()
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+    txt <- c(d1 = "New York is a large city. York is small.",
+             d2 = "Nothing here.",
+             d3 = "A big book in new york was written by Jane.")
+    dict <- quanteda::dictionary(list(place = c("new york", "york"),
+                                      size = c("larg*", "small*", "big*"),
+                                      colour = "red"))
+    m <- spacy_match(txt, dict)
+    m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]
+    labels <- quanteda::as.tokens(split(m1$label,
+                                        factor(m1$doc_id, levels = names(txt))))
+    expect_identical(quanteda::docnames(labels), names(txt))
+    counts <- quanteda::dfm_match(quanteda::dfm(labels, tolower = FALSE),
+                                  names(dict))
+    lookup <- quanteda::dfm(quanteda::tokens_lookup(
+        quanteda::as.tokens(spacy_parse(txt)), dict), tolower = FALSE)
+    expect_identical(as.matrix(counts), as.matrix(lookup))
+
+    # the identifiers of the documents for the other kinds of input
+    count_place <- function(x, ids) {
+        m <- spacy_match(x, dict)
+        m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]
+        labels <- quanteda::as.tokens(split(m1$label,
+                                            factor(m1$doc_id, levels = ids)))
+        expect_identical(quanteda::docnames(labels), ids)
+        as.vector(as.matrix(quanteda::dfm(labels, tolower = FALSE))[, "place"])
+    }
+    unnamed <- unname(txt)
+    expect_identical(count_place(unnamed, sprintf("text%d", seq_along(unnamed))),
+                     c(2, 0, 1))
+    tif <- data.frame(doc_id = c("a", "b", "c"), text = unnamed,
+                      stringsAsFactors = FALSE)
+    expect_identical(count_place(tif, as.character(tif$doc_id)), c(2, 0, 1))
+    crp <- quanteda::corpus(txt)
+    expect_identical(count_place(crp, quanteda::docnames(crp)), c(2, 0, 1))
+
+    # a dependency match counts once, not once for each node
+    dep <- list(
+        list(RIGHT_ID = "verb", RIGHT_ATTRS = list(TAG = "VBN")),
+        list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "aux",
+             RIGHT_ATTRS = list(DEP = "auxpass"))
+    )
+    md <- spacy_match(txt, list(PASSIVE = dep))
+    expect_identical(nrow(md), 2L)
+    md1 <- md[!duplicated(md[c("doc_id", "match_id")]), ]
+    labels <- quanteda::as.tokens(split(md1$label,
+                                        factor(md1$doc_id, levels = names(txt))))
+    counts <- quanteda::dfm(labels, tolower = FALSE)
+    expect_identical(as.vector(as.matrix(counts)[, "PASSIVE"]), c(0, 0, 1))
+})

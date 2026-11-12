@@ -232,7 +232,16 @@
 #'
 #' A match is a distinct pair of `doc_id` and `match_id`, not a row: count
 #' those to count matches, since a match of a dependency pattern has a row
-#' for each node.
+#' for each node. With one row for each match,
+#' `m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]`, the labels of each
+#' document are tokens as `tokens_lookup()` returns them:
+#' `quanteda::as.tokens(split(m1$label, factor(m1$doc_id, levels = ids)))`.
+#' The levels `ids` are the identifiers of all the documents, which keep
+#' those that have no match: `names(x)` for a named character vector,
+#' `sprintf("text%d", seq_along(x))` for an unnamed one,
+#' `as.character(x$doc_id)` for a data.frame with the columns `doc_id` and
+#' `text`, and `quanteda::docnames(x)` for a corpus. The "Rule-Based
+#' Matching" article shows the counts made from them.
 #'
 #' [quanteda::kwic()] follows a different rule, which no value of `overlap`
 #' gives: it drops a match only when every one of its tokens is in another
