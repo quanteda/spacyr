@@ -1164,3 +1164,39 @@ test_that("a phrase with a wildcard ignores case as one without does", {
     expect_identical(spacy_match(txt, dict, overlap = "all")$text,
                      "\u0130stanbul office")
 })
+
+test_that("labels of matches give the counts of tokens_lookup()", {
+    skip_on_cran()
+    skip_if_not_installed("quanteda")
+    try_spacy_initialize()
+    txt <- c(d1 = "New York is a large city. York is small.",
+             d2 = "Nothing here.",
+             d3 = "A big book in new york was written by Jane.")
+    dict <- quanteda::dictionary(list(place = c("new york", "york"),
+                                      size = c("larg*", "small*", "big*"),
+                                      colour = "red"))
+    m <- spacy_match(txt, dict)
+    m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]
+    labels <- quanteda::as.tokens(split(m1$label,
+                                        factor(m1$doc_id, levels = names(txt))))
+    expect_identical(quanteda::docnames(labels), names(txt))
+    counts <- quanteda::dfm_match(quanteda::dfm(labels, tolower = FALSE),
+                                  names(dict))
+    lookup <- quanteda::dfm(quanteda::tokens_lookup(
+        quanteda::as.tokens(spacy_parse(txt)), dict))
+    expect_identical(as.matrix(counts), as.matrix(lookup))
+
+    # a dependency match counts once, not once for each node
+    dep <- list(
+        list(RIGHT_ID = "verb", RIGHT_ATTRS = list(TAG = "VBN")),
+        list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "aux",
+             RIGHT_ATTRS = list(DEP = "auxpass"))
+    )
+    md <- spacy_match(txt, list(PASSIVE = dep))
+    expect_identical(nrow(md), 2L)
+    md1 <- md[!duplicated(md[c("doc_id", "match_id")]), ]
+    labels <- quanteda::as.tokens(split(md1$label,
+                                        factor(md1$doc_id, levels = names(txt))))
+    counts <- quanteda::dfm(labels, tolower = FALSE)
+    expect_identical(as.vector(as.matrix(counts)[, "PASSIVE"]), c(0, 0, 1))
+})

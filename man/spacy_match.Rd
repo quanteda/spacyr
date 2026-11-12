@@ -320,7 +320,12 @@ separately, and so also keeps matches of two of them that overlap.
 
 A match is a distinct pair of \code{doc_id} and \code{match_id}, not a row: count
 those to count matches, since a match of a dependency pattern has a row
-for each node.
+for each node. With one row for each match,
+\code{m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]}, the labels of each
+document are tokens as \code{tokens_lookup()} returns them:
+\code{quanteda::as.tokens(split(m1$label, factor(m1$doc_id, levels = names(x))))},
+where the levels keep the documents that have no match. The "Rule-Based
+Matching" article shows the counts made from them.
 
 \code{\link[quanteda:kwic]{quanteda::kwic()}} follows a different rule, which no value of \code{overlap}
 gives: it drops a match only when every one of its tokens is in another
