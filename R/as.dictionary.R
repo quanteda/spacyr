@@ -37,6 +37,13 @@
 #' use `valuetype = "fixed"`, as in
 #' `quanteda::tokens_lookup(x, dictionary, valuetype = "fixed")`.
 #'
+#' An object with no patterns gives a dictionary with no keys, which
+#' [as_entity_patterns()] makes into no patterns again. \pkg{quanteda} takes
+#' such a dictionary in [quanteda::kwic()] and [quanteda::dfm_lookup()], but
+#' [quanteda::tokens_lookup()] stops with an error for it (in
+#' \pkg{quanteda} 4.5.1), so check `length()` of the dictionary first where
+#' it can be empty.
+#'
 #' To make entity patterns of the dictionary again, with the phrases as they
 #' are written and matched in their own case, use
 #' `as_entity_patterns(d, valuetype = "fixed", case_insensitive = FALSE)`.
@@ -56,6 +63,8 @@
 as.dictionary.spacyr_entity_patterns <- function(x, ...) {
     check_unused_args(match.call(expand.dots = FALSE)$...,
                       fun = "as.dictionary")
+    # an object that was edited as a data.frame keeps its class: check it
+    x <- as_entity_patterns(x)
     is_phrase <- vapply(x$pattern, is.character, logical(1))
     if (!all(is_phrase))
         stop("a dictionary holds only phrases, and x has token patterns ",

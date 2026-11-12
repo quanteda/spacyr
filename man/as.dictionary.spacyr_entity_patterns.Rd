@@ -50,6 +50,13 @@ warning when a phrase has one. To match such values as they are written,
 use \code{valuetype = "fixed"}, as in
 \code{quanteda::tokens_lookup(x, dictionary, valuetype = "fixed")}.
 
+An object with no patterns gives a dictionary with no keys, which
+\code{\link[=as_entity_patterns]{as_entity_patterns()}} makes into no patterns again. \pkg{quanteda} takes
+such a dictionary in \code{\link[quanteda:kwic]{quanteda::kwic()}} and \code{\link[quanteda:dfm_lookup]{quanteda::dfm_lookup()}}, but
+\code{\link[quanteda:tokens_lookup]{quanteda::tokens_lookup()}} stops with an error for it (in
+\pkg{quanteda} 4.5.1), so check \code{length()} of the dictionary first where
+it can be empty.
+
 To make entity patterns of the dictionary again, with the phrases as they
 are written and matched in their own case, use
 \code{as_entity_patterns(d, valuetype = "fixed", case_insensitive = FALSE)}.

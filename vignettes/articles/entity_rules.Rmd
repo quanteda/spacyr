@@ -324,7 +324,7 @@ spacy_finalize()
 
 `entity_extract()`, which works on the output of `spacy_parse()`, joins the tokens of each entity with an underscore. `as_entity_patterns()` converts its output too, but needs to be told the `concatenator`, since a token that itself contains one would be changed. `spacy_extract_entity()` is the better source.
 
-The same entities can become a **quanteda** dictionary, for use with `tokens_lookup()` or `kwic()`. Either make one from the table, with the entity types as keys, or convert the rules with `as.dictionary()`, which works for rules that are all phrases. Both keep each phrase once, and `tolower = FALSE` keeps the entities in their own case:
+The same entities can become a **quanteda** dictionary, for use with `tokens_lookup()` or `kwic()`. Either make one from the table, with the entity types as keys, or convert the rules with `as.dictionary()`, which works for rules that are all phrases. Both keep each phrase once, and `tolower = FALSE` keeps the entities in their own case. The first needs a table, and `spacy_extract_entity()` returns `NULL` when it finds no entities; `as.dictionary(as_entity_patterns(found))` works then too, and gives a dictionary with no keys:
 
 
 ``` r

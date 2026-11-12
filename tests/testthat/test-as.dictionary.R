@@ -74,6 +74,30 @@ test_that("as.dictionary() handles no patterns and rejects other arguments", {
                  "does not use the argument tolower")
 })
 
+test_that("as.dictionary() checks an object that was edited", {
+    skip_if_not_installed("quanteda")
+    pat <- as_entity_patterns(c(ORG = "Acme", GPE = "New York"))
+    expect_s3_class(pat[, c("label", "id")], "spacyr_entity_patterns")
+    expect_error(quanteda::as.dictionary(pat[, c("label", "id")]), "pattern")
+    expect_error(quanteda::as.dictionary(pat[, c("pattern", "id")]), "label")
+    # rows taken out leave a valid object
+    expect_identical(quanteda::as.list(quanteda::as.dictionary(pat[2, ])),
+                     list(GPE = "New York"))
+})
+
+test_that("no entities give an empty dictionary that converts back", {
+    skip_if_not_installed("quanteda")
+    # spacy_extract_entity() returns NULL when it finds nothing
+    d <- quanteda::as.dictionary(as_entity_patterns(NULL))
+    expect_length(d, 0)
+    back <- as_entity_patterns(d, valuetype = "fixed", case_insensitive = FALSE)
+    expect_identical(nrow(back), 0L)
+    toks <- quanteda::tokens("a b c")
+    expect_identical(nrow(quanteda::kwic(toks, d)), 0L)
+    expect_identical(quanteda::nfeat(quanteda::dfm_lookup(quanteda::dfm(toks), d)),
+                     0L)
+})
+
 test_that("results give a dictionary of their texts", {
     skip_on_cran()
     skip_if_not_installed("quanteda")
