@@ -71,7 +71,11 @@ more memory.}
 \item{...}{not used directly}
 }
 \value{
-a \code{data.frame} of tokenized, parsed, and annotated tokens
+a \code{data.frame} of tokenized, parsed, and annotated tokens, of class
+\code{spacyr_parsed}. It keeps the names of all the documents of \code{x}, also of
+those in which spaCy found no tokens, and the document variables of a
+\pkg{quanteda} corpus, for the \link[=quanteda-methods]{quanteda methods} such
+as \code{quanteda::as.tokens()}.
 }
 \description{
 The \code{spacy_parse()} function calls spaCy to both tokenize and tag the

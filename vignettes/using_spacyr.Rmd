@@ -364,7 +364,7 @@ Note that the additional language models must first be installed in spaCy. When 
 
 The outputs and formats of **spacyr** are designed to integrate directly with the **quanteda** package.
 
-For instance, many of its functions operate directly on **spacyr** objects, such as a parsed text.  
+For instance, **spacyr** has methods for several of its functions, which then operate directly on a parsed text.  
 
 
 ``` r
