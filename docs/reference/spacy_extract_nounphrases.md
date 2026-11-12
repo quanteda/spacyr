@@ -69,9 +69,11 @@ returns a `data.frame` with the following fields.
 
 - `start_id`:
 
-  serial number ID of starting token. This number corresponds with the
-  number of `data.frame` returned from `spacy_tokenize(x)` with default
-  options.
+  serial number ID of starting token: its position in the document,
+  starting at 1 and counting every token of spaCy's, as the rows of
+  `spacy_parse(x)` do. Whitespace tokens are counted, so where a
+  document has them this is not the position among the tokens of
+  `spacy_tokenize(x)` with default options, which leaves them out.
 
 - `root_id`:
 

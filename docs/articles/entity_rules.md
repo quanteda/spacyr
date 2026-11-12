@@ -269,9 +269,9 @@ spaces, as **quanteda** matches dictionary values to tokens, so
 [`as_entity_patterns`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)`(``dict``)`\
 `## Entity patterns: 4 patterns (ORG: 3, PERSON: 1)`\
 `##   ORG     "Acme Widgets" (any case)`\
-`##   ORG     [LOWER ~ /^globex.*$/]`\
+`##   ORG     [LOWER ~ /\Aglobex[\s\S]*\Z/]`\
 `##   ORG     "Initech, Inc." (any case)`\
-`##   PERSON  [LOWER = dr] [LOWER ~ /^.*$/] [LOWER = who]`
+`##   PERSON  [LOWER = dr] [LOWER ~ /\A[\s\S]*\Z/] [LOWER = who]`
 
 [`dictionary()`](https://quanteda.io/reference/dictionary.html)
 lowercases its values by default, so this one is made with
@@ -295,6 +295,34 @@ for one token. These are regular expressions in the dialect of Python,
 which differs from that of R in some details: for instance, Python does
 not support `"\\p{L}"` for letters. Make such a dictionary with
 `tolower = FALSE`, so that escapes such as `"\\D"` keep their case.
+
+The labels are the top-level keys of the dictionary, with the values of
+any nested keys under them. As in
+[`quanteda::tokens_lookup()`](https://quanteda.io/reference/tokens_lookup.html),
+`levels` sets which levels of the keys become labels:
+
+\
+`places`` ``<-`` `[`dictionary`](https://quanteda.io/reference/dictionary.html)`(`[`list`](https://rdrr.io/r/base/list.html)`(``place ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``us ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"New York"``, ``"Boston"``)``, uk ``=`` ``"London"``)``)``)`\
+[`as_entity_patterns`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)`(``places``)`\
+`## Entity patterns: 3 patterns (place: 3)`\
+`##   place  "new york" (any case)`\
+`##   place  "boston" (any case)`\
+`##   place  "london" (any case)`\
+[`as_entity_patterns`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)`(``places``, levels ``=`` ``1``:``2``)`\
+`## Entity patterns: 3 patterns (place.us: 2, place.uk: 1)`\
+`##   place.us  "new york" (any case)`\
+`##   place.us  "boston" (any case)`\
+`##   place.uk  "london" (any case)`
+
+A character vector of phrases takes `valuetype` too, for wildcards
+without a dictionary. Its defaults stay those that suit the names of
+entities, exact phrases in their own case:
+
+\
+[`as_entity_patterns`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)`(`[`c`](https://rdrr.io/r/base/c.html)`(``ORG ``=`` ``"Acme Wid*"``, ORG ``=`` ``"Globex"``)``, valuetype ``=`` ``"glob"``)`\
+`## Entity patterns: 2 patterns (ORG: 2)`\
+`##   ORG  [ORTH = Acme] [ORTH ~ /\AWid[\s\S]*\Z/]`\
+`##   ORG  "Globex"`
 
 ## Reusing the entities found
 
@@ -353,6 +381,53 @@ converts its output too, but needs to be told the `concatenator`, since
 a token that itself contains one would be changed.
 [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
 is the better source.
+
+The same entities can become a **quanteda** dictionary, for use with
+[`tokens_lookup()`](https://quanteda.io/reference/tokens_lookup.html) or
+[`kwic()`](https://quanteda.io/reference/kwic.html). Either make one
+from the table, with the entity types as keys, or convert the rules with
+[`as.dictionary()`](https://quanteda.io/reference/as.dictionary.html),
+which works for rules that are all phrases. Both keep each phrase once,
+and `tolower = FALSE` keeps the entities in their own case. The first
+needs a table, and
+[`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+returns `NULL` when it finds no entities;
+`as.dictionary(as_entity_patterns(found))` works then too, and gives a
+dictionary with no keys:
+
+\
+[`dictionary`](https://quanteda.io/reference/dictionary.html)`(`[`lapply`](https://rdrr.io/r/base/lapply.html)`(`[`split`](https://rdrr.io/r/base/split.html)`(``found``$``text``, ``found``$``ent_type``)``, ``unique``)``, tolower ``=`` ``FALSE``)`\
+`## Dictionary object with 2 key entries.`\
+`## - [ORG]:`\
+`##   - Acme Widgets`\
+`## - [PERSON]:`\
+`##   - Jane Smith`\
+[`as.dictionary`](https://quanteda.io/reference/as.dictionary.html)`(``pats``)`\
+`## Dictionary object with 2 key entries.`\
+`## - [ORG]:`\
+`##   - Acme Widgets`\
+`## - [PERSON]:`\
+`##   - Jane Smith`
+
+A dictionary holds only words and phrases, so
+[`as.dictionary()`](https://quanteda.io/reference/as.dictionary.html)
+stops when a set of rules has token patterns. It also drops what a
+dictionary cannot hold: the `id` of a rule, and whether its phrase
+matches in any case, which **quanteda** sets where a dictionary is used.
+To turn such a dictionary back into rules for exact phrases in their own
+case, say so, since the values of a dictionary are otherwise wildcard
+patterns that match in any case:
+
+\
+[`as_entity_patterns`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)`(`[`as.dictionary`](https://quanteda.io/reference/as.dictionary.html)`(``pats``)``, valuetype ``=`` ``"fixed"``, case_insensitive ``=`` ``FALSE``)`\
+`## Entity patterns: 2 patterns (ORG: 1, PERSON: 1)`\
+`##   ORG     "Acme Widgets"`\
+`##   PERSON  "Jane Smith"`
+
+In a dictionary, **quanteda** reads `*` and `?` as wildcards, so
+[`as.dictionary()`](https://quanteda.io/reference/as.dictionary.html)
+warns when a phrase has one; `tokens_lookup(valuetype = "fixed")`
+matches such values as they are written.
 
 ## Combining and saving rules
 

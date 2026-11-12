@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">Kenneth
 Benoit</h4>
             
-            <h4 data-toc-skip class="date">2026-11-11</h4>
+            <h4 data-toc-skip class="date">2026-11-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/quanteda/spacyr/blob/HEAD/vignettes/articles/matching.Rmd" class="external-link"><code>vignettes/articles/matching.Rmd</code></a></small>
       <div class="d-none name"><code>matching.Rmd</code></div>
@@ -86,25 +86,25 @@ its lemma, its part of speech, its place in the dependency parse. Many
 questions about a text are about combinations of tokens: a passive verb,
 an adjective before a noun, a verb with its subject and object. spaCy
 answers these with <em>rule-based matching</em>, which finds the tokens
-that fit a pattern. <strong>spacyr</strong> has two functions for
-it:</p>
+that fit a pattern. In <strong>spacyr</strong>,
+<code><a href="../reference/spacy_match.html">spacy_match()</a></code> does this, for two kinds of pattern:</p>
 <ul>
-<li>
-<code><a href="../reference/spacy_extract_matches.html">spacy_extract_matches()</a></code> finds <em>sequences of adjacent
-tokens</em>, using spaCy’s <code>Matcher</code>. It also matches
-phrases, and the values of a <strong>quanteda</strong> dictionary: if
-you have a list of phrases or a dictionary, go straight to <a href="#phrases-and-dictionaries">Phrases and dictionaries</a>.</li>
-<li>
-<code><a href="../reference/spacy_extract_dependency_matches.html">spacy_extract_dependency_matches()</a></code> finds <em>tokens
-connected in the dependency parse</em>, wherever they are in the
-sentence, using spaCy’s <code>DependencyMatcher</code>.</li>
+<li>a <em>token pattern</em> finds a <em>sequence of adjacent
+tokens</em>, using spaCy’s <code>Matcher</code>. Words and phrases are
+matched as sequences too, and are given as in <strong>quanteda</strong>:
+as a character vector, a <code><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase()</a></code> object or a dictionary,
+with wildcards. If words or phrases are what you want to find, go
+straight to <a href="#words-phrases-and-dictionaries">Words, phrases and
+dictionaries</a>.</li>
+<li>a <em>dependency pattern</em> finds <em>tokens connected in the
+dependency parse</em>, wherever they are in the sentence, using spaCy’s
+<code>DependencyMatcher</code>.</li>
 </ul>
-<p>Both take patterns written as R lists, in the structure that spaCy
-documents in its guide to <a href="https://spacy.io/usage/rule-based-matching" class="external-link">rule-based
-matching</a>, and both return a data.frame. Neither changes the pipeline
-or the entities of a document: to turn matches into named entities, see
-the article on <a href="entity_rules.html">rule-based named
-entities</a>.</p>
+<p>Token and dependency patterns are written as R lists, in the
+structure that spaCy documents in its guide to <a href="https://spacy.io/usage/rule-based-matching" class="external-link">rule-based
+matching</a>. Whatever the pattern, the result is a data.frame with the
+same columns. Matching does not change the pipeline or the entities of a
+document: to turn matches into named entities, see the article on <a href="entity_rules.html">rule-based named entities</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://spacyr.quanteda.io">"spacyr"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -119,18 +119,23 @@ pattern matches the two tokens “new” and “york”, in any case:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">txt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>d1 <span class="op">=</span> <span class="st">"New York is larger than York. I prefer new York."</span>,</span>
 <span>         d2 <span class="op">=</span> <span class="st">"The New York Times is printed in New York."</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>NY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LOWER <span class="op">=</span> <span class="st">"new"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LOWER <span class="op">=</span> <span class="st">"york"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id label     text start_id length</span></span>
-<span><span class="co">## 1     d1           1        1    NY New York        1      2</span></span>
-<span><span class="co">## 2     d1           2        3    NY new York       10      2</span></span>
-<span><span class="co">## 3     d2           1        2    NY New York        2      2</span></span>
-<span><span class="co">## 4     d2           1        8    NY New York        8      2</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>NY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LOWER <span class="op">=</span> <span class="st">"new"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LOWER <span class="op">=</span> <span class="st">"york"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id label node sentence_id token_id     text start_id length</span></span>
+<span><span class="co">## 1     d1        1    NY &lt;NA&gt;           1        1 New York        1      2</span></span>
+<span><span class="co">## 2     d1        2    NY &lt;NA&gt;           2        3 new York       10      2</span></span>
+<span><span class="co">## 3     d2        1    NY &lt;NA&gt;           1        2 New York        2      2</span></span>
+<span><span class="co">## 4     d2        2    NY &lt;NA&gt;           1        8 New York        8      2</span></span></code></pre></div>
 <p>The name of the pattern, <code>NY</code>, is its label. For each
 match, the result has:</p>
 <ul>
-<li>the document, and the sentence and token of the first token of the
-match, numbered as in <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>;</li>
-<li>the label and the matched text;</li>
+<li>the document, and <code>match_id</code>, the number of the match
+within the document;</li>
+<li>the label, and <code>node</code>, which is <code>NA</code> for a
+sequence and is used by <a href="#dependency-patterns">dependency
+patterns</a>;</li>
+<li>the sentence and token of the first token of the match, numbered as
+in <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>;</li>
+<li>the matched text;</li>
 <li>
 <code>start_id</code>, the position of the first token in the
 document, and <code>length</code>, the number of tokens.</li>
@@ -146,30 +151,30 @@ the adjectives before them:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ball</span> <span class="op">&lt;-</span> <span class="st">"A big red shiny ball and a small blue box."</span></span>
 <span><span class="va">adj_noun</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ADJ_NOUN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>POS <span class="op">=</span> <span class="st">"ADJ"</span>, OP <span class="op">=</span> <span class="st">"+"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>POS <span class="op">=</span> <span class="st">"NOUN"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">ball</span>, <span class="va">adj_noun</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id    label               text start_id length</span></span>
-<span><span class="co">## 1  text1           1        2 ADJ_NOUN big red shiny ball        2      4</span></span>
-<span><span class="co">## 2  text1           1        3 ADJ_NOUN     red shiny ball        3      3</span></span>
-<span><span class="co">## 3  text1           1        4 ADJ_NOUN         shiny ball        4      2</span></span>
-<span><span class="co">## 4  text1           1        8 ADJ_NOUN     small blue box        8      3</span></span>
-<span><span class="co">## 5  text1           1        9 ADJ_NOUN           blue box        9      2</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">ball</span>, <span class="va">adj_noun</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id    label node sentence_id token_id               text start_id length</span></span>
+<span><span class="co">## 1  text1        1 ADJ_NOUN &lt;NA&gt;           1        2 big red shiny ball        2      4</span></span>
+<span><span class="co">## 2  text1        2 ADJ_NOUN &lt;NA&gt;           1        8     small blue box        8      3</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="overlapping-matches">Overlapping matches<a class="anchor" aria-label="anchor" href="#overlapping-matches"></a>
 </h3>
-<p>That result has more rows than nouns, since spaCy returns every
-sequence that fits the pattern: “shiny ball” matches, and so do “red
-shiny ball” and “big red shiny ball”. This is the default,
-<code>overlap = "all"</code>, so that nothing is left out unless you
-ask. With <code>overlap = "longest"</code>, only the longest of the
-overlapping matches is kept, and with <code>"first"</code>, the one that
-starts first:</p>
+<p>More sequences fit that pattern than the two returned: “shiny ball”
+does, and so do “red shiny ball” and “big red shiny ball”. spaCy finds
+every one of them, and <code>overlap</code> says which to keep where the
+matches of a label overlap. The default,
+<code>overlap = "longest"</code>, keeps the longest;
+<code>"first"</code> keeps the one that starts first; and
+<code>"all"</code> returns every match:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">ball</span>, <span class="va">adj_noun</span>, overlap <span class="op">=</span> <span class="st">"longest"</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id    label               text start_id length</span></span>
-<span><span class="co">## 1  text1           1        2 ADJ_NOUN big red shiny ball        2      4</span></span>
-<span><span class="co">## 2  text1           1        8 ADJ_NOUN     small blue box        8      3</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">ball</span>, <span class="va">adj_noun</span>, overlap <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id    label node sentence_id token_id               text start_id length</span></span>
+<span><span class="co">## 1  text1        1 ADJ_NOUN &lt;NA&gt;           1        2 big red shiny ball        2      4</span></span>
+<span><span class="co">## 2  text1        2 ADJ_NOUN &lt;NA&gt;           1        3     red shiny ball        3      3</span></span>
+<span><span class="co">## 3  text1        3 ADJ_NOUN &lt;NA&gt;           1        4         shiny ball        4      2</span></span>
+<span><span class="co">## 4  text1        4 ADJ_NOUN &lt;NA&gt;           1        8     small blue box        8      3</span></span>
+<span><span class="co">## 5  text1        5 ADJ_NOUN &lt;NA&gt;           1        9           blue box        9      2</span></span></code></pre></div>
 <p><code>overlap</code> applies to the matches of one label. Matches of
-different labels can still overlap.</p>
+different labels can overlap whatever its value.</p>
 </div>
 <div class="section level3">
 <h3 id="several-patterns">Several patterns<a class="anchor" aria-label="anchor" href="#several-patterns"></a>
@@ -183,17 +188,17 @@ patterns:</p>
 <span>  COLOUR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LOWER <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LOWER <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">ball</span>, <span class="va">pats</span>, overlap <span class="op">=</span> <span class="st">"longest"</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id    label               text start_id length</span></span>
-<span><span class="co">## 1  text1           1        2 ADJ_NOUN big red shiny ball        2      4</span></span>
-<span><span class="co">## 2  text1           1        3   COLOUR                red        3      1</span></span>
-<span><span class="co">## 3  text1           1        8 ADJ_NOUN     small blue box        8      3</span></span>
-<span><span class="co">## 4  text1           1        9   COLOUR               blue        9      1</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">ball</span>, <span class="va">pats</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id    label node sentence_id token_id               text start_id length</span></span>
+<span><span class="co">## 1  text1        1 ADJ_NOUN &lt;NA&gt;           1        2 big red shiny ball        2      4</span></span>
+<span><span class="co">## 2  text1        2   COLOUR &lt;NA&gt;           1        3                red        3      1</span></span>
+<span><span class="co">## 3  text1        3 ADJ_NOUN &lt;NA&gt;           1        8     small blue box        8      3</span></span>
+<span><span class="co">## 4  text1        4   COLOUR &lt;NA&gt;           1        9               blue        9      1</span></span></code></pre></div>
 <p>The values that an attribute may take can be listed with
 <code>IN</code>, so the two colours could also be one pattern,
 <code>list(list(LOWER = list(IN = c("red", "blue"))))</code>. Rows are
 in the order of the documents and, within a document, of the matches’
-positions.</p>
+positions, and <code>match_id</code> numbers them in that order.</p>
 </div>
 </div>
 <div class="section level2">
@@ -228,17 +233,17 @@ negations in between, and a past participle:</p>
 <span>                 <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>DEP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>IN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"advmod"</span>, <span class="st">"neg"</span><span class="op">)</span><span class="op">)</span>, OP <span class="op">=</span> <span class="st">"*"</span><span class="op">)</span>,</span>
 <span>                 <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TAG <span class="op">=</span> <span class="st">"VBN"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="va">passive</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id   label          text start_id length</span></span>
-<span><span class="co">## 1     p1           1        3 PASSIVE   was written        3      2</span></span>
-<span><span class="co">## 2     p2           1        2 PASSIVE     were made        2      2</span></span>
-<span><span class="co">## 3     p2           1       10 PASSIVE been finished       10      2</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="va">passive</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id   label node sentence_id token_id          text start_id length</span></span>
+<span><span class="co">## 1     p1        1 PASSIVE &lt;NA&gt;           1        3   was written        3      2</span></span>
+<span><span class="co">## 2     p2        1 PASSIVE &lt;NA&gt;           1        2     were made        2      2</span></span>
+<span><span class="co">## 3     p2        2 PASSIVE &lt;NA&gt;           1       10 been finished       10      2</span></span></code></pre></div>
 <p>It finds the three passives, and not “Jane wrote the book”. Because
 <code>sentence_id</code> and <code>token_id</code> are numbered as in
 <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>, matches can be joined to the parsed tokens
 on those two columns and <code>doc_id</code>:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">matches</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="va">passive</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">matches</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="va">passive</span><span class="op">)</span></span>
 <span><span class="va">joined</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">matches</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"sentence_id"</span>, <span class="st">"token_id"</span>, <span class="st">"text"</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                <span class="va">parsed</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"sentence_id"</span>, <span class="st">"token_id"</span>, <span class="st">"token"</span>, <span class="st">"dep_rel"</span>,</span>
 <span>                           <span class="st">"head_token_id"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
@@ -265,85 +270,239 @@ one sentence, so it counts once:</p>
 <span><span class="co">##  1  1</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="phrases-and-dictionaries">Phrases and dictionaries<a class="anchor" aria-label="anchor" href="#phrases-and-dictionaries"></a>
+<h2 id="words-phrases-and-dictionaries">Words, phrases and dictionaries<a class="anchor" aria-label="anchor" href="#words-phrases-and-dictionaries"></a>
 </h2>
-<p>Phrases are simpler to write than token patterns, and much faster to
-match when there are many of them. They are given as an
-<code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> object, which records the label of
-each phrase and whether it matches exactly or in any case:</p>
+<p>Words and phrases need no token pattern. They are <em>lexical
+patterns</em>, which describe tokens by their text, and
+<code><a href="../reference/spacy_match.html">spacy_match()</a></code> takes them as <strong>quanteda</strong>’s
+functions do, with the same arguments: <code>valuetype</code>, which is
+<code>"glob"</code> by default, for wildcards, and
+<code>case_insensitive</code>, which is <code>TRUE</code> by
+default.</p>
+<div class="section level3">
+<h3 id="words">Words<a class="anchor" aria-label="anchor" href="#words"></a>
+</h3>
+<p>Each element of a character vector describes one token. With the
+default <code>valuetype</code>, <code>*</code> stands for any number of
+characters and <code>?</code> for one:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PLACE <span class="op">=</span> <span class="st">"New York"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id label     text start_id length</span></span>
-<span><span class="co">## 1     d1           1        1 PLACE New York        1      2</span></span>
-<span><span class="co">## 2     d2           1        2 PLACE New York        2      2</span></span>
-<span><span class="co">## 3     d2           1        8 PLACE New York        8      2</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PLACE <span class="op">=</span> <span class="st">"New York"</span><span class="op">)</span>,</span>
-<span>                                              case_insensitive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id label     text start_id length</span></span>
-<span><span class="co">## 1     d1           1        1 PLACE New York        1      2</span></span>
-<span><span class="co">## 2     d1           2        3 PLACE new York       10      2</span></span>
-<span><span class="co">## 3     d2           1        2 PLACE New York        2      2</span></span>
-<span><span class="co">## 4     d2           1        8 PLACE New York        8      2</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"york*"</span>, <span class="st">"print*"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id  label node sentence_id token_id    text start_id length</span></span>
+<span><span class="co">## 1     d1        1  york* &lt;NA&gt;           1        2    York        2      1</span></span>
+<span><span class="co">## 2     d1        2  york* &lt;NA&gt;           1        6    York        6      1</span></span>
+<span><span class="co">## 3     d1        3  york* &lt;NA&gt;           2        4    York       11      1</span></span>
+<span><span class="co">## 4     d2        1  york* &lt;NA&gt;           1        3    York        3      1</span></span>
+<span><span class="co">## 5     d2        2 print* &lt;NA&gt;           1        6 printed        6      1</span></span>
+<span><span class="co">## 6     d2        3  york* &lt;NA&gt;           1        9    York        9      1</span></span></code></pre></div>
+<p>The label of a match is the pattern’s text, or its name when it has
+one; elements with the same name are alternatives for one label:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PLACE <span class="op">=</span> <span class="st">"york"</span>, SIZE <span class="op">=</span> <span class="st">"larg*"</span>, SIZE <span class="op">=</span> <span class="st">"small*"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id label node sentence_id token_id   text start_id length</span></span>
+<span><span class="co">## 1     d1        1 PLACE &lt;NA&gt;           1        2   York        2      1</span></span>
+<span><span class="co">## 2     d1        2  SIZE &lt;NA&gt;           1        4 larger        4      1</span></span>
+<span><span class="co">## 3     d1        3 PLACE &lt;NA&gt;           1        6   York        6      1</span></span>
+<span><span class="co">## 4     d1        4 PLACE &lt;NA&gt;           2        4   York       11      1</span></span>
+<span><span class="co">## 5     d2        1 PLACE &lt;NA&gt;           1        3   York        3      1</span></span>
+<span><span class="co">## 6     d2        2 PLACE &lt;NA&gt;           1        9   York        9      1</span></span></code></pre></div>
+<p><code>valuetype = "regex"</code> reads the patterns as regular
+expressions, and <code>"fixed"</code> takes them as they are.
+<code>case_insensitive = FALSE</code> matches case:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="st">"^(new|york)$"</span>, valuetype <span class="op">=</span> <span class="st">"regex"</span>, case_insensitive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id        label node sentence_id token_id text start_id length</span></span>
+<span><span class="co">## 1     d1        1 ^(new|york)$ &lt;NA&gt;           2        3  new       10      1</span></span></code></pre></div>
+<p>Regular expressions are those of Python’s <code>re</code> module,
+since spaCy applies them, and not those of R or
+<strong>quanteda</strong>: <code>"^\\p{L}+$"</code> works in
+<strong>quanteda</strong> and is an error here. A regular expression can
+match any part of a token, while a glob or a fixed pattern must match
+all of it.</p>
+</div>
+<div class="section level3">
+<h3 id="phrases">Phrases<a class="anchor" aria-label="anchor" href="#phrases"></a>
+</h3>
+<p>As in <strong>quanteda</strong>, an element of a character vector is
+one token even when it contains a space, so <code>"new york"</code>
+finds nothing. A sequence of tokens is given with
+<code><a href="https://quanteda.io/reference/phrase.html" class="external-link">quanteda::phrase()</a></code>, which splits its argument at the
+spaces, or as a list of character vectors with one string for each
+token:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="st">"new york"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## [1] 0</span></span>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase</a></span><span class="op">(</span><span class="st">"new york*"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id     label node sentence_id token_id     text start_id length</span></span>
+<span><span class="co">## 1     d1        1 new york* &lt;NA&gt;           1        1 New York        1      2</span></span>
+<span><span class="co">## 2     d1        2 new york* &lt;NA&gt;           2        3 new York       10      2</span></span>
+<span><span class="co">## 3     d2        1 new york* &lt;NA&gt;           1        2 New York        2      2</span></span>
+<span><span class="co">## 4     d2        2 new york* &lt;NA&gt;           1        8 New York        8      2</span></span>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">txt</span>, d3 <span class="op">=</span> <span class="st">"Two New Yorkers."</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>NY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new"</span>, <span class="st">"york*"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id label node sentence_id token_id        text start_id length</span></span>
+<span><span class="co">## 1     d1        1    NY &lt;NA&gt;           1        1    New York        1      2</span></span>
+<span><span class="co">## 2     d1        2    NY &lt;NA&gt;           2        3    new York       10      2</span></span>
+<span><span class="co">## 3     d2        1    NY &lt;NA&gt;           1        2    New York        2      2</span></span>
+<span><span class="co">## 4     d2        2    NY &lt;NA&gt;           1        8    New York        8      2</span></span>
+<span><span class="co">## 5     d3        1    NY &lt;NA&gt;           1        2 New Yorkers        2      2</span></span></code></pre></div>
+<p>These are the matches that <strong>quanteda</strong> finds for the
+same pattern in spaCy’s tokens, which <code><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">quanteda::as.tokens()</a></code>
+takes from the output of <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/index.html" class="external-link">index</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span>, <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase</a></span><span class="op">(</span><span class="st">"new york*"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   docname from to   pattern</span></span>
+<span><span class="co">## 1      d1    1  2 new york*</span></span>
+<span><span class="co">## 2      d1   10 11 new york*</span></span>
+<span><span class="co">## 3      d2    2  3 new york*</span></span>
+<span><span class="co">## 4      d2    8  9 new york*</span></span></code></pre></div>
+<p>The strings of a phrase are the tokens: spaCy does not tokenize them
+again. So they match only where spaCy made the same tokens of the text,
+and spaCy’s tokens are not always those that the spaces suggest.
+<code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code> shows them:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">acme</span> <span class="op">&lt;-</span> <span class="st">"She joined Acme, Inc. last year."</span></span>
+<span><span class="fu"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span><span class="op">(</span><span class="va">acme</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co">## [1] "She"    "joined" "Acme"   ","      "Inc."   "last"   "year"   "."</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">acme</span>, <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase</a></span><span class="op">(</span><span class="st">"Acme, Inc."</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## [1] 0</span></span>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">acme</span>, <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase</a></span><span class="op">(</span><span class="st">"Acme , Inc."</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"label"</span>, <span class="st">"text"</span>, <span class="st">"start_id"</span>, <span class="st">"length"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">##         label       text start_id length</span></span>
+<span><span class="co">## 1 Acme , Inc. Acme, Inc.        3      3</span></span></code></pre></div>
+<p>The collocations that
+<code><a href="https://quanteda.io/reference/textstat_collocations.html" class="external-link">quanteda.textstats::textstat_collocations()</a></code> finds can be
+given as they are. Each is the sequence of its words, which are matched
+as they are, as <strong>quanteda</strong> matches collocations: only
+<code>case_insensitive</code> applies to them.</p>
+<p><code>valuetype</code> and <code>case_insensitive</code> apply to
+lexical patterns only. Token patterns and dependency patterns say how
+they match through their attributes, and the phrases of an
+<code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> object each have their own setting, so
+giving either argument with only such patterns is an error, rather than
+being ignored.</p>
+</div>
+<div class="section level3">
+<h3 id="phrases-that-spacy-tokenizes">Phrases that spaCy tokenizes<a class="anchor" aria-label="anchor" href="#phrases-that-spacy-tokenizes"></a>
+</h3>
+<p>To have spaCy split a phrase into tokens, as it splits the text, give
+the phrase as an <code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> object, which records
+the label of each phrase and whether it matches exactly or in any case.
+Unlike the patterns above, these match exactly by default:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PLACE <span class="op">=</span> <span class="st">"New York"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id label node sentence_id token_id     text start_id length</span></span>
+<span><span class="co">## 1     d1        1 PLACE &lt;NA&gt;           1        1 New York        1      2</span></span>
+<span><span class="co">## 2     d2        1 PLACE &lt;NA&gt;           1        2 New York        2      2</span></span>
+<span><span class="co">## 3     d2        2 PLACE &lt;NA&gt;           1        8 New York        8      2</span></span>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">acme</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"Acme, Inc."</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"label"</span>, <span class="st">"text"</span>, <span class="st">"start_id"</span>, <span class="st">"length"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">##   label       text start_id length</span></span>
+<span><span class="co">## 1   ORG Acme, Inc.        3      3</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="dictionaries">Dictionaries<a class="anchor" aria-label="anchor" href="#dictionaries"></a>
+</h3>
 <p>A <strong>quanteda</strong> dictionary can be given directly. Its
 top-level keys become the labels, so the values under nested keys take
 the label of the top-level key above them. Its values match in any case,
-with wildcards as in <strong>quanteda</strong>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+with wildcards as in <strong>quanteda</strong>, unless
+<code>valuetype</code> or <code>case_insensitive</code> say
+otherwise:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dict</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>place <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new york"</span>, <span class="st">"york"</span><span class="op">)</span>,</span>
 <span>                                  size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"larg*"</span>, <span class="st">"small*"</span>, <span class="st">"big*"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span><span class="op">)</span></span>
-<span><span class="co">##    doc_id sentence_id token_id label     text start_id length</span></span>
-<span><span class="co">## 1      d1           1        1 place New York        1      2</span></span>
-<span><span class="co">## 2      d1           1        2 place     York        2      1</span></span>
-<span><span class="co">## 3      d1           1        4  size   larger        4      1</span></span>
-<span><span class="co">## 4      d1           1        6 place     York        6      1</span></span>
-<span><span class="co">## 5      d1           2        3 place new York       10      2</span></span>
-<span><span class="co">## 6      d1           2        4 place     York       11      1</span></span>
-<span><span class="co">## 7      d2           1        2 place New York        2      2</span></span>
-<span><span class="co">## 8      d2           1        3 place     York        3      1</span></span>
-<span><span class="co">## 9      d2           1        8 place New York        8      2</span></span>
-<span><span class="co">## 10     d2           1        9 place     York        9      1</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id label node sentence_id token_id     text start_id length</span></span>
+<span><span class="co">## 1     d1        1 place &lt;NA&gt;           1        1 New York        1      2</span></span>
+<span><span class="co">## 2     d1        2  size &lt;NA&gt;           1        4   larger        4      1</span></span>
+<span><span class="co">## 3     d1        3 place &lt;NA&gt;           1        6     York        6      1</span></span>
+<span><span class="co">## 4     d1        4 place &lt;NA&gt;           2        3 new York       10      2</span></span>
+<span><span class="co">## 5     d2        1 place &lt;NA&gt;           1        2 New York        2      2</span></span>
+<span><span class="co">## 6     d2        2 place &lt;NA&gt;           1        8 New York        8      2</span></span></code></pre></div>
 <p>Since “york” is itself a value, it also matches inside each “New
-York”. <code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code> counts such nested matches
-of a key once, and so does <code>overlap = "longest"</code> here; the
-default, <code>overlap = "all"</code>, counts both. Choose one before
-comparing counts with <strong>quanteda</strong>’s:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span><span class="op">)</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## place  size </span></span>
-<span><span class="co">##     9     1</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span>, overlap <span class="op">=</span> <span class="st">"longest"</span><span class="op">)</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
+York”. With the default, <code>overlap = "longest"</code>, such a nested
+match of the same key is dropped, which is what
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code> does with its own default,
+<code>nested_scope = "key"</code>. For this dictionary and these texts,
+the number of matches of each label is then the count that
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup()</a></code> gives for that key, when it is applied to
+spaCy’s tokens, which <code><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">quanteda::as.tokens()</a></code> takes from the
+output of <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>. Each match of a dictionary value
+is one row, so <code><a href="https://rdrr.io/r/base/table.html" class="external-link">table()</a></code> counts matches. With
+<code>overlap = "all"</code>, the nested matches are counted too:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span><span class="op">)</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## place  size </span></span>
 <span><span class="co">##     5     1</span></span>
-<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/featfreq.html" class="external-link">featfreq</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm.html" class="external-link">dfm</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/tokens.html" class="external-link">tokens</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span>, <span class="va">dict</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">spacy_tokens</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/featfreq.html" class="external-link">featfreq</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm.html" class="external-link">dfm</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup</a></span><span class="op">(</span><span class="va">spacy_tokens</span>, <span class="va">dict</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">## place  size </span></span>
-<span><span class="co">##     5     1</span></span></code></pre></div>
-<p>The counts can still differ for other texts, because the tokens are
-spaCy’s and not <strong>quanteda</strong>’s. What
-<code><a href="../reference/spacy_extract_matches.html">spacy_extract_matches()</a></code> adds to a lookup is where each
-match is, in a form that joins to the output of
-<code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>. A dictionary’s phrases and wildcard values
-can be combined with token patterns by converting it with
-<code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> and joining the two with
-<code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code>.</p>
-<p>Phrases are split into tokens by spaCy’s tokenizer, and match the
-same sequence of tokens in a text. spaCy sometimes splits a word
-differently in another case: it keeps <code>"Inc."</code> as one token,
-but splits <code>"inc."</code> into two. So a phrase written as
-<code>"acme widgets, inc."</code> does not match the text
-<code>"Acme Widgets, Inc."</code> even when it matches in any case,
-while the phrase <code>"Acme Widgets, Inc."</code> does:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<span><span class="co">##     5     1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span>, overlap <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## place  size </span></span>
+<span><span class="co">##     9     1</span></span></code></pre></div>
+<p>The two agree whenever they start from the same candidate matches
+under the same keys, since they then choose among overlapping matches by
+the same rule. Using spaCy’s tokens for both does not guarantee
+that:</p>
+<ul>
+<li>A value without a wildcard is a phrase, which spaCy’s tokenizer
+splits into tokens, while <strong>quanteda</strong> splits every value
+at its spaces. The value <code>"Acme, Inc."</code> is the three tokens
+<code>Acme</code>, <code>,</code> and <code>Inc.</code> for
+<code><a href="../reference/spacy_match.html">spacy_match()</a></code>, which finds it; <code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup()</a></code>
+looks for a token <code>Acme,</code> and finds nothing:</li>
+</ul>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">acme_dict</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"Acme, Inc."</span><span class="op">)</span>, tolower <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">acme</span>, <span class="va">acme_dict</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"label"</span>, <span class="st">"text"</span>, <span class="st">"start_id"</span>, <span class="st">"length"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">##   label       text start_id length</span></span>
+<span><span class="co">## 1   ORG Acme, Inc.        3      3</span></span>
+<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">acme</span><span class="op">)</span><span class="op">)</span>, <span class="va">acme_dict</span><span class="op">)</span></span>
+<span><span class="co">## tokens of 1 document (0 tokens, 1 type).</span></span>
+<span><span class="co">## text1 :</span></span>
+<span><span class="co">## character(0)</span></span></code></pre></div>
+<ul>
+<li>For a dictionary with nested keys, the labels here are the top-level
+keys, which corresponds to <code>tokens_lookup(levels = 1)</code>. Its
+default, <code>levels = 1:5</code>, counts nested keys such as
+<code>place.us</code> separately.</li>
+</ul>
+<p>The counts can also differ from a lookup on
+<code>quanteda::tokens(txt)</code>, because the tokens are then
+<strong>quanteda</strong>’s and not spaCy’s. What
+<code><a href="../reference/spacy_match.html">spacy_match()</a></code> adds to a lookup is where each match is, in a
+form that joins to the output of <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>. A
+dictionary’s phrases and wildcard values can be combined with token
+patterns by converting it with <code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> and
+joining the two with <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code>. To have the values of a
+dictionary split at their spaces, as <strong>quanteda</strong> does,
+give them with <code><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase()</a></code>.</p>
+<p><code><a href="https://quanteda.io/reference/kwic.html" class="external-link">quanteda::kwic()</a></code> follows another rule than
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup()</a></code>, which no value of <code>overlap</code>
+gives: it drops a match only when all of its tokens are in another
+match, of any pattern. It would drop a “New York” that lies inside
+another label’s “New York Times”, which <code>overlap = "longest"</code>
+keeps, since labels are separate; and it would keep both of two matches
+of one label that partly overlap, where <code>overlap = "longest"</code>
+keeps one.</p>
+<p>The phrases of an <code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> object, and
+dictionary values without a wildcard, are split into tokens by spaCy’s
+tokenizer, and match the same sequence of tokens in a text. spaCy
+sometimes splits a word differently in another case: it keeps
+<code>"Inc."</code> as one token, but splits <code>"inc."</code> into
+two. So a phrase written as <code>"acme widgets, inc."</code> does not
+match the text <code>"Acme Widgets, Inc."</code> even when it matches in
+any case, while the phrase <code>"Acme Widgets, Inc."</code> does:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">inc</span> <span class="op">&lt;-</span> <span class="st">"We wrote to Acme Widgets, Inc. yesterday."</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">inc</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"acme widgets, inc."</span><span class="op">)</span>,</span>
-<span>                                                   case_insensitive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">inc</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"acme widgets, inc."</span><span class="op">)</span>,</span>
+<span>                                         case_insensitive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">## [1] 0</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">inc</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"Acme Widgets, Inc."</span><span class="op">)</span>,</span>
-<span>                                              case_insensitive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id label               text start_id length</span></span>
-<span><span class="co">## 1  text1           1        4   ORG Acme Widgets, Inc.        4      4</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">inc</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"Acme Widgets, Inc."</span><span class="op">)</span>,</span>
+<span>                                    case_insensitive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id label node sentence_id token_id               text start_id length</span></span>
+<span><span class="co">## 1  text1        1   ORG &lt;NA&gt;           1        4 Acme Widgets, Inc.        4      4</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="dependency-patterns">Dependency patterns<a class="anchor" aria-label="anchor" href="#dependency-patterns"></a>
@@ -364,9 +523,11 @@ earlier node, and <code>REL_OP</code>, the relation between that node
 and this one. <code>"&gt;"</code> means that this node is a direct
 dependent of the earlier one.</li>
 </ul>
-<p>This pattern is a past participle, with a passive subject and a
-passive auxiliary as its dependents:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p>A dependency pattern goes in the same named list as a token pattern,
+and <code><a href="../reference/spacy_match.html">spacy_match()</a></code> tells the two apart by these keys. This
+pattern is a past participle, with a passive subject and a passive
+auxiliary as its dependents:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">passive_dep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>RIGHT_ID <span class="op">=</span> <span class="st">"verb"</span>, RIGHT_ATTRS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TAG <span class="op">=</span> <span class="st">"VBN"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LEFT_ID <span class="op">=</span> <span class="st">"verb"</span>, REL_OP <span class="op">=</span> <span class="st">"&gt;"</span>, RIGHT_ID <span class="op">=</span> <span class="st">"subject"</span>,</span>
@@ -374,32 +535,33 @@ passive auxiliary as its dependents:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LEFT_ID <span class="op">=</span> <span class="st">"verb"</span>, REL_OP <span class="op">=</span> <span class="st">"&gt;"</span>, RIGHT_ID <span class="op">=</span> <span class="st">"aux"</span>,</span>
 <span>       RIGHT_ATTRS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>DEP <span class="op">=</span> <span class="st">"auxpass"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_extract_dependency_matches.html">spacy_extract_dependency_matches</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>PASSIVE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>PASSIVE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">m</span></span>
-<span><span class="co">##   doc_id match_id   label    node sentence_id token_id start_id    token</span></span>
-<span><span class="co">## 1     p1        1 PASSIVE    verb           1        4        4  written</span></span>
-<span><span class="co">## 2     p1        1 PASSIVE subject           1        2        2     book</span></span>
-<span><span class="co">## 3     p1        1 PASSIVE     aux           1        3        3      was</span></span>
-<span><span class="co">## 4     p2        1 PASSIVE    verb           1        3        3     made</span></span>
-<span><span class="co">## 5     p2        1 PASSIVE subject           1        1        1 Mistakes</span></span>
-<span><span class="co">## 6     p2        1 PASSIVE     aux           1        2        2     were</span></span>
-<span><span class="co">## 7     p2        2 PASSIVE    verb           1       11       11 finished</span></span>
-<span><span class="co">## 8     p2        2 PASSIVE subject           1        7        7   report</span></span>
-<span><span class="co">## 9     p2        2 PASSIVE     aux           1       10       10     been</span></span></code></pre></div>
-<p>The result has one row for each node of the pattern in each match.
+<span><span class="co">##   doc_id match_id   label    node sentence_id token_id     text start_id length</span></span>
+<span><span class="co">## 1     p1        1 PASSIVE    verb           1        4  written        4      1</span></span>
+<span><span class="co">## 2     p1        1 PASSIVE subject           1        2     book        2      1</span></span>
+<span><span class="co">## 3     p1        1 PASSIVE     aux           1        3      was        3      1</span></span>
+<span><span class="co">## 4     p2        1 PASSIVE    verb           1        3     made        3      1</span></span>
+<span><span class="co">## 5     p2        1 PASSIVE subject           1        1 Mistakes        1      1</span></span>
+<span><span class="co">## 6     p2        1 PASSIVE     aux           1        2     were        2      1</span></span>
+<span><span class="co">## 7     p2        2 PASSIVE    verb           1       11 finished       11      1</span></span>
+<span><span class="co">## 8     p2        2 PASSIVE subject           1        7   report        7      1</span></span>
+<span><span class="co">## 9     p2        2 PASSIVE     aux           1       10     been       10      1</span></span></code></pre></div>
+<p>The columns are the same as for a sequence, but a match now has one
+row for each node of the pattern, each for a single token.
 <code>node</code> says which part of the pattern the token matched, and
-<code>match_id</code> numbers the matches within each document, so that
+the rows of a match share its <code>match_id</code>, so that
 <code>doc_id</code> and <code>match_id</code> together identify a match.
 Unlike the token pattern, this one also returns the subject of each
 passive, and finds the subject “report” although three words separate it
 from its verb.</p>
 <p>To get one row for each match, with a column for each node, reshape
 the result:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">reshape</a></span><span class="op">(</span><span class="va">m</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"match_id"</span>, <span class="st">"node"</span>, <span class="st">"token"</span><span class="op">)</span><span class="op">]</span>,</span>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">reshape</a></span><span class="op">(</span><span class="va">m</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"match_id"</span>, <span class="st">"node"</span>, <span class="st">"text"</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                idvar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"match_id"</span><span class="op">)</span>, timevar <span class="op">=</span> <span class="st">"node"</span>,</span>
 <span>                direction <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">wide</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^token\\."</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">wide</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">wide</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^text\\."</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">wide</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">wide</span></span>
 <span><span class="co">##   doc_id match_id     verb  subject  aux</span></span>
 <span><span class="co">## 1     p1        1  written     book  was</span></span>
@@ -408,16 +570,16 @@ the result:</p>
 <p>A pattern can follow the parse further. Adding the agent, “by” and
 its object, finds who did what to what, for the passives that say
 so:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">agent</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">passive_dep</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LEFT_ID <span class="op">=</span> <span class="st">"verb"</span>, REL_OP <span class="op">=</span> <span class="st">"&gt;"</span>, RIGHT_ID <span class="op">=</span> <span class="st">"by"</span>,</span>
 <span>       RIGHT_ATTRS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>DEP <span class="op">=</span> <span class="st">"agent"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LEFT_ID <span class="op">=</span> <span class="st">"by"</span>, REL_OP <span class="op">=</span> <span class="st">"&gt;"</span>, RIGHT_ID <span class="op">=</span> <span class="st">"agent"</span>,</span>
 <span>       RIGHT_ATTRS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>DEP <span class="op">=</span> <span class="st">"pobj"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_extract_dependency_matches.html">spacy_extract_dependency_matches</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>PASSIVE_AGENT <span class="op">=</span> <span class="va">agent</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">m</span><span class="op">[</span><span class="va">m</span><span class="op">$</span><span class="va">node</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subject"</span>, <span class="st">"verb"</span>, <span class="st">"agent"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"node"</span>, <span class="st">"token"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">##   doc_id    node   token</span></span>
+<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>PASSIVE_AGENT <span class="op">=</span> <span class="va">agent</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">m</span><span class="op">[</span><span class="va">m</span><span class="op">$</span><span class="va">node</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subject"</span>, <span class="st">"verb"</span>, <span class="st">"agent"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"node"</span>, <span class="st">"text"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">##   doc_id    node    text</span></span>
 <span><span class="co">## 1     p1    verb written</span></span>
 <span><span class="co">## 2     p1 subject    book</span></span>
 <span><span class="co">## 5     p1   agent    Jane</span></span></code></pre></div>
@@ -425,7 +587,222 @@ so:</p>
 passives with and without an agent, get labels of their own. The other
 relations that <code>REL_OP</code> can take, such as
 <code>"&gt;&gt;"</code> for a dependent at any depth and
-<code>"."</code> for the next token, are listed in spaCy’s <a href="https://spacy.io/usage/rule-based-matching#dependencymatcher" class="external-link">documentation</a>.</p>
+<code>"."</code> for the next token, are listed in spaCy’s <a href="https://spacy.io/usage/rule-based-matching#dependencymatcher" class="external-link">documentation</a>.
+<code>overlap</code> does not apply to dependency patterns: every match
+is returned, whatever its value.</p>
+<div class="section level3">
+<h3 id="both-kinds-of-pattern-together">Both kinds of pattern together<a class="anchor" aria-label="anchor" href="#both-kinds-of-pattern-together"></a>
+</h3>
+<p>A list can hold token patterns and dependency patterns, each under
+its own label. They are matched in one pass over the texts, and the
+matches come back in one table:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">both</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span><span class="op">[</span><span class="st">"p1"</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">passive</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CLAUSE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">both</span></span>
+<span><span class="co">##   doc_id match_id   label    node sentence_id token_id        text start_id length</span></span>
+<span><span class="co">## 1     p1        1 PASSIVE    &lt;NA&gt;           1        3 was written        3      2</span></span>
+<span><span class="co">## 2     p1        2  CLAUSE    verb           1        4     written        4      1</span></span>
+<span><span class="co">## 3     p1        2  CLAUSE subject           1        2        book        2      1</span></span>
+<span><span class="co">## 4     p1        2  CLAUSE     aux           1        3         was        3      1</span></span></code></pre></div>
+<p>Within a document, matches are in the order of the position of their
+first row, which for a dependency pattern is the token of its first
+node, and <code>match_id</code> numbers the two kinds together. A match
+is a distinct pair of <code>doc_id</code> and <code>match_id</code>, not
+a row: <code>both</code> has two matches in four rows.
+<code>overlap</code> applies to the token patterns of such a list. Every
+row is a span of tokens with a <code>start_id</code> and a
+<code>length</code>, so the rows of both kinds can be handled alike:
+here, to look up each in the output of <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">parsed_p1</span> <span class="op">&lt;-</span> <span class="va">parsed</span><span class="op">[</span><span class="va">parsed</span><span class="op">$</span><span class="va">doc_id</span> <span class="op">==</span> <span class="st">"p1"</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">both</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"match_id"</span>, <span class="st">"label"</span>, <span class="st">"node"</span>, <span class="st">"text"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>      first_token <span class="op">=</span> <span class="va">parsed_p1</span><span class="op">$</span><span class="va">token</span><span class="op">[</span><span class="va">both</span><span class="op">$</span><span class="va">start_id</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">##   match_id   label    node        text first_token</span></span>
+<span><span class="co">## 1        1 PASSIVE    &lt;NA&gt; was written         was</span></span>
+<span><span class="co">## 2        2  CLAUSE    verb     written     written</span></span>
+<span><span class="co">## 3        2  CLAUSE subject        book        book</span></span>
+<span><span class="co">## 4        2  CLAUSE     aux         was         was</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="matches-in-context">Matches in context<a class="anchor" aria-label="anchor" href="#matches-in-context"></a>
+</h2>
+<p><code><a href="https://quanteda.io/reference/kwic.html" class="external-link">quanteda::kwic()</a></code> shows each occurrence of a pattern with
+the tokens around it. It can do the same for positions found elsewhere,
+given as an <em>index</em>, and <code><a href="../reference/as_index.html">as_index()</a></code> makes one from
+the output of <code><a href="../reference/spacy_match.html">spacy_match()</a></code>. The positions in a table of
+matches count spaCy’s tokens, with its tokens of whitespace, so the
+tokens to give <code><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic()</a></code> are those of
+<code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> for the same texts, and not those of
+<code><a href="https://quanteda.io/reference/tokens.html" class="external-link">quanteda::tokens()</a></code>:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spacy_tokens</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span><span class="op">)</span></span>
+<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic</a></span><span class="op">(</span><span class="va">spacy_tokens</span>, index <span class="op">=</span> <span class="fu"><a href="../reference/as_index.html">as_index</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span>, window <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">## Keyword-in-context with 6 matches.</span></span>
+<span><span class="co">##                                                          </span></span>
+<span><span class="co">##    [d1, 1:2]                | New York | is larger than  </span></span>
+<span><span class="co">##    [d1, 4:4]    New York is |  larger  | than York.      </span></span>
+<span><span class="co">##    [d1, 6:6] is larger than |   York   | . I prefer      </span></span>
+<span><span class="co">##  [d1, 10:11]     . I prefer | new York | .               </span></span>
+<span><span class="co">##    [d2, 2:3]            The | New York | Times is printed</span></span>
+<span><span class="co">##    [d2, 8:9]  is printed in | New York | .</span></span></code></pre></div>
+<p>The index has one row for each row of the matches, in the same order,
+so the other columns of the matches can be put beside the concordance.
+For a dependency pattern, that says which node each line is:</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CLAUSE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">kw</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens</a></span><span class="op">(</span><span class="va">parsed</span><span class="op">)</span>, index <span class="op">=</span> <span class="fu"><a href="../reference/as_index.html">as_index</a></span><span class="op">(</span><span class="va">dep</span><span class="op">)</span>, window <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">dep</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"match_id"</span>, <span class="st">"node"</span><span class="op">)</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">kw</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"docname"</span>, <span class="st">"pre"</span>, <span class="st">"keyword"</span>, <span class="st">"post"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">##   match_id    node docname           pre  keyword        post</span></span>
+<span><span class="co">## 1        1    verb      p1      book was  written     by Jane</span></span>
+<span><span class="co">## 2        1 subject      p1           The     book was written</span></span>
+<span><span class="co">## 3        1     aux      p1      The book      was  written by</span></span>
+<span><span class="co">## 4        1    verb      p2 Mistakes were     made       , and</span></span>
+<span><span class="co">## 5        1 subject      p2               Mistakes   were made</span></span>
+<span><span class="co">## 6        1     aux      p2      Mistakes     were      made ,</span></span>
+<span><span class="co">## 7        2    verb      p2      not been finished           .</span></span>
+<span><span class="co">## 8        2 subject      p2       and the   report     has not</span></span>
+<span><span class="co">## 9        2     aux      p2       has not     been  finished .</span></span></code></pre></div>
+<p>A concordance made this way shows the matches that
+<code><a href="../reference/spacy_match.html">spacy_match()</a></code> returned, chosen by <code>overlap</code>
+where they overlap. That is not always what <code><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic()</a></code> finds
+when it searches for the same patterns itself, since its rule is
+another, as described <a href="#dictionaries">above</a>: here it leaves
+out the “York” inside each “New York”, which belongs to another pattern,
+where <code>overlap = "all"</code> keeps them.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">all_matches</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new york"</span>, <span class="st">"york"</span><span class="op">)</span><span class="op">)</span>, overlap <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic</a></span><span class="op">(</span><span class="va">spacy_tokens</span>, index <span class="op">=</span> <span class="fu"><a href="../reference/as_index.html">as_index</a></span><span class="op">(</span><span class="va">all_matches</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## [1] 9</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic</a></span><span class="op">(</span><span class="va">spacy_tokens</span>, <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new york"</span>, <span class="st">"york"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## [1] 5</span></span></code></pre></div>
+<p><code><a href="../reference/as_index.html">as_index()</a></code> also takes the output of
+<code><a href="../reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> and of
+<code><a href="../reference/spacy_extract_nounphrases.html">spacy_extract_nounphrases()</a></code>, whose positions are counted in
+the same way:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic</a></span><span class="op">(</span><span class="va">spacy_tokens</span>, index <span class="op">=</span> <span class="fu"><a href="../reference/as_index.html">as_index</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_extract_entity.html">spacy_extract_entity</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span>, window <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">## Keyword-in-context with 4 matches.</span></span>
+<span><span class="co">##                                                                 </span></span>
+<span><span class="co">##    [d1, 1:2]               |      New York      | is larger than</span></span>
+<span><span class="co">##  [d1, 10:11]    . I prefer |      new York      | .             </span></span>
+<span><span class="co">##    [d2, 1:4]               | The New York Times | is printed in </span></span>
+<span><span class="co">##    [d2, 8:9] is printed in |      New York      | .</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="counting-matches">Counting matches<a class="anchor" aria-label="anchor" href="#counting-matches"></a>
+</h2>
+<p><code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code> replaces the tokens of each
+document by the keys of the dictionary values found in it, and a
+document-feature matrix of the result counts each key in each document.
+The matches of <code><a href="../reference/spacy_match.html">spacy_match()</a></code> give the same kind of object
+in two steps. The first keeps one row for each match, which is a
+distinct pair of <code>doc_id</code> and <code>match_id</code>. The
+second splits the labels by document, and makes tokens of them:</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span><span class="op">)</span></span>
+<span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="va">m</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="va">m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"match_id"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">m1</span><span class="op">$</span><span class="va">label</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">m1</span><span class="op">$</span><span class="va">doc_id</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">labels</span></span>
+<span><span class="co">## tokens of 2 documents (6 tokens, 2 types).</span></span>
+<span><span class="co">## d1 :</span></span>
+<span><span class="co">## [1] "place" "size"  "place" "place"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## d2 :</span></span>
+<span><span class="co">## [1] "place" "place"</span></span>
+<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm.html" class="external-link">dfm</a></span><span class="op">(</span><span class="va">labels</span>, tolower <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">## dfm of 2 documents x 2 features (6 occurrences, 25.00% sparsity).</span></span>
+<span><span class="co">##     features</span></span>
+<span><span class="co">## docs place size</span></span>
+<span><span class="co">##   d1     3    1</span></span>
+<span><span class="co">##   d2     2    0</span></span></code></pre></div>
+<p>Three details matter:</p>
+<ul>
+<li>The levels of the factor are the names of all the documents, so a
+document without a match stays in the result, with no tokens. Without
+them, <code><a href="https://rdrr.io/r/base/split.html" class="external-link">split()</a></code> would leave it out. They have to be the
+identifiers that <code><a href="../reference/spacy_match.html">spacy_match()</a></code> gives in
+<code>doc_id</code>: <code>names(x)</code> for a named character vector,
+as here; <code>sprintf("text%d", seq_along(x))</code> for an unnamed
+one; <code>as.character(x$doc_id)</code> for a data.frame with the
+columns <code>doc_id</code> and <code>text</code>; and
+<code>quanteda::docnames(x)</code> for a corpus.</li>
+<li>
+<code>tolower = FALSE</code> keeps the labels as they are:
+<code><a href="https://quanteda.io/reference/dfm.html" class="external-link">dfm()</a></code> would otherwise put a label such as
+<code>PASSIVE</code> in lower case.</li>
+<li>The matrix has a column for each label that was found.
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup()</a></code> gives one for every key, also for a key
+that matched nothing; <code>quanteda::dfm_match(x, names(dict))</code>
+adds those, in the order of the dictionary.</li>
+</ul>
+<p>For this dictionary and these texts, the result is the matrix that
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup()</a></code> gives on spaCy’s tokens, since the two find
+the same candidate matches under the same keys, as described <a href="#dictionaries">above</a>:</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm.html" class="external-link">dfm</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup</a></span><span class="op">(</span><span class="va">spacy_tokens</span>, <span class="va">dict</span><span class="op">)</span>, tolower <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">## dfm of 2 documents x 2 features (6 occurrences, 25.00% sparsity).</span></span>
+<span><span class="co">##     features</span></span>
+<span><span class="co">## docs place size</span></span>
+<span><span class="co">##   d1     3    1</span></span>
+<span><span class="co">##   d2     2    0</span></span></code></pre></div>
+<p>The first step matters for dependency patterns, whose matches have
+one row for each node. Counting rows would count each passive clause
+here three times:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CLAUSE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">dep</span><span class="op">$</span><span class="va">doc_id</span>, <span class="va">dep</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
+<span><span class="co">##     </span></span>
+<span><span class="co">##      CLAUSE</span></span>
+<span><span class="co">##   p1      3</span></span>
+<span><span class="co">##   p2      6</span></span>
+<span><span class="va">dep1</span> <span class="op">&lt;-</span> <span class="va">dep</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="va">dep</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doc_id"</span>, <span class="st">"match_id"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm.html" class="external-link">dfm</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">dep1</span><span class="op">$</span><span class="va">label</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">dep1</span><span class="op">$</span><span class="va">doc_id</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">passive_txt</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              tolower <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">## dfm of 2 documents x 1 feature (3 occurrences, 0.00% sparsity).</span></span>
+<span><span class="co">##     features</span></span>
+<span><span class="co">## docs CLAUSE</span></span>
+<span><span class="co">##   p1      1</span></span>
+<span><span class="co">##   p2      2</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="a-dictionary-of-the-matches">A dictionary of the matches<a class="anchor" aria-label="anchor" href="#a-dictionary-of-the-matches"></a>
+</h2>
+<p>The texts that a pattern matched can become the values of a
+<strong>quanteda</strong> dictionary, with the labels as its keys, for
+instance to look up in other texts what a wildcard found in these. Each
+different text is kept once, and <code>tolower = FALSE</code> keeps the
+texts in their own case, which <code><a href="https://quanteda.io/reference/dictionary.html" class="external-link">quanteda::dictionary()</a></code> would
+otherwise lower:</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">dict</span><span class="op">)</span></span>
+<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">text</span>, <span class="va">m</span><span class="op">$</span><span class="va">label</span><span class="op">)</span>, <span class="va">unique</span><span class="op">)</span>, tolower <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">## Dictionary object with 2 key entries.</span></span>
+<span><span class="co">## - [place]:</span></span>
+<span><span class="co">##   - New York, York, new York</span></span>
+<span><span class="co">## - [size]:</span></span>
+<span><span class="co">##   - larger</span></span></code></pre></div>
+<p>This is for matches of sequences, whose <code>text</code> is the
+whole match. A match of a dependency pattern has a row for each node,
+whose <code>text</code> is one token of the construction, so a
+dictionary of those rows would hold its single words. In a table with
+both kinds, keep the sequence matches, which have no
+<code>node</code>:</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">passive</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CLAUSE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="va">mixed</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">mixed</span><span class="op">$</span><span class="va">node</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">$</span><span class="va">text</span>, <span class="va">seqs</span><span class="op">$</span><span class="va">label</span><span class="op">)</span>, <span class="va">unique</span><span class="op">)</span>, tolower <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">## Dictionary object with 1 key entry.</span></span>
+<span><span class="co">## - [PASSIVE]:</span></span>
+<span><span class="co">##   - was written, were made, been finished</span></span></code></pre></div>
+<p>As <a href="#dictionaries">above</a>, a value such as
+<code>"Acme, Inc."</code> is found by <code><a href="../reference/spacy_match.html">spacy_match()</a></code>, which
+lets spaCy split it into tokens, and not by
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code>, which splits it at its spaces.
+The article on <a href="entity_rules.html">rule-based named entities</a>
+shows the same for entities, and <code><a href="https://quanteda.io/reference/as.dictionary.html" class="external-link">as.dictionary()</a></code> for entity
+patterns that are all phrases.</p>
 </div>
 <div class="section level2">
 <h2 id="what-to-keep-in-mind">What to keep in mind<a class="anchor" aria-label="anchor" href="#what-to-keep-in-mind"></a>
@@ -442,19 +819,17 @@ a pattern has to follow. Here the second verb of a coordination,
 “edited”, is attached to the first as <code>conj</code> and has no
 subject or auxiliary of its own, so neither passive pattern above finds
 it:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coord</span> <span class="op">&lt;-</span> <span class="st">"The book was written and edited by Jane."</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">coord</span>, <span class="va">passive</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id   label        text start_id length</span></span>
-<span><span class="co">## 1  text1           1        3 PASSIVE was written        3      2</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_dependency_matches.html">spacy_extract_dependency_matches</a></span><span class="op">(</span><span class="va">coord</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>PASSIVE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"node"</span>, <span class="st">"token"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">##      node   token</span></span>
-<span><span class="co">## 1    verb written</span></span>
-<span><span class="co">## 2 subject    book</span></span>
-<span><span class="co">## 3     aux     was</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">coord</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">passive</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CLAUSE <span class="op">=</span> <span class="va">passive_dep</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"label"</span>, <span class="st">"node"</span>, <span class="st">"text"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">##     label    node        text</span></span>
+<span><span class="co">## 1 PASSIVE    &lt;NA&gt; was written</span></span>
+<span><span class="co">## 2  CLAUSE    verb     written</span></span>
+<span><span class="co">## 3  CLAUSE subject        book</span></span>
+<span><span class="co">## 4  CLAUSE     aux         was</span></span></code></pre></div>
 <p>A further pattern, for a participle coordinated with a passive verb,
 finds it:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">conj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>RIGHT_ID <span class="op">=</span> <span class="st">"first"</span>, RIGHT_ATTRS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TAG <span class="op">=</span> <span class="st">"VBN"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LEFT_ID <span class="op">=</span> <span class="st">"first"</span>, REL_OP <span class="op">=</span> <span class="st">"&gt;"</span>, RIGHT_ID <span class="op">=</span> <span class="st">"aux"</span>,</span>
@@ -462,8 +837,8 @@ finds it:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>LEFT_ID <span class="op">=</span> <span class="st">"first"</span>, REL_OP <span class="op">=</span> <span class="st">"&gt;"</span>, RIGHT_ID <span class="op">=</span> <span class="st">"verb"</span>,</span>
 <span>       RIGHT_ATTRS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TAG <span class="op">=</span> <span class="st">"VBN"</span>, DEP <span class="op">=</span> <span class="st">"conj"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_dependency_matches.html">spacy_extract_dependency_matches</a></span><span class="op">(</span><span class="va">coord</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>PASSIVE_CONJ <span class="op">=</span> <span class="va">conj</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"node"</span>, <span class="st">"token"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">##    node   token</span></span>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">coord</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>PASSIVE_CONJ <span class="op">=</span> <span class="va">conj</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"node"</span>, <span class="st">"text"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">##    node    text</span></span>
 <span><span class="co">## 1 first written</span></span>
 <span><span class="co">## 2   aux     was</span></span>
 <span><span class="co">## 3  verb  edited</span></span></code></pre></div>
@@ -471,7 +846,8 @@ finds it:</p>
 those you do not, is the way to find such cases.</p>
 <p><strong>The pipeline has to set what a pattern asks for.</strong> A
 pattern on <code>DEP</code> needs the parser, and a dependency pattern
-needs a dependency parse; both give an error without one. A pattern on
+needs a dependency parse; both give an error without one, which stops
+the call, whatever other patterns were given with them. A pattern on
 <code>ENT_TYPE</code> gives a warning when no component sets entities,
 as after <code>spacy_initialize(entity = FALSE)</code>, since it would
 match nothing.</p>
@@ -483,26 +859,31 @@ match nothing.</p>
 On a test with 5,000 sentences, a dictionary of 10,000 phrases and
 several hundred wildcard values took no longer than a single token
 pattern. Token patterns are slower in large numbers, since spaCy checks
-each one against the text: give phrases as phrases, not as token
-patterns, when there are thousands of them.</p>
+each one against the text: give phrases as lexical patterns or as
+phrases, not as token patterns, when there are thousands of them.
+Lexical patterns without a wildcard or a regular expression are matched
+as phrases are, by spaCy’s <code>PhraseMatcher</code>; those with one
+become token patterns, of which the single words are combined into one
+pattern for each label.</p>
 <p>Patterns that do not use entities are faster after
 <code>spacy_initialize(entity = FALSE)</code>, which leaves out the
 named entity recognizer. <code><a href="../reference/spacy_initialize.html">spacy_initialize()</a></code> does nothing
 while spaCy is running, as it has been since the start of this article,
 so call <code><a href="../reference/spacy_finalize.html">spacy_finalize()</a></code> first:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span>entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)</span></span>
-<span><span class="fu"><a href="../reference/spacy_extract_matches.html">spacy_extract_matches</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="va">passive</span><span class="op">)</span></span>
-<span><span class="co">##   doc_id sentence_id token_id   label          text start_id length</span></span>
-<span><span class="co">## 1     p1           1        3 PASSIVE   was written        3      2</span></span>
-<span><span class="co">## 2     p2           1        2 PASSIVE     were made        2      2</span></span>
-<span><span class="co">## 3     p2           1       10 PASSIVE been finished       10      2</span></span>
+<span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">passive_txt</span>, <span class="va">passive</span><span class="op">)</span></span>
+<span><span class="co">##   doc_id match_id   label node sentence_id token_id          text start_id length</span></span>
+<span><span class="co">## 1     p1        1 PASSIVE &lt;NA&gt;           1        3   was written        3      2</span></span>
+<span><span class="co">## 2     p2        1 PASSIVE &lt;NA&gt;           1        2     were made        2      2</span></span>
+<span><span class="co">## 3     p2        2 PASSIVE &lt;NA&gt;           1       10 been finished       10      2</span></span>
 <span><span class="fu"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>See the article on <a href="performance.html">improving
 performance</a> for more on this, and for <code>n_process</code> and
-<code>batch_size</code>, which both functions also take.</p>
+<code>batch_size</code>, which <code><a href="../reference/spacy_match.html">spacy_match()</a></code> also
+takes.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

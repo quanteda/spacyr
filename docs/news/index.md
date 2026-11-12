@@ -43,10 +43,9 @@
   **quanteda** dictionaries, reusing the entities found, and saving
   rules to files.
 - A new article on the package website, “Rule-Based Matching”, shows how
-  to find sequences of tokens, phrases and dictionary values with
-  [`spacy_extract_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_matches.md),
-  and tokens connected in the dependency parse with
-  [`spacy_extract_dependency_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.md),
+  to find sequences of tokens, phrases and dictionary values, and tokens
+  connected in the dependency parse, with
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md),
   with passive verbs as the example, and what to keep in mind about
   language models and their parses
   ([\#204](https://github.com/quanteda/spacyr/issues/204)).
@@ -59,42 +58,173 @@
   `batch_size` and `n_process`, and long documents
   ([\#226](https://github.com/quanteda/spacyr/issues/226)).
 - New function
-  [`spacy_extract_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_matches.md)
-  finds sequences of tokens that match patterns, using spaCy’s
-  rule-based `Matcher`
-  ([\#204](https://github.com/quanteda/spacyr/issues/204)). Patterns are
-  a named list of token patterns in spaCy’s own structure, with
-  alternatives for a label given as a list of patterns, or an
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  finds the tokens that match patterns, using spaCy’s rule-based
+  matchers ([\#204](https://github.com/quanteda/spacyr/issues/204)). A
+  pattern describes either a sequence of adjacent tokens, matched by
+  spaCy’s `Matcher`, or tokens that are connected in the dependency
+  parse, matched by its `DependencyMatcher`: a passive verb with its
+  subject and agent, for instance, wherever they are in the sentence.
+  `pattern` is a named list of patterns in spaCy’s own structure, which
+  can hold both kinds: token patterns, with alternatives for a label
+  given as a list of patterns, and dependency patterns, one for each
+  label, whose nodes are named by `RIGHT_ID`. It can also be an
   [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
   object, whose phrases are matched too, exactly or in any case, or a
-  **quanteda** dictionary, with its wildcards; they can use any token
-  attribute, including those the model assigns, such as `POS`, `TAG`,
-  `DEP` and `LEMMA`. It returns a data.frame with one row per match: the
-  document, the sentence and token position of its first token as in
-  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
-  the label, the matched text, and its position in the document and
-  length as in
-  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md);
-  nothing matching gives a data.frame with no rows. All matches are
-  returned by default, and `overlap = "longest"` or `"first"` keeps one
-  of the overlapping matches of a label. Unlike `entity_patterns`, the
-  patterns do not change the pipeline or a document’s entities.
+  **quanteda** dictionary, with its wildcards. Patterns can use any
+  token attribute, including those the model assigns, such as `POS`,
+  `TAG`, `DEP` and `LEMMA`. All patterns are matched in one pass over
+  the documents, and the result is one data.frame with the same columns
+  for every pattern: `doc_id`, `match_id`, `label`, `node`,
+  `sentence_id`, `token_id`, `text`, `start_id` and `length`. A sequence
+  is one row, and a match of a dependency pattern is one row of length 1
+  for each node, with the node’s name in `node` and the same `match_id`;
+  positions are as in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  and
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md),
+  and nothing matching gives a data.frame with no rows. `overlap` says
+  which sequences to keep where matches of a label overlap: `"longest"`,
+  the default, which chooses among them as
+  [`quanteda::tokens_lookup()`](https://quanteda.io/reference/tokens_lookup.html)
+  does with `nested_scope = "key"`, `"first"`, or `"all"`; it does not
+  apply to dependency patterns, all of whose matches are returned. An
+  argument that
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  does not use is an error, not ignored. The pipeline needs a dependency
+  parse for a dependency pattern; a document without one is an error,
+  not a document without matches. Unlike `entity_patterns`, the patterns
+  do not change the pipeline or a document’s entities.
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  replaces `spacy_extract_matches()` and
+  `spacy_extract_dependency_matches()`, which were in earlier
+  development versions only and are removed, as is their argument
+  `patterns`.
+- [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  takes words and phrases as **quanteda**’s functions do, with the new
+  arguments `valuetype = c("glob", "regex", "fixed")` and
+  `case_insensitive = TRUE`. `pattern` can now be a character vector, in
+  which each element describes one token (`spacy_match(x, "tax*")`); a
+  [`quanteda::phrase()`](https://quanteda.io/reference/phrase.html)
+  object or a list of character vectors, in which each element is a
+  sequence with one string for each token (`phrase("new york*")`), used
+  as given and not tokenized again by spaCy; or the collocations of
+  [`quanteda.textstats::textstat_collocations()`](https://quanteda.io/reference/textstat_collocations.html),
+  whose words are matched as they are, with only `case_insensitive`
+  applying, as **quanteda** matches them. A match is labelled by the
+  name of its pattern, or else by the pattern’s text. As in
+  **quanteda**, a character element that contains a space is still one
+  token, so sequences need
+  [`phrase()`](https://quanteda.io/reference/phrase.html). `valuetype`
+  and `case_insensitive` also apply to a **quanteda** dictionary.
+  Regular expressions are those of Python’s `re` module. Sequences
+  without a wildcard or a regular expression are matched by spaCy’s
+  `PhraseMatcher`, so many thousands stay fast. Giving `valuetype` or
+  `case_insensitive` is an error when `pattern` holds nothing that they
+  apply to: only spaCy’s token or dependency patterns, or an
+  [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  object, whose phrases have their own `case_insensitive`. A named list
+  of spaCy patterns can also hold character vectors.
+- [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  has the new argument `levels` for a **quanteda** dictionary, as in
+  [`quanteda::tokens_lookup()`](https://quanteda.io/reference/tokens_lookup.html):
+  the default, `levels = 1`, labels values by their top-level key as
+  before, and `levels = 1:2`, for instance, by their keys at the first
+  two levels, joined by `"."` (`"place.us"`). Its `valuetype` now lists
+  its choices in **quanteda**’s order, `c("glob", "regex", "fixed")`,
+  with the same default. A character vector of phrases now takes
+  `valuetype` too, so that
+  `as_entity_patterns(c(ORG = "acme*"), valuetype = "glob")` has a
+  wildcard without a dictionary; its default stays `"fixed"`, and
+  `case_insensitive` applies to it.
 - New function
-  [`spacy_extract_dependency_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.md)
-  finds tokens that are connected in the dependency parse as a pattern
-  describes, using spaCy’s `DependencyMatcher`
-  ([\#204](https://github.com/quanteda/spacyr/issues/204)): a passive
-  verb with its subject and agent, for instance, wherever they are in
-  the sentence. Patterns are a named list of dependency patterns in
-  spaCy’s own structure, one for each label, whose nodes are named by
-  `RIGHT_ID`. It returns a data.frame with one row for each node of the
-  pattern in each match: the document, the number of the match within
-  it, the label, the name of the node, and the token it matched with its
-  position, as in
+  [`as_index()`](https://spacyr.quanteda.io/reference/as_index.md) turns
+  the output of
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  or
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  into an index of **quanteda**, as
+  [`quanteda::index()`](https://quanteda.io/reference/index.html) makes,
+  so that
+  `quanteda::kwic(quanteda::as.tokens(spacy_parse(x)), index = as_index(m))`
+  shows each match, entity or noun phrase in its context. The index has
+  one row for each row of its input, in the same order, labelled by the
+  match’s `label`, the entity’s `ent_type`, or `"nounphrase"`; `NULL`,
+  which the two extractors return when they find nothing, gives an index
+  with no rows. The positions are those of spaCy’s tokens, as in
   [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md).
-  The pipeline needs a dependency parser, or another component that sets
-  dependencies; a document without a dependency parse is an error, not a
-  document without matches.
+  Document names are put in Unicode’s composed form (NFC), as
+  **quanteda** keeps them, so that
+  [`kwic()`](https://quanteda.io/reference/kwic.html) does not drop the
+  matches of a document whose name is in another form. The “Rule-Based
+  Matching” article has new sections on matches in context and on
+  counting matches as
+  [`quanteda::tokens_lookup()`](https://quanteda.io/reference/tokens_lookup.html)
+  does.
+- New method of
+  [`quanteda::as.dictionary()`](https://quanteda.io/reference/as.dictionary.html)
+  for the entity patterns that
+  [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  makes, when all of them are phrases: the labels become the keys of a
+  **quanteda** dictionary and the phrases its values, each kept once and
+  in its own case. Token patterns are an error that names their labels,
+  and a phrase with `*` or `?` gives a warning, since **quanteda** reads
+  those as wildcards unless `valuetype = "fixed"`. The `id` and
+  `case_insensitive` of a pattern are not kept;
+  `as_entity_patterns(d, valuetype = "fixed", case_insensitive = FALSE)`
+  makes exact phrases of the dictionary again. The method is registered
+  when **quanteda** is loaded, so **quanteda** stays a suggested
+  package; this needs R 3.6.0 or later, which **spacyr** now requires.
+  The articles show how to make a dictionary of the texts of matches and
+  of entities.
+- The **quanteda** methods for the output of
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  are now part of **spacyr**:
+  [`as.tokens()`](https://quanteda.io/reference/as.tokens.html),
+  [`docnames()`](https://quanteda.io/reference/docnames.html),
+  [`ndoc()`](https://quanteda.io/reference/ndoc.html),
+  [`ntoken()`](https://quanteda.io/reference/ntoken.html),
+  [`ntype()`](https://quanteda.io/reference/ntoken.html) and
+  [`nsentence()`](https://quanteda.io/reference/nsentence.html). They
+  were part of **quanteda**, and are documented in
+  [`?"quanteda-methods"`](https://spacyr.quanteda.io/reference/quanteda-methods.md).
+  They are registered when **quanteda** is loaded, so **quanteda** stays
+  a suggested package; this needs R 3.6.0 or later, which **spacyr** now
+  requires. To use them on a parse that was saved to a file, load
+  **spacyr** as well as **quanteda**. The methods now agree on which
+  documents there are, and differ from those of **quanteda** 4.5.1 in
+  these ways:
+  - A document in which spaCy found no tokens, such as an empty text, is
+    kept as a document with no tokens:
+    [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+    now keeps the names of all the documents it was given with its
+    output. Before,
+    [`as.tokens()`](https://quanteda.io/reference/as.tokens.html) and
+    the other methods left such documents out.
+  - [`as.tokens()`](https://quanteda.io/reference/as.tokens.html)
+    restores the document variables of a **quanteda** corpus that was
+    parsed, which were lost before.
+  - When rows are taken out of a parse, the documents follow the rows:
+    removing some tokens keeps every document, and removing all the rows
+    of a document that had tokens removes it, and the documents without
+    tokens with it. A parse without the record of its documents, such as
+    one saved by an earlier version, has the documents of its rows, as
+    before.
+  - [`rbind()`](https://rdrr.io/r/base/cbind.html) of parses keeps the
+    documents of all of them, and their document variables when all have
+    the same ones, when no two parses have a document of the same name.
+    When two do, the result has the documents of its rows, without
+    document variables.
+  - [`ntoken()`](https://quanteda.io/reference/ntoken.html),
+    [`ntype()`](https://quanteda.io/reference/ntoken.html) and
+    [`nsentence()`](https://quanteda.io/reference/nsentence.html) return
+    integer vectors in the order of the documents, as
+    [`docnames()`](https://quanteda.io/reference/docnames.html) gives
+    them; before, they were in alphabetical order of the document names.
+  - [`as.tokens()`](https://quanteda.io/reference/as.tokens.html) gives
+    an error for `use_lemma = TRUE` or `include_pos` when the parse has
+    no such column.
 - [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
   has new arguments `entity_patterns` and `overwrite_entities`, to add
   rule-based named entities to the pipeline
@@ -352,6 +482,17 @@
   site is rebuilt with pkgdown 2.2.1, and now uses Bootstrap 5 with the
   same theme and styling as the **quanteda** site. The site’s search
   box, which pkgdown provides without an outside service, is restored.
+- The help for
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  now names the column of entity types as it is returned, `ent_type`. It
+  and the help for
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  now say that `start_id` counts every one of spaCy’s tokens in the
+  document, whitespace tokens included, as the rows of
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  do; it is not the position among the tokens of
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+  with its default options, which leaves whitespace tokens out.
 
 ### Tests
 

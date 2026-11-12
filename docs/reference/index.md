@@ -2,8 +2,12 @@
 
 ## All functions
 
+- [`as.dictionary(`*`<spacyr_entity_patterns>`*`)`](https://spacyr.quanteda.io/reference/as.dictionary.spacyr_entity_patterns.md)
+  : Convert entity patterns of phrases to a quanteda dictionary
 - [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
   : Create patterns for rule-based named entities
+- [`as_index()`](https://spacyr.quanteda.io/reference/as_index.md) :
+  Convert matches, entities or noun phrases to a quanteda index
 - [`data_char_paragraph`](https://spacyr.quanteda.io/reference/data_char_paragraph.md)
   : A short paragraph of text for testing
 - [`data_char_sentences`](https://spacyr.quanteda.io/reference/data_char_sentences.md)
@@ -17,16 +21,19 @@
 - [`nounphrase_extract()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   [`nounphrase_consolidate()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   : Extract or consolidate noun phrases from parsed documents
+- [`as.tokens(`*`<spacyr_parsed>`*`)`](https://spacyr.quanteda.io/reference/quanteda-methods.md)
+  [`docnames(`*`<spacyr_parsed>`*`)`](https://spacyr.quanteda.io/reference/quanteda-methods.md)
+  [`ndoc(`*`<spacyr_parsed>`*`)`](https://spacyr.quanteda.io/reference/quanteda-methods.md)
+  [`ntoken(`*`<spacyr_parsed>`*`)`](https://spacyr.quanteda.io/reference/quanteda-methods.md)
+  [`ntype(`*`<spacyr_parsed>`*`)`](https://spacyr.quanteda.io/reference/quanteda-methods.md)
+  [`nsentence(`*`<spacyr_parsed>`*`)`](https://spacyr.quanteda.io/reference/quanteda-methods.md)
+  : quanteda methods for parsed texts
 - [`spacy_download_langmodel()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel.md)
   : Download spaCy language models
 - [`spacy_download_langmodel_virtualenv()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel_virtualenv.md)
   : Install a language model in a conda or virtual environment
-- [`spacy_extract_dependency_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.md)
-  : Extract matches of dependency patterns from texts using spaCy
 - [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
   : Extract named entities from texts using spaCy
-- [`spacy_extract_matches()`](https://spacyr.quanteda.io/reference/spacy_extract_matches.md)
-  : Extract matches of token patterns and phrases from texts using spaCy
 - [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
   : Extract noun phrases from texts using spaCy
 - [`spacy_finalize()`](https://spacyr.quanteda.io/reference/spacy_finalize.md)
@@ -39,6 +46,8 @@
   : Install spaCy to a virtual environment
 - [`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md)
   : Check whether spaCy is installed
+- [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  : Match patterns in texts using spaCy
 - [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
   : Parse a text using spaCy
 - [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)

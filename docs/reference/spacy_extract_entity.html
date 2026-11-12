@@ -120,13 +120,16 @@ more memory.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>When the option <code>output = "data.frame"</code> is selected, the
-function returns a <code>data.frame</code> with the following fields.</p><dl><dt><code>entity_type</code></dt>
+function returns a <code>data.frame</code> with the following fields.</p><dl><dt><code>ent_type</code></dt>
 <dd><p>type of entity (e.g. <code>ORG</code> for
 organizations)</p></dd>
  <dt><code>start_id</code></dt>
-<dd><p>serial number ID of starting token.
-This number corresponds with the number of <code>data.frame</code> returned from
-<code>spacy_tokenize(x)</code> with default options.</p></dd>
+<dd><p>serial number ID of starting token:
+its position in the document, starting at 1 and counting every token
+of spaCy's, as the rows of <code>spacy_parse(x)</code> do. Whitespace tokens are
+counted, so where a document has them this is not the position among
+the tokens of <code>spacy_tokenize(x)</code> with default options, which leaves
+them out.</p></dd>
  <dt><code>length</code></dt>
 <dd><p>number
 of words (tokens) included in a named entity (e.g. for an entity, "New York

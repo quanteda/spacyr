@@ -115,9 +115,11 @@ function returns a <code>data.frame</code> with the following fields.</p><dl><dt
 <dd><p>contents of root token</p></dd>
 
 <dt><code>start_id</code></dt>
-<dd><p>serial number ID of starting token. This number
-corresponds with the number of <code>data.frame</code> returned from
-<code>spacy_tokenize(x)</code> with default options.</p></dd>
+<dd><p>serial number ID of starting token: its position in
+the document, starting at 1 and counting every token of spaCy's, as the
+rows of <code>spacy_parse(x)</code> do. Whitespace tokens are counted, so where a
+document has them this is not the position among the tokens of
+<code>spacy_tokenize(x)</code> with default options, which leaves them out.</p></dd>
 
 <dt><code>root_id</code></dt>
 <dd><p>serial number ID of root token</p></dd>

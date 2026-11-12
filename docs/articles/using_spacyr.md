@@ -400,8 +400,8 @@ you can install the model by entering
 The outputs and formats of **spacyr** are designed to integrate directly
 with the **quanteda** package.
 
-For instance, many of its functions operate directly on **spacyr**
-objects, such as a parsed text.
+For instance, **spacyr** has methods for several of its functions, which
+then operate directly on a parsed text.
 
 \
 [`require`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`, warn.conflicts ``=`` ``FALSE``, quietly ``=`` ``TRUE``)`\
