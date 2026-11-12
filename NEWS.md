@@ -1,5 +1,16 @@
 # spacyr (development version)
 
+## Upgrading from 1.4.0
+
+Most code written for 1.4.0 runs unchanged. These changes can need attention; each is described in full below.
+
+* **spacyr** now requires R 3.6.0 or later, and spaCy 3.0.0 or later with Python 3.
+* The **quanteda** methods for the output of `spacy_parse()`, such as `as.tokens()` and `ntoken()`, are now part of **spacyr** and no longer of **quanteda**. They keep documents that have no tokens, restore the document variables of a corpus, and return counts in the order of the documents. To use them on a parse that was saved to a file, load **spacyr** as well as **quanteda**.
+* The output of `spacy_parse()` has a new attribute, `documents`, so it is no longer `identical()` to a data.frame with the same columns.
+* The `multithread` argument is deprecated and has no effect: use `n_process` and `batch_size`.
+* `process_document()` and the `get_*()` functions are deprecated: use `spacy_parse()`.
+* **spacyr** no longer creates the Python variables `nlp`, `spobj`, `texts` and others in Python's `__main__` namespace.
+
 ## New features
 
 * New function `as_entity_patterns()` creates patterns for rule-based named entities, as used by spaCy's `entity_ruler`, from phrases, lists of patterns in spaCy's own structure, or a data.frame (#234). Patterns are checked for their structure, and converted so that they reach spaCy in the form it expects: the values of spaCy's set operators (`IN`, `NOT_IN`, `IS_SUBSET`, `IS_SUPERSET` and `INTERSECTS`) stay lists even when they hold a single value or none, other empty lists become empty dictionaries, and whole numbers become integers. Phrases can match regardless of case with `case_insensitive = TRUE`. The new functions `entity_patterns_read()` and `entity_patterns_write()` read patterns from, and write them to, spaCy's JSONL format, JSON arrays, or (for reading) a text file of phrases; reading and writing JSON needs the **jsonlite** package, now suggested. Pass the patterns to `spacy_initialize()` with its new argument `entity_patterns`.

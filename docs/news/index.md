@@ -2,6 +2,34 @@
 
 ## spacyr (development version)
 
+### Upgrading from 1.4.0
+
+Most code written for 1.4.0 runs unchanged. These changes can need
+attention; each is described in full below.
+
+- **spacyr** now requires R 3.6.0 or later, and spaCy 3.0.0 or later
+  with Python 3.
+- The **quanteda** methods for the output of
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  such as [`as.tokens()`](https://quanteda.io/reference/as.tokens.html)
+  and [`ntoken()`](https://quanteda.io/reference/ntoken.html), are now
+  part of **spacyr** and no longer of **quanteda**. They keep documents
+  that have no tokens, restore the document variables of a corpus, and
+  return counts in the order of the documents. To use them on a parse
+  that was saved to a file, load **spacyr** as well as **quanteda**.
+- The output of
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  has a new attribute, `documents`, so it is no longer
+  [`identical()`](https://rdrr.io/r/base/identical.html) to a data.frame
+  with the same columns.
+- The `multithread` argument is deprecated and has no effect: use
+  `n_process` and `batch_size`.
+- [`process_document()`](https://spacyr.quanteda.io/reference/process_document.md)
+  and the `get_*()` functions are deprecated: use
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md).
+- **spacyr** no longer creates the Python variables `nlp`, `spobj`,
+  `texts` and others in Python’s `__main__` namespace.
+
 ### New features
 
 - New function

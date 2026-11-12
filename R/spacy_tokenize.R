@@ -3,7 +3,7 @@
 #' Efficient tokenization (without POS tagging, dependency parsing,
 #' lemmatization, or named entity recognition) of texts using spaCy.
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-#'   corpus data.frame (see <https://github.com/ropensci/tif>) 
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>) 
 #' @param what the unit for splitting the text, available alternatives are: 
 #'   \describe{ \item{`"word"`}{word segmenter} 
 #'   \item{`"sentence"`}{sentence segmenter }}

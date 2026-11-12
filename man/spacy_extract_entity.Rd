@@ -16,7 +16,7 @@ spacy_extract_entity(
 }
 \arguments{
 \item{x}{a character object or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropensci/tif})}
+corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
 
 \item{output}{type of returned object, either \code{"list"} or
 \code{"data.frame"}.}

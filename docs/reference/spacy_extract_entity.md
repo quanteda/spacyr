@@ -23,7 +23,7 @@ spacy_extract_entity(
 - x:
 
   a character object or a TIF-compliant corpus data.frame (see
-  <https://github.com/ropensci/tif>)
+  <https://github.com/ropenscilabs/tif>)
 
 - output:
 

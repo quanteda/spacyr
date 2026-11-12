@@ -17,7 +17,7 @@ spacy_match(
 }
 \arguments{
 \item{x}{a character object, a \strong{quanteda} corpus, or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropensci/tif})}
+corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
 
 \item{pattern}{the patterns to match. The first four kinds are \emph{lexical
 patterns}, which describe tokens by their text and to which \code{valuetype}

@@ -43,6 +43,19 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="spacyr-development-version">spacyr (development version)<a class="anchor" aria-label="anchor" href="#spacyr-development-version"></a></h2>
 <div class="section level3">
+<h3 id="upgrading-from-development-version">Upgrading from 1.4.0<a class="anchor" aria-label="anchor" href="#upgrading-from-development-version"></a></h3>
+<p>Most code written for 1.4.0 runs unchanged. These changes can need attention; each is described in full below.</p>
+<ul><li>
+<strong>spacyr</strong> now requires R 3.6.0 or later, and spaCy 3.0.0 or later with Python 3.</li>
+<li>The <strong>quanteda</strong> methods for the output of <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>, such as <code><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">as.tokens()</a></code> and <code><a href="https://quanteda.io/reference/ntoken.html" class="external-link">ntoken()</a></code>, are now part of <strong>spacyr</strong> and no longer of <strong>quanteda</strong>. They keep documents that have no tokens, restore the document variables of a corpus, and return counts in the order of the documents. To use them on a parse that was saved to a file, load <strong>spacyr</strong> as well as <strong>quanteda</strong>.</li>
+<li>The output of <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> has a new attribute, <code>documents</code>, so it is no longer <code><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical()</a></code> to a data.frame with the same columns.</li>
+<li>The <code>multithread</code> argument is deprecated and has no effect: use <code>n_process</code> and <code>batch_size</code>.</li>
+<li>
+<code><a href="../reference/process_document.html">process_document()</a></code> and the <code>get_*()</code> functions are deprecated: use <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>.</li>
+<li>
+<strong>spacyr</strong> no longer creates the Python variables <code>nlp</code>, <code>spobj</code>, <code>texts</code> and others in Python’s <code>__main__</code> namespace.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
 <ul><li>New function <code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> creates patterns for rule-based named entities, as used by spaCy’s <code>entity_ruler</code>, from phrases, lists of patterns in spaCy’s own structure, or a data.frame (<a href="https://github.com/quanteda/spacyr/issues/234" class="external-link">#234</a>). Patterns are checked for their structure, and converted so that they reach spaCy in the form it expects: the values of spaCy’s set operators (<code>IN</code>, <code>NOT_IN</code>, <code>IS_SUBSET</code>, <code>IS_SUPERSET</code> and <code>INTERSECTS</code>) stay lists even when they hold a single value or none, other empty lists become empty dictionaries, and whole numbers become integers. Phrases can match regardless of case with <code>case_insensitive = TRUE</code>. The new functions <code><a href="../reference/entity_patterns_read.html">entity_patterns_read()</a></code> and <code><a href="../reference/entity_patterns_read.html">entity_patterns_write()</a></code> read patterns from, and write them to, spaCy’s JSONL format, JSON arrays, or (for reading) a text file of phrases; reading and writing JSON needs the <strong>jsonlite</strong> package, now suggested. Pass the patterns to <code><a href="../reference/spacy_initialize.html">spacy_initialize()</a></code> with its new argument <code>entity_patterns</code>.</li>
 <li>
