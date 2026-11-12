@@ -119,7 +119,7 @@ as_index <- function(x) {
     if (anyNA(pattern) || anyNA(x[["doc_id"]]))
         stop("doc_id and the label of each row must not be missing", call. = FALSE)
     # the end is computed as a double: adding integers could overflow
-    to <- from + len - 1
+    to <- as.double(from) + len - 1
     if (any(to > .Machine$integer.max))
         stop("start_id and length give a position beyond the largest ",
              "integer, ", .Machine$integer.max, call. = FALSE)

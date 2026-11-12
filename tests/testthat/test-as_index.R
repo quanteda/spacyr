@@ -148,6 +148,12 @@ test_that("as_index() checks the end position before converting it", {
     expect_error(as_index(m), "beyond the largest integer")
     m <- data.frame(doc_id = "d1", label = "a", start_id = 1e10, length = 1)
     expect_error(as_index(m), "beyond the largest integer")
+    # integer columns, as spacy_match() returns, must not overflow when added
+    m <- data.frame(doc_id = "d1", label = "a", start_id = big, length = 1L)
+    expect_no_warning(ix <- as_index(m))
+    expect_identical(ix$to, big)
+    m$length <- 2L
+    expect_error(as_index(m), "beyond the largest integer")
 })
 
 test_that("as_index() gives document names in composed form", {
