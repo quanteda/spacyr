@@ -15,7 +15,7 @@ License: GPL-3
 SystemRequirements: Python (>= 3), spaCy (>= 3.0.0)
 LazyData: TRUE
 Depends:
-    R (>= 3.0.0),
+    R (>= 3.6.0),
     methods
 Imports:
     data.table,

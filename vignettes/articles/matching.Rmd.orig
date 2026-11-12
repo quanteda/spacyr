@@ -367,6 +367,25 @@ quanteda::dfm(quanteda::as.tokens(split(dep1$label, factor(dep1$doc_id, levels =
               tolower = FALSE)
 ```
 
+## A dictionary of the matches
+
+The texts that a pattern matched can become the values of a **quanteda** dictionary, with the labels as its keys, for instance to look up in other texts what a wildcard found in these. Each different text is kept once, and `tolower = FALSE` keeps the texts in their own case, which `quanteda::dictionary()` would otherwise lower:
+
+```{r}
+m <- spacy_match(txt, dict)
+quanteda::dictionary(lapply(split(m$text, m$label), unique), tolower = FALSE)
+```
+
+This is for matches of sequences, whose `text` is the whole match. A match of a dependency pattern has a row for each node, whose `text` is one token of the construction, so a dictionary of those rows would hold its single words. In a table with both kinds, keep the sequence matches, which have no `node`:
+
+```{r}
+mixed <- spacy_match(passive_txt, c(passive, list(CLAUSE = passive_dep)))
+seqs <- mixed[is.na(mixed$node), ]
+quanteda::dictionary(lapply(split(seqs$text, seqs$label), unique), tolower = FALSE)
+```
+
+As [above](#dictionaries), a value such as `"Acme, Inc."` is found by `spacy_match()`, which lets spaCy split it into tokens, and not by `quanteda::tokens_lookup()`, which splits it at its spaces. The article on [rule-based named entities](entity_rules.html) shows the same for entities, and `as.dictionary()` for entity patterns that are all phrases.
+
 ## What to keep in mind
 
 **Labels belong to the model.** The tags and dependency labels above are those of spaCy's English models. Other languages' models use other labels, and some do not mark the passive at all. Look at the output of `spacy_parse(x, tag = TRUE, dependency = TRUE)` for the model you use before writing a pattern.
