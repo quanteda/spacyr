@@ -139,5 +139,7 @@ nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
 
     ret <- as.data.frame(spacy_result_modified[, keep_cols, with = FALSE])
     class(ret) <- c("spacyr_parsed", class(ret))
+    # the documents that were parsed, for the quanteda methods
+    attr(ret, "documents") <- attr(x, "documents", exact = TRUE)
     ret
 }

@@ -45,7 +45,11 @@
 #'   list of available attributes is available from
 #'   <https://spacy.io/api/token#attributes>.
 #' @param ... not used directly
-#' @return a `data.frame` of tokenized, parsed, and annotated tokens
+#' @return a `data.frame` of tokenized, parsed, and annotated tokens, of class
+#'   `spacyr_parsed`. It keeps the names of all the documents of `x`, also of
+#'   those in which spaCy found no tokens, and the document variables of a
+#'   \pkg{quanteda} corpus, for the [quanteda methods][quanteda-methods] such
+#'   as `quanteda::as.tokens()`.
 #' @export
 #' @examples
 #' \dontrun{
@@ -98,6 +102,7 @@ spacy_parse.character <- function(x,
     `:=` <- `.` <- `.N` <- `.I` <- NULL
     check_multithread(multithread, "spacy_parse")
     args <- pipe_args(n_process, batch_size)
+    docvars <- input_docvars(x)
     input <- spacy_input(x)
 
     ## check the omit_entity status
@@ -119,10 +124,11 @@ spacy_parse.character <- function(x,
     warn_skipped(spobj)
     cols <- parsed$columns
     if (length(cols$token) == 0) {
-        return(empty_spacyr_parsed(lemma = lemma, pos = pos, tag = tag,
-                                   dependency = dependency, entity = entity,
-                                   nounphrase = nounphrase,
-                                   additional_attributes = additional_attributes))
+        empty <- empty_spacyr_parsed(lemma = lemma, pos = pos, tag = tag,
+                                     dependency = dependency, entity = entity,
+                                     nounphrase = nounphrase,
+                                     additional_attributes = additional_attributes)
+        return(set_parsed_documents(empty, input$docnames, docvars))
     }
     if (dependency) cols$head_token_id <- as.numeric(cols$head_token_id)
     if (nounphrase && parsed$n_nounphrases == 0) {
@@ -136,7 +142,7 @@ spacy_parse.character <- function(x,
 
     dt <- as.data.frame(dt)
     class(dt) <- c("spacyr_parsed", class(dt))
-    return(dt)
+    set_parsed_documents(dt, input$docnames, docvars)
 }
 
 
