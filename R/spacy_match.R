@@ -15,7 +15,7 @@
 #' pipeline or the entities of a document.
 #'
 #' @param x a character object, a **quanteda** corpus, or a TIF-compliant
-#'   corpus data.frame (see <https://github.com/ropensci/tif>)
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
 #' @param pattern the patterns to match. The first four kinds are *lexical
 #'   patterns*, which describe tokens by their text and to which `valuetype`
 #'   and `case_insensitive` apply, as in **quanteda**:

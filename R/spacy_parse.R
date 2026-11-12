@@ -8,7 +8,7 @@
 #' and any other token attributes from spaCy (`additional_attributes`).
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-#'   corpus data.frame (see <https://github.com/ropensci/tif>)
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
 #' @param pos logical whether to return universal dependency POS tagset
 #'   (<https://universaldependencies.org/u/pos/>)
 #' @param tag logical whether to return detailed part-of-speech tags; the

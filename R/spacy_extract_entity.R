@@ -5,7 +5,7 @@
 #' <https://spacy.io/usage/linguistic-features#named-entities>).
 #' 
 #' @param x a character object or a TIF-compliant
-#'   corpus data.frame (see <https://github.com/ropensci/tif>)
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
 #' @inheritParams spacy_parse
 #' @param output type of returned object, either `"list"` or
 #'   `"data.frame"`.

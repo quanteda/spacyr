@@ -5,7 +5,7 @@
 #' <https://spacy.io/usage/linguistic-features#noun-chunks>).
 #' 
 #' @param x a character object or a TIF-compliant corpus data.frame (see
-#'   <https://github.com/ropensci/tif>)
+#'   <https://github.com/ropenscilabs/tif>)
 #' @inheritParams spacy_parse
 #' @param output type of returned object, either `"data.frame"` or
 #'   `"list"`
