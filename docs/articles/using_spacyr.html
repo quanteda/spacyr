@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">spacyr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">Kenneth Benoit
 and Akitaka Matsuo</h4>
             
-            <h4 data-toc-skip class="date">2026-11-07</h4>
+            <h4 data-toc-skip class="date">2026-11-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/quanteda/spacyr/blob/HEAD/vignettes/using_spacyr.Rmd" class="external-link"><code>vignettes/using_spacyr.Rmd</code></a></small>
       <div class="d-none name"><code>using_spacyr.Rmd</code></div>
@@ -133,8 +133,8 @@ provides two options for part of speech tagging, plus options to return
 word lemmas, recognize names entities or noun phrases recognition, and
 identify grammatical structures features by parsing syntactic
 dependencies. It returns a <code>data.frame</code> corresponding to the
-emerging <a href="https://github.com/ropensci/tif" class="external-link"><em>text interchange
-format</em></a> for token data.frames.</p>
+emerging <a href="https://github.com/ropenscilabs/tif" class="external-link"><em>text
+interchange format</em></a> for token data.frames.</p>
 <p>The tokenization approach taken by spaCy is inclusive: it includes
 all tokens without restrictions, including punctuation characters and
 symbols.</p>
@@ -599,8 +599,8 @@ smart:</p>
 <div class="section level3">
 <h3 id="adherence-to-the-tif-standard">Adherence to the “TIF” standard<a class="anchor" aria-label="anchor" href="#adherence-to-the-tif-standard"></a>
 </h3>
-<p><strong>spacyr</strong>’s output was designed to conform to the <a href="https://github.com/ropensci/tif" class="external-link">Text Interchange Format</a>, a
-cooperatively agreed standard structure for text package objects in R,
+<p><strong>spacyr</strong>’s output was designed to conform to the <a href="https://github.com/ropenscilabs/tif" class="external-link">Text Interchange Format</a>,
+a cooperatively agreed standard structure for text package objects in R,
 such as corpus and token objects. <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> can take a
 TIF corpus data.frame or character object as a valid input. Moreover,
 the data.frames returned by <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> and

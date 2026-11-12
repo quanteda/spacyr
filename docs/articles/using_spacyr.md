@@ -67,7 +67,7 @@ plus options to return word lemmas, recognize names entities or noun
 phrases recognition, and identify grammatical structures features by
 parsing syntactic dependencies. It returns a `data.frame` corresponding
 to the emerging [*text interchange
-format*](https://github.com/ropensci/tif) for token data.frames.
+format*](https://github.com/ropenscilabs/tif) for token data.frames.
 
 The tokenization approach taken by spaCy is inclusive: it includes all
 tokens without restrictions, including punctuation characters and
@@ -543,7 +543,7 @@ Part of speech filtering can then happen using **dplyr**:
 ### Adherence to the “TIF” standard
 
 **spacyr**’s output was designed to conform to the [Text Interchange
-Format](https://github.com/ropensci/tif), a cooperatively agreed
+Format](https://github.com/ropenscilabs/tif), a cooperatively agreed
 standard structure for text package objects in R, such as corpus and
 token objects.
 [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)

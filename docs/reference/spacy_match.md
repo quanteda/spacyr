@@ -37,7 +37,7 @@ spacy_match(
 - x:
 
   a character object, a **quanteda** corpus, or a TIF-compliant corpus
-  data.frame (see <https://github.com/ropensci/tif>)
+  data.frame (see <https://github.com/ropenscilabs/tif>)
 
 - pattern:
 
