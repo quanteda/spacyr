@@ -45,11 +45,20 @@
 #' * When a document that had tokens has no rows left, documents were taken
 #'   out of `x`, and the documents are those that have rows. One without
 #'   tokens is then not kept either.
-#' * When `x` has a document that was not parsed with the others, as after
-#'   `rbind()`, or has no record, as an object saved by an earlier version
-#'   of \pkg{spacyr} or one that another function made into a new
-#'   data.frame, the documents are those that have rows, without document
-#'   variables.
+#' * When `x` has rows that were not parsed with the others, or has no
+#'   record, as an object saved by an earlier version of \pkg{spacyr} or one
+#'   that another function made into a new data.frame, the documents are
+#'   those that have rows, without document variables.
+#'
+#' `rbind()` of parses combines their records when no two of them have a
+#' document of the same name: the result has the documents of all of them,
+#' and their document variables when all have the same ones. When two parses
+#' have a document of the same name, the result has no record, since the
+#' rows of the two cannot be told apart: its documents are those that have
+#' rows, without document variables. Other ways of combining parses, such as
+#' `dplyr::bind_rows()`, can keep the record of the first. It is then not
+#' used when a document has more rows than it had tokens, or a name that the
+#' record does not have; give the documents different names to be sure.
 #'
 #' The documents are in the order in which they were parsed, or in the order
 #' of the rows of `x` when that is another, with the documents without
@@ -182,6 +191,11 @@ parsed_documents <- function(x) {
         length(record$ntoken) != length(record$doc_id) ||
         !all(in_rows %in% record$doc_id))
         return(from_rows)
+    # rows can be taken out of a parse, not added: a document with more rows
+    # than it had tokens holds the rows of another parse
+    now <- tabulate(match(as.character(x[["doc_id"]]), record$doc_id),
+                    length(record$doc_id))
+    if (any(now > record$ntoken)) return(from_rows)
     docvars <- record$docvars
     if (!is.null(docvars) &&
         (!is.data.frame(docvars) || nrow(docvars) != length(record$doc_id)))
@@ -198,4 +212,40 @@ parsed_documents <- function(x) {
         rownames(docvars) <- NULL
     }
     list(doc_id = ids, docvars = docvars)
+}
+
+#' @export
+rbind.spacyr_parsed <- function(..., deparse.level = 1) {
+    result <- rbind.data.frame(..., deparse.level = deparse.level)
+    attr(result, "documents") <- combine_records(list(...))
+    result
+}
+
+# The record of documents for parses bound by rows: the records one after the
+# other when every parse has one and no two have a document of the same
+# name, and NULL otherwise. Document variables are kept when all the parses
+# have them with the same names.
+combine_records <- function(parses) {
+    parses <- parses[!vapply(parses, is.null, logical(1))]
+    records <- lapply(parses, attr, "documents", exact = TRUE)
+    valid <- vapply(records, function(r) {
+        is.list(r) && is.character(r$doc_id) &&
+            length(r$ntoken) == length(r$doc_id)
+    }, logical(1))
+    if (!length(records) || !all(valid)) return(NULL)
+    if (length(records) == 1L) return(records[[1L]])
+    doc_id <- unlist(lapply(records, `[[`, "doc_id"), use.names = FALSE)
+    if (anyDuplicated(doc_id)) return(NULL)
+    docvars <- lapply(records, `[[`, "docvars")
+    same_docvars <- all(vapply(docvars, function(d) {
+        is.data.frame(d) && identical(names(d), names(docvars[[1L]])) &&
+            nrow(d) > 0L
+    }, logical(1)))
+    docvars <- if (same_docvars) {
+        tryCatch(do.call(rbind.data.frame, c(docvars, make.row.names = FALSE)),
+                 error = function(e) NULL)
+    }
+    list(doc_id = doc_id,
+         ntoken = unlist(lapply(records, `[[`, "ntoken"), use.names = FALSE),
+         docvars = docvars)
 }

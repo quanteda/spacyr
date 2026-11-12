@@ -121,10 +121,11 @@ test_that("objects without a usable record fall back to their rows", {
     toks <- quanteda::as.tokens(old)
     expect_identical(quanteda::docnames(toks), c("d1", "d3", "d4"))
     expect_identical(ncol(quanteda::docvars(toks)), 0L)
-    # a document that the record does not know, as after rbind()
-    other <- x[1, ]
+    # a document that the record does not know
+    other <- as.data.frame(x[1, ])
     other$doc_id <- "z9"
-    both <- rbind(x, other)
+    both <- rbind.data.frame(x, other)
+    expect_identical(attr(both, "documents")$doc_id, c("d1", "d2", "d3", "d4"))
     expect_identical(quanteda::docnames(both), c("d1", "d3", "d4", "z9"))
     expect_identical(ncol(quanteda::docvars(quanteda::as.tokens(both))), 0L)
     # a record that is not what spacy_parse() writes
@@ -178,4 +179,74 @@ test_that("spacy_parse() keeps empty documents and corpus docvars", {
     expect_identical(quanteda::docnames(cons), c("d1", "d2", "d3"))
     expect_identical(quanteda::docvars(quanteda::as.tokens(cons), "year"),
                      2001:2003)
+})
+
+# a second parse by hand: one document, named as given
+hand_parsed2 <- function(doc_id, year, empty = character()) {
+    x <- data.frame(doc_id = rep(doc_id, 2), sentence_id = 1L,
+                    token_id = 1:2, token = c("p", "q"), lemma = c("P", "Q"),
+                    pos = c("X", "Y"), stringsAsFactors = FALSE)
+    class(x) <- c("spacyr_parsed", "data.frame")
+    spacyr:::set_parsed_documents(x, c(doc_id, empty),
+                                  data.frame(year = year))
+}
+
+test_that("rbind() of parses with a document of the same name drops the record", {
+    skip_if_not_installed("quanteda")
+    first <- hand_parsed2("d", c(2000L, 2001L), empty = "nothing")
+    second <- hand_parsed2("d", 2010L)
+    both <- rbind(first, second)
+    expect_s3_class(both, "spacyr_parsed")
+    expect_identical(nrow(both), 4L)
+    expect_null(attr(both, "documents"))
+    expect_identical(quanteda::docnames(both), "d")
+    expect_identical(quanteda::ntoken(both), c(d = 4L))
+    toks <- quanteda::as.tokens(both)
+    expect_identical(quanteda::docnames(toks), "d")
+    expect_identical(ncol(quanteda::docvars(toks)), 0L)
+})
+
+test_that("a record kept by another way of binding is not used", {
+    skip_if_not_installed("quanteda")
+    first <- hand_parsed2("d", c(2000L, 2001L), empty = "nothing")
+    second <- hand_parsed2("d", 2010L)
+    # as functions that keep the attributes of their first argument do
+    both <- rbind.data.frame(first, second)
+    expect_identical(attr(both, "documents")$doc_id, c("d", "nothing"))
+    expect_identical(quanteda::docnames(both), "d")
+    expect_identical(quanteda::ndoc(both), 1L)
+    toks <- quanteda::as.tokens(both)
+    expect_identical(quanteda::docnames(toks), "d")
+    expect_identical(ncol(quanteda::docvars(toks)), 0L)
+})
+
+test_that("rbind() of parses with different documents combines the records", {
+    skip_if_not_installed("quanteda")
+    first <- hand_parsed2("a", c(2000L, 2001L), empty = "nothing")
+    second <- hand_parsed2("b", 2010L)
+    both <- rbind(first, second)
+    expect_identical(quanteda::docnames(both), c("a", "nothing", "b"))
+    expect_identical(quanteda::ntoken(both), c(a = 2L, nothing = 0L, b = 2L))
+    toks <- quanteda::as.tokens(both)
+    expect_identical(quanteda::docnames(toks), c("a", "nothing", "b"))
+    expect_identical(quanteda::docvars(toks, "year"), c(2000L, 2001L, 2010L))
+
+    # other document variables, or none in one: the documents, no docvars
+    third <- second
+    names(attr(third, "documents")$docvars) <- "decade"
+    mixed <- rbind(first, third)
+    expect_identical(quanteda::docnames(mixed), c("a", "nothing", "b"))
+    expect_identical(ncol(quanteda::docvars(quanteda::as.tokens(mixed))), 0L)
+    attr(third, "documents")$docvars <- NULL
+    mixed <- rbind(first, third)
+    expect_identical(quanteda::docnames(mixed), c("a", "nothing", "b"))
+    expect_identical(ncol(quanteda::docvars(quanteda::as.tokens(mixed))), 0L)
+
+    # a parse without a record: none for the result
+    old <- second
+    attr(old, "documents") <- NULL
+    expect_null(attr(rbind(first, old), "documents"))
+    expect_identical(quanteda::docnames(rbind(first, old)), c("a", "b"))
+    # one parse alone keeps its record
+    expect_identical(attr(rbind(first), "documents"), attr(first, "documents"))
 })

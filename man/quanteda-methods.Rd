@@ -84,12 +84,21 @@ punctuation, does not remove a document.
 \item When a document that had tokens has no rows left, documents were taken
 out of \code{x}, and the documents are those that have rows. One without
 tokens is then not kept either.
-\item When \code{x} has a document that was not parsed with the others, as after
-\code{rbind()}, or has no record, as an object saved by an earlier version
-of \pkg{spacyr} or one that another function made into a new
-data.frame, the documents are those that have rows, without document
-variables.
+\item When \code{x} has rows that were not parsed with the others, or has no
+record, as an object saved by an earlier version of \pkg{spacyr} or one
+that another function made into a new data.frame, the documents are
+those that have rows, without document variables.
 }
+
+\code{rbind()} of parses combines their records when no two of them have a
+document of the same name: the result has the documents of all of them,
+and their document variables when all have the same ones. When two parses
+have a document of the same name, the result has no record, since the
+rows of the two cannot be told apart: its documents are those that have
+rows, without document variables. Other ways of combining parses, such as
+\code{dplyr::bind_rows()}, can keep the record of the first. It is then not
+used when a document has more rows than it had tokens, or a name that the
+record does not have; give the documents different names to be sure.
 
 The documents are in the order in which they were parsed, or in the order
 of the rows of \code{x} when that is another, with the documents without
