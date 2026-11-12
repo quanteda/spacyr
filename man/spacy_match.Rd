@@ -327,7 +327,9 @@ gives: it drops a match only when every one of its tokens is in another
 match, of any pattern. So it drops "New York" inside another label's "New
 York Times", which \code{overlap = "longest"} keeps, and keeps both of two
 matches of one label that partly overlap, of which \code{overlap = "longest"}
-keeps one.
+keeps one. A concordance of the matches themselves, with
+\code{kwic(index = as_index(m))}, shows the matches that \code{overlap} kept: see
+\code{\link[=as_index]{as_index()}}.
 }
 
 \examples{
@@ -414,5 +416,6 @@ spacy_match(txt, list(PASSIVE = passive, CLAUSE = clause))
 }
 \seealso{
 \code{\link[=as_entity_patterns]{as_entity_patterns()}} and \code{\link[=spacy_initialize]{spacy_initialize()}} to make matches
-named entities.
+named entities, and \code{\link[=as_index]{as_index()}} to show matches in their context with
+\code{\link[quanteda:kwic]{quanteda::kwic()}}.
 }

@@ -301,6 +301,38 @@ cbind(both[, c("match_id", "label", "node", "text")],
       first_token = parsed_p1$token[both$start_id])
 ```
 
+## Matches in context
+
+`quanteda::kwic()` shows each occurrence of a pattern with the tokens around it. It can do the same for positions found elsewhere, given as an *index*, and `as_index()` makes one from the output of `spacy_match()`. The positions in a table of matches count spaCy's tokens, with its tokens of whitespace, so the tokens to give `kwic()` are those of `spacy_parse()` for the same texts, and not those of `quanteda::tokens()`:
+
+```{r}
+spacy_tokens <- quanteda::as.tokens(spacy_parse(txt))
+m <- spacy_match(txt, dict)
+quanteda::kwic(spacy_tokens, index = as_index(m), window = 3)
+```
+
+The index has one row for each row of the matches, in the same order, so the other columns of the matches can be put beside the concordance. For a dependency pattern, that says which node each line is:
+
+```{r}
+dep <- spacy_match(passive_txt, list(CLAUSE = passive_dep))
+kw <- quanteda::kwic(quanteda::as.tokens(parsed), index = as_index(dep), window = 2)
+cbind(dep[, c("match_id", "node")], as.data.frame(kw)[, c("docname", "pre", "keyword", "post")])
+```
+
+A concordance made this way shows the matches that `spacy_match()` returned, chosen by `overlap` where they overlap. That is not always what `kwic()` finds when it searches for the same patterns itself, since its rule is another, as described [above](#dictionaries): here it leaves out the "York" inside each "New York", which belongs to another pattern, where `overlap = "all"` keeps them.
+
+```{r}
+all_matches <- spacy_match(txt, quanteda::phrase(c("new york", "york")), overlap = "all")
+nrow(quanteda::kwic(spacy_tokens, index = as_index(all_matches)))
+nrow(quanteda::kwic(spacy_tokens, quanteda::phrase(c("new york", "york"))))
+```
+
+`as_index()` also takes the output of `spacy_extract_entity()` and of `spacy_extract_nounphrases()`, whose positions are counted in the same way:
+
+```{r}
+quanteda::kwic(spacy_tokens, index = as_index(spacy_extract_entity(txt)), window = 3)
+```
+
 ## What to keep in mind
 
 **Labels belong to the model.** The tags and dependency labels above are those of spaCy's English models. Other languages' models use other labels, and some do not mark the passive at all. Look at the output of `spacy_parse(x, tag = TRUE, dependency = TRUE)` for the model you use before writing a pattern.

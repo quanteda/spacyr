@@ -27,6 +27,7 @@ Suggests:
     quanteda, 
     rmarkdown,
     spelling,
+    stringi,
     testthat,
     tidytext,
     tibble
