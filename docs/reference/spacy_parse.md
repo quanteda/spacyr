@@ -103,7 +103,13 @@ spacy_parse(
 
 ## Value
 
-a `data.frame` of tokenized, parsed, and annotated tokens
+a `data.frame` of tokenized, parsed, and annotated tokens, of class
+`spacyr_parsed`. It keeps the names of all the documents of `x`, also of
+those in which spaCy found no tokens, and the document variables of a
+quanteda corpus, for the [quanteda
+methods](https://spacyr.quanteda.io/reference/quanteda-methods.md) such
+as
+[`quanteda::as.tokens()`](https://quanteda.io/reference/as.tokens.html).
 
 ## Examples
 

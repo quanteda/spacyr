@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">Kenneth
 Benoit</h4>
             
-            <h4 data-toc-skip class="date">2026-11-10</h4>
+            <h4 data-toc-skip class="date">2026-11-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/quanteda/spacyr/blob/HEAD/vignettes/articles/entity_rules.Rmd" class="external-link"><code>vignettes/articles/entity_rules.Rmd</code></a></small>
       <div class="d-none name"><code>entity_rules.Rmd</code></div>
@@ -332,9 +332,9 @@ matches one token for each part separated by spaces, as
 <span><span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="va">dict</span><span class="op">)</span></span>
 <span><span class="co">## Entity patterns: 4 patterns (ORG: 3, PERSON: 1)</span></span>
 <span><span class="co">##   ORG     "Acme Widgets" (any case)</span></span>
-<span><span class="co">##   ORG     [LOWER ~ /^globex.*$/]</span></span>
+<span><span class="co">##   ORG     [LOWER ~ /\Aglobex[\s\S]*\Z/]</span></span>
 <span><span class="co">##   ORG     "Initech, Inc." (any case)</span></span>
-<span><span class="co">##   PERSON  [LOWER = dr] [LOWER ~ /^.*$/] [LOWER = who]</span></span></code></pre></div>
+<span><span class="co">##   PERSON  [LOWER = dr] [LOWER ~ /\A[\s\S]*\Z/] [LOWER = who]</span></span></code></pre></div>
 <p><code><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary()</a></code> lowercases its values by default, so this
 one is made with <code>tolower = FALSE</code>, to keep
 <code>"Inc."</code> as spaCy’s tokenizer expects it. Here the model’s
@@ -356,6 +356,30 @@ dialect of Python, which differs from that of R in some details: for
 instance, Python does not support <code>"\\p{L}"</code> for letters.
 Make such a dictionary with <code>tolower = FALSE</code>, so that
 escapes such as <code>"\\D"</code> keep their case.</p>
+<p>The labels are the top-level keys of the dictionary, with the values
+of any nested keys under them. As in
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code>, <code>levels</code> sets which
+levels of the keys become labels:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">places</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>place <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>us <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"New York"</span>, <span class="st">"Boston"</span><span class="op">)</span>, uk <span class="op">=</span> <span class="st">"London"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="va">places</span><span class="op">)</span></span>
+<span><span class="co">## Entity patterns: 3 patterns (place: 3)</span></span>
+<span><span class="co">##   place  "new york" (any case)</span></span>
+<span><span class="co">##   place  "boston" (any case)</span></span>
+<span><span class="co">##   place  "london" (any case)</span></span>
+<span><span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="va">places</span>, levels <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">## Entity patterns: 3 patterns (place.us: 2, place.uk: 1)</span></span>
+<span><span class="co">##   place.us  "new york" (any case)</span></span>
+<span><span class="co">##   place.us  "boston" (any case)</span></span>
+<span><span class="co">##   place.uk  "london" (any case)</span></span></code></pre></div>
+<p>A character vector of phrases takes <code>valuetype</code> too, for
+wildcards without a dictionary. Its defaults stay those that suit the
+names of entities, exact phrases in their own case:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"Acme Wid*"</span>, ORG <span class="op">=</span> <span class="st">"Globex"</span><span class="op">)</span>, valuetype <span class="op">=</span> <span class="st">"glob"</span><span class="op">)</span></span>
+<span><span class="co">## Entity patterns: 2 patterns (ORG: 2)</span></span>
+<span><span class="co">##   ORG  [ORTH = Acme] [ORTH ~ /\AWid[\s\S]*\Z/]</span></span>
+<span><span class="co">##   ORG  "Globex"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reusing-the-entities-found">Reusing the entities found<a class="anchor" aria-label="anchor" href="#reusing-the-entities-found"></a>
@@ -366,7 +390,7 @@ carefully reviewed corpus are found again, or to carry entities over to
 a model for another language. The output of
 <code><a href="../reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> keeps the text of each entity as it
 was, and <code><a href="../reference/as_entity_patterns.html">as_entity_patterns()</a></code> makes a phrase of each:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)</span></span>
 <span><span class="va">found</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacy_extract_entity.html">spacy_extract_entity</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -384,7 +408,7 @@ was, and <code><a href="../reference/as_entity_patterns.html">as_entity_patterns
 before reusing them lets us correct that, and keep only the types we
 want, here people and organisations. Duplicates, such as the second
 “Jane Smith”, are dropped:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">found</span><span class="op">$</span><span class="va">ent_type</span><span class="op">[</span><span class="va">found</span><span class="op">$</span><span class="va">text</span> <span class="op">==</span> <span class="st">"Acme Widgets"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"ORG"</span></span>
 <span><span class="va">found</span> <span class="op">&lt;-</span> <span class="va">found</span><span class="op">[</span><span class="va">found</span><span class="op">$</span><span class="va">ent_type</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PERSON"</span>, <span class="st">"ORG"</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">pats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="va">found</span><span class="op">)</span></span>
@@ -406,13 +430,53 @@ underscore. <code><a href="../reference/as_entity_patterns.html">as_entity_patte
 but needs to be told the <code>concatenator</code>, since a token that
 itself contains one would be changed.
 <code><a href="../reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> is the better source.</p>
+<p>The same entities can become a <strong>quanteda</strong> dictionary,
+for use with <code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">tokens_lookup()</a></code> or <code><a href="https://quanteda.io/reference/kwic.html" class="external-link">kwic()</a></code>. Either
+make one from the table, with the entity types as keys, or convert the
+rules with <code><a href="https://quanteda.io/reference/as.dictionary.html" class="external-link">as.dictionary()</a></code>, which works for rules that are
+all phrases. Both keep each phrase once, and
+<code>tolower = FALSE</code> keeps the entities in their own case. The
+first needs a table, and <code><a href="../reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> returns
+<code>NULL</code> when it finds no entities;
+<code>as.dictionary(as_entity_patterns(found))</code> works then too,
+and gives a dictionary with no keys:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">found</span><span class="op">$</span><span class="va">text</span>, <span class="va">found</span><span class="op">$</span><span class="va">ent_type</span><span class="op">)</span>, <span class="va">unique</span><span class="op">)</span>, tolower <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">## Dictionary object with 2 key entries.</span></span>
+<span><span class="co">## - [ORG]:</span></span>
+<span><span class="co">##   - Acme Widgets</span></span>
+<span><span class="co">## - [PERSON]:</span></span>
+<span><span class="co">##   - Jane Smith</span></span>
+<span><span class="fu"><a href="https://quanteda.io/reference/as.dictionary.html" class="external-link">as.dictionary</a></span><span class="op">(</span><span class="va">pats</span><span class="op">)</span></span>
+<span><span class="co">## Dictionary object with 2 key entries.</span></span>
+<span><span class="co">## - [ORG]:</span></span>
+<span><span class="co">##   - Acme Widgets</span></span>
+<span><span class="co">## - [PERSON]:</span></span>
+<span><span class="co">##   - Jane Smith</span></span></code></pre></div>
+<p>A dictionary holds only words and phrases, so
+<code><a href="https://quanteda.io/reference/as.dictionary.html" class="external-link">as.dictionary()</a></code> stops when a set of rules has token
+patterns. It also drops what a dictionary cannot hold: the
+<code>id</code> of a rule, and whether its phrase matches in any case,
+which <strong>quanteda</strong> sets where a dictionary is used. To turn
+such a dictionary back into rules for exact phrases in their own case,
+say so, since the values of a dictionary are otherwise wildcard patterns
+that match in any case:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://quanteda.io/reference/as.dictionary.html" class="external-link">as.dictionary</a></span><span class="op">(</span><span class="va">pats</span><span class="op">)</span>, valuetype <span class="op">=</span> <span class="st">"fixed"</span>, case_insensitive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">## Entity patterns: 2 patterns (ORG: 1, PERSON: 1)</span></span>
+<span><span class="co">##   ORG     "Acme Widgets"</span></span>
+<span><span class="co">##   PERSON  "Jane Smith"</span></span></code></pre></div>
+<p>In a dictionary, <strong>quanteda</strong> reads <code>*</code> and
+<code>?</code> as wildcards, so <code><a href="https://quanteda.io/reference/as.dictionary.html" class="external-link">as.dictionary()</a></code> warns when
+a phrase has one; <code>tokens_lookup(valuetype = "fixed")</code>
+matches such values as they are written.</p>
 </div>
 <div class="section level2">
 <h2 id="combining-and-saving-rules">Combining and saving rules<a class="anchor" aria-label="anchor" href="#combining-and-saving-rules"></a>
 </h2>
 <p>Sets of rules combine with <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code>, and are data.frames,
 with one row per rule:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_rules</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">title_rule</span>, <span class="fu"><a href="../reference/as_entity_patterns.html">as_entity_patterns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"Acme Widgets"</span>, GPE <span class="op">=</span> <span class="st">"Ruritania"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">all_rules</span></span>
 <span><span class="co">## Entity patterns: 3 patterns (PERSON: 1, ORG: 1, GPE: 1)</span></span>
@@ -427,7 +491,7 @@ with one row per rule:</p>
 <p><code><a href="../reference/entity_patterns_read.html">entity_patterns_write()</a></code> saves them in spaCy’s JSONL
 format, with one rule per line, which spaCy can also load on its own,
 and <code><a href="../reference/entity_patterns_read.html">entity_patterns_read()</a></code> reads them back:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/entity_patterns_read.html">entity_patterns_write</a></span><span class="op">(</span><span class="va">all_rules</span>, <span class="va">file</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span>

@@ -158,7 +158,11 @@ more memory.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>a <code>data.frame</code> of tokenized, parsed, and annotated tokens</p>
+    <p>a <code>data.frame</code> of tokenized, parsed, and annotated tokens, of class
+<code>spacyr_parsed</code>. It keeps the names of all the documents of <code>x</code>, also of
+those in which spaCy found no tokens, and the document variables of a
+<span class="pkg">quanteda</span> corpus, for the <a href="quanteda-methods.html">quanteda methods</a> such
+as <code><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">quanteda::as.tokens()</a></code>.</p>
     </div>
 
     <div class="section level2">

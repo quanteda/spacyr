@@ -62,7 +62,14 @@ of tokens. Creating the object needs neither Python nor spaCy; pass it to
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">as_entity_patterns</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'character'</span></span>
-<span><span class="fu">as_entity_patterns</span><span class="op">(</span><span class="va">x</span>, label <span class="op">=</span> <span class="cn">NULL</span>, id <span class="op">=</span> <span class="cn">NULL</span>, case_insensitive <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">as_entity_patterns</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  case_insensitive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  valuetype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"glob"</span>, <span class="st">"regex"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'list'</span></span>
 <span><span class="fu">as_entity_patterns</span><span class="op">(</span><span class="va">x</span>, case_insensitive <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -74,7 +81,8 @@ of tokens. Creating the object needs neither Python nor spaCy; pass it to
 <span><span class="fu">as_entity_patterns</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  case_insensitive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  valuetype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"glob"</span>, <span class="st">"fixed"</span>, <span class="st">"regex"</span><span class="op">)</span>,</span>
+<span>  valuetype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"glob"</span>, <span class="st">"regex"</span>, <span class="st">"fixed"</span><span class="op">)</span>,</span>
+<span>  levels <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -85,7 +93,9 @@ of tokens. Creating the object needs neither Python nor spaCy; pass it to
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>the patterns to convert:</p><ul><li><p>a character vector of phrases, each matched exactly as a sequence of
-spaCy's tokens. Labels come from the names of <code>x</code>, as in <code>c(ORG = "Acme Widgets")</code>, or from <code>label</code>.</p></li>
+spaCy's tokens. Labels come from the names of <code>x</code>, as in <code>c(ORG = "Acme Widgets")</code>, or from <code>label</code>. With <code>valuetype = "glob"</code> or <code>"regex"</code>,
+they can have wildcards or be regular expressions, as the values of a
+dictionary can.</p></li>
 <li><p>a list of patterns in spaCy's own structure, each a list with the
 elements <code>label</code>, <code>pattern</code> and optionally <code>id</code>. <code>pattern</code> is either a
 single phrase or a list of token patterns, one per token, each a named
@@ -103,7 +113,8 @@ This turns the entities found in one set of texts into rules for others.</p></li
 <code>entity_type</code>, given with the <code>concatenator</code> that joined their tokens.</p></li>
 <li><p>a <span class="pkg">quanteda</span> dictionary, made by <code><a href="https://quanteda.io/reference/dictionary.html" class="external-link">quanteda::dictionary()</a></code>. Its
 top-level keys are the labels, with the values of any nested keys under
-them. A value without wildcards becomes a phrase. A value with wildcards
+them, unless <code>levels</code> says otherwise. A value without wildcards becomes
+a phrase. A value with wildcards
 (<code>*</code> for any characters, <code>?</code> for one) becomes a token pattern with one
 token for each part separated by spaces, as <span class="pkg">quanteda</span> matches
 dictionary values to tokens, so that <code>"dr * who"</code> matches three tokens.</p></li>
@@ -133,12 +144,30 @@ as each entity's <code>ent_id_</code>.</p></dd>
 <dt id="arg-case-insensitive">case_insensitive<a class="anchor" aria-label="anchor" href="#arg-case-insensitive"></a></dt>
 <dd><p>logical; if <code>TRUE</code>, phrases match regardless of
 case. The default, <code>FALSE</code>, matches them exactly, as spaCy does, except
-for a dictionary, where it is <code>TRUE</code>, as in <span class="pkg">quanteda</span>, and also
-applies to the parts of values with wildcards. It does
+for a dictionary, where it is <code>TRUE</code>, as in <span class="pkg">quanteda</span>. It also
+applies to the parts of phrases and dictionary values that have
+wildcards or are regular expressions. It does
 not apply to token patterns, which set case through the attribute they
 match, such as <code>ORTH</code> (exact) or <code>LOWER</code> (any case). For a list, it
 applies to the patterns that do not set <code>case_insensitive</code> themselves;
 for a data.frame, it applies when there is no <code>case_insensitive</code> column.</p></dd>
+
+
+<dt id="arg-valuetype">valuetype<a class="anchor" aria-label="anchor" href="#arg-valuetype"></a></dt>
+<dd><p>how phrases and the values of a dictionary are read:
+<code>"fixed"</code> for exact phrases, <code>"glob"</code> for wildcards (<code>*</code> for any
+characters, <code>?</code> for one), or <code>"regex"</code> for regular expressions, as in
+<code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code>. The default is <code>"fixed"</code> for a character
+vector, as suits the names of entities, and <code>"glob"</code> for a dictionary,
+as in <span class="pkg">quanteda</span>. A phrase or value with a wildcard, and any with
+<code>"regex"</code>, becomes a token pattern with one token for each part
+separated by spaces; any other is a phrase, which spaCy tokenizes. With
+<code>"regex"</code>, each part is a regular expression for one of spaCy's tokens,
+in the dialect of Python's <code>re</code> module, not of R: for instance, <code>"^\\p{L}+$"</code> works in
+<span class="pkg">quanteda</span> but stops <code><a href="spacy_initialize.html">spacy_initialize()</a></code> with the error "bad escape
+\p". Since <code><a href="https://quanteda.io/reference/dictionary.html" class="external-link">quanteda::dictionary()</a></code> lowercases values by default, which
+changes escapes such as <code>"\\D"</code> to <code>"\\d"</code>, make a dictionary of regular
+expressions with <code>tolower = FALSE</code>.</p></dd>
 
 
 <dt id="arg-concatenator">concatenator<a class="anchor" aria-label="anchor" href="#arg-concatenator"></a></dt>
@@ -149,17 +178,17 @@ as an underscore, is changed too; the output of <code><a href="spacy_extract_ent
 keeps the text of each entity as it was, and is the better input.</p></dd>
 
 
-<dt id="arg-valuetype">valuetype<a class="anchor" aria-label="anchor" href="#arg-valuetype"></a></dt>
-<dd><p>for a dictionary, how its values are matched: <code>"glob"</code>
-(the default) for wildcards, <code>"fixed"</code> for exact phrases, or <code>"regex"</code>
-for regular expressions, as in <code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code>. With
-<code>"regex"</code>, each part of a value separated by spaces is a regular
-expression for one of spaCy's tokens, in the dialect of Python's <code>re</code>
-module, not of R: for instance, <code>"^\\p{L}+$"</code> works in
-<span class="pkg">quanteda</span> but stops <code><a href="spacy_initialize.html">spacy_initialize()</a></code> with the error "bad escape
-\p". Since <code><a href="https://quanteda.io/reference/dictionary.html" class="external-link">quanteda::dictionary()</a></code> lowercases values by default, which
-changes escapes such as <code>"\\D"</code> to <code>"\\d"</code>, make a dictionary of regular
-expressions with <code>tolower = FALSE</code>.</p></dd>
+<dt id="arg-levels">levels<a class="anchor" aria-label="anchor" href="#arg-levels"></a></dt>
+<dd><p>for a dictionary, the levels of its keys that become
+labels, as in <code><a href="https://quanteda.io/reference/tokens_lookup.html" class="external-link">quanteda::tokens_lookup()</a></code>. The default, <code>1</code>, labels
+every value by its top-level key. With more than one level, a value is
+labelled by its keys at those levels, joined by <code>"."</code>: with
+<code>levels = 1:2</code>, the values under <code>us</code> in <code>place</code> have the label
+<code>"place.us"</code>. Values with no key at any of the levels are left out.</p>
+<p><code>valuetype</code> and <code>levels</code> are an error for an input that has no use for
+them: <code>levels</code> for anything but a dictionary, and <code>valuetype</code> for a
+list, a data.frame or a <code>spacyr_entity_patterns</code> object, whose phrases
+are matched as they are.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -193,6 +222,16 @@ case: spaCy's English models keep <code>"Inc."</code> as one token, but split
 <code>case_insensitive = TRUE</code>, and make dictionaries with
 <code>quanteda::dictionary(tolower = FALSE)</code>, since by default it lowercases
 their values.</p>
+<p>With <code>case_insensitive = TRUE</code>, the parts of a phrase or dictionary value
+that has a wildcard are put in lower case by R when the patterns are
+made, since making them does not need spaCy, while spaCy compares them
+with its own lower case form of each token. The two differ for a few
+characters, such as the dotted capital I of Turkish, and a value with
+such a character and a wildcard may then not match. This holds wherever
+the patterns are used, in <code><a href="spacy_initialize.html">spacy_initialize()</a></code> or in <code><a href="spacy_match.html">spacy_match()</a></code>.
+Given the character vector or the dictionary itself, and not patterns
+made from it, <code><a href="spacy_match.html">spacy_match()</a></code> lowercases with spaCy and does not have
+this limit.</p>
 <p>Patterns match spaCy's tokens, not characters. For instance, spaCy's
 English models make "Prof." a single token, so a pattern for academic
 titles needs to list both <code>"prof"</code> and <code>"prof."</code>, to match titles written
@@ -201,7 +240,9 @@ with and without a full stop.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="entity_patterns_read.html">entity_patterns_read()</a></code> and <code><a href="entity_patterns_read.html">entity_patterns_write()</a></code> to read
-and write patterns as files, and <code><a href="spacy_initialize.html">spacy_initialize()</a></code> to use them</p></div>
+and write patterns as files, <code><a href="spacy_initialize.html">spacy_initialize()</a></code> to use them, and
+<code><a href="as.dictionary.spacyr_entity_patterns.html">as.dictionary.spacyr_entity_patterns()</a></code> to make a <span class="pkg">quanteda</span>
+dictionary of patterns that are all phrases</p></div>
     </div>
 
     <div class="section level2">
@@ -215,6 +256,13 @@ and write patterns as files, and <code><a href="spacy_initialize.html">spacy_ini
 <span class="r-out co"><span class="r-pr">#&gt;</span> Entity patterns: 2 patterns (ORG: 2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ORG  "Acme Widgets"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ORG  "Globex"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># phrases with wildcards, in any case</span></span></span>
+<span class="r-in"><span><span class="fu">as_entity_patterns</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="st">"acme*"</span>, ORG <span class="op">=</span> <span class="st">"globex corp*"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   valuetype <span class="op">=</span> <span class="st">"glob"</span>, case_insensitive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Entity patterns: 2 patterns (ORG: 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ORG  [LOWER ~ /\Aacme[\s\S]*\Z/]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ORG  [LOWER = globex] [LOWER ~ /\Acorp[\s\S]*\Z/]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># a token pattern for people with academic titles: a title, followed by</span></span></span>
 <span class="r-in"><span><span class="co"># the first token of a person the model recognises (ENT_IOB "B") and the</span></span></span>
@@ -242,11 +290,17 @@ and write patterns as files, and <code><a href="spacy_initialize.html">spacy_ini
 <span class="r-in"><span>  <span class="va">dict</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ORG <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"acme widgets"</span>, <span class="st">"globex*"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                                    PERSON <span class="op">=</span> <span class="st">"dr * who"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu">as_entity_patterns</span><span class="op">(</span><span class="va">dict</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># labels from the first two levels of its keys</span></span></span>
+<span class="r-in"><span>  <span class="va">nested</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dictionary.html" class="external-link">dictionary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    place <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>us <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new york"</span>, <span class="st">"boston"</span><span class="op">)</span>, uk <span class="op">=</span> <span class="st">"london"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">as_entity_patterns</span><span class="op">(</span><span class="va">nested</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">as_entity_patterns</span><span class="op">(</span><span class="va">nested</span>, levels <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Entity patterns: 3 patterns (ORG: 2, PERSON: 1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ORG     "acme widgets" (any case)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ORG     [LOWER ~ /^globex.*$/]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   PERSON  [LOWER = dr] [LOWER ~ /^.*$/] [LOWER = who]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Entity patterns: 3 patterns (place.us: 2, place.uk: 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   place.us  "new york" (any case)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   place.us  "boston" (any case)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   place.uk  "london" (any case)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># entities found by spaCy, to use as rules for other texts</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
