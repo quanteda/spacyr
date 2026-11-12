@@ -1183,8 +1183,26 @@ test_that("labels of matches give the counts of tokens_lookup()", {
     counts <- quanteda::dfm_match(quanteda::dfm(labels, tolower = FALSE),
                                   names(dict))
     lookup <- quanteda::dfm(quanteda::tokens_lookup(
-        quanteda::as.tokens(spacy_parse(txt)), dict))
+        quanteda::as.tokens(spacy_parse(txt)), dict), tolower = FALSE)
     expect_identical(as.matrix(counts), as.matrix(lookup))
+
+    # the identifiers of the documents for the other kinds of input
+    count_place <- function(x, ids) {
+        m <- spacy_match(x, dict)
+        m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]
+        labels <- quanteda::as.tokens(split(m1$label,
+                                            factor(m1$doc_id, levels = ids)))
+        expect_identical(quanteda::docnames(labels), ids)
+        as.vector(as.matrix(quanteda::dfm(labels, tolower = FALSE))[, "place"])
+    }
+    unnamed <- unname(txt)
+    expect_identical(count_place(unnamed, sprintf("text%d", seq_along(unnamed))),
+                     c(2, 0, 1))
+    tif <- data.frame(doc_id = c("a", "b", "c"), text = unnamed,
+                      stringsAsFactors = FALSE)
+    expect_identical(count_place(tif, as.character(tif$doc_id)), c(2, 0, 1))
+    crp <- quanteda::corpus(txt)
+    expect_identical(count_place(crp, quanteda::docnames(crp)), c(2, 0, 1))
 
     # a dependency match counts once, not once for each node
     dep <- list(

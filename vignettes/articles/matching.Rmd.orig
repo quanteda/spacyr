@@ -347,14 +347,14 @@ quanteda::dfm(labels, tolower = FALSE)
 
 Three details matter:
 
-- The levels of the factor are the names of all the documents, so a document without a match stays in the result, with no tokens. Without them, `split()` would leave it out. For a corpus, the names are `quanteda::docnames(x)`.
+- The levels of the factor are the names of all the documents, so a document without a match stays in the result, with no tokens. Without them, `split()` would leave it out. They have to be the identifiers that `spacy_match()` gives in `doc_id`: `names(x)` for a named character vector, as here; `sprintf("text%d", seq_along(x))` for an unnamed one; `as.character(x$doc_id)` for a data.frame with the columns `doc_id` and `text`; and `quanteda::docnames(x)` for a corpus.
 - `tolower = FALSE` keeps the labels as they are: `dfm()` would otherwise put a label such as `PASSIVE` in lower case.
 - The matrix has a column for each label that was found. `tokens_lookup()` gives one for every key, also for a key that matched nothing; `quanteda::dfm_match(x, names(dict))` adds those, in the order of the dictionary.
 
 For this dictionary and these texts, the result is the matrix that `tokens_lookup()` gives on spaCy's tokens, since the two find the same candidate matches under the same keys, as described [above](#dictionaries):
 
 ```{r}
-quanteda::dfm(quanteda::tokens_lookup(spacy_tokens, dict))
+quanteda::dfm(quanteda::tokens_lookup(spacy_tokens, dict), tolower = FALSE)
 ```
 
 The first step matters for dependency patterns, whose matches have one row for each node. Counting rows would count each passive clause here three times:

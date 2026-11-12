@@ -323,8 +323,12 @@ those to count matches, since a match of a dependency pattern has a row
 for each node. With one row for each match,
 \code{m1 <- m[!duplicated(m[c("doc_id", "match_id")]), ]}, the labels of each
 document are tokens as \code{tokens_lookup()} returns them:
-\code{quanteda::as.tokens(split(m1$label, factor(m1$doc_id, levels = names(x))))},
-where the levels keep the documents that have no match. The "Rule-Based
+\code{quanteda::as.tokens(split(m1$label, factor(m1$doc_id, levels = ids)))}.
+The levels \code{ids} are the identifiers of all the documents, which keep
+those that have no match: \code{names(x)} for a named character vector,
+\code{sprintf("text\%d", seq_along(x))} for an unnamed one,
+\code{as.character(x$doc_id)} for a data.frame with the columns \code{doc_id} and
+\code{text}, and \code{quanteda::docnames(x)} for a corpus. The "Rule-Based
 Matching" article shows the counts made from them.
 
 \code{\link[quanteda:kwic]{quanteda::kwic()}} follows a different rule, which no value of \code{overlap}
