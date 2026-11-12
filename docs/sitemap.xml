@@ -24,9 +24,7 @@
 <url><loc>https://spacyr.quanteda.io/reference/quanteda-methods.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_download_langmodel.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_download_langmodel_virtualenv.html</loc></url>
-<url><loc>https://spacyr.quanteda.io/reference/spacy_extract_dependency_matches.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_extract_entity.html</loc></url>
-<url><loc>https://spacyr.quanteda.io/reference/spacy_extract_matches.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_finalize.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_initialize.html</loc></url>
