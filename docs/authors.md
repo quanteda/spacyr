@@ -19,12 +19,12 @@ Source:
 [`DESCRIPTION`](https://github.com/quanteda/spacyr/blob/HEAD/DESCRIPTION)
 
 Benoit K, Matsuo A (2026). *spacyr: Wrapper to the 'spaCy' 'NLP'
-Library*. R package version 2.0.0, <https://spacyr.quanteda.io>.
+Library*. R package version 1.4.0.9000, <https://spacyr.quanteda.io>.
 
 @Manual{,\
   title = {spacyr: Wrapper to the 'spaCy' 'NLP' Library},\
   author = {Kenneth Benoit and Akitaka Matsuo},\
   year = {2026},\
-  note = {R package version 2.0.0},\
+  note = {R package version 1.4.0.9000},\
   url = {https://spacyr.quanteda.io},\
 }

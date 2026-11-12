@@ -1,6 +1,6 @@
 # Changelog
 
-## spacyr v2.0.0
+## spacyr (development version)
 
 ### Upgrading from 1.4.0
 
