@@ -404,19 +404,68 @@ class spacyr:
         # Parse the texts, in order, with spaCy's nlp.pipe(), which processes
         # them in batches and calls each component's pipe() method rather
         # than its __call__() (see tests/testthat/test-pipeline-paths.R).
-        # Yields (id, doc) pairs. Each id travels with its text through the
-        # pipeline, because nlp.pipe() leaves out a document when a component
-        # fails on it and the pipeline's error handler suppresses the error;
-        # the ids of documents left out are stored in self.skipped.
+        # Yields (id, doc) pairs. nlp.pipe() leaves out a document when a
+        # component fails on it and the pipeline's error handler suppresses
+        # the error; the ids of documents left out are stored in self.skipped.
         # batch_size and n_process are passed to nlp.pipe(): None uses the
         # pipeline's default batch size, and n_process = -1 uses all CPUs.
         self.skipped = []
-        seen = set()
-        for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True,
-                                     batch_size = batch_size, n_process = n_process):
-            seen.add(id_)
-            yield id_, doc
-        self.skipped = [id_ for id_ in ids if id_ not in seen]
+        if n_process == 1 or self.needs_document_ids():
+            # each id travels with its text through the pipeline, which
+            # keeps the names if documents are left out or reordered
+            seen = set()
+            for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True,
+                                         batch_size = batch_size, n_process = n_process):
+                seen.add(id_)
+                yield id_, doc
+            self.skipped = [id_ for id_ in ids if id_ not in seen]
+            return
+        # With more than one process, ids that travel with the texts are
+        # costly: nlp.pipe() then makes each document in this process and
+        # sends it to the others, instead of sending its text (#289).
+        # Here the pipeline is expected to return one document per text in
+        # input order. Check the count before returning results to R.
+        # A text longer than nlp.max_length gives spaCy's error here, as with
+        # one process, rather than wrapped in that of another process.
+        max_length = getattr(self.nlp, "max_length", None)
+        if max_length is not None:
+            for text in texts:
+                if len(text) > max_length:
+                    self.nlp.make_doc(text)
+        n = 0
+        for doc in self.nlp.pipe(texts, batch_size = batch_size, n_process = n_process):
+            n += 1
+            if n > len(ids):
+                break
+            yield ids[n - 1], doc
+        if n == len(ids):
+            return
+        raise ValueError(
+            "spaCy's pipeline did not return one document for each text, so "
+            "the documents cannot be matched to their names; "
+            "use n_process = 1 for this pipeline")
+
+    def needs_document_ids(self):
+        # Custom error handlers can suppress failures. Custom components
+        # can also reorder or omit documents in pipe() without raising.
+        # Use positional IDs only with spaCy's built-in components and
+        # default error handlers.
+        try:
+            from spacy.util import raise_error
+        except ImportError:
+            return True
+        if getattr(self.nlp, "default_error_handler", None) is not raise_error:
+            return True
+        for _, proc in self.nlp.pipeline:
+            # a component with no module name counts as a custom one
+            module = str(getattr(proc, "__module__", type(proc).__module__))
+            if not (module.startswith("spacy.pipeline.") or
+                    module.startswith("spacy.lang.") and module.endswith(".lemmatizer")):
+                return True
+            if hasattr(proc, "get_error_handler") and \
+                    proc.get_error_handler() is not raise_error:
+                return True
+        return False
 
     def parse(self, texts, docnames, batch_size = None, n_process = 1):
         texts, docnames = _as_list(texts, docnames)

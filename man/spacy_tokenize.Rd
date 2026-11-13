@@ -54,13 +54,14 @@ batches with spaCy's \code{nlp.pipe()}; use \code{n_process} and \code{batch_siz
 
 \item{output}{type of returning object. Either \code{list} or \code{data.frame}.}
 
-\item{n_process}{the number of processes for spaCy's \code{nlp.pipe()} to use:
-\code{1} (the default) processes the documents in the current R session's Python
-process, a larger number starts that many Python processes, and \code{-1} uses
-all CPUs. Starting the processes and loading the model in each takes time,
-so more than one process helps only for large numbers of documents. A
-custom pipeline component must be defined in an importable Python module
-to be used in other processes.}
+\item{n_process}{the number of processes for spaCy's \code{nlp.pipe()} to use,
+as in \code{\link[=spacy_parse]{spacy_parse()}}: \code{1} (the default) uses the current R session's
+Python process, a larger number starts that many Python processes, and
+\code{-1} uses all CPUs. It is used only when components of the pipeline run,
+which is for \code{what = "sentence"} and for \code{remove_symbols = TRUE}.
+Splitting texts into words runs no components, so more processes would
+only add the time to start them: the words are always tokenized in one
+process, whatever \code{n_process} is.}
 
 \item{batch_size}{the number of documents that spaCy's \code{nlp.pipe()}
 processes together; \code{NULL} (the default) uses the pipeline's default
