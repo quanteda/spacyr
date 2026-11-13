@@ -6,9 +6,9 @@ source("utils.R")
 # component on each document. A custom component can behave differently in the
 # two. In spacyr 1.4.0, the path depended on multithread and on the number of
 # documents; now every function uses nlp.pipe(), whatever the batch size.
-# (The test component is not importable in other processes, so n_process > 1
-# is tested in test-pipe-args.R with the standard pipeline.) A change of path must be
-# intended and described in NEWS.md. spacy_tokenize() is not covered: its
+# (n_process > 1 is tested in test-pipe-args.R, with the standard pipeline and
+# with custom components made importable in the other processes.) A change of
+# path must be intended and described in NEWS.md. spacy_tokenize() is not covered: its
 # tokens do not depend on pipeline components other than the parser.
 
 with_path_marker <- function(code) {

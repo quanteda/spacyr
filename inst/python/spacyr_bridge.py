@@ -457,7 +457,8 @@ class spacyr:
         if getattr(self.nlp, "default_error_handler", None) is not raise_error:
             return True
         for _, proc in self.nlp.pipeline:
-            module = getattr(proc, "__module__", type(proc).__module__)
+            # a component with no module name counts as a custom one
+            module = str(getattr(proc, "__module__", type(proc).__module__))
             if not (module.startswith("spacy.pipeline.") or
                     module.startswith("spacy.lang.") and module.endswith(".lemmatizer")):
                 return True
