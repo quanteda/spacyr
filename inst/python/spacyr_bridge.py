@@ -404,19 +404,64 @@ class spacyr:
         # Parse the texts, in order, with spaCy's nlp.pipe(), which processes
         # them in batches and calls each component's pipe() method rather
         # than its __call__() (see tests/testthat/test-pipeline-paths.R).
-        # Yields (id, doc) pairs. Each id travels with its text through the
-        # pipeline, because nlp.pipe() leaves out a document when a component
-        # fails on it and the pipeline's error handler suppresses the error;
-        # the ids of documents left out are stored in self.skipped.
+        # Yields (id, doc) pairs. nlp.pipe() leaves out a document when a
+        # component fails on it and the pipeline's error handler suppresses
+        # the error; the ids of documents left out are stored in self.skipped.
         # batch_size and n_process are passed to nlp.pipe(): None uses the
         # pipeline's default batch size, and n_process = -1 uses all CPUs.
         self.skipped = []
-        seen = set()
-        for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True,
-                                     batch_size = batch_size, n_process = n_process):
-            seen.add(id_)
-            yield id_, doc
-        self.skipped = [id_ for id_ in ids if id_ not in seen]
+        if n_process == 1 or self.may_leave_out():
+            # each id travels with its text through the pipeline, which
+            # tells which documents were left out
+            seen = set()
+            for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True,
+                                         batch_size = batch_size, n_process = n_process):
+                seen.add(id_)
+                yield id_, doc
+            self.skipped = [id_ for id_ in ids if id_ not in seen]
+            return
+        # With more than one process, ids that travel with the texts are
+        # costly: nlp.pipe() then makes each document in this process and
+        # sends it to the others, instead of sending its text (#289). Since
+        # every error handler raises the error, no document should be left
+        # out, so the documents are those of the texts, in the same order.
+        # That is checked, since fewer documents, or more, would be given
+        # the names of other documents.
+        # A text longer than nlp.max_length gives spaCy's error here, as with
+        # one process, rather than wrapped in that of another process.
+        max_length = getattr(self.nlp, "max_length", None)
+        if max_length is not None:
+            for text in texts:
+                if len(text) > max_length:
+                    self.nlp.make_doc(text)
+        n = 0
+        for doc in self.nlp.pipe(texts, batch_size = batch_size, n_process = n_process):
+            n += 1
+            if n > len(ids):
+                break
+            yield ids[n - 1], doc
+        if n == len(ids):
+            return
+        raise ValueError(
+            "spaCy's pipeline did not return one document for each text, so "
+            "the documents cannot be matched to their names; "
+            "use n_process = 1 for this pipeline")
+
+    def may_leave_out(self):
+        # Whether nlp.pipe() can leave out a document: when the error handler
+        # of the pipeline, or of one of its components, is not spaCy's
+        # default, which raises the error.
+        try:
+            from spacy.util import raise_error
+        except ImportError:
+            return True
+        if getattr(self.nlp, "default_error_handler", None) is not raise_error:
+            return True
+        for name, proc in self.nlp.pipeline:
+            if hasattr(proc, "get_error_handler") and \
+                    proc.get_error_handler() is not raise_error:
+                return True
+        return False
 
     def parse(self, texts, docnames, batch_size = None, n_process = 1):
         texts, docnames = _as_list(texts, docnames)

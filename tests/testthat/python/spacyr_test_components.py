@@ -46,3 +46,23 @@ def _ignore_error(proc_name, proc, docs, e):
 def skip_errors(nlp):
     # only the default handler: some built-in components do not accept one
     nlp.default_error_handler = _ignore_error
+
+# A stand-in for a pipeline that returns one document fewer (change < 0) or
+# one more than the texts it is given, though its error handlers raise.
+class WrongCount:
+    pipeline = []
+    max_length = 1000000
+
+    def __init__(self, nlp, change):
+        from spacy.util import raise_error
+        self.default_error_handler = raise_error
+        self.nlp = nlp
+        self.change = change
+
+    def make_doc(self, text):
+        return self.nlp.make_doc(text)
+
+    def pipe(self, texts, **kwargs):
+        texts = list(texts)
+        texts = texts[1:] if self.change < 0 else texts + texts[:1]
+        return (self.nlp.make_doc(text) for text in texts)

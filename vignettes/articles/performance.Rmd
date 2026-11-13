@@ -1,7 +1,7 @@
 ---
 title: "Improving Performance"
 author: "Kenneth Benoit"
-date: "2026-11-10"
+date: "2026-11-13"
 ---
 
 <!-- An article for the pkgdown site only: vignettes/articles is in
@@ -76,9 +76,9 @@ data.frame(
 )
 ##                                 options seconds
 ## 1                              defaults     2.6
-## 2                     adding dependency     2.7
-## 3               no pos, lemma or entity     2.6
-## 4 adding tag, dependency and nounphrase     2.8
+## 2                     adding dependency     2.6
+## 3               no pos, lemma or entity     2.5
+## 4 adding tag, dependency and nounphrase     2.7
 ```
 
 What extra time there is comes from building the extra columns, not from running the pipeline.
@@ -125,7 +125,7 @@ data.frame(
 ##                                         call seconds
 ## 1                        spacy_tokenize(txt)     0.2
 ## 2   spacy_tokenize(txt, remove_punct = TRUE)     0.2
-## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.6
+## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.5
 ## 4     spacy_tokenize(txt, what = "sentence")     2.5
 ```
 
@@ -149,7 +149,7 @@ spacy_finalize()
 data.frame(ner = c("in the pipeline", "disabled"),
            seconds = c(with_ner, without_ner))
 ##               ner seconds
-## 1 in the pipeline     2.7
+## 1 in the pipeline     2.6
 ## 2        disabled     2.0
 ```
 
@@ -165,7 +165,7 @@ spacy_initialize(model = "en_core_web_lg")
 ## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_lg)
 invisible(spacy_parse(txt, entity = FALSE))
 seconds(spacy_parse(txt))
-## [1] 3
+## [1] 2.8
 spacy_finalize()
 ```
 
@@ -185,10 +185,10 @@ sizes <- c(1, 10, 100, 1000)
 data.frame(batch_size = sizes,
            seconds = sapply(sizes, function(b) seconds(spacy_parse(sents, batch_size = b))))
 ##   batch_size seconds
-## 1          1     6.0
+## 1          1     5.9
 ## 2         10     3.7
-## 3        100     2.8
-## 4       1000     2.8
+## 3        100     2.7
+## 4       1000     2.7
 ```
 
 The default is usually a good choice. A batch of long documents takes more memory than one of short documents, so with long documents, a smaller batch can avoid running out of memory.
@@ -204,11 +204,11 @@ data.frame(n_process = procs,
            seconds = sapply(procs, function(p) seconds(spacy_parse(sents, n_process = p))))
 ##   n_process seconds
 ## 1         1     2.7
-## 2         2     3.4
-## 3         4     4.1
+## 2         2     3.5
+## 3         4     3.8
 ```
 
-and for six times as many, timed once each, they make little difference:
+and for six times as many, timed once each, they help:
 
 
 ``` r
@@ -216,12 +216,12 @@ more <- unname(rep(sents, 6))
 data.frame(n_process = procs,
            seconds = sapply(procs, function(p) seconds(spacy_parse(more, n_process = p), times = 1)))
 ##   n_process seconds
-## 1         1    16.4
-## 2         2    15.1
-## 3         4    14.9
+## 1         1    17.1
+## 2         2    13.6
+## 3         4    13.5
 ```
 
-So on this machine, with this model and these texts, there is little to gain. The gain may differ with other models, texts and machines, so time `n_process` on a sample of your own texts before relying on it. **spacyr** itself also adds some cost with more than one process, which [#289](https://github.com/quanteda/spacyr/issues/289) is about.
+So on this machine, with this model and these texts, the gain is modest: four processes are far from four times as fast as one, since the parsed documents are sent back to the R session's own process, which still puts the output together. The gain may differ with other models, texts and machines, so time `n_process` on a sample of your own texts before relying on it.
 
 Splitting texts into words with `spacy_tokenize()` runs no components, so more processes would only add the costs of starting them and of sending the documents between them. It therefore always uses one process for that, whatever `n_process` is. `n_process` does apply to `spacy_tokenize()` when components run, which is for `what = "sentence"` and for `remove_symbols = TRUE`.
 

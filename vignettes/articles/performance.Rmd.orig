@@ -164,7 +164,7 @@ data.frame(n_process = procs,
            seconds = sapply(procs, function(p) seconds(spacy_parse(sents, n_process = p))))
 ```
 
-and for six times as many, timed once each, they make little difference:
+and for six times as many, timed once each, they help:
 
 ```{r}
 more <- unname(rep(sents, 6))
@@ -172,7 +172,7 @@ data.frame(n_process = procs,
            seconds = sapply(procs, function(p) seconds(spacy_parse(more, n_process = p), times = 1)))
 ```
 
-So on this machine, with this model and these texts, there is little to gain. The gain may differ with other models, texts and machines, so time `n_process` on a sample of your own texts before relying on it. **spacyr** itself also adds some cost with more than one process, which [#289](https://github.com/quanteda/spacyr/issues/289) is about.
+So on this machine, with this model and these texts, the gain is modest: four processes are far from four times as fast as one, since the parsed documents are sent back to the R session's own process, which still puts the output together. The gain may differ with other models, texts and machines, so time `n_process` on a sample of your own texts before relying on it.
 
 Splitting texts into words with `spacy_tokenize()` runs no components, so more processes would only add the costs of starting them and of sending the documents between them. It therefore always uses one process for that, whatever `n_process` is. `n_process` does apply to `spacy_tokenize()` when components run, which is for `what = "sentence"` and for `remove_symbols = TRUE`.
 

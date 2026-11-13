@@ -118,6 +118,49 @@ test_that("spacy_tokenize() starts processes only when components run", {
   expect_identical(seen, 1L)
 })
 
+test_that("several processes keep the names of documents", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  spobj <- spacyr:::new_spobj()
+  # the standard pipeline raises its errors, so it leaves out no document,
+  # and the texts are sent to the other processes without their names (#289)
+  expect_false(spobj$may_leave_out())
+
+  # a pipeline that returns fewer or more documents than texts, though its
+  # error handlers raise: an error, and not the names of other documents
+  nlp <- spacyr:::spacyr_env$nlp
+  components <- reticulate::import_from_path("spacyr_test_components",
+                                             path = test_path("python"))
+  module <- spacyr:::spacyr_module()
+  for (change in c(-1L, 1L)) {
+    spobj <- module$spacyr(components$WrongCount(nlp, change))
+    expect_error(spobj$tokenize(c("One.", "Two."), c("a", "b"), turn_off_pipes = FALSE,
+                                n_process = 2L),
+                 "did not return one document for each text")
+  }
+
+  # a pipeline whose error handler can leave out documents keeps its names
+  # with several processes too
+  components$skip_errors(nlp)
+  expect_true(spacyr:::new_spobj()$may_leave_out())
+})
+
+test_that("a text that is too long gives spaCy's error with several processes", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  suppressMessages(spacy_initialize(max_length = 30))
+  on.exit(spacy_finalize(), add = TRUE)
+  long <- c(a = "Short.", b = "This text is longer than thirty characters.")
+  expect_error(spacy_parse(long), "E088")
+  err <- tryCatch(spacy_parse(long, n_process = 2), error = conditionMessage)
+  expect_match(err, "E088")
+  expect_false(grepl("E871", err))
+})
+
 test_that("invalid arguments stop before spaCy is initialized", {
   # spacy_initialize() is replaced, so that this test needs no Python and
   # fails if any function initializes spaCy before checking its arguments
