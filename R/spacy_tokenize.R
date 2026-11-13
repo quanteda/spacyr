@@ -22,6 +22,14 @@
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
 #'   needs to be computed.
 #' @inheritParams spacy_parse
+#' @param n_process the number of processes for spaCy's `nlp.pipe()` to use,
+#'   as in [spacy_parse()]: `1` (the default) uses the current R session's
+#'   Python process, a larger number starts that many Python processes, and
+#'   `-1` uses all CPUs. It is used only when components of the pipeline run,
+#'   which is for `what = "sentence"` and for `remove_symbols = TRUE`.
+#'   Splitting texts into words runs no components, so more processes would
+#'   only add the time to start them: the words are always tokenized in one
+#'   process, whatever `n_process` is.
 #' @param output type of returning object. Either `list` or `data.frame`. 
 #' @param ... not used directly
 #' @return either `list` or `data.frame` of tokens
@@ -99,6 +107,9 @@ spacy_tokenize.character <- function(x,
         # only remove_symbols needs a pipeline component (the tagger, for the
         # SYM tag); punctuation, numbers and URLs are properties of the tokens
         turn_off_pipes <- !remove_symbols
+        # with no component to run, more processes would only add the time
+        # to start them and to load the model in each (#289)
+        if (turn_off_pipes) args$n_process <- 1L
         tokens <- spobj$tokenize(
             x, docnames,
             remove_punct = remove_punct,

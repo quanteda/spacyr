@@ -83,6 +83,41 @@ test_that("batch_size and n_process do not change the output", {
   expect_identical(run(n_process = 2, batch_size = 4), ref)
 })
 
+test_that("spacy_tokenize() starts processes only when components run", {
+  # new_spobj() is replaced by an object that records the n_process it is
+  # given, so that this test needs no Python
+  seen <- NULL
+  fake <- list(tokenize = function(..., n_process) {
+                   seen <<- n_process
+                   list(d1 = "a")
+               },
+               tokenize_sentence = function(..., n_process) {
+                   seen <<- n_process
+                   list(d1 = "a")
+               },
+               skipped = list())
+  local_mocked_bindings(new_spobj = function() fake, .package = "spacyr")
+  op <- options(spacy_initialized = TRUE)
+  on.exit(options(op), add = TRUE)
+  x <- c(d1 = "a")
+
+  # words: no component runs, so one process whatever n_process is
+  spacy_tokenize(x, n_process = 4)
+  expect_identical(seen, 1L)
+  spacy_tokenize(x, n_process = -1, remove_punct = TRUE)
+  expect_identical(seen, 1L)
+  # n_process is still checked
+  expect_error(spacy_tokenize(x, n_process = 0), "`n_process` must be")
+
+  # the tagger runs for remove_symbols, and the whole pipeline for sentences
+  spacy_tokenize(x, n_process = 4, remove_symbols = TRUE)
+  expect_identical(seen, 4L)
+  spacy_tokenize(x, n_process = -1, what = "sentence")
+  expect_identical(seen, -1L)
+  spacy_tokenize(x, what = "sentence")
+  expect_identical(seen, 1L)
+})
+
 test_that("invalid arguments stop before spaCy is initialized", {
   # spacy_initialize() is replaced, so that this test needs no Python and
   # fails if any function initializes spaCy before checking its arguments
