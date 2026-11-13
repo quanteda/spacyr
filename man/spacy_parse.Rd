@@ -14,9 +14,9 @@ spacy_parse(
   nounphrase = FALSE,
   multithread,
   additional_attributes = NULL,
-  offsets = FALSE,
   n_process = 1L,
   batch_size = NULL,
+  offsets = FALSE,
   ...
 )
 }
@@ -56,12 +56,6 @@ logical) variable indicating whether  the token is a punctuation. A full
 list of available attributes is available from
 \url{https://spacy.io/api/token#attributes}.}
 
-\item{offsets}{logical; if \code{TRUE}, return the position of each token in
-its document, in two columns after \code{token}: \code{start}, the position of the
-token's first character, and \code{end}, that of its last. Positions are
-counted from 1 in characters as R counts them, whitespace included, so
-that \code{substr(text, start, end)} is the token.}
-
 \item{n_process}{the number of processes for spaCy's \code{nlp.pipe()} to use:
 \code{1} (the default) processes the documents in the current R session's Python
 process, a larger number starts that many Python processes, and \code{-1} uses
@@ -74,6 +68,17 @@ to be used in other processes.}
 processes together; \code{NULL} (the default) uses the pipeline's default
 (\code{nlp.batch_size}). Larger batches can be faster, but use
 more memory.}
+
+\item{offsets}{logical; if \code{TRUE}, return the position of each token in
+its text as it was given in \code{x}, in two columns after \code{token}: \code{start},
+the position of the token's first character, and \code{end}, that of its
+last. Positions are counted from 1 in characters as R counts them,
+whitespace included, so that \code{substring(text, start, end)} gives the
+tokens of a text. Some of spaCy's tokenizers, such as the one for
+Korean, make a document whose whitespace differs from that of the text;
+the positions are still those in the text. If a tokenizer changes
+anything else, so that a token is not found in the text, this is an
+error.}
 
 \item{...}{not used directly}
 }
@@ -113,6 +118,6 @@ spacy_parse(txt3, additional_attributes = c("like_num", "is_punct"))
 
 # the position of each token in the text
 parsed <- spacy_parse(txt3, offsets = TRUE)
-substr(txt3, parsed$start, parsed$end)
+substring(txt3, parsed$start, parsed$end)
 }
 }

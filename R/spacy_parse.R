@@ -46,10 +46,15 @@
 #'   list of available attributes is available from
 #'   <https://spacy.io/api/token#attributes>.
 #' @param offsets logical; if `TRUE`, return the position of each token in
-#'   its document, in two columns after `token`: `start`, the position of the
-#'   token's first character, and `end`, that of its last. Positions are
-#'   counted from 1 in characters as R counts them, whitespace included, so
-#'   that `substr(text, start, end)` is the token.
+#'   its text as it was given in `x`, in two columns after `token`: `start`,
+#'   the position of the token's first character, and `end`, that of its
+#'   last. Positions are counted from 1 in characters as R counts them,
+#'   whitespace included, so that `substring(text, start, end)` gives the
+#'   tokens of a text. Some of spaCy's tokenizers, such as the one for
+#'   Korean, make a document whose whitespace differs from that of the text;
+#'   the positions are still those in the text. If a tokenizer changes
+#'   anything else, so that a token is not found in the text, this is an
+#'   error.
 #' @param ... not used directly
 #' @return a `data.frame` of tokenized, parsed, and annotated tokens, of class
 #'   `spacyr_parsed`. It keeps the names of all the documents of `x`, also of
@@ -77,7 +82,7 @@
 #'
 #' # the position of each token in the text
 #' parsed <- spacy_parse(txt3, offsets = TRUE)
-#' substr(txt3, parsed$start, parsed$end)
+#' substring(txt3, parsed$start, parsed$end)
 #' }
 spacy_parse <- function(x,
                         pos = TRUE,
@@ -88,9 +93,9 @@ spacy_parse <- function(x,
                         nounphrase = FALSE,
                         multithread,
                         additional_attributes = NULL,
-                        offsets = FALSE,
                         n_process = 1L,
                         batch_size = NULL,
+                        offsets = FALSE,
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -107,9 +112,9 @@ spacy_parse.character <- function(x,
                                   nounphrase = FALSE,
                                   multithread,
                                   additional_attributes = NULL,
-                                  offsets = FALSE,
                                   n_process = 1L,
                                   batch_size = NULL,
+                                  offsets = FALSE,
                                   ...) {
     `:=` <- `.` <- `.N` <- `.I` <- NULL
     check_multithread(multithread, "spacy_parse")

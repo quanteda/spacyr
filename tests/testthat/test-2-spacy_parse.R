@@ -264,9 +264,12 @@ test_that("spacy_parse offsets = TRUE gives the character positions of tokens", 
                      "lemma", "pos", "entity"))
   expect_type(parsed$start, "integer")
   expect_type(parsed$end, "integer")
-  # substr() with the offsets gives each token, whitespace tokens included
-  expect_identical(unname(substr(enc2utf8(txt)[parsed$doc_id], parsed$start, parsed$end)),
+  # substring() with the offsets gives each token, whitespace tokens included
+  expect_identical(unname(substring(enc2utf8(txt)[parsed$doc_id], parsed$start, parsed$end)),
                    parsed$token)
+  # of one text, too, as in the example of the help page
+  d5 <- parsed[parsed$doc_id == "d5", ]
+  expect_identical(substring(txt[["d5"]], d5$start, d5$end), d5$token)
   expect_true(any(grepl("^\\s+$", parsed$token)))
   # the example of the request: counted from 1, with whitespace counted
   expect_identical(parsed$start[1:6], c(1L, 6L, 9L, 11L, 17L, 21L))
@@ -304,4 +307,52 @@ test_that("spacy_parse offsets = TRUE gives the character positions of tokens", 
   nps <- nounphrase_consolidate(spacy_parse(txt, offsets = TRUE, nounphrase = TRUE))
   sf <- nps[nps$token == "San_Francisco", ]
   expect_identical(substr(txt[["d5"]], sf$start, sf$end), "San Francisco")
+})
+
+test_that("spacy_parse offsets are positions in the input when the tokenizer changes whitespace", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+
+  # as spaCy's tokenizer for Korean does, this one makes the document with
+  # single spaces, whatever whitespace the text has
+  comp$set_single_space_tokenizer(nlp)
+  txt <- c(ko = "안녕  세계",
+           ws = "  One\ttwo \n three  ",
+           same = "Plain text here",
+           none = "   ")
+  parsed <- spacy_parse(txt, offsets = TRUE, additional_attributes = "idx")
+  expect_identical(parsed$token,
+                   c("안녕", "세계", "One", "two", "three",
+                     "Plain", "text", "here"))
+  expect_identical(parsed$start, c(1L, 5L, 3L, 7L, 13L, 1L, 7L, 12L))
+  expect_identical(parsed$end, c(2L, 6L, 5L, 9L, 17L, 5L, 10L, 15L))
+  expect_identical(unname(substring(txt[parsed$doc_id], parsed$start, parsed$end)),
+                   parsed$token)
+  # spaCy's own positions are those in its document, not in the text
+  expect_identical(parsed$idx[1:5], c(0L, 3L, 0L, 4L, 8L))
+  # also without the positional ids of several processes
+  expect_identical(spacy_parse(txt, offsets = TRUE, batch_size = 1)$start, parsed$start)
+
+  # a tokenizer that changes the words themselves: their place is unknown
+  comp$set_single_space_tokenizer(nlp, lower = TRUE)
+  expect_error(spacy_parse(c(a = "all lower  case", b = "Not  so"), offsets = TRUE),
+               "tokenizer changed the text of document 'b'")
+  expect_identical(spacy_parse(c(a = "all lower  case"), offsets = TRUE)$start,
+                   c(1L, 5L, 12L))
+  # without offsets, such a tokenizer is no error
+  expect_identical(spacy_parse(c(b = "Not  so"))$token, c("not", "so"))
+})
+
+test_that("offsets is the last argument of spacy_parse(), after those of earlier versions", {
+  before <- c("x", "pos", "tag", "lemma", "entity", "dependency", "nounphrase",
+              "multithread", "additional_attributes", "n_process", "batch_size")
+  expect_identical(names(formals(spacy_parse)), c(before, "offsets", "..."))
+  expect_identical(names(formals(spacyr:::spacy_parse.character)),
+                   c(before, "offsets", "..."))
 })

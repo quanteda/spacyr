@@ -359,6 +359,32 @@ def doc_span_table(doc, what):
             df_doc['ent_type'].append(chunk.label_)
     return df_doc
 
+def doc_token_offsets(doc, text, id_):
+    # The positions in text, the input of the document, of the first and
+    # the last character of each token, counted from 1 in code points, as R
+    # counts characters. Token.idx is a position in doc.text, which is the
+    # input when the tokenizer is spaCy's rule-based one. Other tokenizers,
+    # such as the one for Korean, can build the document with other
+    # whitespace than the input has. Its tokens are then looked for in the
+    # input, in order, with nothing but whitespace between them.
+    if doc.text == text:
+        starts = [w.idx + 1 for w in doc]
+        return starts, [w.idx + len(w.text) for w in doc]
+    starts, ends = [], []
+    cursor = 0
+    for w in doc:
+        at = text.find(w.text, cursor)
+        if at < 0 or text[cursor:at].strip() != "":
+            raise ValueError(
+                "offsets = TRUE needs the tokens as they are in the input, "
+                "but the tokenizer changed the text of document '%s': "
+                "token %d, '%s', is not at its place in the input"
+                % (id_, w.i + 1, w.text))
+        starts.append(at + 1)
+        cursor = at + len(w.text)
+        ends.append(cursor)
+    return starts, ends
+
 def doc_entity_tags(doc):
     # "TYPE_B" or "TYPE_I" for tokens in an entity, "" otherwise
     tags = []
@@ -490,8 +516,7 @@ class spacyr:
         # as they are parsed. Token and sentence ids start at 1, and
         # head_token_id is the position of the head in its sentence. start
         # and end are the positions of a token's first and last characters
-        # in its document, counted from 1 in code points, as R counts
-        # characters.
+        # in the input text (see doc_token_offsets()).
         texts, docnames = _as_list(texts, docnames)
         if attributes is None:
             attributes = []
@@ -519,7 +544,11 @@ class spacyr:
         # since their names can be the same as those of other columns
         extra = dict((att, []) for att in attributes)
         n_nounphrases = 0
+        if offsets:
+            inputs = dict(zip(docnames, texts))
         for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+            if offsets:
+                starts, ends = doc_token_offsets(doc, inputs[id_], id_)
             for sent_id, sent in enumerate(doc.sents, 1):
                 for token_id, w in enumerate(sent, 1):
                     cols["doc_id"].append(id_)
@@ -527,8 +556,8 @@ class spacyr:
                     cols["token_id"].append(token_id)
                     cols["token"].append(w.text)
                     if offsets:
-                        cols["start"].append(w.idx + 1)
-                        cols["end"].append(w.idx + len(w.text))
+                        cols["start"].append(starts[w.i])
+                        cols["end"].append(ends[w.i])
                     if lemma:
                         cols["lemma"].append(w.lemma_)
                     if pos:

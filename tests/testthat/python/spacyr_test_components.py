@@ -78,3 +78,26 @@ class WrongCount:
         texts = list(texts)
         texts = texts[1:] if self.change < 0 else texts + texts[:1]
         return (self.nlp.make_doc(text) for text in texts)
+
+# A tokenizer that, like spaCy's tokenizer for Korean, makes the document
+# from the words of the text with single spaces between them, so that
+# doc.text is not the input when the input has other whitespace. With
+# lower = True it also changes the words themselves.
+from spacy.tokens import Doc
+
+class SingleSpaceTokenizer:
+    def __init__(self, vocab, lower = False):
+        self.vocab = vocab
+        self.lower = lower
+
+    def __call__(self, text):
+        words = text.split()
+        if self.lower:
+            words = [word.lower() for word in words]
+        spaces = [True] * len(words)
+        if words:
+            spaces[-1] = False
+        return Doc(self.vocab, words = words, spaces = spaces)
+
+def set_single_space_tokenizer(nlp, lower = False):
+    nlp.tokenizer = SingleSpaceTokenizer(nlp.vocab, lower)
