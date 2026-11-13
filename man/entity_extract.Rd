@@ -34,7 +34,9 @@ entities, containing the following fields:
 \code{entity_consolidate} returns a modified \code{data.frame} of
 parsed results, where the named entities have been combined into a single
 "token".  Currently, dependency parsing is removed when this consolidation
-occurs.
+occurs. If \code{x} has the columns \code{start} and \code{end} of
+\code{spacy_parse(offsets = TRUE)}, a consolidated entity runs from the start
+of its first token to the end of its last.
 }
 \description{
 From an object parsed by \code{\link[=spacy_parse]{spacy_parse()}}, extract the entities as a

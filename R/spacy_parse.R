@@ -5,7 +5,8 @@
 #' function provides options for universal (`pos`) and detailed (`tag`)
 #' part-of-speech tags, lemmatization (`lemma`), named entity recognition
 #' (`entity`), dependency parsing (`dependency`), noun phrases (`nounphrase`),
-#' and any other token attributes from spaCy (`additional_attributes`).
+#' the position of each token in its text (`offsets`), and any other token
+#' attributes from spaCy (`additional_attributes`).
 #' 
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
@@ -44,6 +45,11 @@
 #'   logical) variable indicating whether  the token is a punctuation. A full
 #'   list of available attributes is available from
 #'   <https://spacy.io/api/token#attributes>.
+#' @param offsets logical; if `TRUE`, return the position of each token in
+#'   its document, in two columns after `token`: `start`, the position of the
+#'   token's first character, and `end`, that of its last. Positions are
+#'   counted from 1 in characters as R counts them, whitespace included, so
+#'   that `substr(text, start, end)` is the token.
 #' @param ... not used directly
 #' @return a `data.frame` of tokenized, parsed, and annotated tokens, of class
 #'   `spacyr_parsed`. It keeps the names of all the documents of `x`, also of
@@ -68,6 +74,10 @@
 #' txt3 <- "We analyzed the Supreme Court with three natural language processing tools." 
 #' spacy_parse(txt3, entity = TRUE, nounphrase = TRUE)
 #' spacy_parse(txt3, additional_attributes = c("like_num", "is_punct"))
+#'
+#' # the position of each token in the text
+#' parsed <- spacy_parse(txt3, offsets = TRUE)
+#' substr(txt3, parsed$start, parsed$end)
 #' }
 spacy_parse <- function(x,
                         pos = TRUE,
@@ -78,6 +88,7 @@ spacy_parse <- function(x,
                         nounphrase = FALSE,
                         multithread,
                         additional_attributes = NULL,
+                        offsets = FALSE,
                         n_process = 1L,
                         batch_size = NULL,
                         ...) {
@@ -96,11 +107,14 @@ spacy_parse.character <- function(x,
                                   nounphrase = FALSE,
                                   multithread,
                                   additional_attributes = NULL,
+                                  offsets = FALSE,
                                   n_process = 1L,
                                   batch_size = NULL,
                                   ...) {
     `:=` <- `.` <- `.N` <- `.I` <- NULL
     check_multithread(multithread, "spacy_parse")
+    if (!is.logical(offsets) || length(offsets) != 1 || is.na(offsets))
+        stop("offsets must be TRUE or FALSE", call. = FALSE)
     args <- pipe_args(n_process, batch_size)
     docvars <- input_docvars(x)
     input <- spacy_input(x)
@@ -120,14 +134,16 @@ spacy_parse.character <- function(x,
                                 nounphrase = nounphrase,
                                 attributes = unname(as.list(additional_attributes)),
                                 batch_size = args$batch_size,
-                                n_process = args$n_process)
+                                n_process = args$n_process,
+                                offsets = offsets)
     warn_skipped(spobj)
     cols <- parsed$columns
     if (length(cols$token) == 0) {
         empty <- empty_spacyr_parsed(lemma = lemma, pos = pos, tag = tag,
                                      dependency = dependency, entity = entity,
                                      nounphrase = nounphrase,
-                                     additional_attributes = additional_attributes)
+                                     additional_attributes = additional_attributes,
+                                     offsets = offsets)
         return(set_parsed_documents(empty, input$docnames, docvars))
     }
     if (dependency) cols$head_token_id <- as.numeric(cols$head_token_id)
@@ -207,9 +223,13 @@ process_document <- function(x, multithread, n_process = 1L, batch_size = NULL, 
 # zero-row result with the columns and types of a parse that has tokens;
 # additional attributes are logical, since their type cannot be known
 empty_spacyr_parsed <- function(lemma, pos, tag, dependency, entity, nounphrase,
-                                additional_attributes) {
+                                additional_attributes, offsets = FALSE) {
     cols <- list(doc_id = character(), sentence_id = integer(),
                  token_id = integer(), token = character())
+    if (offsets) {
+        cols$start <- integer()
+        cols$end <- integer()
+    }
     if (lemma) cols$lemma <- character()
     if (pos) cols$pos <- character()
     if (tag) cols$tag <- character()

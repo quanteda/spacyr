@@ -300,3 +300,29 @@ test_that("entity labels containing underscores are kept whole", {
   expect_identical(cons$entity_type, c("", "PUBLIC_AGENCY", "", "PERSON", ""))
   expect_identical(cons$pos, c("DET", "ENTITY", "VERB", "ENTITY", "PUNCT"))
 })
+
+test_that("entity_consolidate() keeps the offsets of the whole entity", {
+  # a parse with offsets, built without Python
+  parsed <- data.frame(
+    doc_id = rep(c("d1", "d2"), c(5, 3)), sentence_id = 1L,
+    token_id = c(1:5, 1:3),
+    token = c("Go", "to", "San", "Francisco", ".", "New", "York", "wins"),
+    start = c(1L, 4L, 7L, 11L, 20L, 1L, 5L, 10L),
+    end = c(2L, 5L, 9L, 19L, 20L, 3L, 8L, 13L),
+    entity = c("", "", "GPE_B", "GPE_I", "", "GPE_B", "GPE_I", ""),
+    stringsAsFactors = FALSE
+  )
+  class(parsed) <- c("spacyr_parsed", "data.frame")
+
+  cons <- entity_consolidate(parsed)
+  expect_identical(names(cons),
+                   c("doc_id", "sentence_id", "token_id", "token", "start", "end",
+                     "entity_type"))
+  expect_identical(cons$token, c("Go", "to", "San_Francisco", ".", "New_York", "wins"))
+  expect_identical(cons$start, c(1L, 4L, 7L, 20L, 1L, 10L))
+  expect_identical(cons$end, c(2L, 5L, 19L, 20L, 8L, 13L))
+
+  # without offsets there are no such columns
+  expect_false(any(c("start", "end") %in%
+                     names(entity_consolidate(parsed[, setdiff(names(parsed), c("start", "end"))]))))
+})

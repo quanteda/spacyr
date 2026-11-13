@@ -435,16 +435,23 @@ class spacyr:
 
     def parse_table(self, texts, docnames, lemma = True, pos = True, tag = False,
                     dependency = False, entity = True, nounphrase = False,
-                    attributes = None, batch_size = None, n_process = 1):
+                    attributes = None, batch_size = None, n_process = 1,
+                    offsets = False):
         # The columns of spacy_parse(), built in one pass over the documents
         # as they are parsed. Token and sentence ids start at 1, and
-        # head_token_id is the position of the head in its sentence.
+        # head_token_id is the position of the head in its sentence. start
+        # and end are the positions of a token's first and last characters
+        # in its document, counted from 1 in code points, as R counts
+        # characters.
         texts, docnames = _as_list(texts, docnames)
         if attributes is None:
             attributes = []
         elif not isinstance(attributes, list):
             attributes = [attributes]
         cols = {"doc_id": [], "sentence_id": [], "token_id": [], "token": []}
+        if offsets:
+            cols["start"] = []
+            cols["end"] = []
         if lemma:
             cols["lemma"] = []
         if pos:
@@ -470,6 +477,9 @@ class spacyr:
                     cols["sentence_id"].append(sent_id)
                     cols["token_id"].append(token_id)
                     cols["token"].append(w.text)
+                    if offsets:
+                        cols["start"].append(w.idx + 1)
+                        cols["end"].append(w.idx + len(w.text))
                     if lemma:
                         cols["lemma"].append(w.lemma_)
                     if pos:

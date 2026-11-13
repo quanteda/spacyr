@@ -244,3 +244,64 @@ test_that("spacy_parse returns a typed empty result when all documents are missi
   expect_identical(names(spacy_parse(c(a = NA_character_, b = ""))),
                    names(spacy_parse("The dog runs.")))
 })
+
+test_that("spacy_parse offsets = TRUE gives the character positions of tokens", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try_spacy_initialize()
+
+  # two spaces, a newline, a character outside the Basic Multilingual Plane,
+  # a combining accent, a document without tokens, and one not in UTF-8
+  txt <- c(d1 = "This is a dummy text.  Two spaces.\nA new line.",
+           d2 = "An emoji \U0001F600 here, and café too.",
+           d3 = "",
+           d4 = iconv("Le café crème est prêt.", "UTF-8", "latin1"),
+           d5 = "Mr. Smith moved to San Francisco.")
+  parsed <- spacy_parse(txt, offsets = TRUE)
+
+  expect_identical(names(parsed),
+                   c("doc_id", "sentence_id", "token_id", "token", "start", "end",
+                     "lemma", "pos", "entity"))
+  expect_type(parsed$start, "integer")
+  expect_type(parsed$end, "integer")
+  # substr() with the offsets gives each token, whitespace tokens included
+  expect_identical(unname(substr(enc2utf8(txt)[parsed$doc_id], parsed$start, parsed$end)),
+                   parsed$token)
+  expect_true(any(grepl("^\\s+$", parsed$token)))
+  # the example of the request: counted from 1, with whitespace counted
+  expect_identical(parsed$start[1:6], c(1L, 6L, 9L, 11L, 17L, 21L))
+  expect_identical(parsed$end[1:6], c(4L, 7L, 9L, 15L, 20L, 21L))
+  # positions start again in each document
+  expect_identical(parsed$start[parsed$doc_id == "d5"][1], 1L)
+
+  # the other columns are those of a parse without offsets
+  plain <- spacy_parse(txt)
+  expect_false(any(c("start", "end") %in% names(plain)))
+  expect_identical(unclass(parsed)[names(plain)], unclass(plain)[names(plain)])
+
+  # with every other option, and from a TIF data.frame
+  full <- spacy_parse(txt, offsets = TRUE, tag = TRUE, dependency = TRUE,
+                      nounphrase = TRUE, additional_attributes = "idx")
+  expect_identical(names(full)[5:6], c("start", "end"))
+  expect_identical(full$start, full$idx + 1L)
+  expect_identical(full$end, full$idx + nchar(full$token))
+  tif <- spacy_parse(data.frame(doc_id = names(txt), text = enc2utf8(txt),
+                                stringsAsFactors = FALSE), offsets = TRUE)
+  expect_identical(tif$start, parsed$start)
+
+  # no tokens: the same columns, of the same types
+  empty <- spacy_parse(c(a = NA_character_, b = ""), offsets = TRUE)
+  expect_identical(nrow(empty), 0L)
+  expect_identical(vapply(empty, typeof, ""), vapply(parsed, typeof, ""))
+
+  expect_error(spacy_parse(txt, offsets = NA), "offsets must be TRUE or FALSE")
+  expect_error(spacy_parse(txt, offsets = "yes"), "offsets must be TRUE or FALSE")
+
+  # a consolidated token runs from its first token to its last
+  ents <- entity_consolidate(parsed)
+  sf <- ents[ents$token == "San_Francisco", ]
+  expect_identical(substr(txt[["d5"]], sf$start, sf$end), "San Francisco")
+  nps <- nounphrase_consolidate(spacy_parse(txt, offsets = TRUE, nounphrase = TRUE))
+  sf <- nps[nps$token == "San_Francisco", ]
+  expect_identical(substr(txt[["d5"]], sf$start, sf$end), "San Francisco")
+})
