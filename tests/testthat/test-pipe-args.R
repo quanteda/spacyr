@@ -83,6 +83,117 @@ test_that("batch_size and n_process do not change the output", {
   expect_identical(run(n_process = 2, batch_size = 4), ref)
 })
 
+test_that("spacy_tokenize() starts processes only when components run", {
+  # new_spobj() is replaced by an object that records the n_process it is
+  # given, so that this test needs no Python
+  seen <- NULL
+  fake <- list(tokenize = function(..., n_process) {
+                   seen <<- n_process
+                   list(d1 = "a")
+               },
+               tokenize_sentence = function(..., n_process) {
+                   seen <<- n_process
+                   list(d1 = "a")
+               },
+               skipped = list())
+  local_mocked_bindings(new_spobj = function() fake, .package = "spacyr")
+  op <- options(spacy_initialized = TRUE)
+  on.exit(options(op), add = TRUE)
+  x <- c(d1 = "a")
+
+  # words: no component runs, so one process whatever n_process is
+  spacy_tokenize(x, n_process = 4)
+  expect_identical(seen, 1L)
+  spacy_tokenize(x, n_process = -1, remove_punct = TRUE)
+  expect_identical(seen, 1L)
+  # n_process is still checked
+  expect_error(spacy_tokenize(x, n_process = 0), "`n_process` must be")
+
+  # the tagger runs for remove_symbols, and the whole pipeline for sentences
+  spacy_tokenize(x, n_process = 4, remove_symbols = TRUE)
+  expect_identical(seen, 4L)
+  spacy_tokenize(x, n_process = -1, what = "sentence")
+  expect_identical(seen, -1L)
+  spacy_tokenize(x, what = "sentence")
+  expect_identical(seen, 1L)
+})
+
+test_that("several processes keep the names of documents", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  spobj <- spacyr:::new_spobj()
+  # the standard pipeline raises its errors, so it leaves out no document,
+  # and the texts are sent to the other processes without their names (#289)
+  expect_false(spobj$needs_document_ids())
+
+  # a pipeline that returns fewer or more documents than texts, though its
+  # error handlers raise: an error, and not the names of other documents
+  nlp <- spacyr:::spacyr_env$nlp
+  components <- reticulate::import_from_path("spacyr_test_components",
+                                             path = test_path("python"))
+  module <- spacyr:::spacyr_module()
+  for (change in c(-1L, 1L)) {
+    spobj <- module$spacyr(components$WrongCount(nlp, change))
+    expect_error(spobj$tokenize(c("One.", "Two."), c("a", "b"), turn_off_pipes = FALSE,
+                                n_process = 2L),
+                 "did not return one document for each text")
+  }
+
+  # a pipeline whose error handler can leave out documents keeps its names
+  # with several processes too
+  components$skip_errors(nlp)
+  expect_true(spacyr:::new_spobj()$needs_document_ids())
+})
+
+test_that("custom components keep document IDs with several processes", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+
+  # Make the fixture importable in workers that start a fresh Python process.
+  sys <- reticulate::import("sys", convert = FALSE)
+  path <- normalizePath(test_path("python"), winslash = "/")
+  sys$path$insert(0L, path)
+  on.exit(sys$path$remove(path), add = TRUE)
+  components <- reticulate::import("spacyr_test_components")
+  nlp <- spacyr:::spacyr_env$nlp
+  x <- c(a = "London is in England.", b = "Paris is in France.")
+
+  nlp$add_pipe("spacyr_test_reverse_batch", last = TRUE)
+  expect_identical(
+    spacy_tokenize(x, what = "sentence", n_process = 2, batch_size = 2),
+    as.list(x[c("b", "a")])
+  )
+
+  nlp$remove_pipe("spacyr_test_reverse_batch")
+  nlp$add_pipe("spacyr_test_fail_on_bad", last = TRUE)
+  components$skip_errors(nlp)
+  expect_warning(
+    result <- spacy_tokenize(c(x[1], bad = "Bad input.", x[2]), what = "sentence",
+                             n_process = 2, batch_size = 3),
+    "did not return 1 document, which is left out of the output: bad"
+  )
+  expect_identical(result, as.list(x))
+})
+
+test_that("a text that is too long gives spaCy's error with several processes", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  suppressMessages(spacy_initialize(max_length = 30))
+  on.exit(spacy_finalize(), add = TRUE)
+  long <- c(a = "Short.", b = "This text is longer than thirty characters.")
+  expect_error(spacy_parse(long), "E088")
+  err <- tryCatch(spacy_parse(long, n_process = 2), error = conditionMessage)
+  expect_match(err, "E088")
+  expect_false(grepl("E871", err))
+})
+
 test_that("invalid arguments stop before spaCy is initialized", {
   # spacy_initialize() is replaced, so that this test needs no Python and
   # fails if any function initializes spaCy before checking its arguments
