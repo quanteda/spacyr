@@ -127,7 +127,7 @@ test_that("several processes keep the names of documents", {
   spobj <- spacyr:::new_spobj()
   # the standard pipeline raises its errors, so it leaves out no document,
   # and the texts are sent to the other processes without their names (#289)
-  expect_false(spobj$may_leave_out())
+  expect_false(spobj$needs_document_ids())
 
   # a pipeline that returns fewer or more documents than texts, though its
   # error handlers raise: an error, and not the names of other documents
@@ -145,7 +145,40 @@ test_that("several processes keep the names of documents", {
   # a pipeline whose error handler can leave out documents keeps its names
   # with several processes too
   components$skip_errors(nlp)
-  expect_true(spacyr:::new_spobj()$may_leave_out())
+  expect_true(spacyr:::new_spobj()$needs_document_ids())
+})
+
+test_that("custom components keep document IDs with several processes", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+
+  # Make the fixture importable in workers that start a fresh Python process.
+  sys <- reticulate::import("sys", convert = FALSE)
+  path <- normalizePath(test_path("python"), winslash = "/")
+  sys$path$insert(0L, path)
+  on.exit(sys$path$remove(path), add = TRUE)
+  components <- reticulate::import("spacyr_test_components")
+  nlp <- spacyr:::spacyr_env$nlp
+  x <- c(a = "London is in England.", b = "Paris is in France.")
+
+  nlp$add_pipe("spacyr_test_reverse_batch", last = TRUE)
+  expect_identical(
+    spacy_tokenize(x, what = "sentence", n_process = 2, batch_size = 2),
+    as.list(x[c("b", "a")])
+  )
+
+  nlp$remove_pipe("spacyr_test_reverse_batch")
+  nlp$add_pipe("spacyr_test_fail_on_bad", last = TRUE)
+  components$skip_errors(nlp)
+  expect_warning(
+    result <- spacy_tokenize(c(x[1], bad = "Bad input.", x[2]), what = "sentence",
+                             n_process = 2, batch_size = 3),
+    "did not return 1 document, which is left out of the output: bad"
+  )
+  expect_identical(result, as.list(x))
 })
 
 test_that("a text that is too long gives spaCy's error with several processes", {

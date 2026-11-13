@@ -410,9 +410,9 @@ class spacyr:
         # batch_size and n_process are passed to nlp.pipe(): None uses the
         # pipeline's default batch size, and n_process = -1 uses all CPUs.
         self.skipped = []
-        if n_process == 1 or self.may_leave_out():
+        if n_process == 1 or self.needs_document_ids():
             # each id travels with its text through the pipeline, which
-            # tells which documents were left out
+            # keeps the names if documents are left out or reordered
             seen = set()
             for doc, id_ in self.nlp.pipe(zip(texts, ids), as_tuples = True,
                                          batch_size = batch_size, n_process = n_process):
@@ -422,11 +422,9 @@ class spacyr:
             return
         # With more than one process, ids that travel with the texts are
         # costly: nlp.pipe() then makes each document in this process and
-        # sends it to the others, instead of sending its text (#289). Since
-        # every error handler raises the error, no document should be left
-        # out, so the documents are those of the texts, in the same order.
-        # That is checked, since fewer documents, or more, would be given
-        # the names of other documents.
+        # sends it to the others, instead of sending its text (#289).
+        # Here the pipeline is expected to return one document per text in
+        # input order. Check the count before returning results to R.
         # A text longer than nlp.max_length gives spaCy's error here, as with
         # one process, rather than wrapped in that of another process.
         max_length = getattr(self.nlp, "max_length", None)
@@ -447,17 +445,22 @@ class spacyr:
             "the documents cannot be matched to their names; "
             "use n_process = 1 for this pipeline")
 
-    def may_leave_out(self):
-        # Whether nlp.pipe() can leave out a document: when the error handler
-        # of the pipeline, or of one of its components, is not spaCy's
-        # default, which raises the error.
+    def needs_document_ids(self):
+        # Custom error handlers can suppress failures. Custom components
+        # can also reorder or omit documents in pipe() without raising.
+        # Use positional IDs only with spaCy's built-in components and
+        # default error handlers.
         try:
             from spacy.util import raise_error
         except ImportError:
             return True
         if getattr(self.nlp, "default_error_handler", None) is not raise_error:
             return True
-        for name, proc in self.nlp.pipeline:
+        for _, proc in self.nlp.pipeline:
+            module = getattr(proc, "__module__", type(proc).__module__)
+            if not (module.startswith("spacy.pipeline.") or
+                    module.startswith("spacy.lang.") and module.endswith(".lemmatizer")):
+                return True
             if hasattr(proc, "get_error_handler") and \
                     proc.get_error_handler() is not raise_error:
                 return True

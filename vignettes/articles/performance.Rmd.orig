@@ -183,7 +183,7 @@ A few things to keep in mind with more than one process:
 - A custom pipeline component must be defined in a Python module that the other processes can import.
 - With a pipeline that uses Hugging Face's **tokenizers** library, as some transformer pipelines do, see the section below.
 
-The output does not depend on `n_process` or `batch_size`: documents come back in their original order.
+With spaCy's built-in components and default error handlers, documents come back in their original order. With custom components or error handlers, **spacyr** passes document names through the pipeline so the results stay attached to the right names if any documents are dropped or reordered.
 
 ## Long documents
 

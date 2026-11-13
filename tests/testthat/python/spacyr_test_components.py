@@ -47,6 +47,18 @@ def skip_errors(nlp):
     # only the default handler: some built-in components do not accept one
     nlp.default_error_handler = _ignore_error
 
+class ReverseBatch:
+    def __call__(self, doc):
+        return doc
+
+    def pipe(self, docs, batch_size = 128):
+        yield from reversed(list(docs))
+
+if not Language.has_factory("spacyr_test_reverse_batch"):
+    @Language.factory("spacyr_test_reverse_batch")
+    def make_reverse_batch(nlp, name):
+        return ReverseBatch()
+
 # A stand-in for a pipeline that returns one document fewer (change < 0) or
 # one more than the texts it is given, though its error handlers raise.
 class WrongCount:
