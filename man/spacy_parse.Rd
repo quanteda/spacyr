@@ -77,8 +77,8 @@ whitespace included, so that \code{substring(text, start, end)} gives the
 tokens of a text. Some of spaCy's tokenizers, such as the one for
 Korean, make a document whose whitespace differs from that of the text;
 the positions are still those in the text. If a tokenizer changes
-anything else, so that a token is not found in the text, this is an
-error.}
+anything else, so that a token is not found in the text or the text
+has more than whitespace outside the tokens, this is an error.}
 
 \item{...}{not used directly}
 }

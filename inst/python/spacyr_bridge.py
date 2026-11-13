@@ -366,23 +366,29 @@ def doc_token_offsets(doc, text, id_):
     # input when the tokenizer is spaCy's rule-based one. Other tokenizers,
     # such as the one for Korean, can build the document with other
     # whitespace than the input has. Its tokens are then looked for in the
-    # input, in order, with nothing but whitespace between them.
+    # input, in order, with nothing but whitespace before, between and
+    # after them.
     if doc.text == text:
         starts = [w.idx + 1 for w in doc]
         return starts, [w.idx + len(w.text) for w in doc]
+    changed = ("offsets = TRUE needs the tokens as they are in the input, "
+               "but the tokenizer changed the text of document '%s': " % id_)
     starts, ends = [], []
     cursor = 0
     for w in doc:
         at = text.find(w.text, cursor)
         if at < 0 or text[cursor:at].strip() != "":
             raise ValueError(
-                "offsets = TRUE needs the tokens as they are in the input, "
-                "but the tokenizer changed the text of document '%s': "
-                "token %d, '%s', is not at its place in the input"
-                % (id_, w.i + 1, w.text))
+                changed + "token %d, '%s', is not at its place in the input"
+                % (w.i + 1, w.text))
         starts.append(at + 1)
         cursor = at + len(w.text)
         ends.append(cursor)
+    if text[cursor:].strip() != "":
+        raise ValueError(
+            changed + "the input has text after the last token"
+            if len(doc) > 0 else
+            changed + "the input has text, but the document has no tokens")
     return starts, ends
 
 def doc_entity_tags(doc):

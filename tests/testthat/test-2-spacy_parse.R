@@ -347,6 +347,20 @@ test_that("spacy_parse offsets are positions in the input when the tokenizer cha
                    c(1L, 5L, 12L))
   # without offsets, such a tokenizer is no error
   expect_identical(spacy_parse(c(b = "Not  so"))$token, c("not", "so"))
+
+  # a tokenizer that leaves out the end of the text: also an error, with
+  # tokens before it or without, while whitespace at the end is none
+  comp$set_single_space_tokenizer(nlp, drop_last = TRUE)
+  expect_error(spacy_parse(c(a = "one two"), offsets = TRUE),
+               "document 'a': the input has text after the last token")
+  expect_error(spacy_parse(c(a = "one two  "), offsets = TRUE),
+               "document 'a': the input has text after the last token")
+  expect_error(spacy_parse(c(a = "one"), offsets = TRUE),
+               "document 'a': the input has text, but the document has no tokens")
+  expect_identical(spacy_parse(c(a = "one two"))$token, "one")
+  comp$set_single_space_tokenizer(nlp)
+  ends <- spacy_parse(c(a = "one two \n ", b = " "), offsets = TRUE)
+  expect_identical(ends$end, c(3L, 7L))
 })
 
 test_that("offsets is the last argument of spacy_parse(), after those of earlier versions", {
