@@ -14,12 +14,13 @@
 #'   `MONEY`, `QUANTITY`, `ORDINAL` and `CARDINAL`, and named entities are those
 #'   of all other types. The entity types are those of the language model;
 #'   see its "Label scheme" on <https://spacy.io/models>.
+#' @param ... unused
 #' @param offsets logical; if `TRUE`, also return the position of each
 #'   entity in its text as it was given in `x`, in the columns `start` and
 #'   `end`: the positions of the entity's first and last characters, counted
 #'   from 1 as in [spacy_parse()], so that `substring(text, start, end)` gives
-#'   the entities of a text. This needs `output = "data.frame"`.
-#' @param ... unused
+#'   the entities of a text. This needs `output = "data.frame"`. It comes
+#'   after `...`, so it has to be given by its full name.
 #' @details When the option `output = "data.frame"` is selected, the
 #'   function returns a `data.frame` with the following fields, and with
 #'   `start` and `end` after them when `offsets = TRUE`.
@@ -47,8 +48,8 @@
 #' }
 spacy_extract_entity <- function(x, output = c("data.frame", "list"),
                                  type = c("all", "named", "extended"),
-                                 multithread, n_process = 1L, batch_size = NULL,
-                                 offsets = FALSE, ...) {
+                                 multithread, n_process = 1L, batch_size = NULL, ...,
+                                 offsets = FALSE) {
     UseMethod("spacy_extract_entity")
 }
 
@@ -58,8 +59,8 @@ spacy_extract_entity <- function(x, output = c("data.frame", "list"),
 spacy_extract_entity.character <- function(x,
                                            output = c("data.frame", "list"),
                                            type = c("all", "named", "extended"),
-                                           multithread, n_process = 1L, batch_size = NULL,
-                                           offsets = FALSE, ...) {
+                                           multithread, n_process = 1L, batch_size = NULL, ...,
+                                           offsets = FALSE) {
     # checked before spaCy is initialized
     check_multithread(multithread, "spacy_extract_entity")
     args <- pipe_args(n_process, batch_size)

@@ -5,13 +5,23 @@ source("utils.R")
 # character of each entity, noun phrase or match, as spacy_parse() gives them
 # for tokens.
 
-test_that("offsets is the last argument of the extractors and of spacy_match()", {
+test_that("offsets comes after ... in the extractors and in spacy_match()", {
+  # so that it is given by its full name, and the arguments before ... are
+  # matched as they were, also by the start of their names
   last_two <- function(f) utils::tail(names(formals(f)), 2)
   for (f in list(spacy_extract_entity, spacyr:::spacy_extract_entity.character,
                  spacy_extract_nounphrases, spacyr:::spacy_extract_nounphrases.character,
                  spacy_match, spacyr:::spacy_match.character)) {
-    expect_identical(last_two(f), c("offsets", "..."))
+    expect_identical(last_two(f), c("...", "offsets"))
   }
+  # o is still output or overlap, and off is not offsets
+  bound <- function(f, ...) {
+    names(as.list(match.call(f, as.call(c(list(quote(f), "a"), list(...)))))[-1])
+  }
+  expect_true("output" %in% bound(spacy_extract_entity, o = "list"))
+  expect_true("output" %in% bound(spacy_extract_nounphrases, o = "list"))
+  expect_true("overlap" %in% bound(spacy_match, "a", o = "all"))
+  expect_false("offsets" %in% bound(spacy_match, "a", off = TRUE))
 })
 
 test_that("offsets = TRUE gives the character positions of entities, noun phrases and matches", {
@@ -93,6 +103,16 @@ test_that("offsets = TRUE gives the character positions of entities, noun phrase
   expect_identical(as_index(ents), as_index(ents[1:5]))
   expect_identical(as_index(found), as_index(found[1:9]))
   expect_identical(as_entity_patterns(ents), as_entity_patterns(ents[1:5]))
+
+  # the arguments before offsets can still be given by the start of their names
+  expect_identical(spacy_extract_entity(txt, o = "list"),
+                   spacy_extract_entity(txt, output = "list"))
+  expect_identical(spacy_extract_nounphrases(txt, o = "list"),
+                   spacy_extract_nounphrases(txt, output = "list"))
+  expect_identical(spacy_match(txt, pattern, o = "all"),
+                   spacy_match(txt, pattern, overlap = "all"))
+  expect_identical(spacy_match(txt, pattern, o = "all", offsets = TRUE)[names(plain)],
+                   spacy_match(txt, pattern, overlap = "all"))
 
   expect_error(spacy_extract_entity(txt, offsets = NA), "offsets must be TRUE or FALSE")
   expect_error(spacy_extract_nounphrases(txt, offsets = "yes"), "offsets must be TRUE or FALSE")

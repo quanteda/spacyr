@@ -104,13 +104,14 @@
 #'   holds only dependency patterns, so that it can be given whatever the
 #'   patterns are.
 #' @inheritParams spacy_parse
+#' @param ... not used. An argument that is not one of those of this
+#'   function is an error.
 #' @param offsets logical; if `TRUE`, also return the position of each match
 #'   in its text as it was given in `x`, in the columns `start` and `end`:
 #'   the positions of its first and last characters, counted from 1 as in
 #'   [spacy_parse()], so that `substring(text, start, end)` gives the matches
-#'   of a text.
-#' @param ... not used. An argument that is not one of those above is an
-#'   error.
+#'   of a text. It comes after `...`, so it has to be given by its full
+#'   name.
 #' @section Kinds of pattern:
 #' What `pattern` can be, and which arguments apply to each kind:
 #'
@@ -386,8 +387,8 @@
 spacy_match <- function(x, pattern, valuetype = c("glob", "regex", "fixed"),
                         case_insensitive = TRUE,
                         overlap = c("longest", "all", "first"),
-                        n_process = 1L, batch_size = NULL, offsets = FALSE,
-                        ...) {
+                        n_process = 1L, batch_size = NULL, ...,
+                        offsets = FALSE) {
     UseMethod("spacy_match")
 }
 
@@ -396,8 +397,8 @@ spacy_match.character <- function(x, pattern,
                                   valuetype = c("glob", "regex", "fixed"),
                                   case_insensitive = TRUE,
                                   overlap = c("longest", "all", "first"),
-                                  n_process = 1L, batch_size = NULL,
-                                  offsets = FALSE, ...) {
+                                  n_process = 1L, batch_size = NULL, ...,
+                                  offsets = FALSE) {
     # checked before spaCy is initialized
     check_unused_args(match.call(expand.dots = FALSE)$...)
     check_offsets(offsets)
