@@ -35,7 +35,8 @@ the types first occur in \code{x}, and one column for each dimension of the
 model's vectors. The row names are the types. The row of a type that the
 model has no vector for is \code{NA}. The attribute \code{model} is a list with
 the \code{name} and the \code{version} of the language model, and the name of its
-table of \code{vectors}.
+table of \code{vectors}; as any attribute of a matrix, it is not kept when
+the matrix is subsetted.
 }
 \description{
 Get the pre-trained word vector of each type, from the table of vectors
@@ -68,7 +69,8 @@ change. It is meant to work with the feature-embedding matrix planned for
 dimensions of an embedding, and may return that object once it exists.
 A class for the matrix could then have methods, such as for \code{\%*\%}, that
 deal with the types that have no vector, which are now left to the user
-(see "Types without a vector").
+(see "Types without a vector"), and a method for \code{[} that keeps the
+\code{model} attribute, which a plain matrix loses when it is subsetted.
 }
 
 \section{Types without a vector}{

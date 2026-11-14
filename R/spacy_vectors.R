@@ -11,7 +11,8 @@
 #' dimensions of an embedding, and may return that object once it exists.
 #' A class for the matrix could then have methods, such as for `%*%`, that
 #' deal with the types that have no vector, which are now left to the user
-#' (see "Types without a vector").
+#' (see "Types without a vector"), and a method for `[` that keeps the
+#' `model` attribute, which a plain matrix loses when it is subsetted.
 #'
 #' @details
 #' The vectors are those of the model's vector table. There is one for each
@@ -67,7 +68,8 @@
 #'   model's vectors. The row names are the types. The row of a type that the
 #'   model has no vector for is `NA`. The attribute `model` is a list with
 #'   the `name` and the `version` of the language model, and the name of its
-#'   table of `vectors`.
+#'   table of `vectors`; as any attribute of a matrix, it is not kept when
+#'   the matrix is subsetted.
 #' @seealso [spacy_parse()], whose `additional_attributes` can be
 #'   `"has_vector"`, `"is_oov"` and `"vector_norm"`
 #' @export
