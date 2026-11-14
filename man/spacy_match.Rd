@@ -12,6 +12,7 @@ spacy_match(
   overlap = c("longest", "all", "first"),
   n_process = 1L,
   batch_size = NULL,
+  offsets = FALSE,
   ...
 )
 }
@@ -129,6 +130,12 @@ processes together; \code{NULL} (the default) uses the pipeline's default
 (\code{nlp.batch_size}). Larger batches can be faster, but use
 more memory.}
 
+\item{offsets}{logical; if \code{TRUE}, also return the position of each match
+in its text as it was given in \code{x}, in the columns \code{start} and \code{end}:
+the positions of its first and last characters, counted from 1 as in
+\code{\link[=spacy_parse]{spacy_parse()}}, so that \code{substring(text, start, end)} gives the matches
+of a text.}
+
 \item{...}{not used. An argument that is not one of those above is an
 error.}
 }
@@ -160,6 +167,9 @@ token}
 the sequence, or of the node's token, starting at 1 and counting every
 token of spaCy's, as the rows of \code{\link[=spacy_parse]{spacy_parse()}} do}
 \item{\code{length}}{the number of tokens: of the sequence, or 1 for a node}
+\item{\code{start}, \code{end}}{only with \code{offsets = TRUE}: the positions in the
+text of the first and the last character of the sequence, or of the
+node's token}
 }
 Rows are in the order of the documents in \code{x}. Within a document,
 matches are in the order of the \code{start_id} of their first row: the

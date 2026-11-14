@@ -10,6 +10,7 @@ spacy_extract_nounphrases(
   multithread,
   n_process = 1L,
   batch_size = NULL,
+  offsets = FALSE,
   ...
 )
 }
@@ -37,6 +38,13 @@ processes together; \code{NULL} (the default) uses the pipeline's default
 (\code{nlp.batch_size}). Larger batches can be faster, but use
 more memory.}
 
+\item{offsets}{logical; if \code{TRUE}, also return the position of each noun
+phrase in its text as it was given in \code{x}, in the columns \code{start} and
+\code{end}: the positions of the noun phrase's first and last characters,
+counted from 1 as in \code{\link[=spacy_parse]{spacy_parse()}}, so that
+\code{substring(text, start, end)} gives the noun phrases of a text. This
+needs \code{output = "data.frame"}.}
+
 \item{...}{unused}
 }
 \value{
@@ -49,7 +57,8 @@ This function extracts noun phrases from documents, based on the
 }
 \details{
 When the option \code{output = "data.frame"} is selected, the
-function returns a \code{data.frame} with the following fields.
+function returns a \code{data.frame} with the following fields, and with
+\code{start} and \code{end} after them when \code{offsets = TRUE}.
 \describe{\item{\code{text}}{contents of noun-phrase}
 \item{\code{root_text}}{contents of root token}
 \item{\code{start_id}}{serial number ID of starting token: its position in

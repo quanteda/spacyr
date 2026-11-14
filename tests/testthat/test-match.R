@@ -163,7 +163,8 @@ test_that("spacy_match stops on arguments it does not use", {
                  "does not use the argument overlaps$")
     expect_error(spacy_match("a", patterns = passive),
                  "does not use the argument patterns$")
-    expect_error(spacy_match("a", passive, "glob", TRUE, "all", 1L, NULL, "extra",
+    # an argument without a name, after all of those that spacy_match() has
+    expect_error(spacy_match("a", passive, "glob", TRUE, "all", 1L, NULL, FALSE, "extra",
                              nonsense = 1),
                  "does not use the arguments nonsense, 1 without a name$")
     expect_null(getOption("spacy_initialized"))

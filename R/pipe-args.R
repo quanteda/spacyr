@@ -25,6 +25,14 @@ check_multithread <- function(multithread, fun) {
     invisible(NULL)
 }
 
+# Check the offsets argument of spacy_parse(), spacy_extract_entity(),
+# spacy_extract_nounphrases() and spacy_match().
+check_offsets <- function(offsets) {
+    if (!is.logical(offsets) || length(offsets) != 1 || is.na(offsets))
+        stop("offsets must be TRUE or FALSE", call. = FALSE)
+    invisible(NULL)
+}
+
 # a whole number that as.integer() can represent
 is_whole_number <- function(x) {
     is.numeric(x) && length(x) == 1 && !is.na(x) && is.finite(x) && x == round(x) &&

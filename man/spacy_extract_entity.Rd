@@ -11,6 +11,7 @@ spacy_extract_entity(
   multithread,
   n_process = 1L,
   batch_size = NULL,
+  offsets = FALSE,
   ...
 )
 }
@@ -44,6 +45,12 @@ processes together; \code{NULL} (the default) uses the pipeline's default
 (\code{nlp.batch_size}). Larger batches can be faster, but use
 more memory.}
 
+\item{offsets}{logical; if \code{TRUE}, also return the position of each
+entity in its text as it was given in \code{x}, in the columns \code{start} and
+\code{end}: the positions of the entity's first and last characters, counted
+from 1 as in \code{\link[=spacy_parse]{spacy_parse()}}, so that \code{substring(text, start, end)} gives
+the entities of a text. This needs \code{output = "data.frame"}.}
+
 \item{...}{unused}
 }
 \value{
@@ -56,7 +63,8 @@ This function extracts named entities from texts, based on the entity tag
 }
 \details{
 When the option \code{output = "data.frame"} is selected, the
-function returns a \code{data.frame} with the following fields.
+function returns a \code{data.frame} with the following fields, and with
+\code{start} and \code{end} after them when \code{offsets = TRUE}.
 \describe{\item{\code{text}}{contents of entity}
 \item{\code{ent_type}}{type of entity (e.g. \code{ORG} for
 organizations)} \item{\code{start_id}}{serial number ID of starting token:
