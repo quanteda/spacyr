@@ -176,6 +176,39 @@ test_that("spacy_vectors_types() follows the documents and features of quanteda 
   })
 })
 
+test_that("the padding has no vector in a table of subword vectors", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  skip_if_not_installed("quanteda")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  dir <- tempfile("spacyr_floret")
+  on.exit({
+    try(spacy_finalize(), silent = TRUE)
+    unlink(dir, recursive = TRUE)
+  }, add = TRUE)
+  comp$save_floret_pipeline(dir)
+  spacy_finalize()
+  spacy_initialize(model = dir)
+
+  # a table of subword vectors (floret) has a vector for any string
+  expect_true(spacyr:::spacyr_env$nlp$vocab$has_vector(""))
+  vec <- spacy_vectors_types(c("cat", "zxqv", "", "dog"))
+  expect_identical(dim(vec), c(4L, 3L))
+  expect_identical(unname(is.na(vec[, 1])), c(FALSE, FALSE, TRUE, FALSE))
+  expect_identical(unname(vec[3, ]), rep(NA_real_, 3))
+  expect_true(all(vec[-3, ] > 0))
+
+  # so the padding of a tokens object and of a dfm is missing here too
+  toks <- quanteda::tokens_remove(quanteda::tokens(c(a = "cat dog sat")), "dog",
+                                  padding = TRUE)
+  expect_identical(unname(is.na(spacy_vectors_types(toks)[, 1])), c(FALSE, TRUE, FALSE))
+  fem <- spacy_vectors_types(quanteda::dfm(toks))
+  expect_identical(names(which(is.na(fem[, 1]))), "")
+})
+
 test_that("vectors that are on a GPU are copied to the host", {
   skip_on_cran()
   skip_on_os("solaris")

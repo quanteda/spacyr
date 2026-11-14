@@ -275,3 +275,19 @@ def use_device_vectors(nlp):
     stand_in.vocab = DeviceVocab()
     stand_in.meta = nlp.meta
     return stand_in
+
+# A small pipeline whose vectors are those of subwords (floret), saved for
+# spacy_initialize(model = ): such a table has a vector for any string, made
+# from the vectors of its character n-grams.
+def save_floret_pipeline(path):
+    import numpy
+    import spacy
+    from spacy.vectors import Vectors
+    nlp = spacy.blank("en")
+    nlp.add_pipe("sentencizer")
+    data = numpy.arange(1, 31, dtype = "float32").reshape((10, 3)) / 10
+    nlp.vocab.vectors = Vectors(data = data, mode = "floret", hash_count = 1,
+                                minn = 2, maxn = 3)
+    nlp.meta["name"] = "spacyr_test_floret"
+    nlp.meta["version"] = "0.0.1"
+    nlp.to_disk(path)

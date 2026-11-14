@@ -41,7 +41,10 @@ def type_vectors(nlp, types):
     matrix = numpy.zeros((len(types), width), dtype = "float32")
     oov = []
     for i, text in enumerate(types):
-        known = bool(vocab.has_vector(text))
+        # the empty string, the padding of removed tokens in quanteda, has
+        # no vector, also where a table has one for any string, as a table
+        # of subword vectors (floret) has
+        known = text != "" and bool(vocab.has_vector(text))
         oov.append(not known)
         if known:
             matrix[i] = _to_host(vocab.get_vector(text))
