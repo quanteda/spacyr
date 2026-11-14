@@ -32,11 +32,13 @@
 #'   * a character vector, each element a type;
 #'   * the output of [spacy_parse()], for its tokens or its lemmas;
 #'   * a list of character vectors, such as [spacy_tokenize()] returns;
-#'   * a \pkg{quanteda} tokens object, for its types, or a dfm, for its
-#'     features.
+#'   * a \pkg{quanteda} tokens object, for the types of its documents, or
+#'     a dfm, for its features: one row for each feature, in their order, so
+#'     that `x %*% spacy_vectors_types(x)` is a vector for each document.
 #'
 #'   Each type is looked up once, however often it occurs. Missing values
-#'   are left out.
+#'   are left out. The empty string, which is the padding of removed tokens
+#'   in \pkg{quanteda}, is a type without a vector.
 #' @param what for the output of [spacy_parse()], whether to look up its
 #'   tokens (`"token"`, the default) or its lemmas (`"lemma"`). It comes after
 #'   `...`, so it has to be given by its full name.
@@ -136,20 +138,25 @@ spacy_vectors_types.list <- function(x, ...) {
 
 #' @export
 spacy_vectors_types.tokens <- function(x, ...) {
-    spacy_vectors_types(quanteda_names(x, "types"), ...)
+    need_quanteda(x)
+    # the types of the documents that x has now, in the order in which they
+    # first occur: quanteda::types() can keep those of documents that were
+    # removed, in another order
+    spacy_vectors_types(as.character(unlist(as.list(x), use.names = FALSE)), ...)
 }
 
 #' @export
 spacy_vectors_types.dfm <- function(x, ...) {
-    spacy_vectors_types(quanteda_names(x, "featnames"), ...)
+    need_quanteda(x)
+    # one row for each feature, in their order, so that x %*% the result is
+    # a vector for each document
+    spacy_vectors_types(quanteda::featnames(x), ...)
 }
 
-# The types of a quanteda tokens object, or the features of a dfm, without
-# the padding of removed tokens. quanteda is a suggested package.
-quanteda_names <- function(x, fun) {
+# quanteda is a suggested package
+need_quanteda <- function(x) {
     if (!requireNamespace("quanteda", quietly = TRUE))
         stop("the quanteda package is needed for an object of class '",
              class(x)[1], "'", call. = FALSE)
-    names <- getExportedValue("quanteda", fun)(x)
-    names[nzchar(names)]
+    invisible(TRUE)
 }

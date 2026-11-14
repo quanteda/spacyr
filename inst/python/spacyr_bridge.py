@@ -44,8 +44,17 @@ def type_vectors(nlp, types):
         known = bool(vocab.has_vector(text))
         oov.append(not known)
         if known:
-            matrix[i] = vocab.get_vector(text)
+            matrix[i] = _to_host(vocab.get_vector(text))
     return matrix, oov
+
+def _to_host(array):
+    # A vector as a NumPy array. With a table of vectors on a GPU, spaCy
+    # returns a CuPy array, which NumPy does not convert by itself: its
+    # get() copies it to the host.
+    get = getattr(array, "get", None)
+    if callable(get):
+        array = get()
+    return numpy.asarray(array, dtype = "float32")
 
 def load_model(model, entity = True, max_length = None):
     if not entity:

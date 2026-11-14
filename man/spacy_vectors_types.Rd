@@ -15,12 +15,14 @@ spacy_vectors_types(x, ...)
 \item a character vector, each element a type;
 \item the output of \code{\link[=spacy_parse]{spacy_parse()}}, for its tokens or its lemmas;
 \item a list of character vectors, such as \code{\link[=spacy_tokenize]{spacy_tokenize()}} returns;
-\item a \pkg{quanteda} tokens object, for its types, or a dfm, for its
-features.
+\item a \pkg{quanteda} tokens object, for the types of its documents, or
+a dfm, for its features: one row for each feature, in their order, so
+that \code{x \%*\% spacy_vectors_types(x)} is a vector for each document.
 }
 
 Each type is looked up once, however often it occurs. Missing values
-are left out.}
+are left out. The empty string, which is the padding of removed tokens
+in \pkg{quanteda}, is a type without a vector.}
 
 \item{...}{not used}
 

@@ -102,21 +102,80 @@ test_that("spacy_vectors_types() takes parsed texts, lists and quanteda objects"
     expect_identical(rownames(spacy_vectors_types(with_lemma, what = "lemma")),
                      c("the", "cat", "sat", ".", "dog"))
 
-    # the types of a tokens object and the features of a dfm, without the
-    # padding of removed tokens
+    # the types of a tokens object, in the order in which they first occur
     toks <- quanteda::as.tokens(parsed)
-    expect_identical(spacy_vectors_types(toks)[types, ], reference[types, ])
-    expect_setequal(rownames(spacy_vectors_types(toks)), types)
-    padded <- quanteda::tokens_remove(toks, ".", padding = TRUE)
-    expect_false("" %in% rownames(spacy_vectors_types(padded)))
+    expect_identical(spacy_vectors_types(toks), reference)
+
+    # the features of a dfm, in their order: the dfm times the vectors of
+    # its features is a vector for each document
     dfmat <- quanteda::dfm(toks, tolower = FALSE)
     fem <- spacy_vectors_types(dfmat)
     expect_identical(rownames(fem), quanteda::featnames(dfmat))
-    # the document-feature matrix times the vectors of its features: a
-    # vector for each document
-    dem <- as.matrix(dfmat) %*% fem
+    dem <- as.matrix(dfmat %*% fem)
     expect_identical(dim(dem), c(3L, 3L))
     expect_identical(unname(dem["d1", ]), c(1, 0, 1.25))
+  })
+})
+
+test_that("spacy_vectors_types() follows the documents and features of quanteda objects", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  skip_if_not_installed("quanteda")
+  with_vectors_pipeline({
+    toks <- quanteda::tokens(c(a = "cat dog", b = "sat the", c = "dog zebra"))
+
+    # the types of the documents that are there, and no others: types() of a
+    # subset still has those of the documents that were removed
+    expect_identical(rownames(spacy_vectors_types(toks)),
+                     c("cat", "dog", "sat", "the", "zebra"))
+    expect_identical(rownames(spacy_vectors_types(toks[2])), c("sat", "the"))
+    expect_identical(rownames(spacy_vectors_types(toks[c(3, 1)])),
+                     c("dog", "zebra", "cat"))
+    expect_identical(dim(spacy_vectors_types(toks[0])), c(0L, 3L))
+    expect_identical(dim(spacy_vectors_types(toks[integer()])), c(0L, 3L))
+
+    # the padding of removed tokens is a type, without a vector
+    padded <- quanteda::tokens_remove(toks, "dog", padding = TRUE)
+    vec <- spacy_vectors_types(padded)
+    expect_identical(rownames(vec), c("cat", "", "sat", "the", "zebra"))
+    expect_identical(unname(attr(vec, "oov")), c(FALSE, TRUE, FALSE, FALSE, TRUE))
+    expect_identical(unname(vec[2, ]), c(0, 0, 0))
+
+    # a dfm of padded tokens keeps the padding as a feature: there is a row
+    # for it, so that the dfm and the vectors can be multiplied
+    dfmat <- quanteda::dfm(padded)
+    expect_true("" %in% quanteda::featnames(dfmat))
+    fem <- spacy_vectors_types(dfmat)
+    expect_identical(rownames(fem), quanteda::featnames(dfmat))
+    dem <- as.matrix(dfmat %*% fem)
+    expect_identical(dim(dem), c(3L, 3L))
+    expect_identical(unname(dem["a", ]), c(1, 0, 0))
+    expect_identical(unname(dem["b", ]), c(0.5, 0.5, 1))
+    expect_identical(unname(dem["c", ]), c(0, 0, 0))
+    # also after the features are subsetted or reordered
+    some <- dfmat[, c("the", "cat")]
+    expect_identical(rownames(spacy_vectors_types(some)), c("the", "cat"))
+    expect_identical(dim(spacy_vectors_types(dfmat[, 0])), c(0L, 3L))
+  })
+})
+
+test_that("vectors that are on a GPU are copied to the host", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  with_vectors_pipeline({
+    comp <- reticulate::import_from_path("spacyr_test_components",
+                                         path = test_path("python"))
+    module <- spacyr:::spacyr_module()
+    nlp <- spacyr:::spacyr_env$nlp
+    # a stand-in for a table on a GPU: its vectors are arrays that NumPy
+    # does not convert by itself, as CuPy's
+    device <- comp$use_device_vectors(nlp)
+    np <- reticulate::import("numpy", convert = FALSE)
+    expect_error(np$asarray(device$vocab$get_vector("cat")), "Implicit conversion")
+    res <- module$type_vectors(device, list("dog", "zebra", "cat"))
+    expect_identical(res[[1]], module$type_vectors(nlp, list("dog", "zebra", "cat"))[[1]])
+    expect_identical(unname(res[[1]][1, ]), c(0, 1, 0))
+    expect_identical(unlist(res[[2]]), c(FALSE, TRUE, FALSE))
   })
 })
 

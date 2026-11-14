@@ -246,3 +246,32 @@ def save_vectors_pipeline(path):
     nlp.meta["name"] = "spacyr_test_vectors"
     nlp.meta["version"] = "0.0.1"
     nlp.to_disk(path)
+
+# An array that stands in for one on a GPU, as CuPy's: NumPy cannot convert
+# it by itself, and its get() returns a copy on the host.
+class DeviceArray:
+    def __init__(self, values):
+        import numpy
+        self._values = numpy.asarray(values, dtype = "float32")
+
+    def __array__(self, *args, **kwargs):
+        raise TypeError("Implicit conversion to a NumPy array is not allowed.")
+
+    def get(self):
+        return self._values.copy()
+
+# The same pipeline's vocabulary, returning its vectors as such arrays
+def use_device_vectors(nlp):
+    vocab = nlp.vocab
+    class DeviceVocab:
+        vectors = vocab.vectors
+        def has_vector(self, text):
+            return vocab.has_vector(text)
+        def get_vector(self, text):
+            return DeviceArray(vocab.get_vector(text))
+    class DeviceNlp:
+        pass
+    stand_in = DeviceNlp()
+    stand_in.vocab = DeviceVocab()
+    stand_in.meta = nlp.meta
+    return stand_in
