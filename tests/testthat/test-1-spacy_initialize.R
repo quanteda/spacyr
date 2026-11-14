@@ -180,13 +180,13 @@ class HyphenSplitter:
   }
 })
 
-test_that("spacy_installed() reports an installed spaCy and models", {
+test_that("spacy_is_installed() reports an installed spaCy and models", {
   skip_on_cran()
   skip_on_os("solaris")
-  skip_if_not(spacy_installed(), "spaCy not installed")
+  skip_if_not(spacy_is_installed(), "spaCy not installed")
 
-  expect_true(spacy_installed("en_core_web_sm"))
-  expect_false(spacy_installed("xx_no_such_model_sm"))
+  expect_true(spacy_is_installed("en_core_web_sm"))
+  expect_false(spacy_is_installed("xx_no_such_model_sm"))
 })
 
 test_that("spacy_initialize gives a helpful error for a missing model", {
