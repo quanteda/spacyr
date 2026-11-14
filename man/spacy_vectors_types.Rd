@@ -130,6 +130,8 @@ spacy_finalize()
 }
 }
 \seealso{
-\code{\link[=spacy_parse]{spacy_parse()}}, whose \code{additional_attributes} can be
-\code{"has_vector"}, \code{"is_oov"} and \code{"vector_norm"}
+\code{\link[=spacy_vectors_docs]{spacy_vectors_docs()}}; \code{\link[=spacy_parse]{spacy_parse()}}, whose
+\code{additional_attributes} can be \code{"has_vector"}, \code{"is_oov"} and
+\code{"vector_norm"}; and the article "Word and Document Vectors" on the
+package website
 }

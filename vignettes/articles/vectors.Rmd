@@ -1,0 +1,243 @@
+---
+title: "Word and Document Vectors"
+author: "Kenneth Benoit"
+date: "2026-11-14"
+---
+
+<!-- An article for the pkgdown site only: vignettes/articles is in
+.Rbuildignore, so it is not part of the package. Its code needs spaCy and a
+language model with word vectors (en_core_web_lg), so its results are computed
+ahead of time: edit vignettes/articles/vectors.Rmd.orig, then run
+`make vignette` to knit it into vignettes/articles/vectors.Rmd, which pkgdown
+builds without running the code. -->
+
+
+
+## Introduction
+
+Some of spaCy's language models come with *word vectors*: for each of several hundred thousand words, a few hundred numbers that place the word in a space where words of similar use are near each other. **spacyr** returns them with two functions:
+
+- `spacy_vectors_types()`, a matrix with one row for each *type*, which is a unique token, as in **quanteda**;
+- `spacy_vectors_docs()`, a matrix with one row for each document.
+
+**These functions are experimental.** Their arguments and what they return may change. They are meant to work with two objects planned for **quanteda**, a feature-embedding matrix and a document-embedding matrix, and may return those once they exist.
+
+Two things to know before using them:
+
+- **The vectors are static.** There is one for each type, whatever its context, so "bank" has the same vector by a river and in a city. Unlike the contextual embeddings of a transformer model, they do not tell apart the senses of a word.
+- **Not every model has them.** Of spaCy's models, those whose names end in `md` or `lg` do, and those ending in `sm` or `trf` do not. With a model that has none, both functions stop with an error.
+
+This article uses the large English model, installed with `spacy_download_langmodel("en_core_web_lg")`:
+
+
+``` r
+library("spacyr")
+library("quanteda")
+
+spacy_initialize(model = "en_core_web_lg")
+```
+
+## Vectors for types
+
+`spacy_vectors_types()` looks up each type in the model's table of vectors. It needs no text to be parsed, so it is fast:
+
+
+``` r
+vec <- spacy_vectors_types(c("king", "queen", "banana", "zxqv"))
+dim(vec)
+## [1]   4 300
+attr(vec, "model")
+## $name
+## [1] "en_core_web_lg"
+## 
+## $version
+## [1] "3.8.0"
+## 
+## $vectors
+## [1] "en_vectors"
+```
+
+The rows are named by the types. The columns are the dimensions of the model's vector space, and have no names: a dimension means nothing by itself, and vectors can only be compared with those of the same model, which the `model` attribute records.
+
+A type that the model has no vector for has a row of `NA`:
+
+
+``` r
+is.na(vec[, 1])
+##   king  queen banana   zxqv 
+##  FALSE  FALSE  FALSE   TRUE
+```
+
+The usual way to compare two vectors is the cosine of the angle between them, which is 1 for vectors that point the same way and 0 for unrelated ones:
+
+
+``` r
+cosine <- function(x) {
+  unit <- x / sqrt(rowSums(x^2))
+  tcrossprod(unit)
+}
+round(cosine(vec[c("king", "queen", "banana"), ]), 2)
+##        king queen banana
+## king   1.00  0.73   0.22
+## queen  0.73  1.00   0.28
+## banana 0.22  0.28   1.00
+```
+
+The function takes more than a character vector. Given the output of `spacy_parse()`, it looks up the tokens, or the lemmas; given a **quanteda** tokens object, its types; given a dfm, its features. Each type is looked up once, however often it occurs. Here are the types of the US presidential inaugural addresses, as spaCy tokenizes them:
+
+
+``` r
+parsed <- spacy_parse(data_corpus_inaugural, pos = FALSE, lemma = FALSE, entity = FALSE)
+vec <- spacy_vectors_types(parsed)
+dim(vec)
+## [1] 10136   300
+sum(is.na(vec[, 1]))
+## [1] 109
+head(rownames(vec)[is.na(vec[, 1])], 10)
+##  [1] "\n\n"        " "           "inquietude"  "impregnably" "upbraidings" "\n\n "      
+##  [7] "Batavian"    "Helvetic"    "unexampled"  "meliorate"
+```
+
+With a matrix of the types of a corpus, the nearest neighbours of a word are those whose vectors have the highest cosine with it. In this model the spellings of a word that differ only in case share a vector, so we look up the types in lower case:
+
+
+``` r
+lower <- spacy_vectors_types(tolower(parsed$token))
+nearest <- function(word, vec, n = 8) {
+  known <- vec[!is.na(vec[, 1]), ]
+  unit <- known / sqrt(rowSums(known^2))
+  sims <- drop(unit %*% unit[word, ])
+  round(sort(sims, decreasing = TRUE)[2:(n + 1)], 2)
+}
+nearest("liberty", lower)
+##      freedom    liberties     freedoms    democracy   democratic      dignity independence 
+##         0.79         0.70         0.70         0.63         0.60         0.60         0.59 
+##      tyranny 
+##         0.59
+nearest("war", lower)
+##     wars military  warfare conflict     army   troops soldiers   battle 
+##     0.79     0.69     0.68     0.67     0.67     0.66     0.65     0.65
+```
+
+To have one row for each token of a parse, in the order of its rows, index the matrix by the tokens:
+
+
+``` r
+by_token <- vec[parsed$token, ]
+dim(by_token)
+## [1] 158314    300
+```
+
+## Types without a vector
+
+spaCy gives a type that it has no vector for a vector of zeros. A zero is not a value here: it would pull a mean towards zero, and count as a point in a distance, without any sign. So `spacy_vectors_types()` returns `NA` for such a type, which a computation cannot take for a value, and which stays with the row when the matrix is subsetted.
+
+The price is one decision before the matrix is used, which is best made knowingly. In the product of a dfm and the matrix, which gives a vector for each document, there are two choices:
+
+
+``` r
+toks <- as.tokens(parsed)
+dfmat <- dfm(toks, tolower = FALSE)
+fem <- spacy_vectors_types(dfmat)
+known <- !is.na(fem[, 1])
+
+# unknown types as zeros: they count among the tokens of a document
+zeros <- fem
+zeros[is.na(zeros)] <- 0
+with_unknown <- as.matrix(dfm_weight(dfmat, "prop") %*% zeros)
+
+# without the unknown types: the mean of the known ones
+without_unknown <- as.matrix(dfm_weight(dfmat[, known], "prop") %*% fem[known, ])
+
+max(abs(with_unknown - without_unknown))
+## [1] 0.1731962
+```
+
+The two differ here mostly because of whitespace: spaCy keeps runs of spaces and newlines as tokens, which have no vector, and these texts have many. They would also differ for texts with many names, misspellings or words of another language.
+
+The empty string, which **quanteda** uses as the padding of removed tokens, is a type without a vector, so a dfm made from padded tokens can be used in the same way.
+
+## Vectors for documents
+
+`spacy_vectors_docs()` returns spaCy's own vector for each document: the mean of the vectors of all its tokens, in which an unknown token counts as zeros.
+
+
+``` r
+docvec <- spacy_vectors_docs(data_corpus_inaugural)
+dim(docvec)
+## [1]  60 300
+```
+
+It is the first of the two choices above, so it equals the proportions of the types in each document times the vectors of the types:
+
+
+``` r
+max(abs(docvec - with_unknown))
+## [1] 1.885474e-05
+```
+
+The difference is the rounding of the single precision in which spaCy stores its vectors.
+
+A document without tokens, such as an empty text, has a row of `NA`: it has no vector. The product above gives zeros for it instead.
+
+Since the vectors need only the tokens, `spacy_vectors_docs()` runs no component of spaCy's pipeline, which makes it much faster than parsing the texts:
+
+
+``` r
+txt <- as.character(data_corpus_inaugural)
+system.time(spacy_vectors_docs(txt))[["elapsed"]]
+## [1] 0.547
+system.time(spacy_parse(txt))[["elapsed"]]
+## [1] 7.936
+```
+
+Document vectors are a quick way to compare documents. Here are the addresses most similar to Obama's of 2009, and to Washington's of 1789:
+
+
+``` r
+sims <- cosine(docvec)
+round(sort(sims["2009-Obama", ], decreasing = TRUE)[2:6], 3)
+##   2013-Obama  1981-Reagan  1985-Reagan  1977-Carter 1993-Clinton 
+##        0.998        0.998        0.998        0.998        0.997
+round(sort(sims["1789-Washington", ], decreasing = TRUE)[2:6], 3)
+##   1853-Pierce 1837-VanBuren  1809-Madison 1841-Harrison   1817-Monroe 
+##         0.997         0.997         0.997         0.997         0.996
+```
+
+## Your own document vectors
+
+The mean of all the tokens is only one way to make a vector for a document. It gives the most weight to the most frequent types, which are function words and punctuation, so the document vectors of any two long English texts are much alike: the cosines above are all close to 1.
+
+Since a dfm times the matrix of its features is a vector for each document, any selection or weighting of the features that **quanteda** offers gives another. Here the punctuation and the stopwords are left out, and the remaining features weighted by tf-idf, which favours the types that are frequent in a document and rare in the others:
+
+
+``` r
+content <- dfm(tokens_remove(tokens_remove(toks, "^\\p{P}+$", valuetype = "regex"),
+                             stopwords("en")),
+               tolower = FALSE)
+fem <- spacy_vectors_types(content)
+known <- !is.na(fem[, 1])
+weighted <- dfm_tfidf(content[, known])
+docvec2 <- as.matrix(dfm_weight(weighted, "prop", force = TRUE) %*% fem[known, ])
+
+sims2 <- cosine(docvec2)
+round(sort(sims2["2009-Obama", ], decreasing = TRUE)[2:6], 3)
+##      2013-Obama 1957-Eisenhower    1993-Clinton     1981-Reagan    1997-Clinton 
+##           0.987           0.986           0.986           0.983           0.983
+round(sort(sims2["1789-Washington", ], decreasing = TRUE)[2:6], 3)
+##   1853-Pierce 1837-VanBuren    1797-Adams  1809-Madison  1829-Jackson 
+##         0.981         0.981         0.979         0.977         0.975
+```
+
+## Things to keep in mind
+
+- **One model at a time.** Vectors from different models, or different versions of one, are in different spaces and cannot be compared. The `model` attribute says where a matrix came from. It is an attribute of a plain matrix, so it is not kept when the matrix is subsetted.
+- **Spelling matters, as the model decides.** Types are looked up exactly as given. Which spellings a model has is up to the model; in this one, `"cat"`, `"Cat"` and `"CAT"` share a vector.
+- **Lemmas.** `spacy_vectors_types(parsed, what = "lemma")` looks up the lemmas of a parse, which pools the forms of a word.
+- **Subword vectors.** Some models store vectors for pieces of words and build a vector for any string from them. With such a model no type is unknown, misspellings and nonsense included, so only the padding is `NA`.
+- **Pipelines that are not spaCy's own.** A pipeline with a component or a tokenizer that is not spaCy's can set its own vector for a document. `spacy_vectors_docs()` then runs every component and returns that vector, in one process.
+
+
+``` r
+spacy_finalize()
+```

@@ -28,6 +28,8 @@ navbar:
         href: articles/matching.html
       - text: "Performance"
         href: articles/performance.html
+      - text: "Word and document vectors"
+        href: articles/vectors.html
       - text: "Using spacyr with Docker"
         href: articles/docker.html
     reference:
@@ -74,6 +76,7 @@ reference:
   desc: Experimental
   contents:
   - spacy_vectors_types
+  - spacy_vectors_docs
 - title: Working with quanteda
   contents:
   - quanteda-methods
