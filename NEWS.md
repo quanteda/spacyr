@@ -9,6 +9,7 @@ Most code written for 1.4.0 runs unchanged. These changes can need attention; ea
 * The output of `spacy_parse()` has a new attribute, `documents`, so it is no longer `identical()` to a data.frame with the same columns.
 * The `multithread` argument is deprecated and has no effect: use `n_process` and `batch_size`.
 * `process_document()` and the `get_*()` functions are deprecated: use `spacy_parse()`.
+* `spacy_installed()` is deprecated: use `spacy_is_installed()`, the same function under a new name.
 * **spacyr** no longer creates the Python variables `nlp`, `spobj`, `texts` and others in Python's `__main__` namespace.
 
 ## New features
@@ -41,6 +42,7 @@ Most code written for 1.4.0 runs unchanged. These changes can need attention; ea
 
 ## Deprecated
 
+* `spacy_installed()` is renamed `spacy_is_installed()`, a name that says it answers a question, as `spacy_install()` and `spacy_uninstall()` say they act. `spacy_installed()` is deprecated: it still works, gives a warning on every call, and will be removed in a future version.
 * The `multithread` argument of `spacy_parse()`, `spacy_tokenize()`, `spacy_extract_entity()` and `spacy_extract_nounphrases()` is deprecated, and gives a warning when supplied. It has no effect (see below); use `n_process` and `batch_size` instead.
 * `process_document()` and the functions that read its result, `get_tokens()`, `get_tags()`, `get_attrs()`, `get_named_entities()`, `get_dependency()`, `get_noun_phrases()`, `get_ntokens()` and `get_ntokens_by_sent()`, are deprecated, and give a warning on every call. They will be removed in a future version. `spacy_parse()` returns all of their results; each warning names the replacement. The help for `get_dependency()` shows how to convert `spacy_parse()`'s `head_token_id`, which numbers tokens within each sentence, to its `head_id`, which numbers them within each document.
 * The result of `process_document()` now holds its own parsed documents. Previously, the `get_*()` functions read the documents of the most recent call to any spacyr function, so they failed with a Python `KeyError` once another function, such as `spacy_parse()`, had been called. `process_document()` now also checks `n_process` and `batch_size`, and warns about `multithread`, as the other functions do. It does not keep the language model, which `spacy_finalize()` frees as before.
