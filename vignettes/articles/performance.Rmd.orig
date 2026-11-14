@@ -59,24 +59,36 @@ invisible(spacy_parse(txt, entity = FALSE))
 
 ## Ask only for what you need, from the right function
 
-The options of `spacy_parse()`, such as `pos`, `lemma` or `dependency`, choose the columns of its output. They do not turn components of the pipeline on or off: every component runs whatever the options are. So returning the dependencies costs little more than leaving them out, as reported in [#188](https://github.com/quanteda/spacyr/issues/188), and the same holds for turning several options off, or on, together:
+The options of `spacy_parse()`, such as `pos`, `lemma` or `entity`, choose the columns of its output, and with them the components that run. A component whose results no option asks for is left out of the call:
+
+- the named entity recogniser, with `entity = FALSE`;
+- the lemmatizer, with `lemma = FALSE`;
+- the tagger and the attribute ruler, when `pos`, `tag`, `lemma` and `nounphrase` are all `FALSE`, since the lemmatizer and the noun phrases need the parts of speech.
+
+The parser always runs: it sets the sentence boundaries, by which `spacy_parse()` numbers the tokens. So returning the dependencies costs little more than leaving them out, as reported in [#188](https://github.com/quanteda/spacyr/issues/188), while turning off the options you do not need saves the time of their components:
 
 ```{r}
 data.frame(
   options = c("defaults",
               "adding dependency",
-              "no pos, lemma or entity",
-              "adding tag, dependency and nounphrase"),
+              "adding tag, dependency and nounphrase",
+              "no entity",
+              "no lemma",
+              "no pos or lemma",
+              "no pos, lemma or entity"),
   seconds = c(seconds(spacy_parse(txt)),
               seconds(spacy_parse(txt, dependency = TRUE)),
-              seconds(spacy_parse(txt, pos = FALSE, lemma = FALSE, entity = FALSE)),
-              seconds(spacy_parse(txt, tag = TRUE, dependency = TRUE, nounphrase = TRUE)))
+              seconds(spacy_parse(txt, tag = TRUE, dependency = TRUE, nounphrase = TRUE)),
+              seconds(spacy_parse(txt, entity = FALSE)),
+              seconds(spacy_parse(txt, lemma = FALSE)),
+              seconds(spacy_parse(txt, pos = FALSE, lemma = FALSE)),
+              seconds(spacy_parse(txt, pos = FALSE, lemma = FALSE, entity = FALSE)))
 )
 ```
 
-What extra time there is comes from building the extra columns, not from running the pipeline.
+The output does not depend on which components were left out: its columns are the same as those of a parse with every option. To make sure of that, `spacy_parse()` leaves nothing out in two cases, where it cannot know what a component needs or sets: when `additional_attributes` are asked for, and when the pipeline has a component that is not one of spaCy's standard ones. With entity rules from `spacy_initialize(entity_patterns = )`, the components that the rules may read stay as long as `entity = TRUE`.
 
-So it is better to ask for all the columns you will need in one call, than to call `spacy_parse()` once for each. `entity_extract()` and `nounphrase_extract()` take the entities and noun phrases from the output of `spacy_parse()`, without parsing the texts again:
+Each call runs the tokenizer, the vectors and the parser again, so it is still better to ask for all the columns you will need in one call, than to call `spacy_parse()` once for each. `entity_extract()` and `nounphrase_extract()` take the entities and noun phrases from the output of `spacy_parse()`, without parsing the texts again:
 
 ```{r}
 parsed <- spacy_parse(txt[1:2], nounphrase = TRUE)
@@ -84,7 +96,7 @@ head(entity_extract(parsed), 3)
 head(nounphrase_extract(parsed), 3)
 ```
 
-The exception is `spacy_tokenize()`, which turns off every component, and only splits the texts into tokens:
+`spacy_tokenize()` goes further: it turns off every component, and only splits the texts into tokens:
 
 ```{r}
 seconds(spacy_tokenize(txt))
@@ -107,17 +119,17 @@ data.frame(
 
 To remove symbols quickly, tokenize with `spacy_tokenize()`, and remove them afterwards, for instance with **quanteda**'s `tokens(remove_symbols = TRUE)`, which removes tokens made of symbol characters instead of using the tags. The two can differ: **quanteda** removes `+` and `©`, for instance, where spaCy may tag them otherwise and keep them.
 
-## Turn off the entity recogniser
+## Turn off the entity recogniser for every function
 
-The one component that **spacyr** can turn off is the named entity recogniser. `spacy_initialize(entity = FALSE)` loads the model with the recogniser disabled, so that it does not run when texts are parsed, which here saves about a quarter of the parsing time:
+`spacy_parse(entity = FALSE)` leaves the named entity recogniser out of its own calls. The other functions that run the pipeline, such as `spacy_extract_nounphrases()` and `spacy_match()`, run every component. `spacy_initialize(entity = FALSE)` loads the model with the recogniser disabled, so that it runs in none of them, which here makes extracting the noun phrases somewhat faster:
 
 ```{r}
-with_ner <- seconds(spacy_parse(sents, entity = FALSE))
+with_ner <- seconds(spacy_extract_nounphrases(sents))
 spacy_finalize()
 
 spacy_initialize(entity = FALSE)
 invisible(spacy_parse(txt, entity = FALSE))
-without_ner <- seconds(spacy_parse(sents, entity = FALSE))
+without_ner <- seconds(spacy_extract_nounphrases(sents))
 spacy_finalize()
 
 data.frame(ner = c("in the pipeline", "disabled"),
@@ -196,8 +208,8 @@ Some pipelines, such as those built with **spacy-transformers**, use Hugging Fac
 ## Summary
 
 - Use `spacy_tokenize()` when you need only the tokens. Its `remove_symbols` option runs the whole pipeline; removing symbols afterwards, by their characters, is faster, if that definition of a symbol suits your task.
-- Ask `spacy_parse()` for all the columns you need in a single call; turning its options off saves little time.
-- Use `spacy_initialize(entity = FALSE)` when you do not need named entities.
+- Ask `spacy_parse()` for the columns you need, and no others, in a single call: `entity = FALSE`, `lemma = FALSE` and `pos = FALSE` save the time of the components that they do not need.
+- Use `spacy_initialize(entity = FALSE)` when you do not need named entities from any function.
 - Leave `batch_size` at its default, unless memory runs short.
 - Try `n_process` greater than 1 only for large numbers of documents, after timing it on a sample.
 - Split very long documents into smaller ones.

@@ -8,6 +8,19 @@
 #' the position of each token in its text (`offsets`), and any other token
 #' attributes from spaCy (`additional_attributes`).
 #' 
+#' @details
+#' The components of spaCy's pipeline whose results the options do not ask
+#' for are left out of the call, which makes it faster: the named entity
+#' recognizer with `entity = FALSE`; the lemmatizer with `lemma = FALSE`; and
+#' the tagger and the attribute ruler when `pos`, `tag`, `lemma` and
+#' `nounphrase` are all `FALSE`. The parser always runs, since it sets the
+#' sentences. The output is the same as when every component runs. Nothing
+#' is left out when `additional_attributes` are asked for, or when the
+#' pipeline has a component that is not one of spaCy's standard ones; and
+#' with entity rules from `spacy_initialize(entity_patterns = )` and
+#' `entity = TRUE`, the components that the rules may read stay. See the
+#' article "Improving Performance" on the package website.
+#'
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
 #' @param pos logical whether to return universal dependency POS tagset

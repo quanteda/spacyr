@@ -227,6 +227,67 @@ def retokenizers(nlp):
     # the active components that change the tokens, as merge_entities does
     return [name for name in nlp.pipe_names if retokenizes(nlp, name)]
 
+# The components that spacy_parse() can leave out of a call, by the name of
+# their factory, and what each sets. tok2vec and transformer, which other
+# components share, and the components that set sentences are never left
+# out: without the parser, sentences would come from another component,
+# with other boundaries.
+_SETS = {"tagger": "tags", "morphologizer": "tags", "attribute_ruler": "tags",
+         "lemmatizer": "lemma", "trainable_lemmatizer": "lemma",
+         "ner": "ents", "beam_ner": "ents", "entity_ruler": "ents"}
+# What a component may read of what earlier components set. Those that read
+# nothing but the tokens and the shared layer are not listed. The rules of
+# an attribute ruler and of an entity ruler can ask for any attribute, and
+# ner keeps the entities that are already set.
+_READS = {"lemmatizer": {"tags"}, "trainable_lemmatizer": {"tags"},
+          "attribute_ruler": {"tags", "lemma", "ents"},
+          "entity_ruler": {"tags", "lemma", "ents"},
+          "ner": {"ents"}, "beam_ner": {"ents"}}
+_KNOWN = set(_SETS) | {"tok2vec", "transformer", "parser", "beam_parser",
+                       "senter", "sentencizer"}
+
+def unneeded_pipes(nlp, lemma = True, pos = True, tag = False,
+                   entity = True, nounphrase = False, attributes = None):
+    # The names of the active components whose results a call of
+    # spacy_parse() with these options does not use, so that leaving them
+    # out does not change its output: those that set tags, when neither tags
+    # nor lemmas nor noun phrases (which need the part of speech) are asked
+    # for; those that set lemmas, when lemmas are not; and those that set
+    # entities, when entities are not. A component stays if a later one
+    # that stays may read what it sets. Nothing is left out when additional
+    # attributes are asked for, which any component may set, or when the
+    # pipeline has a component that is not one of spaCy's listed above,
+    # which may read or change anything.
+    if attributes:
+        return []
+    factory = {}
+    for name in nlp.pipe_names:
+        meta = _pipe_meta(nlp, name)
+        factory[name] = meta.factory if meta is not None else None
+        if factory[name] not in _KNOWN:
+            return []
+    unused = set()
+    if not (pos or tag or lemma or nounphrase):
+        unused.add("tags")
+    if not lemma:
+        unused.add("lemma")
+    if not entity:
+        unused.add("ents")
+    names = nlp.pipe_names
+    out = set(name for name in names if _SETS.get(factory[name]) in unused)
+    changed = True
+    while changed:
+        changed = False
+        for i, name in enumerate(names):
+            if name not in out:
+                continue
+            sets = _SETS[factory[name]]
+            if any(later not in out and sets in _READS.get(factory[later], ())
+                   for later in names[i + 1:]):
+                out.discard(name)
+                changed = True
+    return [name for name in names if name in out]
+
 def lower_strings(nlp, strings):
     # each string in lower case as the vocabulary has it in LOWER, which is
     # what a phrase matcher on LOWER compares
@@ -561,38 +622,45 @@ class spacyr:
         n_nounphrases = 0
         if offsets:
             inputs = dict(zip(docnames, texts))
-        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
-            if offsets:
-                starts, ends = doc_token_offsets(doc, inputs[id_], id_)
-            for sent_id, sent in enumerate(doc.sents, 1):
-                for token_id, w in enumerate(sent, 1):
-                    cols["doc_id"].append(id_)
-                    cols["sentence_id"].append(sent_id)
-                    cols["token_id"].append(token_id)
-                    cols["token"].append(w.text)
-                    if offsets:
-                        cols["start"].append(starts[w.i])
-                        cols["end"].append(ends[w.i])
-                    if lemma:
-                        cols["lemma"].append(w.lemma_)
-                    if pos:
-                        cols["pos"].append(w.pos_)
-                    if tag:
-                        cols["tag"].append(w.tag_)
-                    if dependency:
-                        cols["head_token_id"].append(w.head.i - sent.start + 1)
-                        cols["dep_rel"].append(w.dep_)
-                    if nounphrase:
-                        cols["whitespace"].append(len(w.whitespace_) > 0)
-                    for att in extra:
-                        extra[att].append(getattr(w, att))
-            if entity:
-                cols["entity"].extend(doc_entity_tags(doc))
-            if nounphrase:
-                tags, n = doc_nounphrase_tags(doc)
-                cols["nounphrase"].extend(tags)
-                n_nounphrases += n
-        return {"columns": cols, "attributes": extra, "n_nounphrases": n_nounphrases}
+        # the components that these options do not need are left out for the
+        # call; the context manager restores them even if parsing fails
+        disabled = unneeded_pipes(self.nlp, lemma = lemma, pos = pos, tag = tag,
+                                  entity = entity, nounphrase = nounphrase,
+                                  attributes = attributes)
+        with self.nlp.select_pipes(disable = disabled):
+            for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+                if offsets:
+                    starts, ends = doc_token_offsets(doc, inputs[id_], id_)
+                for sent_id, sent in enumerate(doc.sents, 1):
+                    for token_id, w in enumerate(sent, 1):
+                        cols["doc_id"].append(id_)
+                        cols["sentence_id"].append(sent_id)
+                        cols["token_id"].append(token_id)
+                        cols["token"].append(w.text)
+                        if offsets:
+                            cols["start"].append(starts[w.i])
+                            cols["end"].append(ends[w.i])
+                        if lemma:
+                            cols["lemma"].append(w.lemma_)
+                        if pos:
+                            cols["pos"].append(w.pos_)
+                        if tag:
+                            cols["tag"].append(w.tag_)
+                        if dependency:
+                            cols["head_token_id"].append(w.head.i - sent.start + 1)
+                            cols["dep_rel"].append(w.dep_)
+                        if nounphrase:
+                            cols["whitespace"].append(len(w.whitespace_) > 0)
+                        for att in extra:
+                            extra[att].append(getattr(w, att))
+                if entity:
+                    cols["entity"].extend(doc_entity_tags(doc))
+                if nounphrase:
+                    tags, n = doc_nounphrase_tags(doc)
+                    cols["nounphrase"].extend(tags)
+                    n_nounphrases += n
+        return {"columns": cols, "attributes": extra, "n_nounphrases": n_nounphrases,
+                "disabled": disabled}
 
     def tokenize(self, texts, docnames, turn_off_pipes = True,
                  remove_punct = False,
