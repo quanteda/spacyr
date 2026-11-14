@@ -252,14 +252,26 @@ def _ruler_effects(ruler):
     # What the rules of an attribute ruler set, and what their patterns ask
     # for. spaCy's English models, for instance, have rules that set the
     # dependency of whitespace tokens as well as the tags. An attribute that
-    # is none of those above is "other" when a rule sets it. In a pattern,
+    # is none of those above is "other" when a rule sets it, if it is one
+    # of a token's text, and otherwise may stand for any annotation, set and
+    # read, as an extension attribute with a setter can. In a pattern,
     # the annotations above matter, and not the attributes of the token's
     # text, such as LOWER (_TEXT_ATTRS); any other attribute, such as an
     # extension attribute, may stand for any annotation.
     sets, reads = set(), set()
     for rule in ruler.patterns:
         for key in rule["attrs"]:
-            sets.add(_ATTR_KINDS.get(_attr_name(key), "other"))
+            name = _attr_name(key)
+            if name in _ATTR_KINDS:
+                sets.add(_ATTR_KINDS[name])
+            elif name in _TEXT_ATTRS:
+                sets.add("other")
+            else:
+                # an attribute that is not known, such as an extension
+                # attribute ("_"), whose setter is a function that may read
+                # and set any annotation
+                sets |= _ALL_KINDS
+                reads |= _ALL_KINDS
         for pattern in rule["patterns"]:
             for token in pattern:
                 for key in token:

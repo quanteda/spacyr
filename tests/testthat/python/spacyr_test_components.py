@@ -214,3 +214,18 @@ def add_lemma_extension_ruler(nlp, lemma = "dog"):
                          after = "lemmatizer")
     ruler.add(patterns = [[{"_": {"spacyr_test_has_lemma": True}}]],
               attrs = {"POS": "INTJ"})
+
+# A second attribute ruler, after the lemmatizer, with a rule that sets an
+# extension attribute, whose setter reads the lemma and sets the part of
+# speech: INTJ for "dogs" when its lemma is this one.
+def add_lemma_setter_ruler(nlp, lemma = "dog"):
+    from spacy.tokens import Token
+    def setter(token, value):
+        if token.lemma_ == lemma:
+            token.pos_ = "INTJ"
+    Token.set_extension("spacyr_test_mark", getter = lambda token: False,
+                        setter = setter, force = True)
+    ruler = nlp.add_pipe("attribute_ruler", name = "spacyr_test_setter_ruler",
+                         after = "lemmatizer")
+    ruler.add(patterns = [[{"LOWER": "dogs"}]],
+              attrs = {"_": {"spacyr_test_mark": True}})

@@ -789,3 +789,29 @@ test_that("an attribute ruler with a rule on an extension attribute keeps all be
                    c("tagger", "attribute_ruler", "lemmatizer",
                      "spacyr_test_late_ruler", "ner"))
 })
+
+test_that("an attribute ruler with a rule that sets an extension attribute always stays", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  # a ruler after the lemmatizer, whose rule for "dogs" sets an extension
+  # attribute: the setter reads the lemma and sets the part of speech INTJ
+  comp$add_lemma_setter_ruler(spacyr:::spacyr_env$nlp)
+  dogs <- c(a = "The dogs barked.")
+  intj <- list(INTJ = list(list(POS = "INTJ")))
+
+  # a setter may read and set any annotation: the ruler stays, with every
+  # component before it, whatever the call uses
+  expect_identical(match_left_out(intj, x = dogs), "ner")
+  expect_identical(spacy_match(dogs, intj)$text, "dogs")
+  expect_identical(match_left_out("dogs", x = dogs), "ner")
+  expect_identical(left_out(lemma = FALSE), character())
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE), "ner")
+  parsed <- spacy_parse(dogs, lemma = FALSE)
+  expect_identical(parsed$pos[parsed$token == "dogs"], "INTJ")
+  expect_identical(extractor_left_out("entity", x = dogs), character())
+})
