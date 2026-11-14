@@ -56,7 +56,7 @@ An R wrapper to the spaCy "industrial strength natural language processing" Pyth
     You can check whether spaCy and a model are ready to use, without starting Python, with:
 
     ```{r, eval = FALSE}
-    spacy_installed("en_core_web_sm")
+    spacy_is_installed("en_core_web_sm")
     ```
 
 `spacy_install()` creates its environment with a version of Python supported by the spaCy release being installed, and offers to install one through `reticulate::install_python()` if none is found. On Windows, `install_python()` requires [git](https://git-scm.com/downloads/) to be installed and on your `PATH`.
