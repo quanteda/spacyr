@@ -291,3 +291,21 @@ def save_floret_pipeline(path):
     nlp.meta["name"] = "spacyr_test_floret"
     nlp.meta["version"] = "0.0.1"
     nlp.to_disk(path)
+
+# A tokenizer that is not spaCy's, which wraps the pipeline's own and gives
+# each document a function for its vector (Doc.user_hooks["vector"]): a
+# vector of sevens, of the width of the table.
+class VectorHookTokenizer:
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+        self.vocab = tokenizer.vocab
+
+    def __call__(self, text):
+        import numpy
+        doc = self.tokenizer(text)
+        width = self.vocab.vectors.shape[1]
+        doc.user_hooks["vector"] = lambda d: numpy.full(width, 7, dtype = "float32")
+        return doc
+
+def set_vector_hook_tokenizer(nlp):
+    nlp.tokenizer = VectorHookTokenizer(nlp.tokenizer)

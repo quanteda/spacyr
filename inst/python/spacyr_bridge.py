@@ -516,6 +516,26 @@ def match_use(patterns, dependency):
         return None
     return used
 
+def vectors_need_no_pipes(nlp):
+    # Whether the vector of a document is the same when no component of the
+    # pipeline runs. spaCy's Doc.vector is the mean of the vectors of the
+    # document's tokens, which are looked up by their text in the table of
+    # vectors, so it needs the tokenizer only. That holds for a pipeline
+    # that can be read as for pipes_unneeded_for(): one whose tokenizer and
+    # language class are spaCy's, since another can give a document its own
+    # function for the vector (Doc.user_hooks["vector"]), and whose
+    # components are all known and set nothing but the annotations, since
+    # another may set such a function, or change the tokens.
+    if nlp.vocab.vectors.shape[0] == 0 or not _own_tokenizer(nlp):
+        return False
+    for name in nlp.pipe_names:
+        meta = _pipe_meta(nlp, name)
+        effects = _pipe_effects(nlp, name,
+                                meta.factory if meta is not None else None)
+        if effects is None or "other" in effects[0]:
+            return False
+    return True
+
 def pipes_unneeded_for(nlp, used):
     # The names of the active components that a call can leave out without
     # changing its output, when its output uses only these kinds of
@@ -963,6 +983,33 @@ class spacyr:
                                              remove_url = remove_url,
                                              remove_symbols = remove_symbols)
             return tokens_out
+
+    def doc_vectors(self, texts, docnames, batch_size = None, n_process = 1):
+        # The vector of each document, spaCy's Doc.vector, in a matrix with
+        # one row for each document that the pipeline returns, with their
+        # names and whether each has no tokens. No component runs when the
+        # vectors do not need them (see vectors_need_no_pipes()); more
+        # processes would then only add the time to start them.
+        texts, docnames = _as_list(texts, docnames)
+        if vectors_need_no_pipes(self.nlp):
+            self.disabled = list(self.nlp.pipe_names)
+            n_process = 1
+            pipes_context = self.nlp.select_pipes(disable = self.disabled)
+        else:
+            self.disabled = []
+            pipes_context = contextlib.nullcontext()
+        width = self.nlp.vocab.vectors.shape[1]
+        ids, rows, empty = [], [], []
+        with pipes_context:
+            for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+                ids.append(id_)
+                empty.append(len(doc) == 0)
+                vector = _to_host(doc.vector)
+                rows.append(vector if vector.shape == (width,) else
+                            numpy.zeros(width, dtype = "float32"))
+        matrix = numpy.vstack(rows) if rows else \
+            numpy.zeros((0, width), dtype = "float32")
+        return {"ids": ids, "matrix": matrix, "empty": empty}
 
     def tokenize_sentence(self, texts, docnames, remove_separators = False,
                           batch_size = None, n_process = 1):
