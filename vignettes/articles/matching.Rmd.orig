@@ -418,12 +418,9 @@ Testing patterns on examples of the constructions you want, and of those you do 
 
 Matching adds little to the time that spaCy takes to parse the texts. On a test with 5,000 sentences, a dictionary of 10,000 phrases and several hundred wildcard values took no longer than a single token pattern. Token patterns are slower in large numbers, since spaCy checks each one against the text: give phrases as lexical patterns or as phrases, not as token patterns, when there are thousands of them. Lexical patterns without a wildcard or a regular expression are matched as phrases are, by spaCy's `PhraseMatcher`; those with one become token patterns, of which the single words are combined into one pattern for each label.
 
-Patterns that do not use entities are faster after `spacy_initialize(entity = FALSE)`, which leaves out the named entity recognizer. `spacy_initialize()` does nothing while spaCy is running, as it has been since the start of this article, so call `spacy_finalize()` first:
+`spacy_match()` runs only the components of spaCy's pipeline that the patterns ask for. Phrases, words and the values of a dictionary are matched on the text of the tokens, and need only the parser, which sets the sentence of each match. A pattern on `POS` or `TAG` also needs the tagger; one on `LEMMA` the lemmatizer; and one on `ENT_TYPE` the named entity recognizer. So lexical patterns take well under half the time of a pattern that needs every component. A pattern that asks for an attribute that **spacyr** does not know, such as an extension attribute, runs them all.
 
 ```{r}
-spacy_finalize()
-spacy_initialize(entity = FALSE)
-spacy_match(passive_txt, passive)
 spacy_finalize()
 ```
 

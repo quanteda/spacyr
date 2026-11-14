@@ -352,6 +352,21 @@ keeps one. A concordance of the matches themselves, with
 \code{\link[=as_index]{as_index()}}.
 }
 
+\section{Components that are left out}{
+
+The components of spaCy's pipeline that the patterns do not ask for are
+left out of the call, which makes it faster. Phrases, words and the
+values of a dictionary are matched on the text of the tokens, and need
+only the parser, which sets the sentences. A pattern on \code{POS}, \code{TAG} or
+\code{MORPH} also needs the components that set the tags, one on \code{LEMMA} the
+lemmatizer, one on \code{DEP} or a dependency pattern the dependencies, and
+one on \code{ENT_TYPE} the entities. The output is the same as when every
+component runs, by the rules in the details of \code{\link[=spacy_parse]{spacy_parse()}}. Nothing
+is left out when a pattern asks for an attribute that is not one of
+spaCy's token attributes known here, such as an extension attribute
+(\verb{_}).
+}
+
 \examples{
 \dontrun{
 spacy_initialize()
