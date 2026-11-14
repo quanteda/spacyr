@@ -121,6 +121,9 @@ tokens. What a model reads is told from its settings; a model that is
 not built by spaCy's own functions is taken to read everything.
 \item Nothing is left out when \code{additional_attributes} are asked for, or when
 the pipeline has a component that is not one of spaCy's standard ones.
+\item With \code{nounphrase = TRUE}, nothing is left out either when the pipeline
+finds its noun phrases by a function that is not spaCy's own for the
+language, which may read any annotation.
 }
 
 See the article "Improving Performance" on the package website.

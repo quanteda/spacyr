@@ -152,3 +152,27 @@ def save_pos_ner_pipeline(path):
     # after nlp.initialize(), which removes the rules of an attribute ruler
     ruler.add(patterns = [[{"LOWER": "alpha"}]], attrs = {"POS": "PROPN"})
     nlp.to_disk(path)
+
+# A component that does nothing. Since it is not one of spaCy's, no function
+# leaves any component out of a pipeline that has it, which gives the output
+# of the whole pipeline to compare with.
+class NoOp:
+    def __call__(self, doc):
+        return doc
+
+if not Language.has_factory("spacyr_test_noop"):
+    @Language.factory("spacyr_test_noop")
+    def make_noop(nlp, name):
+        return NoOp()
+
+# A noun chunk iterator that is not spaCy's: the language's own, keeping the
+# noun chunks that have a token with this lemma. spaCy lets a pipeline have
+# its own iterator in Vocab.get_noun_chunks, which may read any annotation.
+def set_lemma_noun_chunks(nlp, lemma = "dog"):
+    own = nlp.vocab.get_noun_chunks
+    def lemma_noun_chunks(doclike):
+        doc = doclike.doc
+        for start, end, label in own(doclike):
+            if any(token.lemma_ == lemma for token in doc[start:end]):
+                yield start, end, label
+    nlp.vocab.get_noun_chunks = lemma_noun_chunks

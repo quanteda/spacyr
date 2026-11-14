@@ -87,13 +87,13 @@ data.frame(
               seconds(spacy_parse(txt, pos = FALSE, lemma = FALSE, entity = FALSE)))
 )
 ##                                 options seconds
-## 1                              defaults     2.6
+## 1                              defaults     2.7
 ## 2                     adding dependency     2.7
 ## 3 adding tag, dependency and nounphrase     2.8
 ## 4                             no entity     2.0
-## 5                              no lemma     2.4
-## 6                       no pos or lemma     1.6
-## 7               no pos, lemma or entity     1.0
+## 5                              no lemma     2.5
+## 6                       no pos or lemma     2.1
+## 7               no pos, lemma or entity     1.1
 ```
 
 The output does not depend on which components were left out: its columns are the same as those of a parse with every option. To make sure of that, a component stays whenever it sets something that the output has, or that a later component may read, and `spacy_parse()` leaves nothing out in two cases, where it cannot know what a component needs or sets: when `additional_attributes` are asked for, and when the pipeline has a component that is not one of spaCy's standard ones. With entity rules from `spacy_initialize(entity_patterns = )`, the components that the rules may read stay as long as `entity = TRUE`.
@@ -113,6 +113,24 @@ head(nounphrase_extract(parsed), 3)
 ## 1 1789-Washington           1 Fellow-Citizens
 ## 2 1789-Washington           1      the_Senate
 ## 3 1789-Washington           1       the_House
+```
+
+`spacy_extract_entity()` and `spacy_extract_nounphrases()` leave out components in the same way: the first runs neither the tagger, the attribute ruler nor the lemmatizer, which entities do not need, and the second neither the lemmatizer nor the entity recogniser. So when you need only the entities, or only the noun phrases, they are faster than `spacy_parse()` with its default options:
+
+
+``` r
+data.frame(
+  call = c('spacy_parse(txt)',
+           'spacy_extract_entity(txt)',
+           'spacy_extract_nounphrases(txt)'),
+  seconds = c(seconds(spacy_parse(txt)),
+              seconds(spacy_extract_entity(txt)),
+              seconds(spacy_extract_nounphrases(txt)))
+)
+##                             call seconds
+## 1               spacy_parse(txt)     3.1
+## 2      spacy_extract_entity(txt)     1.7
+## 3 spacy_extract_nounphrases(txt)     2.2
 ```
 
 `spacy_tokenize()` goes further: it turns off every component, and only splits the texts into tokens:
@@ -140,32 +158,33 @@ data.frame(
 ##                                         call seconds
 ## 1                        spacy_tokenize(txt)     0.2
 ## 2   spacy_tokenize(txt, remove_punct = TRUE)     0.2
-## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.6
-## 4     spacy_tokenize(txt, what = "sentence")     2.6
+## 3 spacy_tokenize(txt, remove_symbols = TRUE)     3.0
+## 4     spacy_tokenize(txt, what = "sentence")     2.9
 ```
 
 To remove symbols quickly, tokenize with `spacy_tokenize()`, and remove them afterwards, for instance with **quanteda**'s `tokens(remove_symbols = TRUE)`, which removes tokens made of symbol characters instead of using the tags. The two can differ: **quanteda** removes `+` and `©`, for instance, where spaCy may tag them otherwise and keep them.
 
 ## Turn off the entity recogniser for every function
 
-`spacy_parse(entity = FALSE)` leaves the named entity recogniser out of its own calls. The other functions that run the pipeline, such as `spacy_extract_nounphrases()` and `spacy_match()`, run every component. `spacy_initialize(entity = FALSE)` loads the model with the recogniser disabled, so that it runs in none of them, which here makes extracting the noun phrases somewhat faster:
+`spacy_parse(entity = FALSE)` and `spacy_extract_nounphrases()` leave the named entity recogniser out of their own calls. `spacy_match()` runs every component, since its patterns can ask for any attribute. `spacy_initialize(entity = FALSE)` loads the model with the recogniser disabled, so that it runs in no function, which here makes matching a pattern on the parts of speech faster:
 
 
 ``` r
-with_ner <- seconds(spacy_extract_nounphrases(sents))
+adj_noun <- list(ADJ_NOUN = list(list(POS = "ADJ"), list(POS = "NOUN")))
+with_ner <- seconds(spacy_match(sents, adj_noun))
 spacy_finalize()
 
 spacy_initialize(entity = FALSE)
 ## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)
 invisible(spacy_parse(txt, entity = FALSE))
-without_ner <- seconds(spacy_extract_nounphrases(sents))
+without_ner <- seconds(spacy_match(sents, adj_noun))
 spacy_finalize()
 
 data.frame(ner = c("in the pipeline", "disabled"),
            seconds = c(with_ner, without_ner))
 ##               ner seconds
-## 1 in the pipeline     3.3
-## 2        disabled     2.8
+## 1 in the pipeline     3.0
+## 2        disabled     2.3
 ```
 
 `spacy_parse()` then has no entities to return, and says so if asked for them, unless entity rules are added with `spacy_initialize(entity_patterns = )` (see the article on [entity rules](entity_rules.html)). The rules work without the recogniser, so long as they do not build on the entities it finds.
@@ -180,7 +199,7 @@ spacy_initialize(model = "en_core_web_lg")
 ## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_lg)
 invisible(spacy_parse(txt, entity = FALSE))
 seconds(spacy_parse(txt))
-## [1] 2.9
+## [1] 3.2
 spacy_finalize()
 ```
 
@@ -200,10 +219,10 @@ sizes <- c(1, 10, 100, 1000)
 data.frame(batch_size = sizes,
            seconds = sapply(sizes, function(b) seconds(spacy_parse(sents, batch_size = b))))
 ##   batch_size seconds
-## 1          1     6.1
-## 2         10     3.7
-## 3        100     2.7
-## 4       1000     2.7
+## 1          1     6.7
+## 2         10     4.2
+## 3        100     3.2
+## 4       1000     3.2
 ```
 
 The default is usually a good choice. A batch of long documents takes more memory than one of short documents, so with long documents, a smaller batch can avoid running out of memory.
@@ -218,9 +237,9 @@ procs <- c(1, 2, 4)
 data.frame(n_process = procs,
            seconds = sapply(procs, function(p) seconds(spacy_parse(sents, n_process = p))))
 ##   n_process seconds
-## 1         1     2.7
-## 2         2     3.2
-## 3         4     3.7
+## 1         1     3.0
+## 2         2     3.7
+## 3         4     4.4
 ```
 
 and for six times as many, timed once each, they help:
@@ -231,9 +250,9 @@ more <- unname(rep(sents, 6))
 data.frame(n_process = procs,
            seconds = sapply(procs, function(p) seconds(spacy_parse(more, n_process = p), times = 1)))
 ##   n_process seconds
-## 1         1    16.5
-## 2         2    13.7
-## 3         4    13.7
+## 1         1    18.6
+## 2         2    16.3
+## 3         4    15.3
 ```
 
 So on this machine, with this model and these texts, the gain is modest: four processes are far from four times as fast as one, since the parsed documents are sent back to the R session's own process, which still puts the output together. The gain may differ with other models, texts and machines, so time `n_process` on a sample of your own texts before relying on it.
@@ -261,6 +280,7 @@ Some pipelines, such as those built with **spacy-transformers**, use Hugging Fac
 
 - Use `spacy_tokenize()` when you need only the tokens. Its `remove_symbols` option runs the whole pipeline; removing symbols afterwards, by their characters, is faster, if that definition of a symbol suits your task.
 - Ask `spacy_parse()` for the columns you need, and no others, in a single call: `entity = FALSE`, `lemma = FALSE` and `pos = FALSE` save the time of the components that they do not need.
+- Use `spacy_extract_entity()` or `spacy_extract_nounphrases()` when you need only the entities or only the noun phrases.
 - Use `spacy_initialize(entity = FALSE)` when you do not need named entities from any function.
 - Leave `batch_size` at its default, unless memory runs short.
 - Try `n_process` greater than 1 only for large numbers of documents, after timing it on a sample.
