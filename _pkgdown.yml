@@ -28,6 +28,8 @@ navbar:
         href: articles/matching.html
       - text: "Performance"
         href: articles/performance.html
+      - text: "Word and document vectors"
+        href: articles/vectors.html
       - text: "Using spacyr with Docker"
         href: articles/docker.html
     reference:
@@ -37,3 +39,49 @@ navbar:
       icon: fa-github fa-lg
       href: https://github.com/quanteda/spacyr
       aria-label: View on Github
+
+reference:
+- title: Package
+  contents:
+  - spacyr-package
+- title: Installation and setup
+  contents:
+  - spacy_install
+  - spacy_install_virtualenv
+  - spacy_uninstall
+  - spacy_upgrade
+  - spacy_installed
+  - spacy_download_langmodel
+  - spacy_download_langmodel_virtualenv
+  - find_spacy
+  - spacy_initialize
+  - spacy_finalize
+- title: Parsing and tokenizing
+  contents:
+  - spacy_parse
+  - spacy_tokenize
+- title: Entities and noun phrases
+  contents:
+  - spacy_extract_entity
+  - entity_extract
+  - as_entity_patterns
+  - entity_patterns_read
+  - spacy_extract_nounphrases
+  - nounphrase_extract
+- title: Matching
+  contents:
+  - spacy_match
+  - as_index
+- title: Word vectors
+  desc: Experimental
+  contents:
+  - spacy_vectors_types
+  - spacy_vectors_docs
+- title: Working with quanteda
+  contents:
+  - quanteda-methods
+  - as.dictionary.spacyr_entity_patterns
+- title: Data
+  contents:
+  - data_char_paragraph
+  - data_char_sentences
