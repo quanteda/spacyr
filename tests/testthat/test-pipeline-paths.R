@@ -88,12 +88,6 @@ test_that("documents left out by the pipeline do not shift the others' names", {
     expect_warning(ents <- spacy_extract_entity(skipped, output = "list"), skipped_warning)
     expect_identical(ents, list(good = c("London", "England")))
 
-    expect_warning(html <- entity_visualize(skipped), skipped_warning)
-    expect_true(grepl("London", html))
-    expect_false(grepl("Bad input", html))
-    expect_warning(html <- entity_visualize(skipped["bad"]), skipped_warning)
-    expect_identical(html, "")
-
     expect_warning(nps <- spacy_extract_nounphrases(skipped), skipped_warning)
     expect_identical(unique(nps$doc_id), "good")
     expect_warning(nps <- spacy_extract_nounphrases(skipped, output = "list"), skipped_warning)

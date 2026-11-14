@@ -1012,20 +1012,6 @@ class spacyr:
                 df_all[id_] = df_doc
         return df_all
 
-    def render_entities(self, texts, docnames, labels = None, colors = None,
-                        batch_size = None, n_process = 1):
-        # The texts with their entities marked, as one fragment of HTML made
-        # by displaCy, with the documents in order: see render_spans().
-        texts, docnames = _as_list(texts, docnames)
-        self.disabled = pipes_unneeded_for(self.nlp, spans_use(self.nlp, "ents"))
-        with self.nlp.select_pipes(disable = self.disabled):
-            docs = [{"text": doc.text,
-                     "ents": [{"start": ent.start_char, "end": ent.end_char,
-                               "label": ent.label_} for ent in doc.ents]}
-                    for _, doc in
-                    self.docs(texts, docnames, batch_size, n_process)]
-        return self.render_spans(docs, labels, colors)
-
     def render_spans(self, docs, labels = None, colors = None):
         # Documents with their entities marked, as one fragment of HTML made
         # by displaCy, in order. Each document is a dictionary of its text

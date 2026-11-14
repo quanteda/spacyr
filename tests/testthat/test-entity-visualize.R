@@ -33,20 +33,45 @@ plain <- function(html) {
     squash(gsub("<[^>]+>", "", docs))
 }
 
+# the entities of texts, parsed with the positions of their tokens
+viz <- function(x, ...) entity_visualize(spacy_parse(x, offsets = TRUE), ...)
+
+# a parse made by hand, which needs no spaCy
+by_hand <- structure(
+    data.frame(doc_id = "d1", sentence_id = 1L, token_id = 1:2,
+               token = c("Acme", "Corp"), entity = c("ORG_B", "ORG_I"),
+               stringsAsFactors = FALSE),
+    class = c("spacyr_parsed", "data.frame"))
+
 test_that("entity_visualize checks its arguments before starting spaCy", {
     try(spacy_finalize(), silent = TRUE)
-    expect_error(entity_visualize("a", labels = 1), "labels must be NULL or a character")
-    expect_error(entity_visualize("a", labels = NA_character_), "labels must be")
+    expect_error(entity_visualize(by_hand, labels = 1),
+                 "labels must be NULL or a character")
+    expect_error(entity_visualize(by_hand, labels = NA_character_), "labels must be")
     for (bad in list(1, c("red", "blue"), c(ORG = NA_character_),
                      stats::setNames(c("red", "blue"), c("ORG", ""))))
-        expect_error(entity_visualize("a", colors = bad), "colors must be NULL or")
-    expect_error(entity_visualize("a", colors = c(ORG = "red", org = "blue")),
+        expect_error(entity_visualize(by_hand, colors = bad), "colors must be NULL or")
+    expect_error(entity_visualize(by_hand, colors = c(ORG = "red", org = "blue")),
                  "more than one colour for a label")
     for (bad in list(NA, "yes", c(TRUE, FALSE), 1))
-        expect_error(entity_visualize("a", view = bad), "view must be TRUE or FALSE")
-    expect_error(entity_visualize("a", n_process = 0), "n_process")
-    expect_error(entity_visualize("a", batch_size = 0), "batch_size")
-    expect_error(entity_visualize(data.frame(a = 1)), "TIF")
+        expect_error(entity_visualize(by_hand, view = bad),
+                     "view must be TRUE or FALSE")
+
+    expect_error(entity_visualize(by_hand[, c("doc_id", "token")]),
+                 "x has no column entity: rerun spacy_parse\\(\\) with entity = TRUE")
+    expect_error(entity_visualize(by_hand[, c("doc_id", "entity")]),
+                 "x has no column token")
+    expect_null(getOption("spacy_initialized"))
+})
+
+test_that("entity_visualize takes only parsed documents", {
+    try(spacy_finalize(), silent = TRUE)
+    for (x in list("Acme Corp is hiring.",
+                   data.frame(doc_id = "d1", text = "Acme Corp is hiring."),
+                   list("a"), NULL))
+        expect_error(entity_visualize(x),
+                     "x must be the output of spacy_parse\\(\\): for texts, use entity_visualize\\(spacy_parse\\(x, offsets = TRUE\\)\\)")
+    expect_error(entity_visualize(by_hand, n_process = 2), "unused argument")
     expect_null(getOption("spacy_initialized"))
 })
 
@@ -54,7 +79,7 @@ test_that("entity_visualize marks the entities of documents in order", {
     skip_on_cran()
     skip_on_os("solaris")
     with_rules({
-        expect_silent(html <- entity_visualize(txt))
+        expect_silent(html <- viz(txt))
         expect_type(html, "character")
         expect_length(html, 1)
         expect_identical(
@@ -65,22 +90,11 @@ test_that("entity_visualize marks the entities of documents in order", {
         # a fragment, not a page
         expect_false(grepl("<html|<body", html))
 
-        # one document, and the same from other forms of input
-        expect_identical(marked(entity_visualize(txt[2])), c(ORG = "Acme Corp"))
-        expect_identical(entity_visualize(unname(txt)), html)
+        # one document, and a corpus that was parsed
+        expect_identical(marked(viz(txt[2])), c(ORG = "Acme Corp"))
+        expect_identical(viz(unname(txt)), html)
         expect_identical(
-            entity_visualize(data.frame(doc_id = names(txt), text = txt)), html)
-        expect_identical(entity_visualize(txt, n_process = 2, batch_size = 1), html)
-    })
-})
-
-test_that("entity_visualize takes a quanteda corpus", {
-    skip_on_cran()
-    skip_on_os("solaris")
-    skip_if_not_installed("quanteda")
-    with_rules({
-        expect_identical(entity_visualize(quanteda::corpus(txt)),
-                         entity_visualize(txt))
+            viz(data.frame(doc_id = names(txt), text = txt)), html)
     })
 })
 
@@ -88,21 +102,21 @@ test_that("labels chooses the labels to mark and keeps the rest of the text", {
     skip_on_cran()
     skip_on_os("solaris")
     with_rules({
-        html <- entity_visualize(txt, labels = c("PERSON", "ORG"))
+        html <- viz(txt, labels = c("PERSON", "ORG"))
         expect_identical(marked(html), c(PERSON = "Jane Smith", ORG = "Acme Corp",
                                          ORG = "Acme Corp"))
-        expect_identical(plain(html), plain(entity_visualize(txt)))
+        expect_identical(plain(html), plain(viz(txt)))
         # one label, in another case, and a label that only a rule has
-        expect_identical(marked(entity_visualize(txt, labels = "org")),
+        expect_identical(marked(viz(txt, labels = "org")),
                          c(ORG = "Acme Corp", ORG = "Acme Corp"))
-        expect_identical(marked(entity_visualize(txt, labels = "gadget")),
+        expect_identical(marked(viz(txt, labels = "gadget")),
                          c(gadget = "Widget"))
         # a document with none of the labels is still there, as is every
         # document when no label is chosen
-        html <- entity_visualize(txt, labels = "PERSON")
-        expect_identical(plain(html), plain(entity_visualize(txt)))
+        html <- viz(txt, labels = "PERSON")
+        expect_identical(plain(html), plain(viz(txt)))
         for (none in list(character(0), "NOSUCHLABEL")) {
-            expect_silent(html <- entity_visualize(txt, labels = none))
+            expect_silent(html <- viz(txt, labels = none))
             expect_length(marked(html), 0)
             expect_identical(plain(html), squash(unname(txt)))
         }
@@ -116,12 +130,12 @@ test_that("colors sets the colors of labels", {
         background <- function(html)
             regmatches(html, gregexpr("background: [^;]+", html))[[1]]
         expect_identical(
-            background(entity_visualize(txt[1], colors = c(org = "#123456",
+            background(viz(txt[1], colors = c(org = "#123456",
                                                            gadget = "gold"))),
-            c(background(entity_visualize(txt[1]))[1],
+            c(background(viz(txt[1]))[1],
               "background: #123456", "background: gold"))
-        expect_identical(entity_visualize(txt, colors = character(0)),
-                         entity_visualize(txt))
+        expect_identical(viz(txt, colors = character(0)),
+                         viz(txt))
     })
 })
 
@@ -131,7 +145,7 @@ test_that("entity_visualize handles special characters and empty documents", {
     with_rules({
         x <- c(a = "Acme Corp <b>café</b> & 東京.",
                b = "No entities here.", c = NA, d = "")
-        expect_silent(html <- entity_visualize(x))
+        expect_silent(html <- viz(x))
         expect_identical(Encoding(html), "UTF-8")
         expect_identical(marked(html), c(ORG = "Acme Corp"))
         expect_true(grepl("&lt;b&gt;café&lt;/b&gt; &amp; 東京.", html,
@@ -139,9 +153,8 @@ test_that("entity_visualize handles special characters and empty documents", {
         expect_false(grepl("<b>", html, fixed = TRUE))
         expect_identical(plain(html)[2:4], c("Noentitieshere.", "", ""))
 
-        expect_identical(entity_visualize(character(0)), "")
-        expect_identical(entity_visualize(character(0), view = FALSE,
-                                          labels = "ORG"), "")
+        expect_identical(viz(character(0)), "")
+        expect_identical(viz(character(0), view = FALSE, labels = "ORG"), "")
     })
 })
 
@@ -158,8 +171,8 @@ test_that("view = TRUE opens a UTF-8 page and returns the HTML invisibly", {
         })
         on.exit(options(old), add = TRUE)
         x <- c(a = "Acme Corp in 東京.")
-        html <- entity_visualize(x)
-        expect_invisible(viewed <- entity_visualize(x, view = TRUE))
+        html <- viz(x)
+        expect_invisible(viewed <- viz(x, view = TRUE))
         expect_identical(viewed, html)
         expect_true(file.exists(opened))
         on.exit(unlink(opened), add = TRUE)
@@ -169,7 +182,7 @@ test_that("view = TRUE opens a UTF-8 page and returns the HTML invisibly", {
 
         # nothing is opened without it
         opened <- NULL
-        expect_visible(entity_visualize(x))
+        expect_visible(viz(x))
         expect_null(opened)
     })
 })
@@ -199,7 +212,7 @@ test_that("labels and colours cannot add elements or attributes to the HTML", {
             inside, gregexpr("[A-Za-z-]+(?==)", inside, perl = TRUE)))))
     }
 
-    html <- entity_visualize(x, colors = stats::setNames(
+    html <- viz(x, colors = stats::setNames(
         c(color, "gold", "pink"), c("ORG", tolower(label), "r&d")))
     expect_identical(elements(html), c("div", "mark", "span"))
     expect_identical(attribute_names(html), c("class", "style"))
@@ -212,26 +225,10 @@ test_that("labels and colours cannot add elements or attributes to the HTML", {
     # colours and labels still match such labels, in any case
     expect_true(grepl("background: gold;", html, fixed = TRUE))
     expect_true(grepl("background: pink;", html, fixed = TRUE))
-    expect_identical(marked(entity_visualize(x, labels = c(tolower(label), "r&d"))),
+    expect_identical(marked(viz(x, labels = c(tolower(label), "r&d"))),
                      stats::setNames(c("Acme Corp", "Lab"),
                                      c("&lt;img src=x onerror=alert(1)&gt;",
                                        "R&amp;D")))
-})
-
-test_that("entity_visualize checks a parse before starting spaCy", {
-    try(spacy_finalize(), silent = TRUE)
-    parsed <- structure(
-        data.frame(doc_id = "d1", sentence_id = 1L, token_id = 1:2,
-                   token = c("Acme", "Corp"), stringsAsFactors = FALSE),
-        class = c("spacyr_parsed", "data.frame"))
-    expect_error(entity_visualize(parsed),
-                 "x has no column entity: rerun spacy_parse\\(\\) with entity = TRUE")
-    parsed$entity <- c("ORG_B", "ORG_I")
-    expect_error(entity_visualize(parsed, labels = 1), "labels must be")
-    expect_error(entity_visualize(parsed, view = NA), "view must be")
-    expect_error(entity_visualize(parsed[, c("doc_id", "entity")]),
-                 "x has no column token")
-    expect_null(getOption("spacy_initialized"))
 })
 
 test_that("the documents of a parse are made from its tokens", {
@@ -274,46 +271,49 @@ test_that("the documents of a parse are made from its tokens", {
     expect_identical(vapply(docs[[1]]$ents, function(e) e$end, 1L), c(5L, 10L, 15L))
 })
 
-test_that("entity_visualize shows the entities of a parse", {
+test_that("the text of a parse is spaced as its tokens were, given their positions", {
     skip_on_cran()
     skip_on_os("solaris")
     with_rules({
-        x <- c(txt, d3 = "", d4 = "Nothing (here), really.")
-        html <- entity_visualize(x)
-
-        # with the positions of the tokens, the text is as it was
+        x <- c(txt, d3 = "", d4 = "Nothing (here), really.  Acme Corp didn't.")
         parsed <- spacy_parse(x, offsets = TRUE)
-        expect_silent(from_parse <- entity_visualize(parsed))
-        expect_identical(from_parse, html)
-        expect_identical(entity_visualize(parsed, labels = "org",
-                                          colors = c(ORG = "gold")),
-                         entity_visualize(x, labels = "org",
-                                          colors = c(ORG = "gold")))
+        expect_silent(html <- entity_visualize(parsed))
+        expect_true(grepl(">Nothing (here), really.  \n<mark", html, fixed = TRUE))
+        expect_true(grepl("\n didn't.</div>", html, fixed = TRUE))
+        expect_true(grepl(" about the \n<mark", html, fixed = TRUE))
+        expect_identical(plain(html), squash(unname(x)))
 
-        # without them, the same entities and tokens, in every document
+        # without them, a space between every two tokens, with a message
+        # once in a session, and the same entities and tokens
+        spacyr_env$told_offsets <- NULL
         parsed <- spacy_parse(x, pos = FALSE, lemma = FALSE)
-        from_parse <- entity_visualize(parsed)
-        expect_identical(marked(from_parse), marked(html))
-        expect_identical(plain(from_parse), plain(html))
-        expect_true(grepl("Nothing ( here ) , really .", from_parse, fixed = TRUE))
+        expect_message(spaced <- entity_visualize(parsed),
+                       "spacy_parse\\(x, offsets = TRUE\\)")
+        expect_silent(entity_visualize(parsed))
+        expect_identical(marked(spaced), marked(html))
+        expect_identical(plain(spaced), plain(html))
+        expect_true(grepl(">Nothing ( here ) , really .", spaced, fixed = TRUE))
+        expect_true(grepl("did n't .</div>", spaced, fixed = TRUE))
 
         # consolidated entities are single tokens
         expect_identical(
             marked(entity_visualize(entity_consolidate(parsed))),
             c(PERSON = "Jane_Smith", ORG = "Acme_Corp", gadget = "Widget",
-              ORG = "Acme_Corp"))
+              ORG = "Acme_Corp", ORG = "Acme_Corp"))
 
-        # the rows of some documents, and of none
+        # the rows of some documents, and of none, which give no message
         expect_identical(marked(entity_visualize(parsed[parsed$doc_id == "d2", ])),
                          c(ORG = "Acme Corp"))
-        expect_identical(entity_visualize(parsed[0, ]), entity_visualize(x[0]))
+        spacyr_env$told_offsets <- NULL
+        expect_silent(none <- entity_visualize(parsed[0, ]))
+        expect_identical(none, "")
 
         expect_error(entity_visualize(spacy_parse(x, entity = FALSE)),
                      "x has no column entity")
     })
 })
 
-test_that("entity_visualize on a parse starts spaCy when it is not running", {
+test_that("entity_visualize starts spaCy when it is not running", {
     skip_on_cran()
     skip_on_os("solaris")
     with_rules({

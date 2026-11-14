@@ -2,22 +2,13 @@
 % Please edit documentation in R/entity_visualize.R
 \name{entity_visualize}
 \alias{entity_visualize}
-\title{Visualize the named entities of documents}
+\title{Visualize the named entities of parsed documents}
 \usage{
-entity_visualize(
-  x,
-  labels = NULL,
-  colors = NULL,
-  view = FALSE,
-  n_process = 1L,
-  batch_size = NULL
-)
+entity_visualize(x, labels = NULL, colors = NULL, view = FALSE)
 }
 \arguments{
-\item{x}{the output of \code{\link[=spacy_parse]{spacy_parse()}} or of \code{\link[=entity_consolidate]{entity_consolidate()}}; or
-texts, as a character object, a \pkg{quanteda} corpus, or a
-TIF-compliant corpus data.frame (see
-\url{https://github.com/ropenscilabs/tif})}
+\item{x}{the output of \code{\link[=spacy_parse]{spacy_parse()}}, best with \code{offsets = TRUE} (see
+Details), or of \code{\link[=entity_consolidate]{entity_consolidate()}}}
 
 \item{labels}{the entity labels to highlight, as a character vector
 such as \code{c("PERSON", "ORG")}. The default, \code{NULL}, highlights
@@ -35,9 +26,6 @@ grey.}
 \item{view}{logical; if \code{TRUE}, also open the result in the browser, or
 in the viewer that the \code{browser} option is set to (see
 \code{\link[utils:browseURL]{utils::browseURL()}}).}
-
-\item{n_process, batch_size}{as in \code{\link[=spacy_parse]{spacy_parse()}}, for processing texts.
-They are not used when \code{x} is parsed already.}
 }
 \value{
 a character vector of length one, with the HTML for all the
@@ -46,48 +34,49 @@ put into a page, an R Markdown document or a Shiny app. It is returned
 invisibly when \code{view = TRUE}, and is \code{""} when there are no documents.
 }
 \description{
-Shows documents with their named entities highlighted and labelled, as
-HTML made by displaCy, spaCy's visualizer (see
-\url{https://spacy.io/usage/visualizers#ent}). The documents are either
-parsed already, by \code{\link[=spacy_parse]{spacy_parse()}}, or texts.
+Shows documents parsed by \code{\link[=spacy_parse]{spacy_parse()}} with their named entities
+highlighted and labelled, as HTML made by displaCy, spaCy's visualizer
+(see \url{https://spacy.io/usage/visualizers#ent}).
 }
 \details{
-For the output of \code{\link[=spacy_parse]{spacy_parse()}}, the entities are those of
-its \code{entity} column, so it needs \code{entity = TRUE}, the default, and the
-documents are not processed again. A parse does not keep the texts, so
-the text shown is made from the tokens. With
-\code{spacy_parse(x, offsets = TRUE)} the tokens are spaced as they were in
-the text; otherwise there is a space between every two tokens, also
-before punctuation. In the output of \code{\link[=entity_consolidate]{entity_consolidate()}} each entity
-is one token, shown with the \code{concatenator} that joined its parts.
+The entities are those of the \code{entity} column of the parse, so
+it needs \code{entity = TRUE}, the default of \code{\link[=spacy_parse]{spacy_parse()}}. They include
+any from rules given to \code{\link[=spacy_initialize]{spacy_initialize()}} as \code{entity_patterns}. The
+documents are not processed again.
 
-For texts, the entities are those that the active pipeline finds in
-them, and the text shown is the text as it was given. In both cases
-the entities include any from rules given to \code{\link[=spacy_initialize]{spacy_initialize()}} as
-\code{entity_patterns}. The HTML is made by spaCy, which is initialized if
-it has not been.
+A parse does not keep the texts, so the text shown is made from the
+tokens. With \code{spacy_parse(x, offsets = TRUE)} the tokens are spaced as
+they were in the text. Otherwise there is a space between every two
+tokens, also before punctuation and within words that spaCy splits,
+such as \verb{did n't}; the entities are the same, and a message, given
+once in a session, says how to get the spacing of the text. In the
+output of \code{\link[=entity_consolidate]{entity_consolidate()}} each entity is one token, shown with
+the \code{concatenator} that joined its parts.
 
-The documents are shown in the order of \code{x}, each in a block of its
-own. A document without entities, or without any of the labels in
-\code{labels}, is shown as plain text.
+The documents are shown in the order of the parse, each in a block of
+its own. A document without entities, or without any of the labels in
+\code{labels}, is shown as plain text. The HTML is made by spaCy, which is
+initialized if it has not been.
 }
 \examples{
 \dontrun{
 spacy_initialize()
 
 txt <- head(data_char_sentences, 8)
+parsed <- spacy_parse(txt, offsets = TRUE)
 
 # save as HTML
-parsed <- spacy_parse(txt, offsets = TRUE)
 html <- entity_visualize(parsed)
 
-# from the texts
-html <- entity_visualize(txt)
-
 # open in the browser
-entity_visualize(txt, view = TRUE)
+entity_visualize(parsed, view = TRUE)
+
+# only some labels, and a colour of one's own
+entity_visualize(parsed, labels = c("ORG", "GPE"), colors = c(GPE = "gold"),
+                 view = TRUE)
 }
 }
 \seealso{
-\code{\link[=spacy_extract_entity]{spacy_extract_entity()}} for the entities as data.
+\code{\link[=spacy_parse]{spacy_parse()}}; \code{\link[=entity_extract]{entity_extract()}} and \code{\link[=spacy_extract_entity]{spacy_extract_entity()}}
+for the entities as data.
 }

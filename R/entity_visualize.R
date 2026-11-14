@@ -1,14 +1,11 @@
-#' Visualize the named entities of documents
+#' Visualize the named entities of parsed documents
 #'
-#' Shows documents with their named entities highlighted and labelled, as
-#' HTML made by displaCy, spaCy's visualizer (see
-#' <https://spacy.io/usage/visualizers#ent>). The documents are either
-#' parsed already, by [spacy_parse()], or texts.
+#' Shows documents parsed by [spacy_parse()] with their named entities
+#' highlighted and labelled, as HTML made by displaCy, spaCy's visualizer
+#' (see <https://spacy.io/usage/visualizers#ent>).
 #'
-#' @param x the output of [spacy_parse()] or of [entity_consolidate()]; or
-#'   texts, as a character object, a \pkg{quanteda} corpus, or a
-#'   TIF-compliant corpus data.frame (see
-#'   <https://github.com/ropenscilabs/tif>)
+#' @param x the output of [spacy_parse()], best with `offsets = TRUE` (see
+#'   Details), or of [entity_consolidate()]
 #' @param labels the entity labels to highlight, as a character vector
 #'   such as `c("PERSON", "ORG")`. The default, `NULL`, highlights
 #'   the entities of every label, and `character(0)` highlights none. The
@@ -23,89 +20,81 @@
 #' @param view logical; if `TRUE`, also open the result in the browser, or
 #'   in the viewer that the `browser` option is set to (see
 #'   [utils::browseURL()]).
-#' @param n_process,batch_size as in [spacy_parse()], for processing texts.
-#'   They are not used when `x` is parsed already.
-#' @details For the output of [spacy_parse()], the entities are those of
-#'   its `entity` column, so it needs `entity = TRUE`, the default, and the
-#'   documents are not processed again. A parse does not keep the texts, so
-#'   the text shown is made from the tokens. With
-#'   `spacy_parse(x, offsets = TRUE)` the tokens are spaced as they were in
-#'   the text; otherwise there is a space between every two tokens, also
-#'   before punctuation. In the output of [entity_consolidate()] each entity
-#'   is one token, shown with the `concatenator` that joined its parts.
+#' @details The entities are those of the `entity` column of the parse, so
+#'   it needs `entity = TRUE`, the default of [spacy_parse()]. They include
+#'   any from rules given to [spacy_initialize()] as `entity_patterns`. The
+#'   documents are not processed again.
 #'
-#'   For texts, the entities are those that the active pipeline finds in
-#'   them, and the text shown is the text as it was given. In both cases
-#'   the entities include any from rules given to [spacy_initialize()] as
-#'   `entity_patterns`. The HTML is made by spaCy, which is initialized if
-#'   it has not been.
+#'   A parse does not keep the texts, so the text shown is made from the
+#'   tokens. With `spacy_parse(x, offsets = TRUE)` the tokens are spaced as
+#'   they were in the text. Otherwise there is a space between every two
+#'   tokens, also before punctuation and within words that spaCy splits,
+#'   such as `did n't`; the entities are the same, and a message, given
+#'   once in a session, says how to get the spacing of the text. In the
+#'   output of [entity_consolidate()] each entity is one token, shown with
+#'   the `concatenator` that joined its parts.
 #'
-#'   The documents are shown in the order of `x`, each in a block of its
-#'   own. A document without entities, or without any of the labels in
-#'   `labels`, is shown as plain text.
+#'   The documents are shown in the order of the parse, each in a block of
+#'   its own. A document without entities, or without any of the labels in
+#'   `labels`, is shown as plain text. The HTML is made by spaCy, which is
+#'   initialized if it has not been.
 #' @return a character vector of length one, with the HTML for all the
 #'   documents. It is a fragment and not a whole page, so that it can be
 #'   put into a page, an R Markdown document or a Shiny app. It is returned
 #'   invisibly when `view = TRUE`, and is `""` when there are no documents.
-#' @seealso [spacy_extract_entity()] for the entities as data.
+#' @seealso [spacy_parse()]; [entity_extract()] and [spacy_extract_entity()]
+#'   for the entities as data.
 #' @export
 #' @examples
 #' \dontrun{
 #' spacy_initialize()
 #'
 #' txt <- head(data_char_sentences, 8)
-#' 
-#' # save as HTML
 #' parsed <- spacy_parse(txt, offsets = TRUE)
+#'
+#' # save as HTML
 #' html <- entity_visualize(parsed)
 #'
-#' # from the texts
-#' html <- entity_visualize(txt)
-#'
 #' # open in the browser
-#' entity_visualize(txt, view = TRUE)
+#' entity_visualize(parsed, view = TRUE)
+#'
+#' # only some labels, and a colour of one's own
+#' entity_visualize(parsed, labels = c("ORG", "GPE"), colors = c(GPE = "gold"),
+#'                  view = TRUE)
 #' }
-entity_visualize <- function(x, labels = NULL, colors = NULL, view = FALSE,
-                             n_process = 1L, batch_size = NULL) {
+entity_visualize <- function(x, labels = NULL, colors = NULL, view = FALSE) {
     UseMethod("entity_visualize")
 }
 
 #' @export
-entity_visualize.character <- function(x, labels = NULL, colors = NULL, view = FALSE,
-                                       n_process = 1L, batch_size = NULL) {
-    # checked before spaCy is initialized
-    args <- pipe_args(n_process, batch_size)
-    check_visualize_args(labels, colors, view)
-
-    input <- spacy_input(x)
-
-    spobj <- new_spobj()
-    html <- spobj$render_entities(
-        texts = input$x, docnames = input$docnames,
-        labels = py_labels(labels), colors = py_colors(colors),
-        batch_size = args$batch_size, n_process = args$n_process)
-    warn_skipped(spobj)
-    visualize_result(html, view)
+entity_visualize.default <- function(x, labels = NULL, colors = NULL, view = FALSE) {
+    stop("x must be the output of spacy_parse(): for texts, use ",
+         "entity_visualize(spacy_parse(x, offsets = TRUE))", call. = FALSE)
 }
 
 #' @export
 entity_visualize.spacyr_parsed <- function(x, labels = NULL, colors = NULL,
-                                           view = FALSE, n_process = 1L,
-                                           batch_size = NULL) {
+                                           view = FALSE) {
     # checked before spaCy is initialized
     check_visualize_args(labels, colors, view)
     docs <- parsed_entity_docs(x)
+    if (nrow(x) && !all(c("start", "end") %in% names(x)) &&
+        !isTRUE(spacyr_env$told_offsets)) {
+        message("The parse does not have the positions of its tokens, so they ",
+                "are shown with a space between every two. ",
+                "For the spacing of the text, use spacy_parse(x, offsets = TRUE).")
+        spacyr_env$told_offsets <- TRUE
+    }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
     html <- new_spobj()$render_spans(docs = docs, labels = py_labels(labels),
                                      colors = py_colors(colors))
-    visualize_result(html, view)
-}
-
-#' @method entity_visualize data.frame
-#' @export
-entity_visualize.data.frame <- function(x, ...) {
-    entity_visualize(tif_texts(x), ...)
+    html <- enc2utf8(as.character(html))
+    if (view) {
+        view_html(html)
+        return(invisible(html))
+    }
+    html
 }
 
 check_visualize_args <- function(labels, colors, view) {
@@ -129,15 +118,6 @@ check_visualize_args <- function(labels, colors, view) {
 # dictionary.
 py_labels <- function(labels) if (!is.null(labels)) as.list(unname(labels))
 py_colors <- function(colors) if (length(colors)) as.list(colors)
-
-visualize_result <- function(html, view) {
-    html <- enc2utf8(as.character(html))
-    if (view) {
-        view_html(html)
-        return(invisible(html))
-    }
-    html
-}
 
 # The documents of a parse for displaCy: for each, in the order of the
 # documents, its text and its entities, each with its label and where it
