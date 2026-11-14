@@ -2,7 +2,7 @@
 % Please edit documentation in R/spacy_install.R
 \name{spacy_installed}
 \alias{spacy_installed}
-\title{Check whether spaCy is installed (deprecated)}
+\title{Check whether spaCy is installed}
 \usage{
 spacy_installed(lang_models = NULL)
 }
@@ -12,15 +12,22 @@ installed, e.g. \code{"en_core_web_sm"}. If \code{NULL} (the default), only spaC
 itself is checked.}
 }
 \value{
-as \code{\link[=spacy_is_installed]{spacy_is_installed()}}
+\code{TRUE} if spaCy and all \code{lang_models} are installed, \code{FALSE}
+otherwise.
 }
 \description{
-This function is deprecated, and will be removed in a future version of
-\pkg{spacyr}. It gives a warning on every call. Use \code{\link[=spacy_is_installed]{spacy_is_installed()}}
-instead, which is the same function under a new name.
+Checks, without starting Python, whether spaCy (and optionally one or more
+language models) is installed in the environment that \code{\link[=spacy_initialize]{spacy_initialize()}}
+will use: the one set by \code{RETICULATE_PYTHON} if set, or otherwise the
+virtual environment named by \code{SPACY_PYTHON} (by default \code{"r-spacyr"}). This
+is useful, for instance, to skip examples or tests when spaCy is not
+available. If a different interpreter is already running in the R session
+and prevents use of the named virtual environment, returns \code{FALSE}.
 }
 \examples{
-# instead of spacy_installed():
-spacy_is_installed()
+spacy_installed()
+spacy_installed("en_core_web_sm")
 }
-\keyword{internal}
+\seealso{
+\code{\link[=spacy_install]{spacy_install()}}, \code{\link[=spacy_download_langmodel]{spacy_download_langmodel()}}
+}

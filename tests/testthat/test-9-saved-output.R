@@ -29,7 +29,7 @@ saved_model <- new.env()
 use_saved_output_model <- function(model) {
   skip_on_cran()
   skip_on_os("solaris")
-  skip_if_not(spacy_is_installed(model), paste(model, "is not installed"))
+  skip_if_not(spacy_installed(model), paste(model, "is not installed"))
   if (!identical(saved_model$current, model) ||
       is.null(getOption("spacy_initialized"))) {
     try(spacy_finalize(), silent = TRUE)

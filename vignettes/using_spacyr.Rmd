@@ -36,7 +36,7 @@ Finally, **spacyr** works seamlessly with the [**quanteda**](https://quanteda.io
 
 **spacyr** works through the [**reticulate**](https://github.com/rstudio/reticulate) package that allows R to harness the power of Python.  To access the underlying Python functionality, **spacyr** must open a connection by being initialized within your R session.
 
-We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible. When spaCy has been installed with `spacy_install()` (see https://spacyr.quanteda.io for detailed instructions), `spacy_initialize()` uses the virtual environment it created. `spacy_is_installed()` checks whether that environment, and any language models you need, are ready.
+We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible. When spaCy has been installed with `spacy_install()` (see https://spacyr.quanteda.io for detailed instructions), `spacy_initialize()` uses the virtual environment it created. `spacy_installed()` checks whether that environment, and any language models you need, are ready.
 
 Users with their own setup of spaCy, for instance in a conda environment, can instead point **spacyr** to the Python executable of that environment by setting the `RETICULATE_PYTHON` environment variable before calling `spacy_initialize()`, e.g. `Sys.setenv(RETICULATE_PYTHON = reticulate::conda_python("my-spacy-env"))`.
 

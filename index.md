@@ -75,7 +75,7 @@ processing” Python library from <https://spacy.io>.
     starting Python, with:
 
     ``` r
-    spacy_is_installed("en_core_web_sm")
+    spacy_installed("en_core_web_sm")
     ```
 
 `spacy_install()` creates its environment with a version of Python

@@ -367,10 +367,10 @@ spacy_uninstall <- function(confirm = interactive()) {
 #'   otherwise.
 #' @seealso [spacy_install()], [spacy_download_langmodel()]
 #' @examples
-#' spacy_is_installed()
-#' spacy_is_installed("en_core_web_sm")
+#' spacy_installed()
+#' spacy_installed("en_core_web_sm")
 #' @export
-spacy_is_installed <- function(lang_models = NULL) {
+spacy_installed <- function(lang_models = NULL) {
   if (!nzchar(Sys.getenv("RETICULATE_PYTHON"))) {
     envname <- Sys.getenv("SPACY_PYTHON", unset = "r-spacyr")
     if (!reticulate::virtualenv_exists(envname)) return(FALSE)
@@ -387,24 +387,4 @@ spacy_is_installed <- function(lang_models = NULL) {
   installed <- tryCatch(py_check_installed(c("spacy", lang_models)),
                         error = function(e) FALSE)
   all(installed)
-}
-
-
-#' Check whether spaCy is installed (deprecated)
-#'
-#' This function is deprecated, and will be removed in a future version of
-#' \pkg{spacyr}. It gives a warning on every call. Use [spacy_is_installed()]
-#' instead, which is the same function under a new name.
-#' @inheritParams spacy_is_installed
-#' @return as [spacy_is_installed()]
-#' @examples
-#' # instead of spacy_installed():
-#' spacy_is_installed()
-#' @export
-#' @keywords internal
-spacy_installed <- function(lang_models = NULL) {
-  deprecation_warning(paste0(
-    "`spacy_installed()` is deprecated and will be removed in a future ",
-    "version of spacyr. Use `spacy_is_installed()` instead."))
-  spacy_is_installed(lang_models)
 }
