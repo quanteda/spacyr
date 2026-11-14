@@ -1012,11 +1012,11 @@ class spacyr:
                 df_all[id_] = df_doc
         return df_all
 
-    def render_entities(self, texts, docnames, ents = None, colors = None,
+    def render_entities(self, texts, docnames, labels = None, colors = None,
                         batch_size = None, n_process = 1):
         # The texts with their entities marked, as one fragment of HTML made
-        # by displaCy, with the documents in order. ents is a list of the
-        # labels to mark (None for all of them, an empty list for none) and
+        # by displaCy, with the documents in order. labels is a list of the
+        # entity labels to mark (None for all of them, an empty list for none) and
         # colors a dictionary of colors by label; both are matched to the
         # labels regardless of case.
         #
@@ -1034,15 +1034,15 @@ class spacyr:
                     self.docs(texts, docnames, batch_size, n_process)]
         if not docs:
             return ""
-        if ents is not None:
-            ents = ents if isinstance(ents, list) else [ents]
-            ents = {label.upper() for label in ents}
+        if labels is not None:
+            labels = labels if isinstance(labels, list) else [labels]
+            labels = {label.upper() for label in labels}
         parsed = [
             {"text": doc.text,
              "ents": [{"start": ent.start_char, "end": ent.end_char,
                        "label": html.escape(ent.label_)}
                       for ent in doc.ents
-                      if ents is None or ent.label_.upper() in ents],
+                      if labels is None or ent.label_.upper() in labels],
              "title": None,
              "settings": {
                  "lang": html.escape(doc.lang_),

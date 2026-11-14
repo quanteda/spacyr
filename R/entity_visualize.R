@@ -6,8 +6,8 @@
 #'
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
-#' @param ents the labels of the entities to highlight, as a character
-#'   vector such as `c("PERSON", "ORG")`. The default, `NULL`, highlights
+#' @param labels the entity labels to highlight, as a character vector
+#'   such as `c("PERSON", "ORG")`. The default, `NULL`, highlights
 #'   the entities of every label, and `character(0)` highlights none. The
 #'   labels are those of the language model (see its "Label scheme" on
 #'   <https://spacy.io/models>) and of any entity rules, and are matched
@@ -29,7 +29,7 @@
 #'
 #'   The documents are shown in the order of `x`, each in a block of its
 #'   own. A document without entities, or without any of the labels in
-#'   `ents`, is shown as plain text.
+#'   `labels`, is shown as plain text.
 #' @return a character vector of length one, with the HTML for all the
 #'   documents. It is a fragment and not a whole page, so that it can be
 #'   put into a page, an R Markdown document or a Shiny app. It is returned
@@ -45,21 +45,21 @@
 #' html <- entity_visualize(txt)
 #'
 #' # open in the browser, with only some labels and a colour of one's own
-#' entity_visualize(txt, ents = c("ORG", "GPE"), colors = c(GPE = "gold"),
+#' entity_visualize(txt, labels = c("ORG", "GPE"), colors = c(GPE = "gold"),
 #'                  view = TRUE)
 #' }
-entity_visualize <- function(x, ents = NULL, colors = NULL, view = FALSE,
+entity_visualize <- function(x, labels = NULL, colors = NULL, view = FALSE,
                              n_process = 1L, batch_size = NULL) {
     UseMethod("entity_visualize")
 }
 
 #' @export
-entity_visualize.character <- function(x, ents = NULL, colors = NULL, view = FALSE,
+entity_visualize.character <- function(x, labels = NULL, colors = NULL, view = FALSE,
                                        n_process = 1L, batch_size = NULL) {
     # checked before spaCy is initialized
     args <- pipe_args(n_process, batch_size)
-    if (!is.null(ents) && (!is.character(ents) || anyNA(ents)))
-        stop("ents must be NULL or a character vector of entity labels",
+    if (!is.null(labels) && (!is.character(labels) || anyNA(labels)))
+        stop("labels must be NULL or a character vector of entity labels",
              call. = FALSE)
     if (!is.null(colors) &&
         (!is.character(colors) || anyNA(colors) ||
@@ -79,7 +79,7 @@ entity_visualize.character <- function(x, ents = NULL, colors = NULL, view = FAL
     # colours a dictionary
     html <- spobj$render_entities(
         texts = input$x, docnames = input$docnames,
-        ents = if (!is.null(ents)) as.list(unname(ents)),
+        labels = if (!is.null(labels)) as.list(unname(labels)),
         colors = if (length(colors)) as.list(colors),
         batch_size = args$batch_size, n_process = args$n_process)
     warn_skipped(spobj)

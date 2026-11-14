@@ -6,7 +6,7 @@
 \usage{
 entity_visualize(
   x,
-  ents = NULL,
+  labels = NULL,
   colors = NULL,
   view = FALSE,
   n_process = 1L,
@@ -17,8 +17,8 @@ entity_visualize(
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
 
-\item{ents}{the labels of the entities to highlight, as a character
-vector such as \code{c("PERSON", "ORG")}. The default, \code{NULL}, highlights
+\item{labels}{the entity labels to highlight, as a character vector
+such as \code{c("PERSON", "ORG")}. The default, \code{NULL}, highlights
 the entities of every label, and \code{character(0)} highlights none. The
 labels are those of the language model (see its "Label scheme" on
 \url{https://spacy.io/models}) and of any entity rules, and are matched
@@ -67,7 +67,7 @@ keep them.
 
 The documents are shown in the order of \code{x}, each in a block of its
 own. A document without entities, or without any of the labels in
-\code{ents}, is shown as plain text.
+\code{labels}, is shown as plain text.
 }
 \examples{
 \dontrun{
@@ -78,7 +78,7 @@ txt <- c(doc1 = "The Supreme Court is located in Washington D.C.",
 html <- entity_visualize(txt)
 
 # open in the browser, with only some labels and a colour of one's own
-entity_visualize(txt, ents = c("ORG", "GPE"), colors = c(GPE = "gold"),
+entity_visualize(txt, labels = c("ORG", "GPE"), colors = c(GPE = "gold"),
                  view = TRUE)
 }
 }

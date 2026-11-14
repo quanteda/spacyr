@@ -35,8 +35,8 @@ plain <- function(html) {
 
 test_that("entity_visualize checks its arguments before starting spaCy", {
     try(spacy_finalize(), silent = TRUE)
-    expect_error(entity_visualize("a", ents = 1), "ents must be NULL or a character")
-    expect_error(entity_visualize("a", ents = NA_character_), "ents must be")
+    expect_error(entity_visualize("a", labels = 1), "labels must be NULL or a character")
+    expect_error(entity_visualize("a", labels = NA_character_), "labels must be")
     for (bad in list(1, c("red", "blue"), c(ORG = NA_character_),
                      stats::setNames(c("red", "blue"), c("ORG", ""))))
         expect_error(entity_visualize("a", colors = bad), "colors must be NULL or")
@@ -84,25 +84,25 @@ test_that("entity_visualize takes a quanteda corpus", {
     })
 })
 
-test_that("ents chooses the labels to mark and keeps the rest of the text", {
+test_that("labels chooses the labels to mark and keeps the rest of the text", {
     skip_on_cran()
     skip_on_os("solaris")
     with_rules({
-        html <- entity_visualize(txt, ents = c("PERSON", "ORG"))
+        html <- entity_visualize(txt, labels = c("PERSON", "ORG"))
         expect_identical(marked(html), c(PERSON = "Jane Smith", ORG = "Acme Corp",
                                          ORG = "Acme Corp"))
         expect_identical(plain(html), plain(entity_visualize(txt)))
         # one label, in another case, and a label that only a rule has
-        expect_identical(marked(entity_visualize(txt, ents = "org")),
+        expect_identical(marked(entity_visualize(txt, labels = "org")),
                          c(ORG = "Acme Corp", ORG = "Acme Corp"))
-        expect_identical(marked(entity_visualize(txt, ents = "gadget")),
+        expect_identical(marked(entity_visualize(txt, labels = "gadget")),
                          c(gadget = "Widget"))
         # a document with none of the labels is still there, as is every
         # document when no label is chosen
-        html <- entity_visualize(txt, ents = "PERSON")
+        html <- entity_visualize(txt, labels = "PERSON")
         expect_identical(plain(html), plain(entity_visualize(txt)))
         for (none in list(character(0), "NOSUCHLABEL")) {
-            expect_silent(html <- entity_visualize(txt, ents = none))
+            expect_silent(html <- entity_visualize(txt, labels = none))
             expect_length(marked(html), 0)
             expect_identical(plain(html), squash(unname(txt)))
         }
@@ -141,7 +141,7 @@ test_that("entity_visualize handles special characters and empty documents", {
 
         expect_identical(entity_visualize(character(0)), "")
         expect_identical(entity_visualize(character(0), view = FALSE,
-                                          ents = "ORG"), "")
+                                          labels = "ORG"), "")
     })
 })
 
@@ -209,10 +209,10 @@ test_that("labels and colours cannot add elements or attributes to the HTML", {
     expect_true(grepl("background: red&quot; onmouseover=&quot;alert(2);", html,
                       fixed = TRUE))
     expect_true(grepl("R&amp;D</span>", html, fixed = TRUE))
-    # colours and ents still match such labels, in any case
+    # colours and labels still match such labels, in any case
     expect_true(grepl("background: gold;", html, fixed = TRUE))
     expect_true(grepl("background: pink;", html, fixed = TRUE))
-    expect_identical(marked(entity_visualize(x, ents = c(tolower(label), "r&d"))),
+    expect_identical(marked(entity_visualize(x, labels = c(tolower(label), "r&d"))),
                      stats::setNames(c("Acme Corp", "Lab"),
                                      c("&lt;img src=x onerror=alert(1)&gt;",
                                        "R&amp;D")))
