@@ -118,8 +118,7 @@ spacy_parse.character <- function(x,
                                   ...) {
     `:=` <- `.` <- `.N` <- `.I` <- NULL
     check_multithread(multithread, "spacy_parse")
-    if (!is.logical(offsets) || length(offsets) != 1 || is.na(offsets))
-        stop("offsets must be TRUE or FALSE", call. = FALSE)
+    check_offsets(offsets)
     args <- pipe_args(n_process, batch_size)
     docvars <- input_docvars(x)
     input <- spacy_input(x)

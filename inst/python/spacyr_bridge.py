@@ -343,15 +343,24 @@ def doc_span_texts(doc, what, ent_type_category = "all"):
         items.append(chunk.text)
     return items
 
-def doc_span_table(doc, what):
+def doc_span_table(doc, what, offsets = None):
+    # offsets holds the positions of the document's tokens in its input, as
+    # doc_token_offsets() gives them, for the start and end of each span
     if what == "noun_chunks":
         df_doc = {"text": [], "root_text": [], "start_id": [], "root_id":[], "length": []}
     else:
         df_doc = {"text": [], "ent_type": [], "start_id": [], "length": []}
+    if offsets is not None:
+        starts, ends = offsets
+        df_doc["start"] = []
+        df_doc["end"] = []
     for chunk in getattr(doc, what):
         df_doc['text'].append(chunk.text)
         df_doc['start_id'].append(chunk[0].i)
         df_doc['length'].append(len(chunk))
+        if offsets is not None:
+            df_doc["start"].append(starts[chunk.start])
+            df_doc["end"].append(ends[chunk.end - 1])
         if what == "noun_chunks":
             df_doc['root_text'].append(chunk.root.text)
             df_doc['root_id'].append(chunk.root.i)
@@ -640,17 +649,25 @@ class spacyr:
         return items
 
     def extract_nounphrases_dataframe(self, docnames, texts = [], timestamps = [],
-                                      batch_size = None, n_process = 1):
+                                      batch_size = None, n_process = 1,
+                                      offsets = False):
         return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "noun_chunks",
-                                            batch_size = batch_size, n_process = n_process)
+                                            batch_size = batch_size, n_process = n_process,
+                                            offsets = offsets)
 
     def extract_entity_dataframe(self, docnames, texts = [], timestamps = [],
-                                 batch_size = None, n_process = 1):
+                                 batch_size = None, n_process = 1,
+                                 offsets = False):
         return self.extract_np_ne_dataframe(docnames, texts, timestamps, what = "ents",
-                                            batch_size = batch_size, n_process = n_process)
+                                            batch_size = batch_size, n_process = n_process,
+                                            offsets = offsets)
 
     def extract_np_ne_dataframe(self, docnames, texts = [], timestamps = [], what = "noun_chunks",
-                                batch_size = None, n_process = 1):
+                                batch_size = None, n_process = 1, offsets = False):
+        # offsets adds the positions of each span's first and last characters
+        # in the input text (see doc_token_offsets()). They need the texts,
+        # so not the documents already parsed by parse().
+        inputs = None
         if timestamps:
             # documents already parsed by parse()
             if isinstance(timestamps, list) == False:
@@ -660,9 +677,15 @@ class spacyr:
         else:
             texts, docnames = _as_list(texts, docnames)
             docs = self.docs(texts, docnames, batch_size, n_process)
+            if offsets:
+                inputs = dict(zip(docnames, texts))
         df_all = {}
         for id_, doc in docs:
-            df_doc = doc_span_table(doc, what)
+            if inputs is None:
+                df_doc = doc_span_table(doc, what)
+            else:
+                df_doc = doc_span_table(doc, what,
+                                        doc_token_offsets(doc, inputs[id_], id_))
             # documents without spans are left out; R would drop them anyway
             if len(df_doc['text']) == 0:
                 continue
@@ -671,7 +694,7 @@ class spacyr:
 
     def match_table(self, texts, docnames, labels, patterns, phrases = None,
                     dependency = None, greedy = None, batch_size = None,
-                    n_process = 1):
+                    n_process = 1, offsets = False):
         # The columns of spacy_match(): one row for each match of a sequence
         # of tokens, and one row for each node of each match of a dependency
         # pattern, from one pass over the documents.
@@ -717,7 +740,9 @@ class spacyr:
         # start_id counts tokens from 1 in the document; sentence_id and
         # token_id are those of the row's first token, as in spacy_parse(),
         # or 0 when the document has no sentence boundaries. node is "" for a
-        # sequence.
+        # sequence. With offsets, start and end are the positions of the
+        # row's first and last characters in the input text (see
+        # doc_token_offsets()).
         texts, docnames = _as_list(texts, docnames)
         if not isinstance(labels, list):
             labels = [labels]
@@ -765,7 +790,13 @@ class spacyr:
         cols = {"doc_id": [], "match_id": [], "label": [], "node": [],
                 "sentence_id": [], "token_id": [], "text": [], "start_id": [],
                 "length": []}
+        if offsets:
+            cols["start"] = []
+            cols["end"] = []
+            inputs = dict(zip(docnames, texts))
         for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+            if offsets:
+                starts, ends = doc_token_offsets(doc, inputs[id_], id_)
             if relations and len(doc) > 0 and not doc.has_annotation("DEP"):
                 raise ValueError(
                     "Document '" + str(id_) + "' has no dependency parse, which "
@@ -803,6 +834,9 @@ class spacyr:
                     cols["text"].append(doc[start:end].text)
                     cols["start_id"].append(start + 1)
                     cols["length"].append(end - start)
+                    if offsets:
+                        cols["start"].append(starts[start])
+                        cols["end"].append(ends[end - 1])
         return cols
 
     def ntokens(self, timestamps):

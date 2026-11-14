@@ -104,8 +104,14 @@
 #'   holds only dependency patterns, so that it can be given whatever the
 #'   patterns are.
 #' @inheritParams spacy_parse
-#' @param ... not used. An argument that is not one of those above is an
-#'   error.
+#' @param ... not used. An argument that is not one of those of this
+#'   function is an error.
+#' @param offsets logical; if `TRUE`, also return the position of each match
+#'   in its text as it was given in `x`, in the columns `start` and `end`:
+#'   the positions of its first and last characters, counted from 1 as in
+#'   [spacy_parse()], so that `substring(text, start, end)` gives the matches
+#'   of a text. It comes after `...`, so it has to be given by its full
+#'   name.
 #' @section Kinds of pattern:
 #' What `pattern` can be, and which arguments apply to each kind:
 #'
@@ -278,6 +284,9 @@
 #'   the sequence, or of the node's token, starting at 1 and counting every
 #'   token of spaCy's, as the rows of [spacy_parse()] do}
 #'   \item{`length`}{the number of tokens: of the sequence, or 1 for a node}
+#'   \item{`start`, `end`}{only with `offsets = TRUE`: the positions in the
+#'   text of the first and the last character of the sequence, or of the
+#'   node's token}
 #'   }
 #'   Rows are in the order of the documents in `x`. Within a document,
 #'   matches are in the order of the `start_id` of their first row: the
@@ -378,7 +387,8 @@
 spacy_match <- function(x, pattern, valuetype = c("glob", "regex", "fixed"),
                         case_insensitive = TRUE,
                         overlap = c("longest", "all", "first"),
-                        n_process = 1L, batch_size = NULL, ...) {
+                        n_process = 1L, batch_size = NULL, ...,
+                        offsets = FALSE) {
     UseMethod("spacy_match")
 }
 
@@ -387,9 +397,11 @@ spacy_match.character <- function(x, pattern,
                                   valuetype = c("glob", "regex", "fixed"),
                                   case_insensitive = TRUE,
                                   overlap = c("longest", "all", "first"),
-                                  n_process = 1L, batch_size = NULL, ...) {
+                                  n_process = 1L, batch_size = NULL, ...,
+                                  offsets = FALSE) {
     # checked before spaCy is initialized
     check_unused_args(match.call(expand.dots = FALSE)$...)
+    check_offsets(offsets)
     # the lexical arguments that the call gives, which are an error when
     # pattern holds nothing that they apply to
     explicit <- c("valuetype", "case_insensitive")[c(!missing(valuetype),
@@ -434,7 +446,8 @@ spacy_match.character <- function(x, pattern,
                           patterns = pattern$patterns,
                           phrases = pattern$phrases,
                           dependency = pattern$dependency, greedy = greedy,
-                          batch_size = args$batch_size, n_process = args$n_process),
+                          batch_size = args$batch_size, n_process = args$n_process,
+                          offsets = offsets),
         error = function(e) {
             msg <- sub("\\s*Run `reticulate::py_last_error\\(\\)`.*$", "",
                        conditionMessage(e))
@@ -455,6 +468,10 @@ spacy_match.character <- function(x, pattern,
                       start_id = int(res$start_id),
                       length = int(res$length),
                       stringsAsFactors = FALSE)
+    if (offsets) {
+        out$start <- int(res$start)
+        out$end <- int(res$end)
+    }
     # Python gives "" as the node of a sequence, and 0 where a document has
     # no sentence boundaries
     out$node[!nzchar(out$node)] <- NA_character_

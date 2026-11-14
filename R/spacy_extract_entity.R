@@ -15,8 +15,15 @@
 #'   of all other types. The entity types are those of the language model;
 #'   see its "Label scheme" on <https://spacy.io/models>.
 #' @param ... unused
+#' @param offsets logical; if `TRUE`, also return the position of each
+#'   entity in its text as it was given in `x`, in the columns `start` and
+#'   `end`: the positions of the entity's first and last characters, counted
+#'   from 1 as in [spacy_parse()], so that `substring(text, start, end)` gives
+#'   the entities of a text. This needs `output = "data.frame"`. It comes
+#'   after `...`, so it has to be given by its full name.
 #' @details When the option `output = "data.frame"` is selected, the
-#'   function returns a `data.frame` with the following fields.
+#'   function returns a `data.frame` with the following fields, and with
+#'   `start` and `end` after them when `offsets = TRUE`.
 #'   \describe{\item{`text`}{contents of entity}
 #'   \item{`ent_type`}{type of entity (e.g. `ORG` for
 #'   organizations)} \item{`start_id`}{serial number ID of starting token:
@@ -41,7 +48,8 @@
 #' }
 spacy_extract_entity <- function(x, output = c("data.frame", "list"),
                                  type = c("all", "named", "extended"),
-                                 multithread, n_process = 1L, batch_size = NULL, ...) {
+                                 multithread, n_process = 1L, batch_size = NULL, ...,
+                                 offsets = FALSE) {
     UseMethod("spacy_extract_entity")
 }
 
@@ -51,7 +59,8 @@ spacy_extract_entity <- function(x, output = c("data.frame", "list"),
 spacy_extract_entity.character <- function(x,
                                            output = c("data.frame", "list"),
                                            type = c("all", "named", "extended"),
-                                           multithread, n_process = 1L, batch_size = NULL, ...) {
+                                           multithread, n_process = 1L, batch_size = NULL, ...,
+                                           offsets = FALSE) {
     # checked before spaCy is initialized
     check_multithread(multithread, "spacy_extract_entity")
     args <- pipe_args(n_process, batch_size)
@@ -60,6 +69,9 @@ spacy_extract_entity.character <- function(x,
     `ent_type` <- `start_id` <- `:=` <- NULL
 
     output <- match.arg(output)
+    check_offsets(offsets)
+    if (offsets && identical(output, "list"))
+        stop("offsets = TRUE needs output = \"data.frame\"", call. = FALSE)
 
     input <- spacy_input(x)
     x <- input$x
@@ -75,7 +87,8 @@ spacy_extract_entity.character <- function(x,
         return(entities)
     } else {
         entities <- spobj$extract_entity_dataframe(texts = x, docnames = docnames,
-            batch_size = args$batch_size, n_process = args$n_process)
+            batch_size = args$batch_size, n_process = args$n_process,
+            offsets = offsets)
         warn_skipped(spobj)
 
         doc_id <- names(entities)
@@ -100,7 +113,7 @@ spacy_extract_entity.character <- function(x,
         }
 
         data.table::setDF(data_out)
-        data_out <- data_out[, c(5, 1:4)]
+        data_out <- data_out[, c("doc_id", setdiff(names(data_out), "doc_id"))]
         return(data_out)
     }
 }
