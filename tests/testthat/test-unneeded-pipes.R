@@ -150,6 +150,97 @@ test_that("spacy_parse() keeps an attribute ruler whose rules set what it return
   expect_same(pos = FALSE, lemma = FALSE, entity = FALSE)
 })
 
+test_that("spacy_parse() keeps what the model of a later component reads", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  # only components of spaCy's: a sentencizer, an attribute ruler that sets
+  # the part of speech of "alpha", and an entity recognizer whose model
+  # embeds the part of speech
+  dir <- tempfile("spacyr_pos_ner")
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  comp$save_pos_ner_pipeline(dir)
+  spacy_finalize()
+  spacy_initialize(model = dir)
+  nlp <- spacyr:::spacyr_env$nlp
+  alpha <- c(a = "We saw alpha today.", b = "Nothing new here.")
+
+  # the recognizer finds the entity by the part of speech, and not without
+  # the ruler that sets it
+  full <- spacy_parse(alpha, lemma = FALSE)
+  expect_identical(full$entity[full$token == "alpha"], "PERSON_B")
+  with(nlp$select_pipes(disable = list("attribute_ruler")),
+       expect_identical(length(nlp("We saw alpha today.")$ents), 0L))
+
+  # so the ruler stays as long as the recognizer does
+  expect_identical(left_out(lemma = FALSE), character())
+  expect_identical(left_out(pos = FALSE, lemma = FALSE), character())
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE),
+                   c("attribute_ruler", "ner"))
+  for (args in list(list(pos = FALSE, lemma = FALSE),
+                    list(pos = FALSE, lemma = FALSE, n_process = 2),
+                    list(pos = FALSE, lemma = FALSE, entity = FALSE))) {
+    parsed <- do.call(spacy_parse, c(list(alpha), args))
+    expect_identical(columns(parsed), columns(full, names(parsed)))
+  }
+})
+
+test_that("what a model reads is told from its settings", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  sorted <- reticulate::import_builtins()$sorted
+  reads <- function(model) {
+    as.character(unlist(sorted(spacyr:::spacyr_module()$`_model_reads`(model))))
+  }
+  everything <- c("deps", "ents", "lemma", "other", "sents", "tags")
+  embed <- function(...) {
+    list(`@architectures` = "spacy.Tok2Vec.v2",
+         embed = list(`@architectures` = "spacy.MultiHashEmbed.v2", width = 96L, ...),
+         encode = list(`@architectures` = "spacy.MaxoutWindowEncoder.v2", width = 96L))
+  }
+
+  # the attributes of the token's text, which spaCy's models embed by default
+  expect_identical(reads(embed(attrs = list("NORM", "PREFIX", "SUFFIX", "SHAPE"))),
+                   character())
+  # annotations of earlier components, by name or by number
+  expect_identical(reads(embed(attrs = list("NORM", "POS"))), "tags")
+  expect_identical(reads(embed(attrs = list("norm", "dep", "ENT_TYPE", "LEMMA"))),
+                   c("deps", "ents", "lemma"))
+  pos <- reticulate::import("spacy.attrs")$POS
+  expect_identical(reads(embed(attrs = list(pos))), "tags")
+  # as the model of a component, behind a listener or inside another model
+  expect_identical(reads(list(`@architectures` = "spacy.Tagger.v2",
+                              tok2vec = list(`@architectures` = "spacy.Tok2VecListener.v1",
+                                             upstream = "tok2vec"))),
+                   character())
+  expect_identical(reads(list(`@architectures` = "spacy.TransitionBasedParser.v2",
+                              tok2vec = embed(attrs = list("TAG")))), "tags")
+  # the other settings that name attributes
+  expect_identical(reads(list(`@architectures` = "spacy.CharacterEmbed.v2",
+                              feature = "LEMMA")), "lemma")
+  expect_identical(reads(list(`@architectures` = "spacy.FeatureExtractor.v1",
+                              columns = list("ORTH", "DEP"))), "deps")
+  # a model that is not built by spaCy's functions, or whose settings are
+  # not as expected, may read anything
+  expect_identical(reads(list(`@architectures` = "my_package.MyTok2Vec.v1")), everything)
+  expect_identical(reads(embed(attrs = "POS")), everything)
+  expect_identical(reads(list(`@architectures` = "spacy.Tok2Vec.v2",
+                              embed = list(`@layers` = "custom.Embed.v1"))), everything)
+
+  # the models of spaCy's own pipeline read none of the annotations
+  nlp <- spacyr:::spacyr_env$nlp
+  for (name in c("tok2vec", "tagger", "parser", "ner")) {
+    expect_identical(reads(nlp$get_pipe_config(name)$get("model")), character())
+  }
+})
+
 test_that("spacy_parse() leaves nothing out of a pipeline with a custom component", {
   skip_on_cran()
   skip_on_os("solaris")

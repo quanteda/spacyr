@@ -24,6 +24,11 @@
 #'   the tagger, whose tags its rules read.
 #' * With entity rules from `spacy_initialize(entity_patterns = )` and
 #'   `entity = TRUE`, the components that the rules may read stay.
+#' * A component stays if the model of a later component reads what it sets,
+#'   as an entity recognizer that was trained to use the part of speech
+#'   does. The models of spaCy's own pipelines read only the text of the
+#'   tokens. What a model reads is told from its settings; a model that is
+#'   not built by spaCy's own functions is taken to read everything.
 #' * Nothing is left out when `additional_attributes` are asked for, or when
 #'   the pipeline has a component that is not one of spaCy's standard ones.
 #'

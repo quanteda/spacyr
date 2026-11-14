@@ -267,7 +267,66 @@ def _ruler_effects(ruler):
                         reads.add(kind)
     return sets, reads
 
+# The architectures whose inputs _model_reads() can tell from their settings
+_KNOWN_ARCHITECTURES = ("spacy.", "spacy-legacy.", "spacy-transformers.",
+                        "spacy-curated-transformers.")
+
+def _model_reads(model):
+    # What the model of a trainable component may read of what earlier
+    # components set, from its settings. A model reads the attributes that
+    # it embeds, which are those of the token's text by default (NORM,
+    # PREFIX, SUFFIX and SHAPE), but can be set to others, such as POS: the
+    # attrs of spaCy's MultiHashEmbed, the feature of its CharacterEmbed and
+    # the columns of its FeatureExtractor. A model built by a function that
+    # is not spaCy's own, or whose settings are not as expected, may read
+    # anything.
+    reads = set()
+    def kinds(attrs):
+        for attr in attrs:
+            kind = _ATTR_KINDS.get(_attr_name(attr))
+            if kind is not None:
+                reads.add(kind)
+    def scan(node):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if str(key).startswith("@"):
+                    if not str(value).startswith(_KNOWN_ARCHITECTURES):
+                        raise ValueError(value)
+                elif key in ("attrs", "columns"):
+                    if not isinstance(value, (list, tuple)) or \
+                            not all(isinstance(v, (str, int)) for v in value):
+                        raise ValueError(key)
+                    kinds(value)
+                elif key == "feature":
+                    if not isinstance(value, (str, int)):
+                        raise ValueError(key)
+                    kinds([value])
+                else:
+                    scan(value)
+        elif isinstance(node, (list, tuple)):
+            for value in node:
+                scan(value)
+    try:
+        scan(model)
+    except Exception:
+        return set(_ALL_KINDS)
+    return reads
+
 def _pipe_effects(nlp, name, factory):
+    # As _factory_effects(), with what the component's model may read
+    effects = _factory_effects(nlp, name, factory)
+    if effects is None:
+        return None
+    sets, reads, can_leave_out = effects
+    try:
+        model = nlp.get_pipe_config(name).get("model")
+    except Exception:
+        return sets, set(_ALL_KINDS), can_leave_out
+    if model is not None:
+        reads = reads | _model_reads(model)
+    return sets, reads, can_leave_out
+
+def _factory_effects(nlp, name, factory):
     # (what it sets, what it may read, whether it can be left out) for a
     # component of spaCy's, by the name of its factory, or None for a
     # component that is not one of these. tok2vec and transformer, which
@@ -275,7 +334,8 @@ def _pipe_effects(nlp, name, factory):
     # never left out: without the parser, sentences would come from another
     # component, with other boundaries. The lemmatizer reads the tags, ner
     # keeps the entities that are already set, and the rules of an entity
-    # ruler can ask for any attribute.
+    # ruler can ask for any attribute. What a component's model reads
+    # besides is added by _pipe_effects().
     if factory in ("tok2vec", "transformer"):
         return set(), set(), False
     if factory in ("parser", "beam_parser"):
