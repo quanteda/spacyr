@@ -173,3 +173,47 @@ test_that("view = TRUE opens a UTF-8 page and returns the HTML invisibly", {
         expect_null(opened)
     })
 })
+
+test_that("labels and colours cannot add elements or attributes to the HTML", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    try(spacy_finalize(), silent = TRUE)
+    label <- "<img src=x onerror=alert(1)>"
+    if (methods::is(try(suppressMessages(spacy_initialize(
+        entity = FALSE,
+        entity_patterns = c(stats::setNames("Acme Corp", label), ORG = "Widget",
+                            "R&D" = "Lab")))), "try-error"))
+        testthat::skip("Can't initialize")
+    on.exit(spacy_finalize(), add = TRUE)
+    x <- "Acme Corp makes the Widget in the Lab."
+    color <- "red\" onmouseover=\"alert(2)"
+
+    # the elements of the HTML and the names of their attributes
+    tags <- function(html)
+        regmatches(html, gregexpr("<[^>]*>", html))[[1]]
+    elements <- function(html)
+        sort(unique(sub("^</?([A-Za-z0-9]*).*$", "\\1", tags(html))))
+    attribute_names <- function(html) {
+        inside <- gsub("\"[^\"]*\"", "\"\"", tags(html))
+        sort(unique(unlist(regmatches(
+            inside, gregexpr("[A-Za-z-]+(?==)", inside, perl = TRUE)))))
+    }
+
+    html <- entity_visualize(x, colors = stats::setNames(
+        c(color, "gold", "pink"), c("ORG", tolower(label), "r&d")))
+    expect_identical(elements(html), c("div", "mark", "span"))
+    expect_identical(attribute_names(html), c("class", "style"))
+    expect_false(grepl("<img", html, fixed = TRUE))
+    # the label and the colour are there as text
+    expect_true(grepl("&lt;img src=x onerror=alert(1)&gt;", html, fixed = TRUE))
+    expect_true(grepl("background: red&quot; onmouseover=&quot;alert(2);", html,
+                      fixed = TRUE))
+    expect_true(grepl("R&amp;D</span>", html, fixed = TRUE))
+    # colours and ents still match such labels, in any case
+    expect_true(grepl("background: gold;", html, fixed = TRUE))
+    expect_true(grepl("background: pink;", html, fixed = TRUE))
+    expect_identical(marked(entity_visualize(x, ents = c(tolower(label), "r&d"))),
+                     stats::setNames(c("Acme Corp", "Lab"),
+                                     c("&lt;img src=x onerror=alert(1)&gt;",
+                                       "R&amp;D")))
+})

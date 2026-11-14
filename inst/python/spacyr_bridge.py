@@ -12,7 +12,7 @@ import string
 import random
 import contextlib
 import re
-import warnings
+import html
 
 # This module is loaded by spacy_initialize() with reticulate::import_from_path().
 # It keeps no state of its own: R holds the pipeline returned by load_model()
@@ -1017,8 +1017,16 @@ class spacyr:
         # The texts with their entities marked, as one fragment of HTML made
         # by displaCy, with the documents in order. ents is a list of the
         # labels to mark (None for all of them, an empty list for none) and
-        # colors a dictionary of colors by label; displaCy matches both
-        # regardless of case.
+        # colors a dictionary of colors by label; both are matched to the
+        # labels regardless of case.
+        #
+        # displaCy escapes the text of a document, but puts the labels of
+        # entities and the colors into its HTML as they are, as it does a
+        # document's title and the IDs of entities in a knowledge base. A
+        # label can come from a file of rules and a color from anywhere, so
+        # the entities are given to displaCy as dictionaries (manual = True)
+        # that hold only their positions and their labels, escaped, and the
+        # colors are escaped for the quoted attribute that they go into.
         texts, docnames = _as_list(texts, docnames)
         self.disabled = pipes_unneeded_for(self.nlp, spans_use(self.nlp, "ents"))
         with self.nlp.select_pipes(disable = self.disabled):
@@ -1026,17 +1034,30 @@ class spacyr:
                     self.docs(texts, docnames, batch_size, n_process)]
         if not docs:
             return ""
-        options = {}
         if ents is not None:
-            options["ents"] = ents if isinstance(ents, list) else [ents]
+            ents = ents if isinstance(ents, list) else [ents]
+            ents = {label.upper() for label in ents}
+        parsed = [
+            {"text": doc.text,
+             "ents": [{"start": ent.start_char, "end": ent.end_char,
+                       "label": html.escape(ent.label_)}
+                      for ent in doc.ents
+                      if ents is None or ent.label_.upper() in ents],
+             "title": None,
+             "settings": {
+                 "lang": html.escape(doc.lang_),
+                 "direction": "rtl" if doc.vocab.writing_system.get(
+                     "direction", "ltr") == "rtl" else "ltr"}}
+            for doc in docs]
+        options = {}
         if colors:
-            options["colors"] = dict(colors)
-        with warnings.catch_warnings():
-            # a document without entities is shown as plain text, without
-            # displaCy's warning that it has none (W006)
-            warnings.filterwarnings("ignore", message = r"\[W006\]")
-            return displacy.render(docs, style = "ent", page = False,
-                                   jupyter = False, options = options)
+            # displaCy looks a color up by the label in upper case, which
+            # here is the escaped label
+            options["colors"] = {html.escape(label): html.escape(color)
+                                 for label, color in dict(colors).items()}
+        return displacy.render(parsed, style = "ent", page = False,
+                               jupyter = False, options = options,
+                               manual = True)
 
     def match_table(self, texts, docnames, labels, patterns, phrases = None,
                     dependency = None, greedy = None, batch_size = None,
