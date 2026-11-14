@@ -77,6 +77,18 @@ them out.} \item{\code{length}}{number
 of words (tokens) included in a named entity (e.g. for an entity, "New York
 Stock Exchange"", \code{length = 4})}}
 }
+\section{Components that are left out}{
+
+The components of spaCy's pipeline that entities do not need are left out
+of the call, which makes it faster: with spaCy's English models, the
+tagger, the attribute ruler and the lemmatizer. The output is the same as
+when every component runs, so a component stays whenever a later one
+that stays may read what it sets, and nothing is left out when the
+pipeline has a component that is not one of spaCy's standard ones. See
+the details of \code{\link[=spacy_parse]{spacy_parse()}}, and the article "Improving Performance"
+on the package website.
+}
+
 \examples{
 \dontrun{
 spacy_initialize()

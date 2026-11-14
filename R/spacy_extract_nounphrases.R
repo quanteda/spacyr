@@ -31,6 +31,15 @@
 #' \item{`length`}{number of words (tokens) included in a noun-phrase (e.g.
 #' for a noun-phrase, "individual car owners", `length = 3`)}}
 #' 
+#' @section Components that are left out:
+#' The components of spaCy's pipeline that noun phrases do not need are left out
+#' of the call, which makes it faster: with spaCy's English
+#' models, the lemmatizer and the named entity recognizer. The output is the same as
+#' when every component runs, so a component stays whenever a later one
+#' that stays may read what it sets, and nothing is left out when the
+#' pipeline has a component that is not one of spaCy's standard ones. See
+#' the details of [spacy_parse()], and the article "Improving Performance"
+#' on the package website.
 #' @return either a `list` or `data.frame` of tokens
 #' @export
 #' @examples

@@ -152,3 +152,15 @@ def save_pos_ner_pipeline(path):
     # after nlp.initialize(), which removes the rules of an attribute ruler
     ruler.add(patterns = [[{"LOWER": "alpha"}]], attrs = {"POS": "PROPN"})
     nlp.to_disk(path)
+
+# A component that does nothing. Since it is not one of spaCy's, no function
+# leaves any component out of a pipeline that has it, which gives the output
+# of the whole pipeline to compare with.
+class NoOp:
+    def __call__(self, doc):
+        return doc
+
+if not Language.has_factory("spacyr_test_noop"):
+    @Language.factory("spacyr_test_noop")
+    def make_noop(nlp, name):
+        return NoOp()

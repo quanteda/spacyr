@@ -302,3 +302,146 @@ test_that("spacy_parse() leaves out components of a pipeline without the entity 
   few <- spacy_parse(txt, pos = FALSE, lemma = FALSE, entity = FALSE, dependency = TRUE)
   expect_identical(columns(few), columns(full, names(few)))
 })
+
+# spacy_extract_entity() and spacy_extract_nounphrases() leave out the
+# components that entities, or noun phrases, do not need.
+
+# what the last call of an extractor left out, called as the R function
+# calls it
+extractor_left_out <- function(what, output = "dataframe", x = txt) {
+  spobj <- spacyr:::new_spobj()
+  spobj[[paste0("extract_", what, "_", output)]](texts = as.list(unname(x)),
+                                                 docnames = as.list(names(x)))
+  as.character(unlist(spobj$disabled))
+}
+extractors <- function(x, ...) {
+  list(entity = suppressMessages(spacy_extract_entity(x, ...)),
+       entity_list = spacy_extract_entity(x, output = "list"),
+       named = suppressMessages(spacy_extract_entity(x, type = "named", ...)),
+       nounphrases = suppressMessages(spacy_extract_nounphrases(x, ...)),
+       nounphrases_list = spacy_extract_nounphrases(x, output = "list"))
+}
+
+test_that("the extractors give the same output whichever components they leave out", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  reticulate::import_from_path("spacyr_test_components", path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  before <- pipe_names()
+
+  # with a component that is not spaCy's, every component runs
+  nlp$add_pipe("spacyr_test_noop", last = TRUE)
+  expect_identical(extractor_left_out("entity"), character())
+  expect_identical(extractor_left_out("nounphrases"), character())
+  whole <- extractors(txt, offsets = TRUE)
+  nlp$remove_pipe("spacyr_test_noop")
+  expect_identical(pipe_names(), before)
+
+  expect_true(nrow(whole$entity) > 0)
+  expect_true(nrow(whole$nounphrases) > 0)
+  expect_identical(extractors(txt, offsets = TRUE), whole)
+  expect_identical(extractors(txt, offsets = TRUE, batch_size = 1), whole)
+  expect_identical(extractors(txt, offsets = TRUE, n_process = 2), whole)
+  expect_identical(pipe_names(), before)
+})
+
+test_that("the extractors leave out the components that their spans do not need", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  before <- pipe_names()
+  tags <- c("tagger", "attribute_ruler", "lemmatizer")
+
+  # entities need neither tags nor lemmas; noun phrases need the tags and
+  # the dependencies, and not the entities. The parser always runs.
+  for (output in c("dataframe", "list")) {
+    expect_identical(extractor_left_out("entity", output), tags)
+    expect_identical(extractor_left_out("nounphrases", output), c("lemmatizer", "ner"))
+  }
+  expect_identical(pipe_names(), before)
+
+  # the pipeline is as it was after a call that fails
+  long <- c(a = "Short text.", b = strrep("a ", 600000))
+  expect_error(spacy_extract_entity(long))
+  expect_error(spacy_extract_nounphrases(long, output = "list"))
+  expect_identical(pipe_names(), before)
+
+  # documents that were already parsed need no pipeline
+  parsed <- suppressWarnings(process_document(txt))
+  expect_true(length(suppressWarnings(get_named_entities(parsed))) > 0)
+  expect_true(length(suppressWarnings(get_noun_phrases(parsed))) > 0)
+})
+
+test_that("the extractors keep what entity rules and attribute rules need", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  on.exit(spacy_finalize(), add = TRUE)
+  reticulate::import_from_path("spacyr_test_components", path = test_path("python"))
+  whole_and_part <- function(fun, ...) {
+    nlp <- spacyr:::spacyr_env$nlp
+    nlp$add_pipe("spacyr_test_noop", last = TRUE)
+    whole <- fun(txt, ...)
+    nlp$remove_pipe("spacyr_test_noop")
+    expect_identical(fun(txt, ...), whole)
+    whole
+  }
+
+  # an entity rule on the lemma and the part of speech: the ruler may read
+  # all that comes before it
+  try(spacy_finalize(), silent = TRUE)
+  rule <- list(list(label = "ACTION",
+                    pattern = list(list(LEMMA = "run", POS = "VERB"))))
+  if (methods::is(try(spacy_initialize(entity_patterns = rule)), "try-error"))
+    skip("Can't initialize")
+  expect_identical(extractor_left_out("entity"), character())
+  expect_identical(extractor_left_out("nounphrases"),
+                   c("lemmatizer", "ner", "spacyr_entity_ruler"))
+  ents <- whole_and_part(spacy_extract_entity)
+  expect_true("ACTION" %in% ents$ent_type)
+  whole_and_part(spacy_extract_nounphrases)
+
+  # an attribute rule that sets an entity: the ruler stays for the
+  # entities, with the tagger that its other rules read
+  spacy_finalize()
+  try_spacy_initialize()
+  spacyr:::spacyr_env$nlp$get_pipe("attribute_ruler")$add(
+    patterns = list(list(list(LOWER = "building"))),
+    attrs = list(ENT_TYPE = "THING", ENT_IOB = 3L))
+  expect_identical(extractor_left_out("entity"), "lemmatizer")
+  ents <- whole_and_part(spacy_extract_entity)
+  expect_true("THING" %in% ents$ent_type)
+
+  # without the entity recognizer in the pipeline
+  spacy_finalize()
+  if (methods::is(try(spacy_initialize(entity = FALSE)), "try-error"))
+    skip("Can't initialize")
+  expect_identical(extractor_left_out("nounphrases"), "lemmatizer")
+  whole_and_part(spacy_extract_nounphrases)
+})
+
+test_that("spacy_extract_entity() keeps what the model of the recognizer reads", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  dir <- tempfile("spacyr_pos_ner")
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  comp$save_pos_ner_pipeline(dir)
+  spacy_finalize()
+  spacy_initialize(model = dir)
+  alpha <- c(a = "We saw alpha today.", b = "Nothing new here.")
+
+  # the recognizer embeds the part of speech that the attribute ruler sets
+  expect_identical(extractor_left_out("entity", x = alpha), character())
+  ents <- spacy_extract_entity(alpha)
+  expect_identical(ents$text, "alpha")
+  expect_identical(ents$ent_type, "PERSON")
+})
