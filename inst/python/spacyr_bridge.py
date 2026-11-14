@@ -4,6 +4,7 @@
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
 import spacy
+from spacy import displacy
 from spacy.matcher import Matcher, PhraseMatcher, DependencyMatcher
 from spacy.tokens import Doc
 import time
@@ -11,6 +12,7 @@ import string
 import random
 import contextlib
 import re
+import warnings
 
 # This module is loaded by spacy_initialize() with reticulate::import_from_path().
 # It keeps no state of its own: R holds the pipeline returned by load_model()
@@ -1009,6 +1011,32 @@ class spacyr:
                     continue
                 df_all[id_] = df_doc
         return df_all
+
+    def render_entities(self, texts, docnames, ents = None, colors = None,
+                        batch_size = None, n_process = 1):
+        # The texts with their entities marked, as one fragment of HTML made
+        # by displaCy, with the documents in order. ents is a list of the
+        # labels to mark (None for all of them, an empty list for none) and
+        # colors a dictionary of colors by label; displaCy matches both
+        # regardless of case.
+        texts, docnames = _as_list(texts, docnames)
+        self.disabled = pipes_unneeded_for(self.nlp, spans_use(self.nlp, "ents"))
+        with self.nlp.select_pipes(disable = self.disabled):
+            docs = [doc for _, doc in
+                    self.docs(texts, docnames, batch_size, n_process)]
+        if not docs:
+            return ""
+        options = {}
+        if ents is not None:
+            options["ents"] = ents if isinstance(ents, list) else [ents]
+        if colors:
+            options["colors"] = dict(colors)
+        with warnings.catch_warnings():
+            # a document without entities is shown as plain text, without
+            # displaCy's warning that it has none (W006)
+            warnings.filterwarnings("ignore", message = r"\[W006\]")
+            return displacy.render(docs, style = "ent", page = False,
+                                   jupyter = False, options = options)
 
     def match_table(self, texts, docnames, labels, patterns, phrases = None,
                     dependency = None, greedy = None, batch_size = None,

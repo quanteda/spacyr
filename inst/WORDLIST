@@ -8,6 +8,7 @@ conda
 condaenv
 Cython
 CMD
+displaCy
 docnames
 Dockerfile
 dplyr
