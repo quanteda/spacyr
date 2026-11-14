@@ -624,3 +624,139 @@ test_that("nothing is left out of a pipeline whose tokenizer is not spaCy's", {
   expect_identical(tokenize_left_out("tokenize", x = left),
                    c("tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer", "ner"))
 })
+
+# spacy_match() leaves out the components that its patterns do not ask for.
+
+match_cases <- list(
+  phrase = quanteda::phrase(c("supreme court", "jane smith")),
+  words = c("the", "repor*"),
+  dictionary = quanteda::dictionary(list(place = c("washington", "acme corp*"),
+                                         person = "paul")),
+  pos = list(AN = list(list(POS = "ADJ"), list(POS = "NOUN"))),
+  tag = list(VBN = list(list(TAG = "VBN"))),
+  lemma = list(BE = list(list(LEMMA = "be"), list(OP = "?"), list(TAG = "VBN"))),
+  entity = list(ORG = list(list(ENT_TYPE = "ORG", OP = "+"))),
+  dep = list(SUBJ = list(list(DEP = "nsubj"))),
+  text = list(CAP = list(list(IS_TITLE = TRUE, LENGTH = list(`>=` = 4)))),
+  clause = list(CLAUSE = list(
+    list(RIGHT_ID = "verb", RIGHT_ATTRS = list(POS = "VERB")),
+    list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "subject",
+         RIGHT_ATTRS = list(DEP = list(IN = c("nsubj", "nsubjpass")))))),
+  mixed = list(AN = list(list(POS = "ADJ"), list(POS = "NOUN")),
+               CLAUSE = list(
+                 list(RIGHT_ID = "verb", RIGHT_ATTRS = list(LEMMA = "earn")),
+                 list(LEFT_ID = "verb", REL_OP = ">", RIGHT_ID = "object",
+                      RIGHT_ATTRS = list(DEP = "dobj")))))
+# what a call of spacy_match() with this pattern leaves out
+match_left_out <- function(pattern, x = txt) {
+  m <- spacyr:::match_patterns(pattern, "glob", TRUE, character(),
+                               lower = spacyr:::spacy_lower)
+  spobj <- spacyr:::new_spobj()
+  spobj$match_table(texts = as.list(unname(x)), docnames = as.list(names(x)),
+                    labels = as.list(m$labels), patterns = m$patterns,
+                    phrases = m$phrases, dependency = m$dependency,
+                    greedy = "LONGEST")
+  as.character(unlist(spobj$disabled))
+}
+matches <- function(...) lapply(match_cases, function(p) spacy_match(txt, p, ...))
+
+test_that("spacy_match() gives the same output whichever components it leaves out", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  reticulate::import_from_path("spacyr_test_components", path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  before <- pipe_names()
+
+  # with a component that is not spaCy's, every component runs
+  nlp$add_pipe("spacyr_test_noop", last = TRUE)
+  expect_identical(match_left_out(match_cases$phrase), character())
+  whole <- matches(offsets = TRUE)
+  nlp$remove_pipe("spacyr_test_noop")
+  # every kind of pattern finds something
+  expect_true(all(vapply(whole, nrow, 1L) > 0))
+
+  expect_identical(matches(offsets = TRUE), whole)
+  expect_identical(matches(offsets = TRUE, batch_size = 1), whole)
+  expect_identical(matches(offsets = TRUE, n_process = 2), whole)
+  expect_identical(matches(offsets = TRUE, overlap = "all"),
+                   {
+                     nlp$add_pipe("spacyr_test_noop", last = TRUE)
+                     all_overlaps <- matches(offsets = TRUE, overlap = "all")
+                     nlp$remove_pipe("spacyr_test_noop")
+                     all_overlaps
+                   })
+  expect_identical(pipe_names(), before)
+})
+
+test_that("spacy_match() leaves out the components that its patterns do not need", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  before <- pipe_names()
+  tags <- c("tagger", "attribute_ruler", "lemmatizer")
+
+  # phrases, words and dictionary values are matched on the text of tokens
+  for (case in c("phrase", "words", "dictionary", "text")) {
+    expect_identical(match_left_out(match_cases[[case]]), c(tags, "ner"))
+  }
+  # the part of speech and the tags; the lemmas, which need them
+  expect_identical(match_left_out(match_cases$pos), c("lemmatizer", "ner"))
+  expect_identical(match_left_out(match_cases$tag), c("lemmatizer", "ner"))
+  expect_identical(match_left_out(match_cases$lemma), "ner")
+  # entities
+  expect_identical(match_left_out(match_cases$entity), tags)
+  # dependencies, in a token pattern and in a dependency pattern: the
+  # attribute ruler sets that of whitespace tokens, and reads the tags
+  expect_identical(match_left_out(match_cases$dep), c("lemmatizer", "ner"))
+  expect_identical(match_left_out(match_cases$clause), c("lemmatizer", "ner"))
+  # all that any of the patterns asks for
+  expect_identical(match_left_out(match_cases$mixed), "ner")
+  expect_identical(match_left_out(c(match_cases$entity, match_cases$lemma)), character())
+
+  # an attribute that is not known, such as an extension attribute: nothing
+  use <- function(patterns) spacyr:::spacyr_module()$match_use(patterns, NULL)
+  expect_null(use(list(list(list(list(`_` = list(flag = TRUE)))))))
+  expect_null(use(list(list(list(list(SENTIMENT = 1))))))
+  expect_null(use(list(list(list(list(LOWER = "a"), list(`_` = list(flag = TRUE)))))))
+  expect_identical(length(use(list(list(list(list(LOWER = "a", OP = "+")))))), 0L)
+
+  # the pipeline is as it was after a call, also after one that fails
+  expect_identical(pipe_names(), before)
+  expect_error(spacy_match(c(a = "Short text.", b = strrep("a ", 600000)), "text"))
+  expect_error(spacy_match(txt, list(BAD = list(list(NOT_AN_ATTRIBUTE = "x")))))
+  expect_identical(pipe_names(), before)
+})
+
+test_that("spacy_match() keeps what entity rules and other tokenizers need", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  # an entity rule on the lemma and the part of speech: a pattern on the
+  # entities needs all that the ruler may read
+  try(spacy_finalize(), silent = TRUE)
+  rule <- list(list(label = "ACTION",
+                    pattern = list(list(LEMMA = "run", POS = "VERB"))))
+  if (methods::is(try(spacy_initialize(entity_patterns = rule)), "try-error"))
+    skip("Can't initialize")
+  action <- list(ACT = list(list(ENT_TYPE = "ACTION")))
+  expect_identical(match_left_out(action), character())
+  expect_identical(spacy_match(txt, action)$text, "running")
+  # a pattern on the text needs neither the ruler nor the recognizer
+  expect_identical(match_left_out("the"),
+                   c("tagger", "attribute_ruler", "lemmatizer", "ner", "spacyr_entity_ruler"))
+
+  # a tokenizer that is not spaCy's: nothing is left out
+  spacy_finalize()
+  try_spacy_initialize()
+  comp$set_sentence_hook_tokenizer(spacyr:::spacyr_env$nlp)
+  left <- c(a = "They left and we stayed.")
+  expect_identical(match_left_out("stayed", x = left), character())
+  expect_identical(spacy_match(left, "stayed")$sentence_id, 2L)
+})

@@ -414,6 +414,47 @@ def _own_tokenizer(nlp):
         return str(type(obj).__module__).split(".")[0] == "spacy"
     return own(nlp) and own(nlp.tokenizer)
 
+# The attributes of a token pattern that are those of the token's text, or
+# of the pattern itself, and need no component. NORM is one: a component
+# that sets it sets "other", and so is never left out.
+_TEXT_ATTRS = {"ORTH", "TEXT", "LOWER", "NORM", "LENGTH", "SHAPE", "PREFIX",
+               "SUFFIX", "SPACY", "IS_ALPHA", "IS_ASCII", "IS_DIGIT",
+               "IS_LOWER", "IS_UPPER", "IS_TITLE", "IS_PUNCT", "IS_SPACE",
+               "IS_STOP", "IS_BRACKET", "IS_QUOTE", "IS_LEFT_PUNCT",
+               "IS_RIGHT_PUNCT", "IS_CURRENCY", "LIKE_NUM", "LIKE_URL",
+               "LIKE_EMAIL", "OP"}
+
+def match_use(patterns, dependency):
+    # The kinds of annotation that the patterns of spacy_match() ask for:
+    # patterns holds, for each label, its alternative token patterns, and
+    # dependency the dependency patterns, as match_table() takes them.
+    # Phrases are matched on the text of the tokens, and use none. A
+    # dependency pattern uses the dependencies. None, for which nothing is
+    # left out, when a pattern asks for an attribute that is not known
+    # here, such as an extension attribute ("_").
+    used = set()
+    def tokens_use(tokens):
+        for token in tokens:
+            for key in token:
+                name = _attr_name(key)
+                if name in _ATTR_KINDS:
+                    used.add(_ATTR_KINDS[name])
+                elif name not in _TEXT_ATTRS:
+                    return False
+        return True
+    try:
+        for alternatives in patterns or []:
+            for pattern in alternatives:
+                if not tokens_use(pattern):
+                    return None
+        for p in dependency or []:
+            used.add("deps")
+            if not tokens_use([node.get("RIGHT_ATTRS", {}) for node in p["pattern"]]):
+                return None
+    except Exception:
+        return None
+    return used
+
 def pipes_unneeded_for(nlp, used):
     # The names of the active components that a call can leave out without
     # changing its output, when its output uses only these kinds of
@@ -1053,49 +1094,58 @@ class spacyr:
             cols["start"] = []
             cols["end"] = []
             inputs = dict(zip(docnames, texts))
-        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
-            if offsets:
-                starts, ends = doc_token_offsets(doc, inputs[id_], id_)
-            if relations and len(doc) > 0 and not doc.has_annotation("DEP"):
-                raise ValueError(
-                    "Document '" + str(id_) + "' has no dependency parse, which "
-                    "patterns with relations between nodes need. The pipeline "
-                    "needs a parser, or another component that sets dependencies.")
-            found = set()
-            for matcher in matchers:
-                for key, start, end in matcher(doc):
-                    found.add((strings[key], start, end))
-            if found and greedy is not None:
-                found = filter_overlaps(found, greedy)
-            # (sort key, label, rows), each row the (node, start, end) of a span
-            matches = [((start, 0, (end,), order[label]), label, [("", start, end)])
-                       for label, start, end in found]
-            if dependency_matcher is not None:
-                for key, token_ids in dependency_matcher(doc):
-                    label = strings[key]
-                    matches.append(((token_ids[0], 1, tuple(token_ids), order[label]),
-                                    label,
-                                    [(node, i, i + 1)
-                                     for node, i in zip(nodes[label], token_ids)]))
-            if not matches:
-                continue
-            matches.sort(key = lambda m: m[0])
-            positions = sentence_positions(doc)
-            for match_id, (_, label, rows) in enumerate(matches, 1):
-                for node, start, end in rows:
-                    sent_id, token_id = positions[start] if positions else (0, 0)
-                    cols["doc_id"].append(id_)
-                    cols["match_id"].append(match_id)
-                    cols["label"].append(label)
-                    cols["node"].append(node)
-                    cols["sentence_id"].append(sent_id)
-                    cols["token_id"].append(token_id)
-                    cols["text"].append(doc[start:end].text)
-                    cols["start_id"].append(start + 1)
-                    cols["length"].append(end - start)
-                    if offsets:
-                        cols["start"].append(starts[start])
-                        cols["end"].append(ends[end - 1])
+        # the components that the patterns do not need are left out for the
+        # call; the context manager restores them even if it fails
+        self.disabled = pipes_unneeded_for(
+            self.nlp, match_use(patterns, dependency))
+        if self.disabled:
+            pipes_context = self.nlp.select_pipes(disable = self.disabled)
+        else:
+            pipes_context = contextlib.nullcontext()
+        with pipes_context:
+            for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+                if offsets:
+                    starts, ends = doc_token_offsets(doc, inputs[id_], id_)
+                if relations and len(doc) > 0 and not doc.has_annotation("DEP"):
+                    raise ValueError(
+                        "Document '" + str(id_) + "' has no dependency parse, which "
+                        "patterns with relations between nodes need. The pipeline "
+                        "needs a parser, or another component that sets dependencies.")
+                found = set()
+                for matcher in matchers:
+                    for key, start, end in matcher(doc):
+                        found.add((strings[key], start, end))
+                if found and greedy is not None:
+                    found = filter_overlaps(found, greedy)
+                # (sort key, label, rows), each row the (node, start, end) of a span
+                matches = [((start, 0, (end,), order[label]), label, [("", start, end)])
+                           for label, start, end in found]
+                if dependency_matcher is not None:
+                    for key, token_ids in dependency_matcher(doc):
+                        label = strings[key]
+                        matches.append(((token_ids[0], 1, tuple(token_ids), order[label]),
+                                        label,
+                                        [(node, i, i + 1)
+                                         for node, i in zip(nodes[label], token_ids)]))
+                if not matches:
+                    continue
+                matches.sort(key = lambda m: m[0])
+                positions = sentence_positions(doc)
+                for match_id, (_, label, rows) in enumerate(matches, 1):
+                    for node, start, end in rows:
+                        sent_id, token_id = positions[start] if positions else (0, 0)
+                        cols["doc_id"].append(id_)
+                        cols["match_id"].append(match_id)
+                        cols["label"].append(label)
+                        cols["node"].append(node)
+                        cols["sentence_id"].append(sent_id)
+                        cols["token_id"].append(token_id)
+                        cols["text"].append(doc[start:end].text)
+                        cols["start_id"].append(start + 1)
+                        cols["length"].append(end - start)
+                        if offsets:
+                            cols["start"].append(starts[start])
+                            cols["end"].append(ends[end - 1])
         return cols
 
     def ntokens(self, timestamps):

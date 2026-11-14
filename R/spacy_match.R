@@ -299,6 +299,18 @@
 #'   the matches of a document in that order, sequences and dependency
 #'   matches together, and the rows of a dependency match are in the order of
 #'   the pattern's nodes. The order does not depend on `overlap`.
+#' @section Components that are left out:
+#' The components of spaCy's pipeline that the patterns do not ask for are
+#' left out of the call, which makes it faster. Phrases, words and the
+#' values of a dictionary are matched on the text of the tokens, and need
+#' only the parser, which sets the sentences. A pattern on `POS`, `TAG` or
+#' `MORPH` also needs the components that set the tags, one on `LEMMA` the
+#' lemmatizer, one on `DEP` or a dependency pattern the dependencies, and
+#' one on `ENT_TYPE` the entities. The output is the same as when every
+#' component runs, by the rules in the details of [spacy_parse()]. Nothing
+#' is left out when a pattern asks for an attribute that is not one of
+#' spaCy's token attributes known here, such as an extension attribute
+#' (`_`).
 #' @seealso [as_entity_patterns()] and [spacy_initialize()] to make matches
 #'   named entities, and [as_index()] to show matches in their context with
 #'   [quanteda::kwic()].
