@@ -16,6 +16,7 @@ spacy_parse(
   additional_attributes = NULL,
   n_process = 1L,
   batch_size = NULL,
+  offsets = FALSE,
   ...
 )
 }
@@ -68,6 +69,17 @@ processes together; \code{NULL} (the default) uses the pipeline's default
 (\code{nlp.batch_size}). Larger batches can be faster, but use
 more memory.}
 
+\item{offsets}{logical; if \code{TRUE}, return the position of each token in
+its text as it was given in \code{x}, in two columns after \code{token}: \code{start},
+the position of the token's first character, and \code{end}, that of its
+last. Positions are counted from 1 in characters as R counts them,
+whitespace included, so that \code{substring(text, start, end)} gives the
+tokens of a text. Some of spaCy's tokenizers, such as the one for
+Korean, make a document whose whitespace differs from that of the text;
+the positions are still those in the text. If a tokenizer changes
+anything else, so that a token is not found in the text or the text
+has more than whitespace outside the tokens, this is an error.}
+
 \item{...}{not used directly}
 }
 \value{
@@ -83,7 +95,8 @@ texts, and returns a data.frame of the results, with one row per token. The
 function provides options for universal (\code{pos}) and detailed (\code{tag})
 part-of-speech tags, lemmatization (\code{lemma}), named entity recognition
 (\code{entity}), dependency parsing (\code{dependency}), noun phrases (\code{nounphrase}),
-and any other token attributes from spaCy (\code{additional_attributes}).
+the position of each token in its text (\code{offsets}), and any other token
+attributes from spaCy (\code{additional_attributes}).
 }
 \examples{
 \dontrun{
@@ -102,5 +115,9 @@ spacy_parse(txt2, entity = TRUE, dependency = TRUE)
 txt3 <- "We analyzed the Supreme Court with three natural language processing tools." 
 spacy_parse(txt3, entity = TRUE, nounphrase = TRUE)
 spacy_parse(txt3, additional_attributes = c("like_num", "is_punct"))
+
+# the position of each token in the text
+parsed <- spacy_parse(txt3, offsets = TRUE)
+substring(txt3, parsed$start, parsed$end)
 }
 }

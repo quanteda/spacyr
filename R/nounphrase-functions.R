@@ -66,7 +66,9 @@ nounphrase_extract.spacyr_parsed <- function(x, concatenator = "_") {
 #' @return `nounphrase_consolidate` returns a modified `data.frame` of
 #'   parsed results, where the noun phrases have been combined into a single
 #'   "token".  Currently, dependency parsing is removed when this consolidation
-#'   occurs.
+#'   occurs. If `x` has the columns `start` and `end` of
+#'   `spacy_parse(offsets = TRUE)`, a consolidated noun phrase runs from the
+#'   start of its first token to the end of its last.
 #' @importFrom data.table data.table
 #' @examples
 #' \dontrun{
@@ -88,7 +90,7 @@ nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     lemma_space <- token_space <- NULL
     nounphrase <- whitespace <- nounphrase_count <- iob <- nounphrase_id <- .N <- .SD <-
         `:=` <- token <- lemma <- pos <- tag <- new_token_id <- token_id <-
-        sentence_id <- doc_id <- NULL
+        sentence_id <- doc_id <- end <- NULL
 
     if (!"nounphrase" %in% names(spacy_result)) {
         stop("no nounphrases in parsed object: rerun spacy_parse() with nounphrase = TRUE")
@@ -125,6 +127,15 @@ nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     }
     spacy_result_modified[, new_token_id := nounphrase_id]
 
+    # a consolidated token runs from the start of its first token, which it
+    # has already, to the end of its last
+    if ("end" %in% names(spacy_result)) {
+        spacy_result_modified[
+            , end := spacy_result[, lapply(.SD, function(x) x[length(x)]),
+                                  by = c("doc_id", "sentence_id", "nounphrase_id"),
+                                  .SDcols = "end"]$end]
+    }
+
     # for now, just obliterate dependency parsing for consolidated NEs
     if ("dep_rel" %in% names(spacy_result_modified)){
         message("Note: removing head_token_id, dep_rel for nounphrases")
@@ -134,6 +145,7 @@ nounphrase_consolidate.spacyr_parsed <- function(x, concatenator = "_") {
     spacy_result_modified[, token_id := NULL]
     data.table::setnames(spacy_result_modified, "new_token_id", "token_id")
     keep_cols <- intersect(c("doc_id", "sentence_id", "token_id", "token",
+                             "start", "end",
                              "lemma", "pos", "tag", "head_token_id", "dep_rel"),
                            names(spacy_result_modified))
 

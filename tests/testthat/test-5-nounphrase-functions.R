@@ -327,3 +327,24 @@ test_that("nounphrase consolidation works", {
   
   expect_silent(spacy_finalize())
 })
+
+test_that("nounphrase_consolidate() keeps the offsets of the whole noun phrase", {
+  # a parse with offsets, built without Python
+  parsed <- data.frame(
+    doc_id = "d1", sentence_id = 1L, token_id = 1:5,
+    token = c("The", "old", "dog", "barks", "."),
+    start = c(1L, 5L, 9L, 13L, 18L),
+    end = c(3L, 7L, 11L, 17L, 18L),
+    nounphrase = c("beg", "mid", "end_root", "", ""),
+    whitespace = c(TRUE, TRUE, TRUE, FALSE, FALSE),
+    stringsAsFactors = FALSE
+  )
+  class(parsed) <- c("spacyr_parsed", "data.frame")
+
+  cons <- nounphrase_consolidate(parsed)
+  expect_identical(names(cons),
+                   c("doc_id", "sentence_id", "token_id", "token", "start", "end"))
+  expect_identical(cons$token, c("The_old_dog", "barks", "."))
+  expect_identical(cons$start, c(1L, 13L, 18L))
+  expect_identical(cons$end, c(11L, 17L, 18L))
+})
