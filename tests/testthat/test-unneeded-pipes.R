@@ -482,3 +482,145 @@ test_that("nothing is left out for noun phrases from an iterator that is not spa
   expect_identical(extractor_left_out("entity", x = animals),
                    c("tagger", "attribute_ruler", "lemmatizer"))
 })
+
+# spacy_tokenize() runs components of the pipeline only for remove_symbols,
+# which reads the part of speech, and for what = "sentence": then it leaves
+# out those that these do not need.
+
+symbols <- c(txt,
+             s1 = "The price is $ 5 + 3 % more © 2020. A < B & C = D.",
+             s2 = "Rates rose 5 % ; costs + 2.")
+# what a call of the bridge left out
+tokenize_left_out <- function(what, ..., x = symbols) {
+  spobj <- spacyr:::new_spobj()
+  spobj[[what]](as.list(unname(x)), as.list(names(x)), ...)
+  as.character(unlist(spobj$disabled))
+}
+tokenizers <- function(x, ...) {
+  list(symbols = spacy_tokenize(x, remove_symbols = TRUE, ...),
+       symbols_padding = spacy_tokenize(x, remove_symbols = TRUE, remove_punct = TRUE,
+                                        padding = TRUE, output = "data.frame", ...),
+       sentence = spacy_tokenize(x, what = "sentence", ...),
+       sentence_spaces = spacy_tokenize(x, what = "sentence", remove_separators = FALSE, ...))
+}
+
+test_that("spacy_tokenize() gives the same output whichever components it leaves out", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  reticulate::import_from_path("spacyr_test_components", path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  before <- pipe_names()
+
+  # with a component that is not spaCy's, every component runs
+  nlp$add_pipe("spacyr_test_noop", last = TRUE)
+  expect_identical(tokenize_left_out("tokenize", remove_symbols = TRUE,
+                                     turn_off_pipes = FALSE), character())
+  expect_identical(tokenize_left_out("tokenize_sentence"), character())
+  whole <- tokenizers(symbols)
+  nlp$remove_pipe("spacyr_test_noop")
+
+  # symbols are removed, and sentences split
+  expect_false("+" %in% whole$symbols$s1)
+  expect_true("+" %in% spacy_tokenize(symbols)$s1)
+  expect_true(length(whole$sentence$d3) > 1)
+
+  expect_identical(tokenizers(symbols), whole)
+  expect_identical(tokenizers(symbols, batch_size = 1), whole)
+  expect_identical(tokenizers(symbols, n_process = 2), whole)
+  expect_identical(pipe_names(), before)
+})
+
+test_that("spacy_tokenize() leaves out the components that its options do not need", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  before <- pipe_names()
+  all_six <- c("tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer", "ner")
+
+  # words need no component, as before
+  expect_identical(tokenize_left_out("tokenize"), all_six)
+  expect_identical(tokenize_left_out("tokenize", remove_punct = TRUE), all_six)
+  # symbols need the part of speech, which the attribute ruler sets from
+  # the tags and the dependencies
+  expect_identical(tokenize_left_out("tokenize", remove_symbols = TRUE,
+                                     turn_off_pipes = FALSE),
+                   c("lemmatizer", "ner"))
+  # sentences need the parser
+  expect_identical(tokenize_left_out("tokenize_sentence"),
+                   c("tagger", "attribute_ruler", "lemmatizer", "ner"))
+
+  # the pipeline is as it was after a call, also after one that fails
+  expect_identical(pipe_names(), before)
+  long <- c(a = "Short text.", b = strrep("a ", 600000))
+  expect_error(spacy_tokenize(long, remove_symbols = TRUE))
+  expect_error(spacy_tokenize(long, what = "sentence"))
+  expect_identical(pipe_names(), before)
+})
+
+test_that("spacy_tokenize() keeps an attribute ruler that sets sentence boundaries", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  reticulate::import_from_path("spacyr_test_components", path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  nlp$get_pipe("attribute_ruler")$add(patterns = list(list(list(LOWER = "and"))),
+                                      attrs = list(SENT_START = TRUE))
+  sents <- c(a = "We met and they left early. Paul saw the big building.")
+
+  # the ruler stays, with the tagger that its other rules read
+  expect_identical(tokenize_left_out("tokenize_sentence", x = sents),
+                   c("lemmatizer", "ner"))
+  nlp$add_pipe("spacyr_test_noop", last = TRUE)
+  whole <- spacy_tokenize(sents, what = "sentence")
+  nlp$remove_pipe("spacyr_test_noop")
+  expect_identical(whole$a[2], "and they left early.")
+  expect_identical(spacy_tokenize(sents, what = "sentence"), whole)
+})
+
+test_that("nothing is left out of a pipeline whose tokenizer is not spaCy's", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  module <- spacyr:::spacyr_module()
+  left <- c(a = "They left and we stayed.")
+
+  # spaCy's tokenizer: the sentences are the parser's
+  expect_true(module$`_own_tokenizer`(nlp))
+  expect_identical(tokenize_left_out("tokenize_sentence", x = left),
+                   c("tagger", "attribute_ruler", "lemmatizer", "ner"))
+  expect_identical(spacy_tokenize(left, what = "sentence"),
+                   list(a = "They left and we stayed."))
+
+  # a tokenizer that gives each document its own function for the
+  # sentences, which starts one at each conjunction: it reads the part of
+  # speech, so the tagger and the attribute ruler have to run
+  comp$set_sentence_hook_tokenizer(nlp)
+  expect_false(module$`_own_tokenizer`(nlp))
+  expect_identical(tokenize_left_out("tokenize_sentence", x = left), character())
+  expect_identical(spacy_tokenize(left, what = "sentence"),
+                   list(a = c("They left", "and we stayed.")))
+
+  # in the other functions too
+  expect_identical(tokenize_left_out("tokenize", remove_symbols = TRUE,
+                                     turn_off_pipes = FALSE, x = left), character())
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE), character())
+  parsed <- spacy_parse(left, pos = FALSE, lemma = FALSE, entity = FALSE)
+  expect_identical(parsed$sentence_id, c(1L, 1L, 2L, 2L, 2L, 2L))
+  expect_identical(extractor_left_out("entity", x = left), character())
+  expect_identical(extractor_left_out("nounphrases", x = left), character())
+  # words still need no component
+  expect_identical(tokenize_left_out("tokenize", x = left),
+                   c("tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer", "ner"))
+})

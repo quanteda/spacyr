@@ -403,6 +403,17 @@ def spans_use(nlp, what):
         return {"tags", "deps"}
     return None
 
+def _own_tokenizer(nlp):
+    # Whether the documents are made by spaCy's own code: a language class
+    # and a tokenizer of spaCy's. Another tokenizer can do more than split
+    # the text. It can give each document functions of its own, such as
+    # Doc.user_hooks["sents"], by which doc.sents then finds the sentences,
+    # and such a function may read any annotation, such as the part of
+    # speech. That cannot be told from the pipeline's components.
+    def own(obj):
+        return str(type(obj).__module__).split(".")[0] == "spacy"
+    return own(nlp) and own(nlp.tokenizer)
+
 def pipes_unneeded_for(nlp, used):
     # The names of the active components that a call can leave out without
     # changing its output, when its output uses only these kinds of
@@ -410,9 +421,10 @@ def pipes_unneeded_for(nlp, used):
     # be left out when the call uses nothing of what it sets, and no later
     # component that stays may read it. Nothing is left out when the
     # pipeline has a component that is not one of spaCy's that
-    # _factory_effects() knows, which may read or change anything, or when
-    # what the call uses is not known (None).
-    if used is None:
+    # _factory_effects() knows, which may read or change anything; when
+    # its tokenizer or its language class is not spaCy's (see
+    # _own_tokenizer()); or when what the call uses is not known (None).
+    if used is None or not _own_tokenizer(nlp):
         return []
     names = nlp.pipe_names
     effects = {}
@@ -823,14 +835,22 @@ class spacyr:
                  padding = False,
                  batch_size = None,
                  n_process = 1):
-        # disable the pipeline components unless they are needed, as for
-        # remove_symbols; the context manager restores them even if
-        # tokenization fails
-        if turn_off_pipes and not remove_symbols:
-            pipes_context = self.nlp.select_pipes(disable = self.nlp.pipe_names)
+        # The tokens need no component of the pipeline, except with
+        # remove_symbols, which reads the part of speech: then only the
+        # components that it does not need are left out (see
+        # pipes_unneeded_for()). The context manager restores them even if
+        # tokenization fails.
+        if remove_symbols:
+            self.disabled = pipes_unneeded_for(self.nlp, {"tags"})
+        elif turn_off_pipes:
+            self.disabled = list(self.nlp.pipe_names)
+        else:
+            self.disabled = []
+        texts, docnames = _as_list(texts, docnames)
+        if self.disabled:
+            pipes_context = self.nlp.select_pipes(disable = self.disabled)
         else:
             pipes_context = contextlib.nullcontext()
-        texts, docnames = _as_list(texts, docnames)
         with pipes_context:
             tokens_out = {}
             for id_, doc in self.docs(texts, docnames, batch_size, n_process):
@@ -846,8 +866,12 @@ class spacyr:
                           batch_size = None, n_process = 1):
         texts, docnames = _as_list(texts, docnames)
         tokens_out = {}
-        for id_, doc in self.docs(texts, docnames, batch_size, n_process):
-            tokens_out[id_] = doc_sentences(doc, remove_separators)
+        # sentences need only the components that set them, or that those
+        # may read: the others are left out for the call
+        self.disabled = pipes_unneeded_for(self.nlp, set())
+        with self.nlp.select_pipes(disable = self.disabled):
+            for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+                tokens_out[id_] = doc_sentences(doc, remove_separators)
         return tokens_out
 
     def extract_nounphrases_list(self, texts, docnames, batch_size = None, n_process = 1):

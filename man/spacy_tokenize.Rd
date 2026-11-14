@@ -39,9 +39,9 @@ all other remove functionalities (e.g. \code{remove_punct}) have to be set to \c
 When \code{what = "sentence"}, this option will remove trailing spaces if \code{TRUE}.}
 
 \item{remove_symbols}{remove symbols. The symbols are either \code{SYM} in \code{pos}
-field, or currency symbols. Since this needs the part-of-speech tags, it
-runs all the components of the pipeline, which makes tokenization much
-slower; the other \verb{remove_*} options do not.}
+field, or currency symbols. Since this needs the part of speech, it
+runs the components of the pipeline that set it, which makes
+tokenization much slower; the other \verb{remove_*} options do not.}
 
 \item{padding}{if \code{TRUE}, leave an empty string where the removed tokens
 previously existed. This is useful if a positional match is needed between
@@ -76,6 +76,20 @@ either \code{list} or \code{data.frame} of tokens
 \description{
 Efficient tokenization (without POS tagging, dependency parsing,
 lemmatization, or named entity recognition) of texts using spaCy.
+}
+\details{
+Splitting texts into words runs no component of spaCy's pipeline. Two
+options need some of them, and leave out the others: \code{what = "sentence"}
+needs the components that set the sentences, which is the parser in
+spaCy's models, and \code{remove_symbols = TRUE} those that set the part of
+speech, which in spaCy's English models are the tagger, the parser and
+the attribute ruler. The output is the same as when every component
+runs, by the rules described in the details of \code{\link[=spacy_parse]{spacy_parse()}}: a
+component stays whenever a later one that stays may read what it sets,
+and nothing is left out when the pipeline has a component that is not
+one of spaCy's standard ones, or a tokenizer that is not spaCy's own,
+which can give the documents a function of its own to find the
+sentences.
 }
 \examples{
 \dontrun{

@@ -115,7 +115,7 @@ data.frame(
 seconds(spacy_tokenize(txt))
 ```
 
-If you need only the tokens, `spacy_tokenize()` is many times faster than `spacy_parse()`. Its options `remove_punct`, `remove_numbers` and `remove_url` depend only on the tokens, and keep it fast, but two of its options need the pipeline, and make it run all of the components: `remove_symbols`, which uses the part-of-speech tags, and `what = "sentence"`, since the sentence boundaries come from the parser:
+If you need only the tokens, `spacy_tokenize()` is many times faster than `spacy_parse()`. Its options `remove_punct`, `remove_numbers` and `remove_url` depend only on the tokens, and keep it fast, but two of its options need components of the pipeline, and run those, leaving out the others: `what = "sentence"` needs the parser, which sets the sentence boundaries, and `remove_symbols` the parts of speech, for which spaCy's English models run the tagger, the parser and the attribute ruler:
 
 ```{r}
 data.frame(
@@ -221,7 +221,7 @@ Some pipelines, such as those built with **spacy-transformers**, use Hugging Fac
 
 ## Summary
 
-- Use `spacy_tokenize()` when you need only the tokens. Its `remove_symbols` option runs the whole pipeline; removing symbols afterwards, by their characters, is faster, if that definition of a symbol suits your task.
+- Use `spacy_tokenize()` when you need only the tokens. Its `remove_symbols` option runs most of the pipeline; removing symbols afterwards, by their characters, is faster, if that definition of a symbol suits your task.
 - Ask `spacy_parse()` for the columns you need, and no others, in a single call: `entity = FALSE`, `lemma = FALSE` and `pos = FALSE` save the time of the components that they do not need.
 - Use `spacy_extract_entity()` or `spacy_extract_nounphrases()` when you need only the entities or only the noun phrases.
 - Use `spacy_initialize(entity = FALSE)` when you do not need named entities from any function.
