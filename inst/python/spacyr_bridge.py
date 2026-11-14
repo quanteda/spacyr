@@ -253,8 +253,9 @@ def _ruler_effects(ruler):
     # for. spaCy's English models, for instance, have rules that set the
     # dependency of whitespace tokens as well as the tags. An attribute that
     # is none of those above is "other" when a rule sets it. In a pattern,
-    # only the annotations above matter: the other attributes, such as
-    # LOWER, are those of the token's text.
+    # the annotations above matter, and not the attributes of the token's
+    # text, such as LOWER (_TEXT_ATTRS); any other attribute, such as an
+    # extension attribute, may stand for any annotation.
     sets, reads = set(), set()
     for rule in ruler.patterns:
         for key in rule["attrs"]:
@@ -262,9 +263,14 @@ def _ruler_effects(ruler):
         for pattern in rule["patterns"]:
             for token in pattern:
                 for key in token:
-                    kind = _ATTR_KINDS.get(_attr_name(key))
-                    if kind is not None:
-                        reads.add(kind)
+                    name = _attr_name(key)
+                    if name in _ATTR_KINDS:
+                        reads.add(_ATTR_KINDS[name])
+                    elif name not in _TEXT_ATTRS:
+                        # an attribute that is not known, such as an
+                        # extension attribute ("_"), whose function may
+                        # read any annotation
+                        reads |= _ALL_KINDS
     return sets, reads
 
 # The architectures whose inputs _model_reads() can tell from their settings

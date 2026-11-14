@@ -760,3 +760,32 @@ test_that("spacy_match() keeps what entity rules and other tokenizers need", {
   expect_identical(match_left_out("stayed", x = left), character())
   expect_identical(spacy_match(left, "stayed")$sentence_id, 2L)
 })
+
+test_that("an attribute ruler with a rule on an extension attribute keeps all before it", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  # a ruler after the lemmatizer, which sets the part of speech INTJ where
+  # an extension attribute, by the lemma, says so
+  comp$add_lemma_extension_ruler(spacyr:::spacyr_env$nlp)
+  dogs <- c(a = "The dogs barked.")
+  intj <- list(INTJ = list(list(POS = "INTJ")))
+
+  # the function of an extension attribute may read any annotation, so the
+  # lemmatizer stays wherever the ruler's part of speech is used
+  expect_identical(match_left_out(intj, x = dogs), "ner")
+  expect_identical(spacy_match(dogs, intj)$text, "dogs")
+  expect_identical(left_out(lemma = FALSE), character())
+  parsed <- spacy_parse(dogs, lemma = FALSE)
+  expect_identical(parsed$pos[parsed$token == "dogs"], "INTJ")
+  expect_identical(tokenize_left_out("tokenize", remove_symbols = TRUE,
+                                     turn_off_pipes = FALSE, x = dogs), "ner")
+  # where it is not, the ruler is left out with the rest
+  expect_identical(match_left_out("dogs", x = dogs),
+                   c("tagger", "attribute_ruler", "lemmatizer",
+                     "spacyr_test_late_ruler", "ner"))
+})
