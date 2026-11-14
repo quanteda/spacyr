@@ -105,3 +105,50 @@ class SingleSpaceTokenizer:
 
 def set_single_space_tokenizer(nlp, lower = False, drop_last = False):
     nlp.tokenizer = SingleSpaceTokenizer(nlp.vocab, lower, drop_last)
+
+# A pipeline of spaCy's own components in which a later model reads what an
+# earlier component sets: an attribute ruler that sets the part of speech of
+# one word, and an entity recognizer whose model embeds the part of speech
+# as well as the form of each token. It is trained for a few steps on one
+# text, so that the entity it finds depends on that part of speech.
+def save_pos_ner_pipeline(path):
+    import random
+    import spacy
+    from spacy.training import Example
+    from thinc.api import fix_random_seed
+    fix_random_seed(0)
+    random.seed(0)
+    nlp = spacy.blank("en")
+    nlp.add_pipe("sentencizer")
+    ruler = nlp.add_pipe("attribute_ruler")
+    tok2vec = {"@architectures": "spacy.Tok2Vec.v2",
+               "embed": {"@architectures": "spacy.MultiHashEmbed.v2",
+                         "width": 32, "attrs": ["POS"], "rows": [50],
+                         "include_static_vectors": False},
+               "encode": {"@architectures": "spacy.MaxoutWindowEncoder.v2",
+                          "width": 32, "depth": 1, "window_size": 1,
+                          "maxout_pieces": 2}}
+    nlp.add_pipe("ner", config = {"model": {
+        "@architectures": "spacy.TransitionBasedParser.v2",
+        "state_type": "ner", "extra_state_tokens": False, "hidden_width": 32,
+        "maxout_pieces": 2, "use_upper": True, "nO": None, "tok2vec": tok2vec}})
+    texts = [("We saw alpha today.", [(7, 12, "PERSON")]),
+             ("They met alpha again.", [(9, 14, "PERSON")]),
+             ("Nothing to see here.", [])]
+    def examples():
+        out = []
+        for text, ents in texts:
+            # the part of speech is set as the ruler sets it
+            doc = nlp.make_doc(text)
+            for token in doc:
+                if token.lower_ == "alpha":
+                    token.pos_ = "PROPN"
+            out.append(Example.from_dict(doc, {"entities": ents}))
+        return out
+    optimizer = nlp.initialize(examples)
+    for _ in range(60):
+        nlp.update(examples(), sgd = optimizer, drop = 0.0,
+                   exclude = ["sentencizer", "attribute_ruler"])
+    # after nlp.initialize(), which removes the rules of an attribute ruler
+    ruler.add(patterns = [[{"LOWER": "alpha"}]], attrs = {"POS": "PROPN"})
+    nlp.to_disk(path)
