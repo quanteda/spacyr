@@ -13,13 +13,21 @@
 #' for are left out of the call, which makes it faster: the named entity
 #' recognizer with `entity = FALSE`; the lemmatizer with `lemma = FALSE`; and
 #' the tagger and the attribute ruler when `pos`, `tag`, `lemma` and
-#' `nounphrase` are all `FALSE`. The parser always runs, since it sets the
-#' sentences. The output is the same as when every component runs. Nothing
-#' is left out when `additional_attributes` are asked for, or when the
-#' pipeline has a component that is not one of spaCy's standard ones; and
-#' with entity rules from `spacy_initialize(entity_patterns = )` and
-#' `entity = TRUE`, the components that the rules may read stay. See the
-#' article "Improving Performance" on the package website.
+#' `nounphrase` are all `FALSE`. The output is the same as when every
+#' component runs, so a component stays whenever it sets something that the
+#' output has, or that a later component may read:
+#'
+#' * The parser always runs, since it sets the sentences.
+#' * An attribute ruler stays if any of its rules sets something that is
+#'   returned. That of spaCy's English models also sets the dependency of
+#'   whitespace tokens, so with `dependency = TRUE` it stays, and so does
+#'   the tagger, whose tags its rules read.
+#' * With entity rules from `spacy_initialize(entity_patterns = )` and
+#'   `entity = TRUE`, the components that the rules may read stay.
+#' * Nothing is left out when `additional_attributes` are asked for, or when
+#'   the pipeline has a component that is not one of spaCy's standard ones.
+#'
+#' See the article "Improving Performance" on the package website.
 #'
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)

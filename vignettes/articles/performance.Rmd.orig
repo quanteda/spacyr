@@ -63,9 +63,9 @@ The options of `spacy_parse()`, such as `pos`, `lemma` or `entity`, choose the c
 
 - the named entity recogniser, with `entity = FALSE`;
 - the lemmatizer, with `lemma = FALSE`;
-- the tagger and the attribute ruler, when `pos`, `tag`, `lemma` and `nounphrase` are all `FALSE`, since the lemmatizer and the noun phrases need the parts of speech.
+- the tagger and the attribute ruler, when `pos`, `tag`, `lemma`, `nounphrase` and `dependency` are all `FALSE`. The lemmatizer and the noun phrases need the parts of speech; and in spaCy's English models the attribute ruler, which reads the tags, also sets the dependency of whitespace tokens.
 
-The parser always runs: it sets the sentence boundaries, by which `spacy_parse()` numbers the tokens. So returning the dependencies costs little more than leaving them out, as reported in [#188](https://github.com/quanteda/spacyr/issues/188), while turning off the options you do not need saves the time of their components:
+The parser always runs: it sets the sentence boundaries, by which `spacy_parse()` numbers the tokens. So with the default options, returning the dependencies costs little more than leaving them out, as reported in [#188](https://github.com/quanteda/spacyr/issues/188), while turning off the options you do not need saves the time of their components:
 
 ```{r}
 data.frame(
@@ -86,7 +86,7 @@ data.frame(
 )
 ```
 
-The output does not depend on which components were left out: its columns are the same as those of a parse with every option. To make sure of that, `spacy_parse()` leaves nothing out in two cases, where it cannot know what a component needs or sets: when `additional_attributes` are asked for, and when the pipeline has a component that is not one of spaCy's standard ones. With entity rules from `spacy_initialize(entity_patterns = )`, the components that the rules may read stay as long as `entity = TRUE`.
+The output does not depend on which components were left out: its columns are the same as those of a parse with every option. To make sure of that, a component stays whenever it sets something that the output has, or that a later component may read, and `spacy_parse()` leaves nothing out in two cases, where it cannot know what a component needs or sets: when `additional_attributes` are asked for, and when the pipeline has a component that is not one of spaCy's standard ones. With entity rules from `spacy_initialize(entity_patterns = )`, the components that the rules may read stay as long as `entity = TRUE`.
 
 Each call runs the tokenizer, the vectors and the parser again, so it is still better to ask for all the columns you will need in one call, than to call `spacy_parse()` once for each. `entity_extract()` and `nounphrase_extract()` take the entities and noun phrases from the output of `spacy_parse()`, without parsing the texts again:
 

@@ -227,63 +227,119 @@ def retokenizers(nlp):
     # the active components that change the tokens, as merge_entities does
     return [name for name in nlp.pipe_names if retokenizes(nlp, name)]
 
-# The components that spacy_parse() can leave out of a call, by the name of
-# their factory, and what each sets. tok2vec and transformer, which other
-# components share, and the components that set sentences are never left
-# out: without the parser, sentences would come from another component,
-# with other boundaries.
-_SETS = {"tagger": "tags", "morphologizer": "tags", "attribute_ruler": "tags",
-         "lemmatizer": "lemma", "trainable_lemmatizer": "lemma",
-         "ner": "ents", "beam_ner": "ents", "entity_ruler": "ents"}
-# What a component may read of what earlier components set. Those that read
-# nothing but the tokens and the shared layer are not listed. The rules of
-# an attribute ruler and of an entity ruler can ask for any attribute, and
-# ner keeps the entities that are already set.
-_READS = {"lemmatizer": {"tags"}, "trainable_lemmatizer": {"tags"},
-          "attribute_ruler": {"tags", "lemma", "ents"},
-          "entity_ruler": {"tags", "lemma", "ents"},
-          "ner": {"ents"}, "beam_ner": {"ents"}}
-_KNOWN = set(_SETS) | {"tok2vec", "transformer", "parser", "beam_parser",
-                       "senter", "sentencizer"}
+# What spacy_parse() needs to know of a component to leave it out of a call:
+# what it sets, what it may read of what earlier components set, and whether
+# it can be left out at all. These are kinds of annotation, of which
+# spacy_parse() returns some: the tags (TAG, POS and MORPH), the lemmas, the
+# dependencies, the sentences and the entities; "other" is anything else.
+_ALL_KINDS = {"tags", "lemma", "deps", "sents", "ents", "other"}
+_ATTR_KINDS = {"TAG": "tags", "POS": "tags", "MORPH": "tags",
+               "LEMMA": "lemma",
+               "DEP": "deps", "HEAD": "deps",
+               "SENT_START": "sents", "IS_SENT_START": "sents",
+               "IS_SENT_END": "sents",
+               "ENT_TYPE": "ents", "ENT_IOB": "ents", "ENT_ID": "ents",
+               "ENT_KB_ID": "ents"}
+
+def _attr_name(key):
+    # the name of a token attribute, which spaCy also accepts as its number
+    if isinstance(key, int):
+        from spacy.attrs import NAMES
+        return NAMES[key]
+    return str(key).upper()
+
+def _ruler_effects(ruler):
+    # What the rules of an attribute ruler set, and what their patterns ask
+    # for. spaCy's English models, for instance, have rules that set the
+    # dependency of whitespace tokens as well as the tags. An attribute that
+    # is none of those above is "other" when a rule sets it. In a pattern,
+    # only the annotations above matter: the other attributes, such as
+    # LOWER, are those of the token's text.
+    sets, reads = set(), set()
+    for rule in ruler.patterns:
+        for key in rule["attrs"]:
+            sets.add(_ATTR_KINDS.get(_attr_name(key), "other"))
+        for pattern in rule["patterns"]:
+            for token in pattern:
+                for key in token:
+                    kind = _ATTR_KINDS.get(_attr_name(key))
+                    if kind is not None:
+                        reads.add(kind)
+    return sets, reads
+
+def _pipe_effects(nlp, name, factory):
+    # (what it sets, what it may read, whether it can be left out) for a
+    # component of spaCy's, by the name of its factory, or None for a
+    # component that is not one of these. tok2vec and transformer, which
+    # other components share, and the components that set sentences are
+    # never left out: without the parser, sentences would come from another
+    # component, with other boundaries. The lemmatizer reads the tags, ner
+    # keeps the entities that are already set, and the rules of an entity
+    # ruler can ask for any attribute.
+    if factory in ("tok2vec", "transformer"):
+        return set(), set(), False
+    if factory in ("parser", "beam_parser"):
+        return {"deps", "sents"}, set(), False
+    if factory in ("senter", "sentencizer"):
+        return {"sents"}, set(), False
+    if factory in ("tagger", "morphologizer"):
+        return {"tags"}, set(), True
+    if factory in ("lemmatizer", "trainable_lemmatizer"):
+        return {"lemma"}, {"tags"}, True
+    if factory in ("ner", "beam_ner"):
+        return {"ents"}, {"ents"}, True
+    if factory == "entity_ruler":
+        return {"ents"}, set(_ALL_KINDS), True
+    if factory == "attribute_ruler":
+        try:
+            sets, reads = _ruler_effects(nlp.get_pipe(name))
+        except Exception:
+            # rules that cannot be read: it stays, and so does all before it
+            return set(_ALL_KINDS), set(_ALL_KINDS), False
+        return sets, reads, True
+    return None
 
 def unneeded_pipes(nlp, lemma = True, pos = True, tag = False,
-                   entity = True, nounphrase = False, attributes = None):
-    # The names of the active components whose results a call of
-    # spacy_parse() with these options does not use, so that leaving them
-    # out does not change its output: those that set tags, when neither tags
-    # nor lemmas nor noun phrases (which need the part of speech) are asked
-    # for; those that set lemmas, when lemmas are not; and those that set
-    # entities, when entities are not. A component stays if a later one
-    # that stays may read what it sets. Nothing is left out when additional
-    # attributes are asked for, which any component may set, or when the
-    # pipeline has a component that is not one of spaCy's listed above,
-    # which may read or change anything.
+                   entity = True, nounphrase = False, attributes = None,
+                   dependency = False):
+    # The names of the active components that a call of spacy_parse() with
+    # these options can leave out without changing its output. A component
+    # can be left out when the call uses nothing of what it sets, and no
+    # later component that stays may read it. The call uses the tags for
+    # pos, tag and the noun phrases, which need the part of speech; the
+    # lemmas for lemma; the entities for entity; the dependencies for
+    # dependency and the noun phrases; and always the sentences. Nothing is
+    # left out when additional attributes are asked for, which any component
+    # may set, or when the pipeline has a component that is not one of
+    # spaCy's that _pipe_effects() knows, which may read or change anything.
     if attributes:
         return []
-    factory = {}
-    for name in nlp.pipe_names:
+    names = nlp.pipe_names
+    effects = {}
+    for name in names:
         meta = _pipe_meta(nlp, name)
-        factory[name] = meta.factory if meta is not None else None
-        if factory[name] not in _KNOWN:
+        effects[name] = _pipe_effects(nlp, name,
+                                      meta.factory if meta is not None else None)
+        if effects[name] is None:
             return []
     unused = set()
-    if not (pos or tag or lemma or nounphrase):
+    if not (pos or tag or nounphrase):
         unused.add("tags")
     if not lemma:
         unused.add("lemma")
     if not entity:
         unused.add("ents")
-    names = nlp.pipe_names
-    out = set(name for name in names if _SETS.get(factory[name]) in unused)
+    if not (dependency or nounphrase):
+        unused.add("deps")
+    out = set(name for name in names
+              if effects[name][2] and effects[name][0] <= unused)
     changed = True
     while changed:
         changed = False
         for i, name in enumerate(names):
-            if name not in out:
-                continue
-            sets = _SETS[factory[name]]
-            if any(later not in out and sets in _READS.get(factory[later], ())
-                   for later in names[i + 1:]):
+            if name in out and any(later not in out and
+                                   effects[name][0] & effects[later][1]
+                                   for later in names[i + 1:]):
                 out.discard(name)
                 changed = True
     return [name for name in names if name in out]
@@ -626,7 +682,8 @@ class spacyr:
         # call; the context manager restores them even if parsing fails
         disabled = unneeded_pipes(self.nlp, lemma = lemma, pos = pos, tag = tag,
                                   entity = entity, nounphrase = nounphrase,
-                                  attributes = attributes)
+                                  attributes = attributes,
+                                  dependency = dependency)
         with self.nlp.select_pipes(disable = disabled):
             for id_, doc in self.docs(texts, docnames, batch_size, n_process):
                 if offsets:

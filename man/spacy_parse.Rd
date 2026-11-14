@@ -103,13 +103,22 @@ The components of spaCy's pipeline whose results the options do not ask
 for are left out of the call, which makes it faster: the named entity
 recognizer with \code{entity = FALSE}; the lemmatizer with \code{lemma = FALSE}; and
 the tagger and the attribute ruler when \code{pos}, \code{tag}, \code{lemma} and
-\code{nounphrase} are all \code{FALSE}. The parser always runs, since it sets the
-sentences. The output is the same as when every component runs. Nothing
-is left out when \code{additional_attributes} are asked for, or when the
-pipeline has a component that is not one of spaCy's standard ones; and
-with entity rules from \code{spacy_initialize(entity_patterns = )} and
-\code{entity = TRUE}, the components that the rules may read stay. See the
-article "Improving Performance" on the package website.
+\code{nounphrase} are all \code{FALSE}. The output is the same as when every
+component runs, so a component stays whenever it sets something that the
+output has, or that a later component may read:
+\itemize{
+\item The parser always runs, since it sets the sentences.
+\item An attribute ruler stays if any of its rules sets something that is
+returned. That of spaCy's English models also sets the dependency of
+whitespace tokens, so with \code{dependency = TRUE} it stays, and so does
+the tagger, whose tags its rules read.
+\item With entity rules from \code{spacy_initialize(entity_patterns = )} and
+\code{entity = TRUE}, the components that the rules may read stay.
+\item Nothing is left out when \code{additional_attributes} are asked for, or when
+the pipeline has a component that is not one of spaCy's standard ones.
+}
+
+See the article "Improving Performance" on the package website.
 }
 \examples{
 \dontrun{

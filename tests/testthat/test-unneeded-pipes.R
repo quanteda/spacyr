@@ -16,7 +16,13 @@ txt <- c(d1 = "The Supreme Court is located in Washington D.C.  It sits in a lar
          d2 = "",
          d3 = "Paul earned a postgraduate degree from MIT. He did not like it; the students were running.",
          d4 = "Yes.",
-         d5 = "Mistakes were made, and the report is being rewritten by Jane Smith of Acme Corp. in May.")
+         d5 = "Mistakes were made, and the report is being rewritten by Jane Smith of Acme Corp. in May.",
+         # documents of whitespace only, and with whitespace tokens: the
+         # attribute ruler of spaCy's English models sets their dependency
+         w1 = "\n\n",
+         w2 = "  ",
+         w3 = "A  b.\n\nC d.\n",
+         w4 = " Leading and trailing \t ")
 
 test_that("spacy_parse() gives the same output whichever components it leaves out", {
   skip_on_cran()
@@ -67,6 +73,14 @@ test_that("spacy_parse() leaves out the components its options do not need", {
   expect_identical(left_out(pos = FALSE, lemma = FALSE, tag = TRUE), "lemmatizer")
   expect_identical(left_out(pos = FALSE, lemma = FALSE, nounphrase = TRUE), "lemmatizer")
   expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE), c(tags, "ner"))
+  # the attribute ruler of this model also sets the dependency of whitespace
+  # tokens, so with dependency it stays, and the tagger, which it reads
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, dependency = TRUE), "lemmatizer")
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE, dependency = TRUE),
+                   c("lemmatizer", "ner"))
+  whitespace <- spacy_parse(c(a = "\n\n"), pos = FALSE, lemma = FALSE, dependency = TRUE)
+  expect_identical(whitespace$dep_rel,
+                   spacy_parse(c(a = "\n\n"), dependency = TRUE)$dep_rel)
   # the parser, which sets the sentences, always runs
   expect_false("parser" %in% left_out(pos = FALSE, lemma = FALSE, entity = FALSE))
   # an additional attribute can come from any component
@@ -91,6 +105,49 @@ test_that("spacy_parse() leaves out the components its options do not need", {
   expect_error(spacy_parse(c(a = "Short text.", b = strrep("a ", 600000)),
                            lemma = FALSE, entity = FALSE))
   expect_identical(pipe_names(), before)
+})
+
+test_that("spacy_parse() keeps an attribute ruler whose rules set what it returns", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  on.exit(spacy_finalize(), add = TRUE)
+  sents <- c(a = "We met and they left early. Paul saw the big building.")
+  tags <- c("tagger", "attribute_ruler", "lemmatizer")
+  # a pipeline whose attribute ruler has one more rule
+  with_rule <- function(pattern, attrs) {
+    try(spacy_finalize(), silent = TRUE)
+    try_spacy_initialize()
+    spacyr:::spacyr_env$nlp$get_pipe("attribute_ruler")$add(
+      patterns = list(list(pattern)), attrs = attrs)
+  }
+  expect_same <- function(...) {
+    full <- spacy_parse(sents, tag = TRUE, dependency = TRUE)
+    parsed <- spacy_parse(sents, ...)
+    expect_identical(columns(parsed), columns(full, names(parsed)))
+    full
+  }
+
+  # a rule that sets a sentence boundary: the ruler always stays, with the
+  # tagger that its other rules read
+  with_rule(list(LOWER = "and"), list(SENT_START = TRUE))
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE),
+                   c("lemmatizer", "ner"))
+  full <- expect_same(pos = FALSE, lemma = FALSE, entity = FALSE)
+  expect_identical(full$sentence_id[full$token == "and"], 2L)
+
+  # a rule that sets an entity: the ruler stays when entities are returned
+  with_rule(list(LOWER = "building"), list(ENT_TYPE = "THING", ENT_IOB = 3L))
+  expect_identical(left_out(pos = FALSE, lemma = FALSE), "lemmatizer")
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE), c(tags, "ner"))
+  full <- expect_same(pos = FALSE, lemma = FALSE)
+  expect_identical(full$entity[full$token == "building"], "THING_B")
+  expect_same(pos = FALSE, lemma = FALSE, entity = FALSE)
+
+  # a rule that sets another attribute, which a later component may read
+  with_rule(list(LOWER = "paul"), list(NORM = "saul"))
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE),
+                   c("lemmatizer", "ner"))
+  expect_same(pos = FALSE, lemma = FALSE, entity = FALSE)
 })
 
 test_that("spacy_parse() leaves nothing out of a pipeline with a custom component", {
