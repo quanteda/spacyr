@@ -229,3 +229,65 @@ def add_lemma_setter_ruler(nlp, lemma = "dog"):
                          after = "lemmatizer")
     ruler.add(patterns = [[{"LOWER": "dogs"}]],
               attrs = {"_": {"spacyr_test_mark": True}})
+
+# A small pipeline with word vectors, saved for spacy_initialize(model = ):
+# a blank English pipeline with a sentencizer, and vectors of three
+# dimensions for a few types. "Cat" has the vector of "cat", as spellings
+# share vectors in spaCy's models; no other type has one.
+def save_vectors_pipeline(path):
+    import numpy
+    import spacy
+    nlp = spacy.blank("en")
+    nlp.add_pipe("sentencizer")
+    vectors = {"cat": [1, 0, 0], "Cat": [1, 0, 0], "dog": [0, 1, 0],
+               "sat": [0, 0, 1], "the": [0.5, 0.5, 0], ".": [0, 0, 0.25]}
+    for text, vector in vectors.items():
+        nlp.vocab.set_vector(text, numpy.asarray(vector, dtype = "float32"))
+    nlp.meta["name"] = "spacyr_test_vectors"
+    nlp.meta["version"] = "0.0.1"
+    nlp.to_disk(path)
+
+# An array that stands in for one on a GPU, as CuPy's: NumPy cannot convert
+# it by itself, and its get() returns a copy on the host.
+class DeviceArray:
+    def __init__(self, values):
+        import numpy
+        self._values = numpy.asarray(values, dtype = "float32")
+
+    def __array__(self, *args, **kwargs):
+        raise TypeError("Implicit conversion to a NumPy array is not allowed.")
+
+    def get(self):
+        return self._values.copy()
+
+# The same pipeline's vocabulary, returning its vectors as such arrays
+def use_device_vectors(nlp):
+    vocab = nlp.vocab
+    class DeviceVocab:
+        vectors = vocab.vectors
+        def has_vector(self, text):
+            return vocab.has_vector(text)
+        def get_vector(self, text):
+            return DeviceArray(vocab.get_vector(text))
+    class DeviceNlp:
+        pass
+    stand_in = DeviceNlp()
+    stand_in.vocab = DeviceVocab()
+    stand_in.meta = nlp.meta
+    return stand_in
+
+# A small pipeline whose vectors are those of subwords (floret), saved for
+# spacy_initialize(model = ): such a table has a vector for any string, made
+# from the vectors of its character n-grams.
+def save_floret_pipeline(path):
+    import numpy
+    import spacy
+    from spacy.vectors import Vectors
+    nlp = spacy.blank("en")
+    nlp.add_pipe("sentencizer")
+    data = numpy.arange(1, 31, dtype = "float32").reshape((10, 3)) / 10
+    nlp.vocab.vectors = Vectors(data = data, mode = "floret", hash_count = 1,
+                                minn = 2, maxn = 3)
+    nlp.meta["name"] = "spacyr_test_floret"
+    nlp.meta["version"] = "0.0.1"
+    nlp.to_disk(path)
