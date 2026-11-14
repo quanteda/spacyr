@@ -11,53 +11,10 @@ import string
 import random
 import contextlib
 import re
-import numpy
 
 # This module is loaded by spacy_initialize() with reticulate::import_from_path().
 # It keeps no state of its own: R holds the pipeline returned by load_model()
 # and passes it, and all other values, as arguments.
-
-## word vectors
-
-def vectors_info(nlp):
-    # The table of static word vectors of the pipeline: its number of
-    # vectors and their width, both 0 when the model has none, with the
-    # names of the model and of the table.
-    rows, width = nlp.vocab.vectors.shape
-    meta = nlp.meta
-    return {"rows": int(rows), "width": int(width),
-            "model": str(meta.get("lang", "")) + "_" + str(meta.get("name", "")),
-            "version": meta.get("version"),
-            "vectors": (meta.get("vectors") or {}).get("name")}
-
-def type_vectors(nlp, types):
-    # The vector of each of these strings, in a matrix with one row for each
-    # and in their order, and whether each has no vector: its row is then
-    # zeros. The strings are looked up as they are, without the pipeline.
-    if isinstance(types, str):
-        types = [types]
-    vocab = nlp.vocab
-    width = vocab.vectors.shape[1]
-    matrix = numpy.zeros((len(types), width), dtype = "float32")
-    oov = []
-    for i, text in enumerate(types):
-        # the empty string, the padding of removed tokens in quanteda, has
-        # no vector, also where a table has one for any string, as a table
-        # of subword vectors (floret) has
-        known = text != "" and bool(vocab.has_vector(text))
-        oov.append(not known)
-        if known:
-            matrix[i] = _to_host(vocab.get_vector(text))
-    return matrix, oov
-
-def _to_host(array):
-    # A vector as a NumPy array. With a table of vectors on a GPU, spaCy
-    # returns a CuPy array, which NumPy does not convert by itself: its
-    # get() copies it to the host.
-    get = getattr(array, "get", None)
-    if callable(get):
-        array = get()
-    return numpy.asarray(array, dtype = "float32")
 
 def load_model(model, entity = True, max_length = None):
     if not entity:
