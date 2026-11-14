@@ -2,6 +2,18 @@
 #' 
 #' Efficient tokenization (without POS tagging, dependency parsing,
 #' lemmatization, or named entity recognition) of texts using spaCy.
+#'
+#' @details
+#' Splitting texts into words runs no component of spaCy's pipeline. Two
+#' options need some of them, and leave out the others: `what = "sentence"`
+#' needs the components that set the sentences, which is the parser in
+#' spaCy's models, and `remove_symbols = TRUE` those that set the part of
+#' speech, which in spaCy's English models are the tagger, the parser and
+#' the attribute ruler. The output is the same as when every component
+#' runs, by the rules described in the details of [spacy_parse()]: a
+#' component stays whenever a later one that stays may read what it sets,
+#' and nothing is left out when the pipeline has a component that is not
+#' one of spaCy's standard ones.
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see <https://github.com/ropenscilabs/tif>) 
 #' @param what the unit for splitting the text, available alternatives are: 
@@ -14,9 +26,9 @@
 #'  all other remove functionalities (e.g. `remove_punct`) have to be set to `FALSE`. 
 #'  When `what = "sentence"`, this option will remove trailing spaces if `TRUE`.
 #' @param remove_symbols remove symbols. The symbols are either `SYM` in `pos`
-#'   field, or currency symbols. Since this needs the part-of-speech tags, it
-#'   runs all the components of the pipeline, which makes tokenization much
-#'   slower; the other `remove_*` options do not.
+#'   field, or currency symbols. Since this needs the part of speech, it
+#'   runs the components of the pipeline that set it, which makes
+#'   tokenization much slower; the other `remove_*` options do not.
 #' @param padding if `TRUE`, leave an empty string where the removed tokens 
 #'   previously existed. This is useful if a positional match is needed between 
 #'   the pre- and post-selected tokens, for instance if a window of adjacency 
