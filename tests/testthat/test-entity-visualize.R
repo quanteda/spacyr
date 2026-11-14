@@ -217,3 +217,109 @@ test_that("labels and colours cannot add elements or attributes to the HTML", {
                                      c("&lt;img src=x onerror=alert(1)&gt;",
                                        "R&amp;D")))
 })
+
+test_that("entity_visualize checks a parse before starting spaCy", {
+    try(spacy_finalize(), silent = TRUE)
+    parsed <- structure(
+        data.frame(doc_id = "d1", sentence_id = 1L, token_id = 1:2,
+                   token = c("Acme", "Corp"), stringsAsFactors = FALSE),
+        class = c("spacyr_parsed", "data.frame"))
+    expect_error(entity_visualize(parsed),
+                 "x has no column entity: rerun spacy_parse\\(\\) with entity = TRUE")
+    parsed$entity <- c("ORG_B", "ORG_I")
+    expect_error(entity_visualize(parsed, labels = 1), "labels must be")
+    expect_error(entity_visualize(parsed, view = NA), "view must be")
+    expect_error(entity_visualize(parsed[, c("doc_id", "entity")]),
+                 "x has no column token")
+    expect_null(getOption("spacy_initialized"))
+})
+
+test_that("the documents of a parse are made from its tokens", {
+    parsed <- structure(
+        data.frame(doc_id = rep(c("d1", "d2"), c(6, 2)),
+                   token = c("Jane", "Smith", ",", "Acme", "Corp", "!",
+                             "café", "Acme"),
+                   start = c(3L, 8L, 13L, 15L, 21L, 25L, 1L, 6L),
+                   end = c(6L, 12L, 13L, 18L, 24L, 25L, 4L, 9L),
+                   entity = c("PERSON_B", "PERSON_I", "", "ORG_B", "ORG_I", "",
+                              "", "ORG_B"),
+                   stringsAsFactors = FALSE),
+        class = c("spacyr_parsed", "data.frame"))
+    docs <- parsed_entity_docs(parsed)
+    # spaced as in the text, without the whitespace before the first token
+    expect_identical(docs[[1]]$text, "Jane Smith, Acme  Corp!")
+    expect_identical(docs[[1]]$ents,
+                     list(list(start = 0L, end = 10L, label = "PERSON"),
+                          list(start = 12L, end = 22L, label = "ORG")))
+    expect_identical(substring(docs[[1]]$text, c(1, 13), c(10, 22)),
+                     c("Jane Smith", "Acme  Corp"))
+    # positions count characters, not bytes
+    expect_identical(docs[[2]], list(text = "café Acme", ents = list(
+        list(start = 5L, end = 9L, label = "ORG"))))
+
+    # without positions, a space between every two tokens
+    docs <- parsed_entity_docs(parsed[, c("doc_id", "token", "entity")])
+    expect_identical(docs[[1]]$text, "Jane Smith , Acme Corp !")
+    expect_identical(docs[[1]]$ents,
+                     list(list(start = 0L, end = 10L, label = "PERSON"),
+                          list(start = 13L, end = 22L, label = "ORG")))
+
+    # adjacent entities, and one whose first token was taken out
+    tags <- parsed[c(2, 4, 5, 8), c("doc_id", "token", "entity")]
+    tags$entity <- c("PERSON_I", "ORG_B", "ORG_B", "ORG_B")
+    docs <- parsed_entity_docs(tags)
+    expect_identical(docs[[1]]$text, "Smith Acme Corp")
+    expect_identical(vapply(docs[[1]]$ents, function(e) e$label, ""),
+                     c("PERSON", "ORG", "ORG"))
+    expect_identical(vapply(docs[[1]]$ents, function(e) e$end, 1L), c(5L, 10L, 15L))
+})
+
+test_that("entity_visualize shows the entities of a parse", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    with_rules({
+        x <- c(txt, d3 = "", d4 = "Nothing (here), really.")
+        html <- entity_visualize(x)
+
+        # with the positions of the tokens, the text is as it was
+        parsed <- spacy_parse(x, offsets = TRUE)
+        expect_silent(from_parse <- entity_visualize(parsed))
+        expect_identical(from_parse, html)
+        expect_identical(entity_visualize(parsed, labels = "org",
+                                          colors = c(ORG = "gold")),
+                         entity_visualize(x, labels = "org",
+                                          colors = c(ORG = "gold")))
+
+        # without them, the same entities and tokens, in every document
+        parsed <- spacy_parse(x, pos = FALSE, lemma = FALSE)
+        from_parse <- entity_visualize(parsed)
+        expect_identical(marked(from_parse), marked(html))
+        expect_identical(plain(from_parse), plain(html))
+        expect_true(grepl("Nothing ( here ) , really .", from_parse, fixed = TRUE))
+
+        # consolidated entities are single tokens
+        expect_identical(
+            marked(entity_visualize(entity_consolidate(parsed))),
+            c(PERSON = "Jane_Smith", ORG = "Acme_Corp", gadget = "Widget",
+              ORG = "Acme_Corp"))
+
+        # the rows of some documents, and of none
+        expect_identical(marked(entity_visualize(parsed[parsed$doc_id == "d2", ])),
+                         c(ORG = "Acme Corp"))
+        expect_identical(entity_visualize(parsed[0, ]), entity_visualize(x[0]))
+
+        expect_error(entity_visualize(spacy_parse(x, entity = FALSE)),
+                     "x has no column entity")
+    })
+})
+
+test_that("entity_visualize on a parse starts spaCy when it is not running", {
+    skip_on_cran()
+    skip_on_os("solaris")
+    with_rules({
+        parsed <- spacy_parse(txt, offsets = TRUE)
+        html <- entity_visualize(parsed)
+        spacy_finalize()
+        expect_identical(suppressMessages(entity_visualize(parsed)), html)
+    })
+})

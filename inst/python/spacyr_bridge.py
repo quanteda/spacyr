@@ -1015,10 +1015,26 @@ class spacyr:
     def render_entities(self, texts, docnames, labels = None, colors = None,
                         batch_size = None, n_process = 1):
         # The texts with their entities marked, as one fragment of HTML made
-        # by displaCy, with the documents in order. labels is a list of the
-        # entity labels to mark (None for all of them, an empty list for none) and
-        # colors a dictionary of colors by label; both are matched to the
-        # labels regardless of case.
+        # by displaCy, with the documents in order: see render_spans().
+        texts, docnames = _as_list(texts, docnames)
+        self.disabled = pipes_unneeded_for(self.nlp, spans_use(self.nlp, "ents"))
+        with self.nlp.select_pipes(disable = self.disabled):
+            docs = [{"text": doc.text,
+                     "ents": [{"start": ent.start_char, "end": ent.end_char,
+                               "label": ent.label_} for ent in doc.ents]}
+                    for _, doc in
+                    self.docs(texts, docnames, batch_size, n_process)]
+        return self.render_spans(docs, labels, colors)
+
+    def render_spans(self, docs, labels = None, colors = None):
+        # Documents with their entities marked, as one fragment of HTML made
+        # by displaCy, in order. Each document is a dictionary of its text
+        # and its entities (ents), each of those a dictionary of its label
+        # and of where it starts and ends in the text, counting characters
+        # from 0, with the end after its last character. labels is a list
+        # of the entity labels to mark (None for all of them, an empty list
+        # for none) and colors a dictionary of colors by label; both are
+        # matched to the labels regardless of case.
         #
         # displaCy escapes the text of a document, but puts the labels of
         # entities and the colors into its HTML as they are, as it does a
@@ -1027,28 +1043,29 @@ class spacyr:
         # the entities are given to displaCy as dictionaries (manual = True)
         # that hold only their positions and their labels, escaped, and the
         # colors are escaped for the quoted attribute that they go into.
-        texts, docnames = _as_list(texts, docnames)
-        self.disabled = pipes_unneeded_for(self.nlp, spans_use(self.nlp, "ents"))
-        with self.nlp.select_pipes(disable = self.disabled):
-            docs = [doc for _, doc in
-                    self.docs(texts, docnames, batch_size, n_process)]
+        if isinstance(docs, dict):
+            docs = [docs]
         if not docs:
             return ""
         if labels is not None:
             labels = labels if isinstance(labels, list) else [labels]
             labels = {label.upper() for label in labels}
-        parsed = [
-            {"text": doc.text,
-             "ents": [{"start": ent.start_char, "end": ent.end_char,
-                       "label": html.escape(ent.label_)}
-                      for ent in doc.ents
-                      if labels is None or ent.label_.upper() in labels],
-             "title": None,
-             "settings": {
-                 "lang": html.escape(doc.lang_),
-                 "direction": "rtl" if doc.vocab.writing_system.get(
-                     "direction", "ltr") == "rtl" else "ltr"}}
-            for doc in docs]
+        settings = {
+            "lang": html.escape(self.nlp.lang),
+            "direction": "rtl" if self.nlp.vocab.writing_system.get(
+                "direction", "ltr") == "rtl" else "ltr"}
+        parsed = []
+        for doc in docs:
+            ents = doc.get("ents") or []
+            if isinstance(ents, dict):
+                ents = [ents]
+            ents = [{"start": int(ent["start"]), "end": int(ent["end"]),
+                     "label": html.escape(ent["label"])}
+                    for ent in ents
+                    if labels is None or ent["label"].upper() in labels]
+            parsed.append({"text": doc.get("text") or "",
+                           "ents": sorted(ents, key = lambda e: (e["start"], e["end"])),
+                           "title": None, "settings": settings})
         options = {}
         if colors:
             # displaCy looks a color up by the label in upper case, which

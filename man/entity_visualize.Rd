@@ -2,7 +2,7 @@
 % Please edit documentation in R/entity_visualize.R
 \name{entity_visualize}
 \alias{entity_visualize}
-\title{Visualize the named entities of texts}
+\title{Visualize the named entities of documents}
 \usage{
 entity_visualize(
   x,
@@ -14,8 +14,10 @@ entity_visualize(
 )
 }
 \arguments{
-\item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
-corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
+\item{x}{the output of \code{\link[=spacy_parse]{spacy_parse()}} or of \code{\link[=entity_consolidate]{entity_consolidate()}}; or
+texts, as a character object, a \pkg{quanteda} corpus, or a
+TIF-compliant corpus data.frame (see
+\url{https://github.com/ropenscilabs/tif})}
 
 \item{labels}{the entity labels to highlight, as a character vector
 such as \code{c("PERSON", "ORG")}. The default, \code{NULL}, highlights
@@ -34,18 +36,8 @@ grey.}
 in the viewer that the \code{browser} option is set to (see
 \code{\link[utils:browseURL]{utils::browseURL()}}).}
 
-\item{n_process}{the number of processes for spaCy's \code{nlp.pipe()} to use:
-\code{1} (the default) processes the documents in the current R session's Python
-process, a larger number starts that many Python processes, and \code{-1} uses
-all CPUs. Starting the processes and loading the model in each takes time,
-so more than one process helps only for large numbers of documents. A
-custom pipeline component must be defined in an importable Python module
-to be used in other processes.}
-
-\item{batch_size}{the number of documents that spaCy's \code{nlp.pipe()}
-processes together; \code{NULL} (the default) uses the pipeline's default
-(\code{nlp.batch_size}). Larger batches can be faster, but use
-more memory.}
+\item{n_process, batch_size}{as in \code{\link[=spacy_parse]{spacy_parse()}}, for processing texts.
+They are not used when \code{x} is parsed already.}
 }
 \value{
 a character vector of length one, with the HTML for all the
@@ -54,16 +46,26 @@ put into a page, an R Markdown document or a Shiny app. It is returned
 invisibly when \code{view = TRUE}, and is \code{""} when there are no documents.
 }
 \description{
-Shows texts with their named entities highlighted and labelled, as HTML
-made by displaCy, spaCy's visualizer (see
-\url{https://spacy.io/usage/visualizers#ent}).
+Shows documents with their named entities highlighted and labelled, as
+HTML made by displaCy, spaCy's visualizer (see
+\url{https://spacy.io/usage/visualizers#ent}). The documents are either
+parsed already, by \code{\link[=spacy_parse]{spacy_parse()}}, or texts.
 }
 \details{
-The entities are those that the active pipeline finds in the
-texts, including any from rules given to \code{\link[=spacy_initialize]{spacy_initialize()}} as
-\code{entity_patterns}. The texts are processed for this, so \code{x} is the
-texts themselves and not the output of \code{\link[=spacy_parse]{spacy_parse()}}, which does not
-keep them.
+For the output of \code{\link[=spacy_parse]{spacy_parse()}}, the entities are those of
+its \code{entity} column, so it needs \code{entity = TRUE}, the default, and the
+documents are not processed again. A parse does not keep the texts, so
+the text shown is made from the tokens. With
+\code{spacy_parse(x, offsets = TRUE)} the tokens are spaced as they were in
+the text; otherwise there is a space between every two tokens, also
+before punctuation. In the output of \code{\link[=entity_consolidate]{entity_consolidate()}} each entity
+is one token, shown with the \code{concatenator} that joined its parts.
+
+For texts, the entities are those that the active pipeline finds in
+them, and the text shown is the text as it was given. In both cases
+the entities include any from rules given to \code{\link[=spacy_initialize]{spacy_initialize()}} as
+\code{entity_patterns}. The HTML is made by spaCy, which is initialized if
+it has not been.
 
 The documents are shown in the order of \code{x}, each in a block of its
 own. A document without entities, or without any of the labels in
@@ -73,13 +75,17 @@ own. A document without entities, or without any of the labels in
 \dontrun{
 spacy_initialize()
 
-txt <- c(doc1 = "The Supreme Court is located in Washington D.C.",
-         doc2 = "Paul earned a postgraduate degree from MIT.")
+txt <- head(data_char_sentences, 8)
+
+# save as HTML
+parsed <- spacy_parse(txt, offsets = TRUE)
+html <- entity_visualize(parsed)
+
+# from the texts
 html <- entity_visualize(txt)
 
-# open in the browser, with only some labels and a colour of one's own
-entity_visualize(txt, labels = c("ORG", "GPE"), colors = c(GPE = "gold"),
-                 view = TRUE)
+# open in the browser
+entity_visualize(txt, view = TRUE)
 }
 }
 \seealso{

@@ -115,7 +115,7 @@ test_that("check_env_python() stops for an unsupported Python", {
   expect_true(spacyr:::check_env_python("r-spacyr", "<3.16,>=3.10"))
 })
 
-test_that("spacy_installed() is FALSE for a missing environment", {
+test_that("spacy_is_installed() is FALSE for a missing environment", {
   old <- Sys.getenv(c("RETICULATE_PYTHON", "SPACY_PYTHON"), unset = NA)
   on.exit({
     for (v in names(old)) {
@@ -124,11 +124,11 @@ test_that("spacy_installed() is FALSE for a missing environment", {
   })
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.setenv(SPACY_PYTHON = file.path(tempdir(), "no-such-spacyr-env"))
-  expect_false(spacy_installed())
-  expect_false(spacy_installed("en_core_web_sm"))
+  expect_false(spacy_is_installed())
+  expect_false(spacy_is_installed("en_core_web_sm"))
 })
 
-test_that("spacy_installed() respects the Python already bound to reticulate", {
+test_that("spacy_is_installed() respects the Python already bound to reticulate", {
   old <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
   on.exit(if (is.na(old)) Sys.unsetenv("RETICULATE_PYTHON")
           else Sys.setenv(RETICULATE_PYTHON = old))
@@ -148,9 +148,25 @@ test_that("spacy_installed() respects the Python already bound to reticulate", {
   )
   local_mocked_bindings(py_check_installed = function(x) TRUE, .package = "spacyr")
 
-  expect_false(spacy_installed())
+  expect_false(spacy_is_installed())
   active_env <- configured_env
-  expect_true(spacy_installed())
+  expect_true(spacy_is_installed())
+})
+
+test_that("spacy_installed() is deprecated, and gives the result of spacy_is_installed()", {
+  seen <- NULL
+  local_mocked_bindings(
+    spacy_is_installed = function(lang_models = NULL) {
+      seen <<- lang_models
+      TRUE
+    },
+    .package = "spacyr"
+  )
+  expect_warning(res <- spacy_installed("en_core_web_sm"),
+                 class = "spacyr_deprecated")
+  expect_true(res)
+  expect_identical(seen, "en_core_web_sm")
+  expect_warning(spacy_installed(), "Use `spacy_is_installed\\(\\)` instead")
 })
 
 test_that("model downloads are tried again after a failure", {
