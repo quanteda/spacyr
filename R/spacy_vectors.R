@@ -238,14 +238,18 @@ need_quanteda <- function(x) {
 #' only, which makes this many times faster than [spacy_parse()]. Every
 #' component runs when the pipeline has a component, a tokenizer or a
 #' language class that is not spaCy's own, which can set its own vector for
-#' a document: that vector is then returned.
+#' a document: that vector is then returned, and has to have as many
+#' dimensions as the model's vectors. They also run when one of them can
+#' change the tokens, as a dependency parser that merges subtokens.
 #'
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
 #' @param n_process,batch_size passed to spaCy's `nlp.pipe()`, as in
 #'   [spacy_parse()]. `n_process` is used only when the components of the
-#'   pipeline run: without them, more processes would only add the time to
-#'   start them.
+#'   pipeline run and are all spaCy's own. Without the components, more
+#'   processes would only add the time to start them; and a vector that a
+#'   pipeline sets for its documents is not kept when a document comes back
+#'   from another process, so such a pipeline uses one.
 #' @param ... not used
 #' @return a numeric matrix with one row for each document, named by the
 #'   documents, and one column for each dimension of the model's vectors,

@@ -12,8 +12,10 @@ corpus data.frame (see \url{https://github.com/ropenscilabs/tif})}
 
 \item{n_process, batch_size}{passed to spaCy's \code{nlp.pipe()}, as in
 \code{\link[=spacy_parse]{spacy_parse()}}. \code{n_process} is used only when the components of the
-pipeline run: without them, more processes would only add the time to
-start them.}
+pipeline run and are all spaCy's own. Without the components, more
+processes would only add the time to start them; and a vector that a
+pipeline sets for its documents is not kept when a document comes back
+from another process, so such a pipeline uses one.}
 
 \item{...}{not used}
 }
@@ -54,7 +56,9 @@ No component of spaCy's pipeline runs, since the vectors need the tokens
 only, which makes this many times faster than \code{\link[=spacy_parse]{spacy_parse()}}. Every
 component runs when the pipeline has a component, a tokenizer or a
 language class that is not spaCy's own, which can set its own vector for
-a document: that vector is then returned.
+a document: that vector is then returned, and has to have as many
+dimensions as the model's vectors. They also run when one of them can
+change the tokens, as a dependency parser that merges subtokens.
 }
 \section{Experimental}{
 

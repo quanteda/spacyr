@@ -344,7 +344,67 @@ test_that("spacy_vectors_docs() runs no component, unless the pipeline is not sp
     hooked <- spacy_vectors_docs(docs_txt)
     expect_identical(unname(hooked["d1", ]), c(7, 7, 7))
     expect_identical(unname(hooked["d2", ]), rep(NA_real_, 3))
+    # also when more processes are asked for: spaCy does not keep such a
+    # function when a document comes back from another process, so one is
+    # used
+    expect_identical(spacy_vectors_docs(docs_txt, n_process = 2), hooked)
+    spobj <- spacyr:::new_spobj()
+    spobj$doc_vectors(as.list(unname(docs_txt)), as.list(names(docs_txt)), n_process = 2L)
+    expect_identical(as.integer(spobj$n_process), 1L)
+
+    # a vector of another width than the model's: an error that names the
+    # document, not a row of zeros
+    comp$set_vector_hook_tokenizer(nlp, width = 2L)
+    expect_error(spacy_vectors_docs(docs_txt),
+                 "The vector of document 'd1' has 2 dimensions, where the model's table of vectors has 3")
+    # a document without tokens has no vector to compare
+    expect_true(all(is.na(spacy_vectors_docs(c(a = "", b = NA)))))
   })
+})
+
+test_that("spacy_vectors_docs() runs a parser that can merge tokens", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  dir <- tempfile("spacyr_vectors_parser")
+  on.exit({
+    try(spacy_finalize(), silent = TRUE)
+    unlink(dir, recursive = TRUE)
+  }, add = TRUE)
+  comp$save_vectors_parser_pipeline(dir)
+  spacy_finalize()
+  spacy_initialize(model = dir)
+  nlp <- spacyr:::spacyr_env$nlp
+  module <- spacyr:::spacyr_module()
+
+  # a dependency parser set to merge subtokens can change the tokens of a
+  # document, and with them its vector: it has to run
+  expect_true(module$changes_tokens(nlp, "parser"))
+  expect_false(module$may_set_hooks(nlp))
+  expect_false(module$vectors_need_no_pipes(nlp))
+  spobj <- spacyr:::new_spobj()
+  x <- c(a = "the cat sat", b = "dog sat")
+  spobj$doc_vectors(as.list(unname(x)), as.list(names(x)), n_process = 2L)
+  expect_identical(length(spobj$disabled), 0L)
+  # its components are spaCy's own, so more processes can be used
+  expect_identical(as.integer(spobj$n_process), 2L)
+  vec <- spacy_vectors_docs(x)
+  for (d in names(x)) {
+    expect_equal(unname(vec[d, ]), as.numeric(nlp(x[[d]])$vector))
+  }
+  expect_identical(spacy_vectors_docs(x, n_process = 2), vec)
+})
+
+test_that("the parser of a standard pipeline does not merge tokens", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  expect_false(spacyr:::spacyr_module()$changes_tokens(spacyr:::spacyr_env$nlp, "parser"))
 })
 
 test_that("spacy_vectors_docs() runs no component of a standard pipeline with vectors", {

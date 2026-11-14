@@ -296,16 +296,47 @@ def save_floret_pipeline(path):
 # each document a function for its vector (Doc.user_hooks["vector"]): a
 # vector of sevens, of the width of the table.
 class VectorHookTokenizer:
-    def __init__(self, tokenizer):
+    def __init__(self, tokenizer, width = None):
         self.tokenizer = tokenizer
         self.vocab = tokenizer.vocab
+        self.width = width
 
     def __call__(self, text):
-        import numpy
         doc = self.tokenizer(text)
-        width = self.vocab.vectors.shape[1]
-        doc.user_hooks["vector"] = lambda d: numpy.full(width, 7, dtype = "float32")
+        doc.user_hooks["vector"] = _sevens(self.width or self.vocab.vectors.shape[1])
         return doc
 
-def set_vector_hook_tokenizer(nlp):
-    nlp.tokenizer = VectorHookTokenizer(nlp.tokenizer)
+class _sevens:
+    # a function that can be sent to another process
+    def __init__(self, width):
+        self.width = width
+
+    def __call__(self, doc):
+        import numpy
+        return numpy.full(self.width, 7, dtype = "float32")
+
+# width: of the vector of the hook, when not that of the table
+def set_vector_hook_tokenizer(nlp, width = None):
+    own = getattr(nlp.tokenizer, "tokenizer", nlp.tokenizer)
+    nlp.tokenizer = VectorHookTokenizer(own, width)
+
+# The pipeline of save_vectors_pipeline() with a dependency parser that is
+# set to merge subtokens (learn_tokens), which changes the tokens of a
+# document, and so its vector. The parser is initialized and not trained:
+# what it predicts does not matter here.
+def save_vectors_parser_pipeline(path):
+    import numpy
+    import spacy
+    from spacy.training import Example
+    nlp = spacy.blank("en")
+    vectors = {"cat": [1, 0, 0], "dog": [0, 1, 0], "sat": [0, 0, 1]}
+    for text, vector in vectors.items():
+        nlp.vocab.set_vector(text, numpy.asarray(vector, dtype = "float32"))
+    nlp.add_pipe("parser", config = {"learn_tokens": True})
+    def examples():
+        doc = nlp.make_doc("the cat sat")
+        return [Example.from_dict(doc, {"heads": [1, 2, 2],
+                                        "deps": ["det", "nsubj", "ROOT"]})]
+    nlp.initialize(examples)
+    nlp.meta["name"] = "spacyr_test_vectors_parser"
+    nlp.to_disk(path)
