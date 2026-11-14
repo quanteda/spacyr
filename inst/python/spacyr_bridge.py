@@ -4,6 +4,7 @@
 #  Penn treebank: http://web.mit.edu/6.863/www/PennTreebankTags.html
 # Requires installation of spaCy: https://honnibal.github.io/spaCy/
 import spacy
+from spacy import displacy
 from spacy.matcher import Matcher, PhraseMatcher, DependencyMatcher
 from spacy.tokens import Doc
 import time
@@ -11,6 +12,7 @@ import string
 import random
 import contextlib
 import re
+import html
 
 # This module is loaded by spacy_initialize() with reticulate::import_from_path().
 # It keeps no state of its own: R holds the pipeline returned by load_model()
@@ -1009,6 +1011,56 @@ class spacyr:
                     continue
                 df_all[id_] = df_doc
         return df_all
+
+    def render_spans(self, docs, labels = None, colors = None):
+        # Documents with their entities marked, as one fragment of HTML made
+        # by displaCy, in order. Each document is a dictionary of its text
+        # and its entities (ents), each of those a dictionary of its label
+        # and of where it starts and ends in the text, counting characters
+        # from 0, with the end after its last character. labels is a list
+        # of the entity labels to mark (None for all of them, an empty list
+        # for none) and colors a dictionary of colors by label; both are
+        # matched to the labels regardless of case.
+        #
+        # displaCy escapes the text of a document, but puts the labels of
+        # entities and the colors into its HTML as they are, as it does a
+        # document's title and the IDs of entities in a knowledge base. A
+        # label can come from a file of rules and a color from anywhere, so
+        # the entities are given to displaCy as dictionaries (manual = True)
+        # that hold only their positions and their labels, escaped, and the
+        # colors are escaped for the quoted attribute that they go into.
+        if isinstance(docs, dict):
+            docs = [docs]
+        if not docs:
+            return ""
+        if labels is not None:
+            labels = labels if isinstance(labels, list) else [labels]
+            labels = {label.upper() for label in labels}
+        settings = {
+            "lang": html.escape(self.nlp.lang),
+            "direction": "rtl" if self.nlp.vocab.writing_system.get(
+                "direction", "ltr") == "rtl" else "ltr"}
+        parsed = []
+        for doc in docs:
+            ents = doc.get("ents") or []
+            if isinstance(ents, dict):
+                ents = [ents]
+            ents = [{"start": int(ent["start"]), "end": int(ent["end"]),
+                     "label": html.escape(ent["label"])}
+                    for ent in ents
+                    if labels is None or ent["label"].upper() in labels]
+            parsed.append({"text": doc.get("text") or "",
+                           "ents": sorted(ents, key = lambda e: (e["start"], e["end"])),
+                           "title": None, "settings": settings})
+        options = {}
+        if colors:
+            # displaCy looks a color up by the label in upper case, which
+            # here is the escaped label
+            options["colors"] = {html.escape(label): html.escape(color)
+                                 for label, color in dict(colors).items()}
+        return displacy.render(parsed, style = "ent", page = False,
+                               jupyter = False, options = options,
+                               manual = True)
 
     def match_table(self, texts, docnames, labels, patterns, phrases = None,
                     dependency = None, greedy = None, batch_size = None,
