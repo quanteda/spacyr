@@ -11,10 +11,41 @@ import string
 import random
 import contextlib
 import re
+import numpy
 
 # This module is loaded by spacy_initialize() with reticulate::import_from_path().
 # It keeps no state of its own: R holds the pipeline returned by load_model()
 # and passes it, and all other values, as arguments.
+
+## word vectors
+
+def vectors_info(nlp):
+    # The table of static word vectors of the pipeline: its number of
+    # vectors and their width, both 0 when the model has none, with the
+    # names of the model and of the table.
+    rows, width = nlp.vocab.vectors.shape
+    meta = nlp.meta
+    return {"rows": int(rows), "width": int(width),
+            "model": str(meta.get("lang", "")) + "_" + str(meta.get("name", "")),
+            "version": meta.get("version"),
+            "vectors": (meta.get("vectors") or {}).get("name")}
+
+def type_vectors(nlp, types):
+    # The vector of each of these strings, in a matrix with one row for each
+    # and in their order, and whether each has no vector: its row is then
+    # zeros. The strings are looked up as they are, without the pipeline.
+    if isinstance(types, str):
+        types = [types]
+    vocab = nlp.vocab
+    width = vocab.vectors.shape[1]
+    matrix = numpy.zeros((len(types), width), dtype = "float32")
+    oov = []
+    for i, text in enumerate(types):
+        known = bool(vocab.has_vector(text))
+        oov.append(not known)
+        if known:
+            matrix[i] = vocab.get_vector(text)
+    return matrix, oov
 
 def load_model(model, entity = True, max_length = None):
     if not entity:

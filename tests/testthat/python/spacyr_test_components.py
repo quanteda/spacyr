@@ -229,3 +229,20 @@ def add_lemma_setter_ruler(nlp, lemma = "dog"):
                          after = "lemmatizer")
     ruler.add(patterns = [[{"LOWER": "dogs"}]],
               attrs = {"_": {"spacyr_test_mark": True}})
+
+# A small pipeline with word vectors, saved for spacy_initialize(model = ):
+# a blank English pipeline with a sentencizer, and vectors of three
+# dimensions for a few types. "Cat" has the vector of "cat", as spellings
+# share vectors in spaCy's models; no other type has one.
+def save_vectors_pipeline(path):
+    import numpy
+    import spacy
+    nlp = spacy.blank("en")
+    nlp.add_pipe("sentencizer")
+    vectors = {"cat": [1, 0, 0], "Cat": [1, 0, 0], "dog": [0, 1, 0],
+               "sat": [0, 0, 1], "the": [0.5, 0.5, 0], ".": [0, 0, 0.25]}
+    for text, vector in vectors.items():
+        nlp.vocab.set_vector(text, numpy.asarray(vector, dtype = "float32"))
+    nlp.meta["name"] = "spacyr_test_vectors"
+    nlp.meta["version"] = "0.0.1"
+    nlp.to_disk(path)
