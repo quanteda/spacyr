@@ -70,8 +70,10 @@
 #'   the `name` and the `version` of the language model, and the name of its
 #'   table of `vectors`; as any attribute of a matrix, it is not kept when
 #'   the matrix is subsetted.
-#' @seealso [spacy_parse()], whose `additional_attributes` can be
-#'   `"has_vector"`, `"is_oov"` and `"vector_norm"`
+#' @seealso [spacy_vectors_docs()]; [spacy_parse()], whose
+#'   `additional_attributes` can be `"has_vector"`, `"is_oov"` and
+#'   `"vector_norm"`; and the article "Word and Document Vectors" on the
+#'   package website
 #' @export
 #' @examples
 #' \dontrun{
@@ -259,7 +261,8 @@ need_quanteda <- function(x) {
 #'   documents, and one column for each dimension of the model's vectors,
 #'   without names. The row of a document without tokens, such as an empty
 #'   text, is `NA`. The attribute `model` is as for [spacy_vectors_types()].
-#' @seealso [spacy_vectors_types()]
+#' @seealso [spacy_vectors_types()], and the article "Word and Document
+#'   Vectors" on the package website
 #' @export
 #' @examples
 #' \dontrun{

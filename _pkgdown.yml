@@ -28,6 +28,8 @@ navbar:
         href: articles/matching.html
       - text: "Performance"
         href: articles/performance.html
+      - text: "Word and document vectors"
+        href: articles/vectors.html
       - text: "Using spacyr with Docker"
         href: articles/docker.html
     reference:

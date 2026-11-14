@@ -91,5 +91,6 @@ spacy_finalize()
 }
 }
 \seealso{
-\code{\link[=spacy_vectors_types]{spacy_vectors_types()}}
+\code{\link[=spacy_vectors_types]{spacy_vectors_types()}}, and the article "Word and Document
+Vectors" on the package website
 }
