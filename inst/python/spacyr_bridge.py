@@ -551,13 +551,20 @@ def may_set_hooks(nlp):
     # Whether the pipeline may give a document functions of its own, such as
     # Doc.user_hooks["vector"]: when its tokenizer or its language class is
     # not spaCy's, or it has a component that is not one of spaCy's known
-    # here. spaCy's own set none.
+    # here. spaCy's own set none, except that a rule of an attribute ruler
+    # can use an extension attribute, whose getter or setter is a function
+    # that can do anything: such a ruler has all the kinds in what it reads
+    # or sets (see _ruler_effects()).
     if not _own_tokenizer(nlp):
         return True
     for name in nlp.pipe_names:
         meta = _pipe_meta(nlp, name)
-        if _factory_effects(nlp, name,
-                            meta.factory if meta is not None else None) is None:
+        effects = _factory_effects(nlp, name,
+                                   meta.factory if meta is not None else None)
+        if effects is None:
+            return True
+        if meta.factory == "attribute_ruler" and \
+                (effects[0] >= _ALL_KINDS or effects[1] >= _ALL_KINDS):
             return True
     return False
 

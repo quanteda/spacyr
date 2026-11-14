@@ -346,6 +346,21 @@ def save_vectors_parser_pipeline(path):
 # other processes of nlp.pipe(), which their local functions do not survive.
 def remove_test_extensions():
     from spacy.tokens import Token
-    for name in ("spacyr_test_has_lemma", "spacyr_test_mark"):
+    for name in ("spacyr_test_has_lemma", "spacyr_test_mark",
+                 "spacyr_test_vector_hook"):
         if Token.has_extension(name):
             Token.remove_extension(name)
+
+# An attribute ruler, of spaCy's, with a rule that sets an extension
+# attribute whose setter gives the document a function for its vector: a
+# vector of sevens, for the documents with this word.
+def add_vector_hook_ruler(nlp, word = "cat"):
+    from spacy.tokens import Token
+    width = nlp.vocab.vectors.shape[1]
+    def setter(token, value):
+        token.doc.user_hooks["vector"] = _sevens(width)
+    Token.set_extension("spacyr_test_vector_hook", getter = lambda token: False,
+                        setter = setter, force = True)
+    ruler = nlp.add_pipe("attribute_ruler", name = "spacyr_test_hook_ruler")
+    ruler.add(patterns = [[{"LOWER": word}]],
+              attrs = {"_": {"spacyr_test_vector_hook": True}})

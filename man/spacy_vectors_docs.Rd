@@ -40,14 +40,19 @@ to weight or select the tokens, multiply a dfm by the vectors of its
 features (see \code{\link[=spacy_vectors_types]{spacy_vectors_types()}}).
 
 With the missing rows of \code{\link[=spacy_vectors_types]{spacy_vectors_types()}} set to zero, the
-document vectors are the proportions of the types in each document times
-the vectors of the types:
+vectors of the documents that have tokens are the proportions of the
+types in each document times the vectors of the types. For a document
+without tokens that product is zeros, where this function returns \code{NA}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{dfmat <- quanteda::dfm(quanteda::as.tokens(spacy_parse(x)), tolower = FALSE)
 fem <- spacy_vectors_types(dfmat)
 fem[is.na(fem)] <- 0
-quanteda::dfm_weight(dfmat, "prop") \%*\% fem
+dem <- as.matrix(quanteda::dfm_weight(dfmat, "prop") \%*\% fem)
+dem[quanteda::ntoken(dfmat) == 0, ] <- NA
 }\if{html}{\out{</div>}}
+
+This holds for spaCy's own calculation of the vector, and not for a
+pipeline that sets another for its documents.
 
 The language model needs to have word vectors, as for
 \code{\link[=spacy_vectors_types]{spacy_vectors_types()}}: a model without them is an error.

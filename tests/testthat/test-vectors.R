@@ -297,8 +297,12 @@ test_that("spacy_vectors_docs() returns the mean of the vectors of the tokens", 
     some <- quanteda::ntoken(dfmat) > 0
     expect_identical(names(some)[!some], "d2")
     expect_equal(unname(dem[some, ]), unname(vec[some, ]))
-    # an empty document has no proportions; here it has no vector
+    # for a document without tokens the product is zeros, where the
+    # function has no vector: as in the help page, set those rows to NA
+    expect_identical(unname(dem[!some, ]), c(0, 0, 0))
     expect_true(all(is.na(vec[!some, ])))
+    dem[!some, ] <- NA
+    expect_equal(matrix(dem, nrow(dem)), matrix(vec, nrow(vec)))
 
     # the same in batches, with two processes, and from other input
     expect_identical(spacy_vectors_docs(docs_txt, batch_size = 1), vec)
@@ -359,6 +363,37 @@ test_that("spacy_vectors_docs() runs no component, unless the pipeline is not sp
                  "The vector of document 'd1' has 2 dimensions, where the model's table of vectors has 3")
     # a document without tokens has no vector to compare
     expect_true(all(is.na(spacy_vectors_docs(c(a = "", b = NA)))))
+  })
+})
+
+test_that("spacy_vectors_docs() keeps a vector that an attribute rule sets", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  with_vectors_pipeline({
+    comp <- reticulate::import_from_path("spacyr_test_components",
+                                         path = test_path("python"))
+    nlp <- spacyr:::spacyr_env$nlp
+    module <- spacyr:::spacyr_module()
+    expect_false(module$may_set_hooks(nlp))
+
+    # an attribute ruler is a component of spaCy's, but a rule of it can set
+    # an extension attribute, whose setter here gives the document a
+    # function for its vector
+    on.exit(comp$remove_test_extensions(), add = TRUE, after = FALSE)
+    comp$add_vector_hook_ruler(nlp)
+    expect_true(module$may_set_hooks(nlp))
+    expect_false(module$vectors_need_no_pipes(nlp))
+
+    x <- c(a = "the cat sat.", b = "the dog sat.")
+    vec <- spacy_vectors_docs(x)
+    expect_identical(unname(vec["a", ]), c(7, 7, 7))
+    expect_equal(unname(vec["b", ]), c(0.5, 1.5, 1.25) / 4)
+    # with more processes asked for, one is used, and the vector is kept
+    expect_identical(spacy_vectors_docs(x, n_process = 2), vec)
+    spobj <- spacyr:::new_spobj()
+    spobj$doc_vectors(as.list(unname(x)), as.list(names(x)), n_process = 2L)
+    expect_identical(as.integer(spobj$n_process), 1L)
+    expect_identical(length(spobj$disabled), 0L)
   })
 })
 

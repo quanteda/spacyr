@@ -222,14 +222,18 @@ need_quanteda <- function(x) {
 #' features (see [spacy_vectors_types()]).
 #'
 #' With the missing rows of [spacy_vectors_types()] set to zero, the
-#' document vectors are the proportions of the types in each document times
-#' the vectors of the types:
+#' vectors of the documents that have tokens are the proportions of the
+#' types in each document times the vectors of the types. For a document
+#' without tokens that product is zeros, where this function returns `NA`:
 #' ```
 #' dfmat <- quanteda::dfm(quanteda::as.tokens(spacy_parse(x)), tolower = FALSE)
 #' fem <- spacy_vectors_types(dfmat)
 #' fem[is.na(fem)] <- 0
-#' quanteda::dfm_weight(dfmat, "prop") %*% fem
+#' dem <- as.matrix(quanteda::dfm_weight(dfmat, "prop") %*% fem)
+#' dem[quanteda::ntoken(dfmat) == 0, ] <- NA
 #' ```
+#' This holds for spaCy's own calculation of the vector, and not for a
+#' pipeline that sets another for its documents.
 #'
 #' The language model needs to have word vectors, as for
 #' [spacy_vectors_types()]: a model without them is an error.
