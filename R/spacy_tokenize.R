@@ -13,7 +13,9 @@
 #' runs, by the rules described in the details of [spacy_parse()]: a
 #' component stays whenever a later one that stays may read what it sets,
 #' and nothing is left out when the pipeline has a component that is not
-#' one of spaCy's standard ones.
+#' one of spaCy's standard ones, or a tokenizer that is not spaCy's own,
+#' which can give the documents a function of its own to find the
+#' sentences.
 #' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
 #'   corpus data.frame (see <https://github.com/ropenscilabs/tif>) 
 #' @param what the unit for splitting the text, available alternatives are: 

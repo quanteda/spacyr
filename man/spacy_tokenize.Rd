@@ -87,7 +87,9 @@ the attribute ruler. The output is the same as when every component
 runs, by the rules described in the details of \code{\link[=spacy_parse]{spacy_parse()}}: a
 component stays whenever a later one that stays may read what it sets,
 and nothing is left out when the pipeline has a component that is not
-one of spaCy's standard ones.
+one of spaCy's standard ones, or a tokenizer that is not spaCy's own,
+which can give the documents a function of its own to find the
+sentences.
 }
 \examples{
 \dontrun{

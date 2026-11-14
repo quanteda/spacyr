@@ -403,6 +403,17 @@ def spans_use(nlp, what):
         return {"tags", "deps"}
     return None
 
+def _own_tokenizer(nlp):
+    # Whether the documents are made by spaCy's own code: a language class
+    # and a tokenizer of spaCy's. Another tokenizer can do more than split
+    # the text. It can give each document functions of its own, such as
+    # Doc.user_hooks["sents"], by which doc.sents then finds the sentences,
+    # and such a function may read any annotation, such as the part of
+    # speech. That cannot be told from the pipeline's components.
+    def own(obj):
+        return str(type(obj).__module__).split(".")[0] == "spacy"
+    return own(nlp) and own(nlp.tokenizer)
+
 def pipes_unneeded_for(nlp, used):
     # The names of the active components that a call can leave out without
     # changing its output, when its output uses only these kinds of
@@ -410,9 +421,10 @@ def pipes_unneeded_for(nlp, used):
     # be left out when the call uses nothing of what it sets, and no later
     # component that stays may read it. Nothing is left out when the
     # pipeline has a component that is not one of spaCy's that
-    # _factory_effects() knows, which may read or change anything, or when
-    # what the call uses is not known (None).
-    if used is None:
+    # _factory_effects() knows, which may read or change anything; when
+    # its tokenizer or its language class is not spaCy's (see
+    # _own_tokenizer()); or when what the call uses is not known (None).
+    if used is None or not _own_tokenizer(nlp):
         return []
     names = nlp.pipe_names
     effects = {}

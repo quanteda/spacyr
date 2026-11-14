@@ -176,3 +176,29 @@ def set_lemma_noun_chunks(nlp, lemma = "dog"):
             if any(token.lemma_ == lemma for token in doc[start:end]):
                 yield start, end, label
     nlp.vocab.get_noun_chunks = lemma_noun_chunks
+
+# A tokenizer that is not spaCy's, which wraps the pipeline's own and gives
+# each document a function for its sentences (Doc.user_hooks["sents"]): a
+# sentence starts at each coordinating conjunction, so the function reads
+# the part of speech, which the pipeline's components set afterwards.
+def _sents_at_conjunctions(doc):
+    start = 0
+    for token in doc:
+        if token.i > start and token.pos_ == "CCONJ":
+            yield doc[start:token.i]
+            start = token.i
+    if start < len(doc):
+        yield doc[start:len(doc)]
+
+class SentenceHookTokenizer:
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+        self.vocab = tokenizer.vocab
+
+    def __call__(self, text):
+        doc = self.tokenizer(text)
+        doc.user_hooks["sents"] = _sents_at_conjunctions
+        return doc
+
+def set_sentence_hook_tokenizer(nlp):
+    nlp.tokenizer = SentenceHookTokenizer(nlp.tokenizer)

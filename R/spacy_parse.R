@@ -31,6 +31,9 @@
 #'   not built by spaCy's own functions is taken to read everything.
 #' * Nothing is left out when `additional_attributes` are asked for, or when
 #'   the pipeline has a component that is not one of spaCy's standard ones.
+#' * Nothing is left out either when the pipeline's tokenizer is not
+#'   spaCy's own. Such a tokenizer can give the documents a function of its
+#'   own to find the sentences, which may read any annotation.
 #' * With `nounphrase = TRUE`, nothing is left out either when the pipeline
 #'   finds its noun phrases by a function that is not spaCy's own for the
 #'   language, which may read any annotation.

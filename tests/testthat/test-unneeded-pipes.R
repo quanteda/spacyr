@@ -583,3 +583,44 @@ test_that("spacy_tokenize() keeps an attribute ruler that sets sentence boundari
   expect_identical(whole$a[2], "and they left early.")
   expect_identical(spacy_tokenize(sents, what = "sentence"), whole)
 })
+
+test_that("nothing is left out of a pipeline whose tokenizer is not spaCy's", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  module <- spacyr:::spacyr_module()
+  left <- c(a = "They left and we stayed.")
+
+  # spaCy's tokenizer: the sentences are the parser's
+  expect_true(module$`_own_tokenizer`(nlp))
+  expect_identical(tokenize_left_out("tokenize_sentence", x = left),
+                   c("tagger", "attribute_ruler", "lemmatizer", "ner"))
+  expect_identical(spacy_tokenize(left, what = "sentence"),
+                   list(a = "They left and we stayed."))
+
+  # a tokenizer that gives each document its own function for the
+  # sentences, which starts one at each conjunction: it reads the part of
+  # speech, so the tagger and the attribute ruler have to run
+  comp$set_sentence_hook_tokenizer(nlp)
+  expect_false(module$`_own_tokenizer`(nlp))
+  expect_identical(tokenize_left_out("tokenize_sentence", x = left), character())
+  expect_identical(spacy_tokenize(left, what = "sentence"),
+                   list(a = c("They left", "and we stayed.")))
+
+  # in the other functions too
+  expect_identical(tokenize_left_out("tokenize", remove_symbols = TRUE,
+                                     turn_off_pipes = FALSE, x = left), character())
+  expect_identical(left_out(pos = FALSE, lemma = FALSE, entity = FALSE), character())
+  parsed <- spacy_parse(left, pos = FALSE, lemma = FALSE, entity = FALSE)
+  expect_identical(parsed$sentence_id, c(1L, 1L, 2L, 2L, 2L, 2L))
+  expect_identical(extractor_left_out("entity", x = left), character())
+  expect_identical(extractor_left_out("nounphrases", x = left), character())
+  # words still need no component
+  expect_identical(tokenize_left_out("tokenize", x = left),
+                   c("tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer", "ner"))
+})
