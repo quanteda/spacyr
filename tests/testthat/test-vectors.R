@@ -240,3 +240,227 @@ test_that("spacy_vectors_types() stops for a model without word vectors", {
   expect_error(spacy_vectors_types(spacy_parse("A cat.")),
                "has no word vectors")
 })
+
+# spacy_vectors_docs(): a vector for each document, spaCy's Doc.vector
+
+docs_txt <- c(d1 = "The cat sat.",          # "The" has no vector
+              d2 = "",                      # no tokens
+              d3 = "the dog sat. The Cat sat.",
+              d4 = "Zebra zebra",           # no token with a vector
+              d5 = "cat  dog")              # a whitespace token
+
+test_that("spacy_vectors_docs() stops on arguments it does not use, without Python", {
+  expect_error(spacy_vectors_docs("a", nonsense = 1),
+               "spacy_vectors_docs\\(\\) does not use the argument nonsense")
+  expect_error(spacy_vectors_docs("a", n_process = 0), "n_process")
+  expect_identical(names(formals(spacy_vectors_docs)),
+                   c("x", "n_process", "batch_size", "..."))
+})
+
+test_that("spacy_vectors_docs() returns the mean of the vectors of the tokens", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  skip_if_not_installed("quanteda")
+  with_vectors_pipeline({
+    vec <- spacy_vectors_docs(docs_txt)
+
+    expect_true(is.matrix(vec))
+    expect_type(vec, "double")
+    expect_identical(dim(vec), c(5L, 3L))
+    expect_identical(rownames(vec), names(docs_txt))
+    expect_null(colnames(vec))
+    expect_identical(attr(vec, "model"), attr(spacy_vectors_types("cat"), "model"))
+    # a token without a vector counts among the tokens, as zeros
+    expect_equal(unname(vec["d1", ]), c(1, 0, 1.25) / 4)
+    # a document without tokens has no vector
+    expect_identical(unname(vec["d2", ]), rep(NA_real_, 3))
+    # one whose tokens are all unknown has spaCy's vector of zeros
+    expect_identical(unname(vec["d4", ]), c(0, 0, 0))
+    # a whitespace token is a token
+    expect_equal(unname(vec["d5", ]), c(1, 1, 0) / 3)
+
+    # spaCy's own vector of each document, from the pipeline itself
+    nlp <- spacyr:::spacyr_env$nlp
+    for (d in c("d1", "d3", "d4", "d5")) {
+      expect_equal(unname(vec[d, ]), as.numeric(nlp(docs_txt[[d]])$vector))
+    }
+
+    # the proportions of the types in each document, times the vectors of
+    # the types with zeros for those that have none
+    parsed <- suppressWarnings(spacy_parse(docs_txt, pos = FALSE, lemma = FALSE,
+                                           entity = FALSE))
+    dfmat <- quanteda::dfm(quanteda::as.tokens(parsed), tolower = FALSE)
+    fem <- spacy_vectors_types(dfmat)
+    expect_true(anyNA(fem))
+    fem[is.na(fem)] <- 0
+    dem <- as.matrix(quanteda::dfm_weight(dfmat, "prop") %*% fem)
+    some <- quanteda::ntoken(dfmat) > 0
+    expect_identical(names(some)[!some], "d2")
+    expect_equal(unname(dem[some, ]), unname(vec[some, ]))
+    # for a document without tokens the product is zeros, where the
+    # function has no vector: as in the help page, set those rows to NA
+    expect_identical(unname(dem[!some, ]), c(0, 0, 0))
+    expect_true(all(is.na(vec[!some, ])))
+    dem[!some, ] <- NA
+    expect_equal(matrix(dem, nrow(dem)), matrix(vec, nrow(vec)))
+
+    # the same in batches, with two processes, and from other input
+    expect_identical(spacy_vectors_docs(docs_txt, batch_size = 1), vec)
+    expect_identical(spacy_vectors_docs(docs_txt, batch_size = 3, n_process = 2), vec)
+    tif <- data.frame(doc_id = names(docs_txt), text = unname(docs_txt),
+                      stringsAsFactors = FALSE)
+    expect_identical(spacy_vectors_docs(tif), vec)
+    expect_identical(spacy_vectors_docs(quanteda::corpus(docs_txt)), vec)
+    expect_identical(rownames(spacy_vectors_docs(unname(docs_txt[1:2]))),
+                     c("text1", "text2"))
+    # no documents, and all without tokens
+    expect_identical(dim(spacy_vectors_docs(character())), c(0L, 3L))
+    expect_true(all(is.na(spacy_vectors_docs(c(a = "", b = NA)))))
+  })
+})
+
+test_that("spacy_vectors_docs() runs no component, unless the pipeline is not spaCy's", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  with_vectors_pipeline({
+    comp <- reticulate::import_from_path("spacyr_test_components",
+                                         path = test_path("python"))
+    nlp <- spacyr:::spacyr_env$nlp
+    left_out <- function() {
+      spobj <- spacyr:::new_spobj()
+      spobj$doc_vectors(as.list(unname(docs_txt)), as.list(names(docs_txt)))
+      as.character(unlist(spobj$disabled))
+    }
+    before <- reticulate::py_str(nlp$pipe_names)
+    vec <- spacy_vectors_docs(docs_txt)
+    expect_identical(left_out(), "sentencizer")
+    expect_identical(reticulate::py_str(nlp$pipe_names), before)
+
+    # with a component that is not spaCy's, every component runs: the same
+    nlp$add_pipe("spacyr_test_noop", last = TRUE)
+    expect_identical(left_out(), character())
+    expect_identical(spacy_vectors_docs(docs_txt), vec)
+    nlp$remove_pipe("spacyr_test_noop")
+
+    # a tokenizer that gives the documents its own vector: that is returned
+    comp$set_vector_hook_tokenizer(nlp)
+    expect_identical(left_out(), character())
+    hooked <- spacy_vectors_docs(docs_txt)
+    expect_identical(unname(hooked["d1", ]), c(7, 7, 7))
+    expect_identical(unname(hooked["d2", ]), rep(NA_real_, 3))
+    # also when more processes are asked for: spaCy does not keep such a
+    # function when a document comes back from another process, so one is
+    # used
+    expect_identical(spacy_vectors_docs(docs_txt, n_process = 2), hooked)
+    spobj <- spacyr:::new_spobj()
+    spobj$doc_vectors(as.list(unname(docs_txt)), as.list(names(docs_txt)), n_process = 2L)
+    expect_identical(as.integer(spobj$n_process), 1L)
+
+    # a vector of another width than the model's: an error that names the
+    # document, not a row of zeros
+    comp$set_vector_hook_tokenizer(nlp, width = 2L)
+    expect_error(spacy_vectors_docs(docs_txt),
+                 "The vector of document 'd1' has 2 dimensions, where the model's table of vectors has 3")
+    # a document without tokens has no vector to compare
+    expect_true(all(is.na(spacy_vectors_docs(c(a = "", b = NA)))))
+  })
+})
+
+test_that("spacy_vectors_docs() keeps a vector that an attribute rule sets", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  with_vectors_pipeline({
+    comp <- reticulate::import_from_path("spacyr_test_components",
+                                         path = test_path("python"))
+    nlp <- spacyr:::spacyr_env$nlp
+    module <- spacyr:::spacyr_module()
+    expect_false(module$may_set_hooks(nlp))
+
+    # an attribute ruler is a component of spaCy's, but a rule of it can set
+    # an extension attribute, whose setter here gives the document a
+    # function for its vector
+    on.exit(comp$remove_test_extensions(), add = TRUE, after = FALSE)
+    comp$add_vector_hook_ruler(nlp)
+    expect_true(module$may_set_hooks(nlp))
+    expect_false(module$vectors_need_no_pipes(nlp))
+
+    x <- c(a = "the cat sat.", b = "the dog sat.")
+    vec <- spacy_vectors_docs(x)
+    expect_identical(unname(vec["a", ]), c(7, 7, 7))
+    expect_equal(unname(vec["b", ]), c(0.5, 1.5, 1.25) / 4)
+    # with more processes asked for, one is used, and the vector is kept
+    expect_identical(spacy_vectors_docs(x, n_process = 2), vec)
+    spobj <- spacyr:::new_spobj()
+    spobj$doc_vectors(as.list(unname(x)), as.list(names(x)), n_process = 2L)
+    expect_identical(as.integer(spobj$n_process), 1L)
+    expect_identical(length(spobj$disabled), 0L)
+  })
+})
+
+test_that("spacy_vectors_docs() runs a parser that can merge tokens", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  dir <- tempfile("spacyr_vectors_parser")
+  on.exit({
+    try(spacy_finalize(), silent = TRUE)
+    unlink(dir, recursive = TRUE)
+  }, add = TRUE)
+  # extension attributes of earlier tests would be sent to other processes
+  comp$remove_test_extensions()
+  comp$save_vectors_parser_pipeline(dir)
+  spacy_finalize()
+  spacy_initialize(model = dir)
+  nlp <- spacyr:::spacyr_env$nlp
+  module <- spacyr:::spacyr_module()
+
+  # a dependency parser set to merge subtokens can change the tokens of a
+  # document, and with them its vector: it has to run
+  expect_true(module$changes_tokens(nlp, "parser"))
+  expect_false(module$may_set_hooks(nlp))
+  expect_false(module$vectors_need_no_pipes(nlp))
+  spobj <- spacyr:::new_spobj()
+  x <- c(a = "the cat sat", b = "dog sat")
+  spobj$doc_vectors(as.list(unname(x)), as.list(names(x)), n_process = 2L)
+  expect_identical(length(spobj$disabled), 0L)
+  # its components are spaCy's own, so more processes can be used
+  expect_identical(as.integer(spobj$n_process), 2L)
+  vec <- spacy_vectors_docs(x)
+  for (d in names(x)) {
+    expect_equal(unname(vec[d, ]), as.numeric(nlp(x[[d]])$vector))
+  }
+  expect_identical(spacy_vectors_docs(x, n_process = 2), vec)
+})
+
+test_that("the parser of a standard pipeline does not merge tokens", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  expect_false(spacyr:::spacyr_module()$changes_tokens(spacyr:::spacyr_env$nlp, "parser"))
+})
+
+test_that("spacy_vectors_docs() runs no component of a standard pipeline with vectors", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  # the standard model has no vectors: an error, and its components stay
+  expect_error(spacy_vectors_docs(docs_txt),
+               "The language model 'en_core_web_sm' has no word vectors")
+  expect_false(spacyr:::spacyr_module()$vectors_need_no_pipes(spacyr:::spacyr_env$nlp))
+  # with the vectors of the test pipeline, its components are not needed
+  nlp <- spacyr:::spacyr_env$nlp
+  nlp$vocab$set_vector("cat", reticulate::import("numpy")$asarray(c(1, 0, 0), dtype = "float32"))
+  expect_true(spacyr:::spacyr_module()$vectors_need_no_pipes(nlp))
+  spobj <- spacyr:::new_spobj()
+  res <- spobj$doc_vectors(list("The cat sat."), list("a"))
+  expect_identical(as.character(unlist(spobj$disabled)),
+                   c("tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer", "ner"))
+  expect_equal(as.numeric(res$matrix), c(1, 0, 0) / 4)
+})

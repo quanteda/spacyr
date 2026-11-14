@@ -74,6 +74,7 @@ reference:
   desc: Experimental
   contents:
   - spacy_vectors_types
+  - spacy_vectors_docs
 - title: Working with quanteda
   contents:
   - quanteda-methods

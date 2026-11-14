@@ -516,6 +516,58 @@ def match_use(patterns, dependency):
         return None
     return used
 
+def vectors_need_no_pipes(nlp):
+    # Whether the vector of a document is the same when no component of the
+    # pipeline runs. spaCy's Doc.vector is the mean of the vectors of the
+    # document's tokens, which are looked up by their text in the table of
+    # vectors, so it needs the tokenizer only. That holds for a pipeline
+    # that can be read as for pipes_unneeded_for(): one whose tokenizer and
+    # language class are spaCy's, since another can give a document its own
+    # function for the vector (Doc.user_hooks["vector"]), and whose
+    # components are all known and set nothing but the annotations, since
+    # another may set such a function, or change the tokens.
+    if nlp.vocab.vectors.shape[0] == 0 or may_set_hooks(nlp):
+        return False
+    for name in nlp.pipe_names:
+        meta = _pipe_meta(nlp, name)
+        effects = _pipe_effects(nlp, name,
+                                meta.factory if meta is not None else None)
+        if "other" in effects[0] or changes_tokens(nlp, name):
+            return False
+    return True
+
+def changes_tokens(nlp, name):
+    # Whether a component of spaCy's may change the tokens of a document:
+    # one that says so (retokenizes), and the dependency parser when it is
+    # set to merge subtokens (learn_tokens).
+    if retokenizes(nlp, name):
+        return True
+    try:
+        return bool(nlp.get_pipe_config(name).get("learn_tokens", False))
+    except Exception:
+        return True
+
+def may_set_hooks(nlp):
+    # Whether the pipeline may give a document functions of its own, such as
+    # Doc.user_hooks["vector"]: when its tokenizer or its language class is
+    # not spaCy's, or it has a component that is not one of spaCy's known
+    # here. spaCy's own set none, except that a rule of an attribute ruler
+    # can use an extension attribute, whose getter or setter is a function
+    # that can do anything: such a ruler has all the kinds in what it reads
+    # or sets (see _ruler_effects()).
+    if not _own_tokenizer(nlp):
+        return True
+    for name in nlp.pipe_names:
+        meta = _pipe_meta(nlp, name)
+        effects = _factory_effects(nlp, name,
+                                   meta.factory if meta is not None else None)
+        if effects is None:
+            return True
+        if meta.factory == "attribute_ruler" and \
+                (effects[0] >= _ALL_KINDS or effects[1] >= _ALL_KINDS):
+            return True
+    return False
+
 def pipes_unneeded_for(nlp, used):
     # The names of the active components that a call can leave out without
     # changing its output, when its output uses only these kinds of
@@ -963,6 +1015,52 @@ class spacyr:
                                              remove_url = remove_url,
                                              remove_symbols = remove_symbols)
             return tokens_out
+
+    def doc_vectors(self, texts, docnames, batch_size = None, n_process = 1):
+        # The vector of each document, spaCy's Doc.vector, in a matrix with
+        # one row for each document that the pipeline returns, with their
+        # names and whether each has no tokens. No component runs when the
+        # vectors do not need them (see vectors_need_no_pipes()); more
+        # processes would then only add the time to start them. One process
+        # is used as well when the pipeline may give a document its own
+        # function for the vector: spaCy does not keep such functions when
+        # it returns a document from another process, so the vector would
+        # be another.
+        texts, docnames = _as_list(texts, docnames)
+        if vectors_need_no_pipes(self.nlp):
+            self.disabled = list(self.nlp.pipe_names)
+            n_process = 1
+            pipes_context = self.nlp.select_pipes(disable = self.disabled)
+        else:
+            self.disabled = []
+            pipes_context = contextlib.nullcontext()
+            if may_set_hooks(self.nlp):
+                n_process = 1
+        self.n_process = n_process
+        width = self.nlp.vocab.vectors.shape[1]
+        ids, rows, empty = [], [], []
+        with pipes_context:
+            for id_, doc in self.docs(texts, docnames, batch_size, n_process):
+                ids.append(id_)
+                empty.append(len(doc) == 0)
+                if len(doc) == 0:
+                    # no vector: its row is set to missing in R
+                    rows.append(numpy.zeros(width, dtype = "float32"))
+                    continue
+                vector = _to_host(doc.vector)
+                if vector.shape != (width,):
+                    raise ValueError(
+                        "The vector of document '%s' has %s, where the "
+                        "model's table of vectors has %d dimensions. The "
+                        "pipeline gives documents a vector of its own, which "
+                        "spacy_vectors_docs() cannot return with the others."
+                        % (id_, "dimensions " + str(tuple(vector.shape))
+                           if vector.ndim != 1 else
+                           str(vector.shape[0]) + " dimensions", width))
+                rows.append(vector)
+        matrix = numpy.vstack(rows) if rows else \
+            numpy.zeros((0, width), dtype = "float32")
+        return {"ids": ids, "matrix": matrix, "empty": empty}
 
     def tokenize_sentence(self, texts, docnames, remove_separators = False,
                           batch_size = None, n_process = 1):

@@ -125,15 +125,8 @@ spacy_vectors_types.character <- function(x, ...) {
     types <- unique(as.character(x))
     types <- types[!is.na(types)]
     if (is.null(getOption("spacy_initialized"))) spacy_initialize()
-    module <- spacyr_module()
-    info <- module$vectors_info(spacyr_env$nlp)
-    if (info$rows == 0L || info$width == 0L)
-        stop("The language model '", info$model, "' has no word vectors. ",
-             "Initialize a model that has them, such as 'en_core_web_md' ",
-             "(install it with spacy_download_langmodel(\"en_core_web_md\")): ",
-             "spacy_finalize(); spacy_initialize(model = \"en_core_web_md\")",
-             call. = FALSE)
-    res <- module$type_vectors(spacyr_env$nlp, as.list(types))
+    info <- vectors_info()
+    res <- spacyr_module()$type_vectors(spacyr_env$nlp, as.list(types))
     vectors <- res[[1]]
     if (!is.matrix(vectors))
         vectors <- matrix(as.numeric(vectors), nrow = length(types), ncol = info$width)
@@ -141,9 +134,24 @@ spacy_vectors_types.character <- function(x, ...) {
     dimnames(vectors) <- list(types, NULL)
     # a type without a vector is missing, not a vector of zeros as in spaCy
     vectors[as.logical(unlist(res[[2]])), ] <- NA_real_
-    attr(vectors, "model") <- list(name = info$model, version = info$version,
-                                   vectors = info$vectors)
+    attr(vectors, "model") <- info$attribute
     vectors
+}
+
+# The width of the vectors of the pipeline and the model attribute of the
+# matrices, or an error when the model has no table of vectors. spaCy must
+# be initialized.
+vectors_info <- function() {
+    info <- spacyr_module()$vectors_info(spacyr_env$nlp)
+    if (info$rows == 0L || info$width == 0L)
+        stop("The language model '", info$model, "' has no word vectors. ",
+             "Initialize a model that has them, such as 'en_core_web_md' ",
+             "(install it with spacy_download_langmodel(\"en_core_web_md\")): ",
+             "spacy_finalize(); spacy_initialize(model = \"en_core_web_md\")",
+             call. = FALSE)
+    list(width = info$width,
+         attribute = list(name = info$model, version = info$version,
+                          vectors = info$vectors))
 }
 
 #' @rdname spacy_vectors_types
@@ -189,4 +197,114 @@ need_quanteda <- function(x) {
         stop("the quanteda package is needed for an object of class '",
              class(x)[1], "'", call. = FALSE)
     invisible(TRUE)
+}
+
+
+#' Vectors for documents (experimental)
+#'
+#' Get a vector for each document from the pre-trained word vectors of the
+#' spaCy language model: the mean of the vectors of the document's tokens,
+#' as spaCy computes it, in a matrix with one row for each document.
+#'
+#' @section Experimental:
+#' This function is experimental: its arguments and what it returns may
+#' change. It is meant to work with the document-embedding matrix planned
+#' for \pkg{quanteda}, whose rows are documents and whose columns are the
+#' dimensions of an embedding, and may return that object once it exists.
+#'
+#' @details
+#' The vector of a document is spaCy's `Doc.vector`: the mean of the vectors
+#' of all the tokens that spaCy's tokenizer finds in it, whitespace tokens
+#' included. A token that the model has no vector for counts as a vector of
+#' zeros, so it pulls the mean towards zero; a document whose tokens are all
+#' unknown has a vector of zeros. To leave unknown types out of the mean, or
+#' to weight or select the tokens, multiply a dfm by the vectors of its
+#' features (see [spacy_vectors_types()]).
+#'
+#' With the missing rows of [spacy_vectors_types()] set to zero, the
+#' vectors of the documents that have tokens are the proportions of the
+#' types in each document times the vectors of the types. For a document
+#' without tokens that product is zeros, where this function returns `NA`:
+#' ```
+#' dfmat <- quanteda::dfm(quanteda::as.tokens(spacy_parse(x)), tolower = FALSE)
+#' fem <- spacy_vectors_types(dfmat)
+#' fem[is.na(fem)] <- 0
+#' dem <- as.matrix(quanteda::dfm_weight(dfmat, "prop") %*% fem)
+#' dem[quanteda::ntoken(dfmat) == 0, ] <- NA
+#' ```
+#' This holds for spaCy's own calculation of the vector, and not for a
+#' pipeline that sets another for its documents.
+#'
+#' The language model needs to have word vectors, as for
+#' [spacy_vectors_types()]: a model without them is an error.
+#'
+#' No component of spaCy's pipeline runs, since the vectors need the tokens
+#' only, which makes this many times faster than [spacy_parse()]. Every
+#' component runs when the pipeline has a component, a tokenizer or a
+#' language class that is not spaCy's own, which can set its own vector for
+#' a document: that vector is then returned, and has to have as many
+#' dimensions as the model's vectors. They also run when one of them can
+#' change the tokens, as a dependency parser that merges subtokens.
+#'
+#' @param x a character object, a \pkg{quanteda} corpus, or a TIF-compliant
+#'   corpus data.frame (see <https://github.com/ropenscilabs/tif>)
+#' @param n_process,batch_size passed to spaCy's `nlp.pipe()`, as in
+#'   [spacy_parse()]. `n_process` is used only when the components of the
+#'   pipeline run and are all spaCy's own. Without the components, more
+#'   processes would only add the time to start them; and a vector that a
+#'   pipeline sets for its documents is not kept when a document comes back
+#'   from another process, so such a pipeline uses one.
+#' @param ... not used
+#' @return a numeric matrix with one row for each document, named by the
+#'   documents, and one column for each dimension of the model's vectors,
+#'   without names. The row of a document without tokens, such as an empty
+#'   text, is `NA`. The attribute `model` is as for [spacy_vectors_types()].
+#' @seealso [spacy_vectors_types()]
+#' @export
+#' @examples
+#' \dontrun{
+#' spacy_initialize(model = "en_core_web_md")
+#'
+#' txt <- c(d1 = "The king spoke to the queen.",
+#'          d2 = "The queen answered the king.",
+#'          d3 = "Bananas are yellow.")
+#' vec <- spacy_vectors_docs(txt)
+#' dim(vec)
+#'
+#' # cosine similarity between documents
+#' unit <- vec / sqrt(rowSums(vec^2))
+#' round(tcrossprod(unit), 2)
+#'
+#' spacy_finalize()
+#' }
+spacy_vectors_docs <- function(x, n_process = 1L, batch_size = NULL, ...) {
+    UseMethod("spacy_vectors_docs")
+}
+
+#' @export
+spacy_vectors_docs.character <- function(x, n_process = 1L, batch_size = NULL, ...) {
+    check_unused_args(match.call(expand.dots = FALSE)$..., "spacy_vectors_docs")
+    args <- pipe_args(n_process, batch_size)
+    input <- spacy_input(x)
+    info <- vectors_info()
+    spobj <- new_spobj()
+    res <- spobj$doc_vectors(input$x, input$docnames,
+                             batch_size = args$batch_size,
+                             n_process = args$n_process)
+    warn_skipped(spobj)
+    ids <- as.character(unlist(res$ids))
+    vectors <- res$matrix
+    if (!is.matrix(vectors))
+        vectors <- matrix(as.numeric(vectors), nrow = length(ids), ncol = info$width)
+    storage.mode(vectors) <- "double"
+    dimnames(vectors) <- list(ids, NULL)
+    # a document without tokens has no vector, not one of zeros as in spaCy
+    vectors[as.logical(unlist(res$empty)), ] <- NA_real_
+    attr(vectors, "model") <- info$attribute
+    vectors
+}
+
+#' @export
+spacy_vectors_docs.data.frame <- function(x, ...) {
+    spacy_vectors_docs(tif_texts(x), ...)
 }
