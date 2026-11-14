@@ -372,19 +372,36 @@ def unneeded_pipes(nlp, lemma = True, pos = True, tag = False,
     if attributes:
         return []
     used = set()
-    if pos or tag or nounphrase:
+    if pos or tag:
         used.add("tags")
     if lemma:
         used.add("lemma")
     if entity:
         used.add("ents")
-    if dependency or nounphrase:
+    if dependency:
         used.add("deps")
+    if nounphrase:
+        chunks = spans_use(nlp, "noun_chunks")
+        if chunks is None:
+            return []
+        used |= chunks
     return pipes_unneeded_for(nlp, used)
 
-# What the extractors use: the entities, or for the noun phrases the
-# dependencies and the part of speech
-_SPANS_USE = {"ents": {"ents"}, "noun_chunks": {"tags", "deps"}}
+def spans_use(nlp, what):
+    # The kinds of annotation that the extractors use: the entities, or for
+    # the noun phrases what the language's noun chunk iterator reads. Those
+    # of spaCy's languages, in spacy.lang.<language>.syntax_iterators, read
+    # the dependencies and the tags. A pipeline can have another, set as
+    # Vocab.get_noun_chunks, which may read anything, such as the lemmas:
+    # None then, for which nothing is left out.
+    if what == "ents":
+        return {"ents"}
+    iterator = nlp.vocab.get_noun_chunks
+    module = str(getattr(iterator, "__module__", ""))
+    if iterator is not None and module.startswith("spacy.lang.") and \
+            module.endswith(".syntax_iterators"):
+        return {"tags", "deps"}
+    return None
 
 def pipes_unneeded_for(nlp, used):
     # The names of the active components that a call can leave out without
@@ -393,7 +410,10 @@ def pipes_unneeded_for(nlp, used):
     # be left out when the call uses nothing of what it sets, and no later
     # component that stays may read it. Nothing is left out when the
     # pipeline has a component that is not one of spaCy's that
-    # _factory_effects() knows, which may read or change anything.
+    # _factory_effects() knows, which may read or change anything, or when
+    # what the call uses is not known (None).
+    if used is None:
+        return []
     names = nlp.pipe_names
     effects = {}
     for name in names:
@@ -846,7 +866,7 @@ class spacyr:
         items = {}
         # the components that the spans do not need are left out for the
         # call; the context manager restores them even if it fails
-        self.disabled = pipes_unneeded_for(self.nlp, _SPANS_USE[what])
+        self.disabled = pipes_unneeded_for(self.nlp, spans_use(self.nlp, what))
         with self.nlp.select_pipes(disable = self.disabled):
             for id_, doc in self.docs(texts, docnames, batch_size, n_process):
                 items[id_] = doc_span_texts(doc, what, ent_type_category)
@@ -886,7 +906,7 @@ class spacyr:
                 inputs = dict(zip(docnames, texts))
             # the components that the spans do not need are left out for
             # the call; the context manager restores them even if it fails
-            self.disabled = pipes_unneeded_for(self.nlp, _SPANS_USE[what])
+            self.disabled = pipes_unneeded_for(self.nlp, spans_use(self.nlp, what))
         df_all = {}
         # documents already parsed need no pipeline, which their handle
         # does not keep

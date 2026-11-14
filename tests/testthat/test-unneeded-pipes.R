@@ -445,3 +445,40 @@ test_that("spacy_extract_entity() keeps what the model of the recognizer reads",
   expect_identical(ents$text, "alpha")
   expect_identical(ents$ent_type, "PERSON")
 })
+
+test_that("nothing is left out for noun phrases from an iterator that is not spaCy's", {
+  skip_on_cran()
+  skip_on_os("solaris")
+  try(spacy_finalize(), silent = TRUE)
+  try_spacy_initialize()
+  on.exit(spacy_finalize(), add = TRUE)
+  comp <- reticulate::import_from_path("spacyr_test_components",
+                                       path = test_path("python"))
+  nlp <- spacyr:::spacyr_env$nlp
+  animals <- c(a = "The dogs barked. The cats slept.")
+
+  # spaCy's iterator for English reads the dependencies and the tags
+  expect_identical(extractor_left_out("nounphrases", x = animals), c("lemmatizer", "ner"))
+  expect_identical(spacy_extract_nounphrases(animals)$text, c("The dogs", "The cats"))
+
+  # an iterator of the pipeline's own, which keeps the noun phrases with the
+  # lemma "dog": it reads the lemmas, so the lemmatizer has to run
+  comp$set_lemma_noun_chunks(nlp)
+  for (output in c("dataframe", "list")) {
+    expect_identical(extractor_left_out("nounphrases", output, x = animals), character())
+  }
+  expect_identical(spacy_extract_nounphrases(animals)$text, "The dogs")
+  expect_identical(spacy_extract_nounphrases(animals, output = "list"),
+                   list(a = "The dogs"))
+
+  # in spacy_parse() too, where the noun phrases are one of the options
+  expect_identical(left_out(nounphrase = TRUE, lemma = FALSE, entity = FALSE), character())
+  parsed <- spacy_parse(animals, nounphrase = TRUE, lemma = FALSE, entity = FALSE)
+  expect_identical(parsed$nounphrase[1:2], c("beg", "end_root"))
+  expect_true(all(parsed$nounphrase[-(1:2)] == ""))
+  # without them, the options decide as before
+  expect_identical(left_out(lemma = FALSE, entity = FALSE), c("lemmatizer", "ner"))
+  # entities do not come from the iterator
+  expect_identical(extractor_left_out("entity", x = animals),
+                   c("tagger", "attribute_ruler", "lemmatizer"))
+})

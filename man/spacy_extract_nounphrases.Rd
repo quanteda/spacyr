@@ -78,7 +78,9 @@ of the call, which makes it faster: with spaCy's English
 models, the lemmatizer and the named entity recognizer. The output is the same as
 when every component runs, so a component stays whenever a later one
 that stays may read what it sets, and nothing is left out when the
-pipeline has a component that is not one of spaCy's standard ones. See
+pipeline has a component that is not one of spaCy's standard ones, or
+finds its noun phrases by a function that is not spaCy's own for the
+language, which may read any annotation. See
 the details of \code{\link[=spacy_parse]{spacy_parse()}}, and the article "Improving Performance"
 on the package website.
 }

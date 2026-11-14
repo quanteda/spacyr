@@ -31,6 +31,9 @@
 #'   not built by spaCy's own functions is taken to read everything.
 #' * Nothing is left out when `additional_attributes` are asked for, or when
 #'   the pipeline has a component that is not one of spaCy's standard ones.
+#' * With `nounphrase = TRUE`, nothing is left out either when the pipeline
+#'   finds its noun phrases by a function that is not spaCy's own for the
+#'   language, which may read any annotation.
 #'
 #' See the article "Improving Performance" on the package website.
 #'
