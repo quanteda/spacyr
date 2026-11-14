@@ -374,6 +374,8 @@ test_that("spacy_vectors_docs() runs a parser that can merge tokens", {
     try(spacy_finalize(), silent = TRUE)
     unlink(dir, recursive = TRUE)
   }, add = TRUE)
+  # extension attributes of earlier tests would be sent to other processes
+  comp$remove_test_extensions()
   comp$save_vectors_parser_pipeline(dir)
   spacy_finalize()
   spacy_initialize(model = dir)

@@ -771,6 +771,7 @@ test_that("an attribute ruler with a rule on an extension attribute keeps all be
                                        path = test_path("python"))
   # a ruler after the lemmatizer, which sets the part of speech INTJ where
   # an extension attribute, by the lemma, says so
+  on.exit(comp$remove_test_extensions(), add = TRUE, after = FALSE)
   comp$add_lemma_extension_ruler(spacyr:::spacyr_env$nlp)
   dogs <- c(a = "The dogs barked.")
   intj <- list(INTJ = list(list(POS = "INTJ")))
@@ -800,6 +801,7 @@ test_that("an attribute ruler with a rule that sets an extension attribute alway
                                        path = test_path("python"))
   # a ruler after the lemmatizer, whose rule for "dogs" sets an extension
   # attribute: the setter reads the lemma and sets the part of speech INTJ
+  on.exit(comp$remove_test_extensions(), add = TRUE, after = FALSE)
   comp$add_lemma_setter_ruler(spacyr:::spacyr_env$nlp)
   dogs <- c(a = "The dogs barked.")
   intj <- list(INTJ = list(list(POS = "INTJ")))
