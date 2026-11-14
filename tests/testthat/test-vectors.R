@@ -52,11 +52,12 @@ test_that("spacy_vectors_types() returns the vectors of the model's table", {
     expect_identical(unname(vec["dog", ]), c(0, 1, 0))
     expect_identical(unname(vec["cat", ]), c(1, 0, 0))
     expect_identical(vec["Cat", ], vec["cat", ])
-    # types without a vector: rows of zeros, and named in oov
-    expect_identical(unname(vec["zebra", ]), c(0, 0, 0))
-    expect_identical(attr(vec, "oov"),
-                     c(dog = FALSE, cat = FALSE, Cat = FALSE, zebra = TRUE, TRUE))
-    expect_identical(names(attr(vec, "oov"))[5], "")
+    # types without a vector: rows that are missing, also after subsetting
+    expect_identical(unname(vec["zebra", ]), rep(NA_real_, 3))
+    expect_identical(unname(is.na(vec[, 1])), c(FALSE, FALSE, FALSE, TRUE, TRUE))
+    expect_identical(unname(is.na(vec[c(4, 1), 1])), c(TRUE, FALSE))
+    expect_false(anyNA(vec[1:3, ]))
+    expect_null(attr(vec, "oov"))
     expect_identical(attr(vec, "model"),
                      list(name = "en_spacyr_test_vectors", version = "0.0.1",
                           vectors = attr(vec, "model")$vectors))
@@ -66,7 +67,6 @@ test_that("spacy_vectors_types() returns the vectors of the model's table", {
     # no types: a matrix with no rows and the model's width
     none <- spacy_vectors_types(character())
     expect_identical(dim(none), c(0L, 3L))
-    expect_identical(attr(none, "oov"), structure(logical(), names = character()))
     expect_identical(dim(spacy_vectors_types(NA_character_)), c(0L, 3L))
     # one type
     expect_identical(dim(spacy_vectors_types("cat")), c(1L, 3L))
@@ -111,6 +111,9 @@ test_that("spacy_vectors_types() takes parsed texts, lists and quanteda objects"
     dfmat <- quanteda::dfm(toks, tolower = FALSE)
     fem <- spacy_vectors_types(dfmat)
     expect_identical(rownames(fem), quanteda::featnames(dfmat))
+    # "The" has no vector: its row is missing, and zero for the product
+    expect_true(is.na(fem["The", 1]))
+    fem[is.na(fem)] <- 0
     dem <- as.matrix(dfmat %*% fem)
     expect_identical(dim(dem), c(3L, 3L))
     expect_identical(unname(dem["d1", ]), c(1, 0, 1.25))
@@ -138,8 +141,8 @@ test_that("spacy_vectors_types() follows the documents and features of quanteda 
     padded <- quanteda::tokens_remove(toks, "dog", padding = TRUE)
     vec <- spacy_vectors_types(padded)
     expect_identical(rownames(vec), c("cat", "", "sat", "the", "zebra"))
-    expect_identical(unname(attr(vec, "oov")), c(FALSE, TRUE, FALSE, FALSE, TRUE))
-    expect_identical(unname(vec[2, ]), c(0, 0, 0))
+    expect_identical(unname(is.na(vec[, 1])), c(FALSE, TRUE, FALSE, FALSE, TRUE))
+    expect_identical(unname(vec[2, ]), rep(NA_real_, 3))
 
     # a dfm of padded tokens keeps the padding as a feature: there is a row
     # for it, so that the dfm and the vectors can be multiplied
@@ -147,11 +150,25 @@ test_that("spacy_vectors_types() follows the documents and features of quanteda 
     expect_true("" %in% quanteda::featnames(dfmat))
     fem <- spacy_vectors_types(dfmat)
     expect_identical(rownames(fem), quanteda::featnames(dfmat))
-    dem <- as.matrix(dfmat %*% fem)
+    expect_identical(unname(is.na(fem[, 1])),
+                     quanteda::featnames(dfmat) %in% c("", "zebra"))
+    # with the missing rows as zeros: unknown types add nothing
+    zeros <- fem
+    zeros[is.na(zeros)] <- 0
+    dem <- as.matrix(dfmat %*% zeros)
     expect_identical(dim(dem), c(3L, 3L))
     expect_identical(unname(dem["a", ]), c(1, 0, 0))
     expect_identical(unname(dem["b", ]), c(0.5, 0.5, 1))
     expect_identical(unname(dem["c", ]), c(0, 0, 0))
+    # as means, where unknown types count among the tokens of a document
+    means <- as.matrix(quanteda::dfm_weight(dfmat, "prop") %*% zeros)
+    expect_identical(unname(means["a", ]), c(0.5, 0, 0))
+    # or without the unknown types: the mean of the known ones
+    known <- !is.na(fem[, 1])
+    means <- as.matrix(quanteda::dfm_weight(dfmat[, known], "prop") %*% fem[known, ])
+    expect_identical(unname(means["a", ]), c(1, 0, 0))
+    # as they are, the documents with an unknown type have no vector
+    expect_true(all(is.na(as.matrix(dfmat %*% fem)[c("a", "c"), ])))
     # also after the features are subsetted or reordered
     some <- dfmat[, c("the", "cat")]
     expect_identical(rownames(spacy_vectors_types(some)), c("the", "cat"))

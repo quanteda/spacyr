@@ -9,6 +9,9 @@
 #' change. It is meant to work with the feature-embedding matrix planned for
 #' \pkg{quanteda}, whose rows are features and whose columns are the
 #' dimensions of an embedding, and may return that object once it exists.
+#' A class for the matrix could then have methods, such as for `%*%`, that
+#' deal with the types that have no vector, which are now left to the user
+#' (see "Types without a vector").
 #'
 #' @details
 #' The vectors are those of the model's vector table. There is one for each
@@ -28,6 +31,23 @@
 #' names, since a dimension means nothing by itself: vectors can only be
 #' compared with those of the same model.
 #'
+#' @section Types without a vector:
+#' The row of a type that the model has no vector for is `NA`, and
+#' `is.na(x[, 1])` says which these are. spaCy gives such a type a vector of
+#' zeros, which is not a value: `NA` keeps a computation from taking it for
+#' one. So before the matrix is used, decide what an unknown type should
+#' count for. In the product of a dfm and the matrix, which gives a vector
+#' for each document, there are two choices:
+#'
+#' * set the missing rows to zero, `x[is.na(x)] <- 0`: unknown types then
+#'   add nothing to a document's vector but count among its tokens, as in
+#'   spaCy's own document vectors;
+#' * leave out the unknown types, from the matrix and from the dfm: a
+#'   document's vector is then that of its known types only.
+#'
+#' The empty string, which is the padding of removed tokens in
+#' \pkg{quanteda}, is a type without a vector.
+#'
 #' @param x the types to look up, as one of:
 #'   * a character vector, each element a type;
 #'   * the output of [spacy_parse()], for its tokens or its lemmas;
@@ -37,19 +57,17 @@
 #'     that `x %*% spacy_vectors_types(x)` is a vector for each document.
 #'
 #'   Each type is looked up once, however often it occurs. Missing values
-#'   are left out. The empty string, which is the padding of removed tokens
-#'   in \pkg{quanteda}, is a type without a vector.
+#'   are left out.
 #' @param what for the output of [spacy_parse()], whether to look up its
 #'   tokens (`"token"`, the default) or its lemmas (`"lemma"`). It comes after
 #'   `...`, so it has to be given by its full name.
 #' @param ... not used
 #' @return a numeric matrix with one row for each type, in the order in which
 #'   the types first occur in `x`, and one column for each dimension of the
-#'   model's vectors. The row names are the types. It has two attributes:
-#'   * `oov`: a logical vector, named by the types, that is `TRUE` for a type
-#'     that the model has no vector for. Its row is all zeros.
-#'   * `model`: a list with the `name` and the `version` of the language
-#'     model, and the name of its table of `vectors`.
+#'   model's vectors. The row names are the types. The row of a type that the
+#'   model has no vector for is `NA`. The attribute `model` is a list with
+#'   the `name` and the `version` of the language model, and the name of its
+#'   table of `vectors`.
 #' @seealso [spacy_parse()], whose `additional_attributes` can be
 #'   `"has_vector"`, `"is_oov"` and `"vector_norm"`
 #' @export
@@ -61,11 +79,13 @@
 #'
 #' vec <- spacy_vectors_types(c("king", "queen", "banana", "zxqv"))
 #' dim(vec)
-#' attr(vec, "oov")
+#' # the types without a vector
+#' is.na(vec[, 1])
 #'
-#' # cosine similarity between types
-#' unit <- vec / sqrt(rowSums(vec^2))
-#' round(tcrossprod(unit[1:3, ]), 2)
+#' # cosine similarity between the types that have one
+#' known <- vec[!is.na(vec[, 1]), ]
+#' unit <- known / sqrt(rowSums(known^2))
+#' round(tcrossprod(unit), 2)
 #'
 #' # the types of parsed texts, and one row for each token
 #' parsed <- spacy_parse("The king spoke to the queen.")
@@ -76,6 +96,13 @@
 #' # the lemmas, and the types of a quanteda tokens object
 #' spacy_vectors_types(parsed, what = "lemma")
 #' spacy_vectors_types(quanteda::as.tokens(parsed))
+#'
+#' # a vector for each document: the mean of the vectors of its tokens,
+#' # with unknown types counting as zeros
+#' dfmat <- quanteda::dfm(quanteda::as.tokens(parsed), tolower = FALSE)
+#' fem <- spacy_vectors_types(dfmat)
+#' fem[is.na(fem)] <- 0
+#' dem <- quanteda::dfm_weight(dfmat, "prop") %*% fem
 #'
 #' spacy_finalize()
 #' }
@@ -110,7 +137,8 @@ spacy_vectors_types.character <- function(x, ...) {
         vectors <- matrix(as.numeric(vectors), nrow = length(types), ncol = info$width)
     storage.mode(vectors) <- "double"
     dimnames(vectors) <- list(types, NULL)
-    attr(vectors, "oov") <- structure(as.logical(unlist(res[[2]])), names = types)
+    # a type without a vector is missing, not a vector of zeros as in spaCy
+    vectors[as.logical(unlist(res[[2]])), ] <- NA_real_
     attr(vectors, "model") <- list(name = info$model, version = info$version,
                                    vectors = info$vectors)
     vectors

@@ -21,8 +21,7 @@ that \code{x \%*\% spacy_vectors_types(x)} is a vector for each document.
 }
 
 Each type is looked up once, however often it occurs. Missing values
-are left out. The empty string, which is the padding of removed tokens
-in \pkg{quanteda}, is a type without a vector.}
+are left out.}
 
 \item{...}{not used}
 
@@ -33,13 +32,10 @@ tokens (\code{"token"}, the default) or its lemmas (\code{"lemma"}). It comes af
 \value{
 a numeric matrix with one row for each type, in the order in which
 the types first occur in \code{x}, and one column for each dimension of the
-model's vectors. The row names are the types. It has two attributes:
-\itemize{
-\item \code{oov}: a logical vector, named by the types, that is \code{TRUE} for a type
-that the model has no vector for. Its row is all zeros.
-\item \code{model}: a list with the \code{name} and the \code{version} of the language
-model, and the name of its table of \code{vectors}.
-}
+model's vectors. The row names are the types. The row of a type that the
+model has no vector for is \code{NA}. The attribute \code{model} is a list with
+the \code{name} and the \code{version} of the language model, and the name of its
+table of \code{vectors}.
 }
 \description{
 Get the pre-trained word vector of each type, from the table of vectors
@@ -70,6 +66,29 @@ This function is experimental: its arguments and what it returns may
 change. It is meant to work with the feature-embedding matrix planned for
 \pkg{quanteda}, whose rows are features and whose columns are the
 dimensions of an embedding, and may return that object once it exists.
+A class for the matrix could then have methods, such as for \code{\%*\%}, that
+deal with the types that have no vector, which are now left to the user
+(see "Types without a vector").
+}
+
+\section{Types without a vector}{
+
+The row of a type that the model has no vector for is \code{NA}, and
+\code{is.na(x[, 1])} says which these are. spaCy gives such a type a vector of
+zeros, which is not a value: \code{NA} keeps a computation from taking it for
+one. So before the matrix is used, decide what an unknown type should
+count for. In the product of a dfm and the matrix, which gives a vector
+for each document, there are two choices:
+\itemize{
+\item set the missing rows to zero, \code{x[is.na(x)] <- 0}: unknown types then
+add nothing to a document's vector but count among its tokens, as in
+spaCy's own document vectors;
+\item leave out the unknown types, from the matrix and from the dfm: a
+document's vector is then that of its known types only.
+}
+
+The empty string, which is the padding of removed tokens in
+\pkg{quanteda}, is a type without a vector.
 }
 
 \examples{
@@ -80,11 +99,13 @@ spacy_initialize(model = "en_core_web_md")
 
 vec <- spacy_vectors_types(c("king", "queen", "banana", "zxqv"))
 dim(vec)
-attr(vec, "oov")
+# the types without a vector
+is.na(vec[, 1])
 
-# cosine similarity between types
-unit <- vec / sqrt(rowSums(vec^2))
-round(tcrossprod(unit[1:3, ]), 2)
+# cosine similarity between the types that have one
+known <- vec[!is.na(vec[, 1]), ]
+unit <- known / sqrt(rowSums(known^2))
+round(tcrossprod(unit), 2)
 
 # the types of parsed texts, and one row for each token
 parsed <- spacy_parse("The king spoke to the queen.")
@@ -95,6 +116,13 @@ by_token <- vec[parsed$token, ]
 # the lemmas, and the types of a quanteda tokens object
 spacy_vectors_types(parsed, what = "lemma")
 spacy_vectors_types(quanteda::as.tokens(parsed))
+
+# a vector for each document: the mean of the vectors of its tokens,
+# with unknown types counting as zeros
+dfmat <- quanteda::dfm(quanteda::as.tokens(parsed), tolower = FALSE)
+fem <- spacy_vectors_types(dfmat)
+fem[is.na(fem)] <- 0
+dem <- quanteda::dfm_weight(dfmat, "prop") \%*\% fem
 
 spacy_finalize()
 }
