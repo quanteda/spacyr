@@ -6,7 +6,7 @@
 #'
 #' @param x the output of [spacy_parse()], best with `offsets = TRUE` (see
 #'   Details), or of [entity_consolidate()]
-#' @param labels the entity labels to highlight, as a character vector
+#' @param entities the entity labels to highlight, as a character vector
 #'   such as `c("PERSON", "ORG")`. The default, `NULL`, highlights
 #'   the entities of every label, and `character(0)` highlights none. The
 #'   labels are those of the language model (see its "Label scheme" on
@@ -36,7 +36,7 @@
 #'
 #'   The documents are shown in the order of the parse, each in a block of
 #'   its own. A document without entities, or without any of the labels in
-#'   `labels`, is shown as plain text. The HTML is made by spaCy, which is
+#'   `entities`, is shown as plain text. The HTML is made by spaCy, which is
 #'   initialized if it has not been.
 #' @return a character vector of length one, with the HTML for all the
 #'   documents. It is a fragment and not a whole page, so that it can be
@@ -59,24 +59,25 @@
 #' entity_visualize(parsed, view = TRUE)
 #'
 #' # only some labels, and a colour of one's own
-#' entity_visualize(parsed, labels = c("ORG", "GPE"), colors = c(GPE = "gold"),
+#' entity_visualize(parsed, entities = c("ORG", "GPE"), colors = c(GPE = "gold"),
 #'                  view = TRUE)
 #' }
-entity_visualize <- function(x, labels = NULL, colors = NULL, view = FALSE) {
+entity_visualize <- function(x, entities = NULL, colors = NULL, view = FALSE) {
     UseMethod("entity_visualize")
 }
 
 #' @export
-entity_visualize.default <- function(x, labels = NULL, colors = NULL, view = FALSE) {
+entity_visualize.default <- function(x, entities = NULL, colors = NULL,
+                                     view = FALSE) {
     stop("x must be the output of spacy_parse(): for texts, use ",
          "entity_visualize(spacy_parse(x, offsets = TRUE))", call. = FALSE)
 }
 
 #' @export
-entity_visualize.spacyr_parsed <- function(x, labels = NULL, colors = NULL,
+entity_visualize.spacyr_parsed <- function(x, entities = NULL, colors = NULL,
                                            view = FALSE) {
     # checked before spaCy is initialized
-    check_visualize_args(labels, colors, view)
+    check_visualize_args(entities, colors, view)
     docs <- parsed_entity_docs(x)
     if (nrow(x) && !all(c("start", "end") %in% names(x)) &&
         !isTRUE(spacyr_env$told_offsets)) {
@@ -87,7 +88,7 @@ entity_visualize.spacyr_parsed <- function(x, labels = NULL, colors = NULL,
     }
 
     if (is.null(options()$spacy_initialized)) spacy_initialize()
-    html <- new_spobj()$render_spans(docs = docs, labels = py_labels(labels),
+    html <- new_spobj()$render_spans(docs = docs, labels = py_labels(entities),
                                      colors = py_colors(colors))
     html <- enc2utf8(as.character(html))
     if (view) {
@@ -97,9 +98,9 @@ entity_visualize.spacyr_parsed <- function(x, labels = NULL, colors = NULL,
     html
 }
 
-check_visualize_args <- function(labels, colors, view) {
-    if (!is.null(labels) && (!is.character(labels) || anyNA(labels)))
-        stop("labels must be NULL or a character vector of entity labels",
+check_visualize_args <- function(entities, colors, view) {
+    if (!is.null(entities) && (!is.character(entities) || anyNA(entities)))
+        stop("entities must be NULL or a character vector of entity labels",
              call. = FALSE)
     if (!is.null(colors) &&
         (!is.character(colors) || anyNA(colors) ||

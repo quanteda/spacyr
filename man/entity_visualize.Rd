@@ -4,13 +4,13 @@
 \alias{entity_visualize}
 \title{Visualize the named entities of parsed documents}
 \usage{
-entity_visualize(x, labels = NULL, colors = NULL, view = FALSE)
+entity_visualize(x, entities = NULL, colors = NULL, view = FALSE)
 }
 \arguments{
 \item{x}{the output of \code{\link[=spacy_parse]{spacy_parse()}}, best with \code{offsets = TRUE} (see
 Details), or of \code{\link[=entity_consolidate]{entity_consolidate()}}}
 
-\item{labels}{the entity labels to highlight, as a character vector
+\item{entities}{the entity labels to highlight, as a character vector
 such as \code{c("PERSON", "ORG")}. The default, \code{NULL}, highlights
 the entities of every label, and \code{character(0)} highlights none. The
 labels are those of the language model (see its "Label scheme" on
@@ -55,7 +55,7 @@ the \code{concatenator} that joined its parts.
 
 The documents are shown in the order of the parse, each in a block of
 its own. A document without entities, or without any of the labels in
-\code{labels}, is shown as plain text. The HTML is made by spaCy, which is
+\code{entities}, is shown as plain text. The HTML is made by spaCy, which is
 initialized if it has not been.
 }
 \examples{
@@ -72,7 +72,7 @@ html <- entity_visualize(parsed)
 entity_visualize(parsed, view = TRUE)
 
 # only some labels, and a colour of one's own
-entity_visualize(parsed, labels = c("ORG", "GPE"), colors = c(GPE = "gold"),
+entity_visualize(parsed, entities = c("ORG", "GPE"), colors = c(GPE = "gold"),
                  view = TRUE)
 }
 }
