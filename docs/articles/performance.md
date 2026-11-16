@@ -61,35 +61,65 @@ before timing anything:
 
 The options of
 [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
-such as `pos`, `lemma` or `dependency`, choose the columns of its
-output. They do not turn components of the pipeline on or off: every
-component runs whatever the options are. So returning the dependencies
-costs little more than leaving them out, as reported in
-[\#188](https://github.com/quanteda/spacyr/issues/188), and the same
-holds for turning several options off, or on, together:
+such as `pos`, `lemma` or `entity`, choose the columns of its output,
+and with them the components that run. A component whose results no
+option asks for is left out of the call:
+
+- the named entity recogniser, with `entity = FALSE`;
+- the lemmatizer, with `lemma = FALSE`;
+- the tagger and the attribute ruler, when `pos`, `tag`, `lemma`,
+  `nounphrase` and `dependency` are all `FALSE`. The lemmatizer and the
+  noun phrases need the parts of speech; and in spaCy’s English models
+  the attribute ruler, which reads the tags, also sets the dependency of
+  whitespace tokens.
+
+The parser always runs: it sets the sentence boundaries, by which
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+numbers the tokens. So with the default options, returning the
+dependencies costs little more than leaving them out, as reported in
+[\#188](https://github.com/quanteda/spacyr/issues/188), while turning
+off the options you do not need saves the time of their components:
 
 \
 [`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`\
 `  options ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"defaults"``,`\
 `              ``"adding dependency"``,`\
-`              ``"no pos, lemma or entity"``,`\
-`              ``"adding tag, dependency and nounphrase"``)``,`\
+`              ``"adding tag, dependency and nounphrase"``,`\
+`              ``"no entity"``,`\
+`              ``"no lemma"``,`\
+`              ``"no pos or lemma"``,`\
+`              ``"no pos, lemma or entity"``)``,`\
 `  seconds ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``)``)``,`\
 `              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, dependency ``=`` ``TRUE``)``)``,`\
-`              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, pos ``=`` ``FALSE``, lemma ``=`` ``FALSE``, entity ``=`` ``FALSE``)``)``,`\
-`              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, tag ``=`` ``TRUE``, dependency ``=`` ``TRUE``, nounphrase ``=`` ``TRUE``)``)``)`\
+`              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, tag ``=`` ``TRUE``, dependency ``=`` ``TRUE``, nounphrase ``=`` ``TRUE``)``)``,`\
+`              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, entity ``=`` ``FALSE``)``)``,`\
+`              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, lemma ``=`` ``FALSE``)``)``,`\
+`              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, pos ``=`` ``FALSE``, lemma ``=`` ``FALSE``)``)``,`\
+`              ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, pos ``=`` ``FALSE``, lemma ``=`` ``FALSE``, entity ``=`` ``FALSE``)``)``)`\
 `)`\
 `##                                 options seconds`\
-`## 1                              defaults     2.6`\
-`## 2                     adding dependency     2.7`\
-`## 3               no pos, lemma or entity     2.6`\
-`## 4 adding tag, dependency and nounphrase     2.8`
+`## 1                              defaults     3.3`\
+`## 2                     adding dependency     3.0`\
+`## 3 adding tag, dependency and nounphrase     3.1`\
+`## 4                             no entity     2.3`\
+`## 5                              no lemma     2.7`\
+`## 6                       no pos or lemma     1.7`\
+`## 7               no pos, lemma or entity     1.0`
 
-What extra time there is comes from building the extra columns, not from
-running the pipeline.
+The output does not depend on which components were left out: its
+columns are the same as those of a parse with every option. To make sure
+of that, a component stays whenever it sets something that the output
+has, or that a later component may read, and
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+leaves nothing out in two cases, where it cannot know what a component
+needs or sets: when `additional_attributes` are asked for, and when the
+pipeline has a component that is not one of spaCy’s standard ones. With
+entity rules from `spacy_initialize(entity_patterns = )`, the components
+that the rules may read stay as long as `entity = TRUE`.
 
-So it is better to ask for all the columns you will need in one call,
-than to call
+Each call runs the tokenizer, the vectors and the parser again, so it is
+still better to ask for all the columns you will need in one call, than
+to call
 [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
 once for each.
 [`entity_extract()`](https://spacyr.quanteda.io/reference/entity_extract.md)
@@ -112,9 +142,52 @@ without parsing the texts again:
 `## 2 1789-Washington           1      the_Senate`\
 `## 3 1789-Washington           1       the_House`
 
-The exception is
-[`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
-which turns off every component, and only splits the texts into tokens:
+[`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+and
+[`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+leave out components in the same way: the first runs neither the tagger,
+the attribute ruler nor the lemmatizer, which entities do not need, and
+the second neither the lemmatizer nor the entity recogniser. So when you
+need only the entities, or only the noun phrases, they are faster than
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+with its default options:
+
+\
+[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`\
+`  call ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``'spacy_parse(txt)'``,`\
+`           ``'spacy_extract_entity(txt)'``,`\
+`           ``'spacy_extract_nounphrases(txt)'``)``,`\
+`  seconds ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``)``)``,`\
+`              ``seconds``(`[`spacy_extract_entity`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)`(``txt``)``)``,`\
+`              ``seconds``(`[`spacy_extract_nounphrases`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)`(``txt``)``)``)`\
+`)`\
+`##                             call seconds`\
+`## 1               spacy_parse(txt)     3.0`\
+`## 2      spacy_extract_entity(txt)     1.6`\
+`## 3 spacy_extract_nounphrases(txt)     2.4`
+
+[`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+runs the components that its patterns ask for. Phrases, words and the
+values of a dictionary are matched on the text of the tokens, so they
+need only the parser, for the sentence of each match; a pattern on the
+part of speech also needs the tagger and the attribute ruler, but
+neither the lemmatizer nor the entity recogniser:
+
+\
+`adj_noun`` ``<-`` `[`list`](https://rdrr.io/r/base/list.html)`(``ADJ_NOUN ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(`[`list`](https://rdrr.io/r/base/list.html)`(``POS ``=`` ``"ADJ"``)``, `[`list`](https://rdrr.io/r/base/list.html)`(``POS ``=`` ``"NOUN"``)``)``)`\
+[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`\
+`  pattern ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``'phrase("fellow citizens")'``,`\
+`              ``'adj_noun'``)``,`\
+`  seconds ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``seconds``(`[`spacy_match`](https://spacyr.quanteda.io/reference/spacy_match.md)`(``txt``, `[`phrase`](https://quanteda.io/reference/phrase.html)`(``"fellow citizens"``)``)``)``,`\
+`              ``seconds``(`[`spacy_match`](https://spacyr.quanteda.io/reference/spacy_match.md)`(``txt``, ``adj_noun``)``)``)`\
+`)`\
+`##                     pattern seconds`\
+`## 1 phrase("fellow citizens")     1.1`\
+`## 2                  adj_noun     2.9`
+
+[`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+goes further: it turns off every component, and only splits the texts
+into tokens:
 
 \
 `seconds``(`[`spacy_tokenize`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)`(``txt``)``)`\
@@ -125,10 +198,11 @@ If you need only the tokens,
 is many times faster than
 [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md).
 Its options `remove_punct`, `remove_numbers` and `remove_url` depend
-only on the tokens, and keep it fast, but two of its options need the
-pipeline, and make it run all of the components: `remove_symbols`, which
-uses the part-of-speech tags, and `what = "sentence"`, since the
-sentence boundaries come from the parser:
+only on the tokens, and keep it fast, but two of its options need
+components of the pipeline, and run those, leaving out the others:
+`what = "sentence"` needs the parser, which sets the sentence
+boundaries, and `remove_symbols` the parts of speech, for which spaCy’s
+English models run the tagger, the parser and the attribute ruler:
 
 \
 [`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`\
@@ -144,8 +218,8 @@ sentence boundaries come from the parser:
 `##                                         call seconds`\
 `## 1                        spacy_tokenize(txt)     0.2`\
 `## 2   spacy_tokenize(txt, remove_punct = TRUE)     0.2`\
-`## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.6`\
-`## 4     spacy_tokenize(txt, what = "sentence")     2.5`
+`## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.2`\
+`## 4     spacy_tokenize(txt, what = "sentence")     1.2`
 
 To remove symbols quickly, tokenize with
 [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
@@ -155,28 +229,32 @@ characters instead of using the tags. The two can differ: **quanteda**
 removes `+` and `©`, for instance, where spaCy may tag them otherwise
 and keep them.
 
-## Turn off the entity recogniser
+## Turn off the entity recogniser for every function
 
-The one component that **spacyr** can turn off is the named entity
-recogniser. `spacy_initialize(entity = FALSE)` loads the model with the
-recogniser disabled, so that it does not run when texts are parsed,
-which here saves about a quarter of the parsing time:
+Each function leaves the named entity recogniser out of its own calls
+when it does not need it. `spacy_initialize(entity = FALSE)` loads the
+model with the recogniser disabled, so that it runs in no call at all.
+That matters where a function leaves nothing out: when
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+is asked for `additional_attributes`, or when the pipeline has a
+component or a tokenizer that is not one of spaCy’s standard ones. Here
+it is asked for an additional attribute:
 
 \
-`with_ner`` ``<-`` ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``sents``, entity ``=`` ``FALSE``)``)`\
+`with_ner`` ``<-`` ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``sents``, entity ``=`` ``FALSE``, additional_attributes ``=`` ``"is_stop"``)``)`\
 [`spacy_finalize`](https://spacyr.quanteda.io/reference/spacy_finalize.md)`(``)`\
 \
 [`spacy_initialize`](https://spacyr.quanteda.io/reference/spacy_initialize.md)`(``entity ``=`` ``FALSE``)`\
 `## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)`\
 [`invisible`](https://rdrr.io/r/base/invisible.html)`(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, entity ``=`` ``FALSE``)``)`\
-`without_ner`` ``<-`` ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``sents``, entity ``=`` ``FALSE``)``)`\
+`without_ner`` ``<-`` ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``sents``, entity ``=`` ``FALSE``, additional_attributes ``=`` ``"is_stop"``)``)`\
 [`spacy_finalize`](https://spacyr.quanteda.io/reference/spacy_finalize.md)`(``)`\
 \
 [`data.frame`](https://rdrr.io/r/base/data.frame.html)`(``ner ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"in the pipeline"``, ``"disabled"``)``,`\
 `           seconds ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``with_ner``, ``without_ner``)``)`\
 `##               ner seconds`\
-`## 1 in the pipeline     2.7`\
-`## 2        disabled     2.0`
+`## 1 in the pipeline     3.2`\
+`## 2        disabled     2.5`
 
 [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
 then has no entities to return, and says so if asked for them, unless
@@ -196,7 +274,7 @@ The models of a language differ mostly in their size and accuracy. Here,
 `## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_lg)`\
 [`invisible`](https://rdrr.io/r/base/invisible.html)`(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``, entity ``=`` ``FALSE``)``)`\
 `seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``txt``)``)`\
-`## [1] 3`\
+`## [1] 3.7`\
 [`spacy_finalize`](https://spacyr.quanteda.io/reference/spacy_finalize.md)`(``)`
 
 since the two have the same components; most of what makes the large
@@ -222,10 +300,10 @@ are slower, but beyond some size, larger ones make little difference:
 [`data.frame`](https://rdrr.io/r/base/data.frame.html)`(``batch_size ``=`` ``sizes``,`\
 `           seconds ``=`` `[`sapply`](https://rdrr.io/r/base/lapply.html)`(``sizes``, ``function``(``b``)`` ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``sents``, batch_size ``=`` ``b``)``)``)``)`\
 `##   batch_size seconds`\
-`## 1          1     6.0`\
-`## 2         10     3.7`\
-`## 3        100     2.8`\
-`## 4       1000     2.8`
+`## 1          1     6.9`\
+`## 2         10     4.4`\
+`## 3        100     3.4`\
+`## 4       1000     3.5`
 
 The default is usually a good choice. A batch of long documents takes
 more memory than one of short documents, so with long documents, a
@@ -245,37 +323,37 @@ are slower:
 [`data.frame`](https://rdrr.io/r/base/data.frame.html)`(``n_process ``=`` ``procs``,`\
 `           seconds ``=`` `[`sapply`](https://rdrr.io/r/base/lapply.html)`(``procs``, ``function``(``p``)`` ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``sents``, n_process ``=`` ``p``)``)``)``)`\
 `##   n_process seconds`\
-`## 1         1     2.7`\
-`## 2         2     3.4`\
-`## 3         4     4.1`
+`## 1         1     3.3`\
+`## 2         2     4.9`\
+`## 3         4     5.5`
 
-and for six times as many, timed once each, they make little difference:
+and for six times as many, timed once each, they help:
 
 \
 `more`` ``<-`` `[`unname`](https://rdrr.io/r/base/unname.html)`(`[`rep`](https://rdrr.io/r/base/rep.html)`(``sents``, ``6``)``)`\
 [`data.frame`](https://rdrr.io/r/base/data.frame.html)`(``n_process ``=`` ``procs``,`\
 `           seconds ``=`` `[`sapply`](https://rdrr.io/r/base/lapply.html)`(``procs``, ``function``(``p``)`` ``seconds``(`[`spacy_parse`](https://spacyr.quanteda.io/reference/spacy_parse.md)`(``more``, n_process ``=`` ``p``)``, times ``=`` ``1``)``)``)`\
 `##   n_process seconds`\
-`## 1         1    16.4`\
-`## 2         2    15.1`\
-`## 3         4    14.9`
+`## 1         1    29.9`\
+`## 2         2    23.8`\
+`## 3         4    20.6`
 
-So on this machine, with this model and these texts, there is little to
-gain. The gain may differ with other models, texts and machines, so time
-`n_process` on a sample of your own texts before relying on it.
-**spacyr** itself also adds some cost with more than one process, which
-[\#289](https://github.com/quanteda/spacyr/issues/289) is about. Since
+So on this machine, with this model and these texts, the gain is modest:
+four processes are far from four times as fast as one, since the parsed
+documents are sent back to the R session’s own process, which still puts
+the output together. The gain may differ with other models, texts and
+machines, so time `n_process` on a sample of your own texts before
+relying on it.
+
+Splitting texts into words with
 [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
-runs no components, it gains nothing from more processes, and only pays
-the costs of starting them and of sending the documents between them:
-
-\
-[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(``n_process ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``1``, ``4``)``,`\
-`           seconds ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``seconds``(`[`spacy_tokenize`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)`(``more``)``, times ``=`` ``1``)``,`\
-`                       ``seconds``(`[`spacy_tokenize`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)`(``more``, n_process ``=`` ``4``)``, times ``=`` ``1``)``)``)`\
-`##   n_process seconds`\
-`## 1         1     0.8`\
-`## 2         4    11.4`
+runs no components, so more processes would only add the costs of
+starting them and of sending the documents between them. It therefore
+always uses one process for that, whatever `n_process` is. `n_process`
+does apply to
+[`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+when components run, which is for `what = "sentence"` and for
+`remove_symbols = TRUE`.
 
 A few things to keep in mind with more than one process:
 
@@ -294,8 +372,11 @@ A few things to keep in mind with more than one process:
 - With a pipeline that uses Hugging Face’s **tokenizers** library, as
   some transformer pipelines do, see the section below.
 
-The output does not depend on `n_process` or `batch_size`: documents
-come back in their original order.
+With spaCy’s built-in components and default error handlers, documents
+come back in their original order. With custom components or error
+handlers, **spacyr** passes document names through the pipeline so the
+results stay attached to the right names if any documents are dropped or
+reordered.
 
 ## Long documents
 
@@ -341,15 +422,22 @@ that can happen.
 
 - Use
   [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
-  when you need only the tokens. Its `remove_symbols` option runs the
-  whole pipeline; removing symbols afterwards, by their characters, is
+  when you need only the tokens. Its `remove_symbols` option runs most
+  of the pipeline; removing symbols afterwards, by their characters, is
   faster, if that definition of a symbol suits your task.
 - Ask
   [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
-  for all the columns you need in a single call; turning its options off
-  saves little time.
+  for the columns you need, and no others, in a single call:
+  `entity = FALSE`, `lemma = FALSE` and `pos = FALSE` save the time of
+  the components that they do not need.
+- Use
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  or
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  when you need only the entities or only the noun phrases.
 - Use `spacy_initialize(entity = FALSE)` when you do not need named
-  entities.
+  entities, and ask for `additional_attributes` or have a pipeline with
+  components of your own.
 - Leave `batch_size` at its default, unless memory runs short.
 - Try `n_process` greater than 1 only for large numbers of documents,
   after timing it on a sample.
@@ -366,4 +454,4 @@ The times in this article were computed on this machine:
 `parallel``::`[`detectCores`](https://rdrr.io/r/parallel/detectCores.html)`(``)`\
 `## [1] 10`\
 `R.version.string`\
-`## [1] "R version 4.6.1 (2026-06-24)"`
+`## [1] "R version 4.6.2 (2026-10-29)"`

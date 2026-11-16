@@ -41,7 +41,7 @@ has been installed with
 (see <https://spacyr.quanteda.io> for detailed instructions),
 [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
 uses the virtual environment it created.
-[`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md)
+[`spacy_is_installed()`](https://spacyr.quanteda.io/reference/spacy_is_installed.md)
 checks whether that environment, and any language models you need, are
 ready.
 

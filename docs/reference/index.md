@@ -18,6 +18,8 @@
 - [`entity_patterns_read()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
   [`entity_patterns_write()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
   : Read and write entity patterns
+- [`entity_visualize()`](https://spacyr.quanteda.io/reference/entity_visualize.md)
+  : Visualize the named entities of parsed documents
 - [`nounphrase_extract()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   [`nounphrase_consolidate()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   : Extract or consolidate noun phrases from parsed documents
@@ -44,7 +46,7 @@
   : Install spaCy in a virtual environment
 - [`spacy_install_virtualenv()`](https://spacyr.quanteda.io/reference/spacy_install_virtualenv.md)
   : Install spaCy to a virtual environment
-- [`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md)
+- [`spacy_is_installed()`](https://spacyr.quanteda.io/reference/spacy_is_installed.md)
   : Check whether spaCy is installed
 - [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
   : Match patterns in texts using spaCy

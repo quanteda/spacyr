@@ -24,7 +24,8 @@ https://spacy.io/usage/linguistic-features#named-entities)."></head><body>
 <li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/annotations.html">Auditable annotations</a></li>
+    <li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
     <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
     <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
     <li><a class="dropdown-item" href="../articles/docker.html">Using spacyr with Docker</a></li>
@@ -60,7 +61,8 @@ https://spacy.io/usage/linguistic-features#named-entities)."></head><body>
 <span>  <span class="va">multithread</span>,</span>
 <span>  n_process <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  offsets <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -112,6 +114,15 @@ more memory.</p></dd>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>unused</p></dd>
 
+
+<dt id="arg-offsets">offsets<a class="anchor" aria-label="anchor" href="#arg-offsets"></a></dt>
+<dd><p>logical; if <code>TRUE</code>, also return the position of each
+entity in its text as it was given in <code>x</code>, in the columns <code>start</code> and
+<code>end</code>: the positions of the entity's first and last characters, counted
+from 1 as in <code><a href="spacy_parse.html">spacy_parse()</a></code>, so that <code>substring(text, start, end)</code> gives
+the entities of a text. This needs <code>output = "data.frame"</code>. It comes
+after <code>...</code>, so it has to be given by its full name.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -120,7 +131,8 @@ more memory.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>When the option <code>output = "data.frame"</code> is selected, the
-function returns a <code>data.frame</code> with the following fields.</p><dl><dt><code>ent_type</code></dt>
+function returns a <code>data.frame</code> with the following fields, and with
+<code>start</code> and <code>end</code> after them when <code>offsets = TRUE</code>.</p><dl><dt><code>ent_type</code></dt>
 <dd><p>type of entity (e.g. <code>ORG</code> for
 organizations)</p></dd>
  <dt><code>start_id</code></dt>
@@ -136,6 +148,19 @@ of words (tokens) included in a named entity (e.g. for an entity, "New York
 Stock Exchange"", <code>length = 4</code>)</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="components-that-are-left-out">Components that are left out<a class="anchor" aria-label="anchor" href="#components-that-are-left-out"></a></h2>
+
+
+<p>The components of spaCy's pipeline that entities do not need are left out
+of the call, which makes it faster: with spaCy's English models, the
+tagger, the attribute ruler and the lemmatizer. The output is the same as
+when every component runs, so a component stays whenever a later one
+that stays may read what it sets, and nothing is left out when the
+pipeline has a component that is not one of spaCy's standard ones. See
+the details of <code><a href="spacy_parse.html">spacy_parse()</a></code>, and the article "Improving Performance"
+on the package website.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

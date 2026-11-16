@@ -52,6 +52,9 @@ containing the following fields:
 `entity_consolidate` returns a modified `data.frame` of parsed results,
 where the named entities have been combined into a single "token".
 Currently, dependency parsing is removed when this consolidation occurs.
+If `x` has the columns `start` and `end` of
+`spacy_parse(offsets = TRUE)`, a consolidated entity runs from the start
+of its first token to the end of its last.
 
 ## Examples
 

@@ -1,14 +1,9 @@
-# Check whether spaCy is installed
+# Check whether spaCy is installed (deprecated)
 
-Checks, without starting Python, whether spaCy (and optionally one or
-more language models) is installed in the environment that
-[`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
-will use: the one set by `RETICULATE_PYTHON` if set, or otherwise the
-virtual environment named by `SPACY_PYTHON` (by default `"r-spacyr"`).
-This is useful, for instance, to skip examples or tests when spaCy is
-not available. If a different interpreter is already running in the R
-session and prevents use of the named virtual environment, returns
-`FALSE`.
+This function is deprecated, and will be removed in a future version of
+spacyr. It gives a warning on every call. Use
+[`spacy_is_installed()`](https://spacyr.quanteda.io/reference/spacy_is_installed.md)
+instead, which is the same function under a new name.
 
 ## Usage
 
@@ -26,18 +21,13 @@ spacy_installed(lang_models = NULL)
 
 ## Value
 
-`TRUE` if spaCy and all `lang_models` are installed, `FALSE` otherwise.
-
-## See also
-
-[`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md),
-[`spacy_download_langmodel()`](https://spacyr.quanteda.io/reference/spacy_download_langmodel.md)
+as
+[`spacy_is_installed()`](https://spacyr.quanteda.io/reference/spacy_is_installed.md)
 
 ## Examples
 
 ``` r
-spacy_installed()
-#> [1] TRUE
-spacy_installed("en_core_web_sm")
+# instead of spacy_installed():
+spacy_is_installed()
 #> [1] TRUE
 ```

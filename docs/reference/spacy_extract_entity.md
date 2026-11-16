@@ -14,7 +14,8 @@ spacy_extract_entity(
   multithread,
   n_process = 1L,
   batch_size = NULL,
-  ...
+  ...,
+  offsets = FALSE
 )
 ```
 
@@ -63,6 +64,17 @@ spacy_extract_entity(
 
   unused
 
+- offsets:
+
+  logical; if `TRUE`, also return the position of each entity in its
+  text as it was given in `x`, in the columns `start` and `end`: the
+  positions of the entity's first and last characters, counted from 1 as
+  in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  so that `substring(text, start, end)` gives the entities of a text.
+  This needs `output = "data.frame"`. It comes after `...`, so it has to
+  be given by its full name.
+
 ## Value
 
 either a `list` or `data.frame` of tokens
@@ -70,7 +82,8 @@ either a `list` or `data.frame` of tokens
 ## Details
 
 When the option `output = "data.frame"` is selected, the function
-returns a `data.frame` with the following fields.
+returns a `data.frame` with the following fields, and with `start` and
+`end` after them when `offsets = TRUE`.
 
 - `ent_type`:
 
@@ -88,6 +101,18 @@ returns a `data.frame` with the following fields.
 
   number of words (tokens) included in a named entity (e.g. for an
   entity, "New York Stock Exchange"", `length = 4`)
+
+## Components that are left out
+
+The components of spaCy's pipeline that entities do not need are left
+out of the call, which makes it faster: with spaCy's English models, the
+tagger, the attribute ruler and the lemmatizer. The output is the same
+as when every component runs, so a component stays whenever a later one
+that stays may read what it sets, and nothing is left out when the
+pipeline has a component that is not one of spaCy's standard ones. See
+the details of
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+and the article "Improving Performance" on the package website.
 
 ## Examples
 

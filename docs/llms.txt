@@ -12,6 +12,46 @@ Downloads](https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange)](h
 An R wrapper to the spaCy “industrial strength natural language
 processing” Python library from <https://spacy.io>.
 
+## New in version 2.0
+
+Version 2.0 finds things in texts by rules, and shows where each of them
+was found:
+
+- **Rule-based matching.**
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  finds words, phrases, the values of a **quanteda** dictionary, and
+  patterns of tokens or of the dependency parse. See [Rule-Based
+  Matching](https://spacyr.quanteda.io/articles/matching.html).
+- **Rule-based named entities.**
+  [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
+  makes rules in R, and `spacy_initialize(entity_patterns = )` adds them
+  to the pipeline. See [Adding Rule-Based Named
+  Entities](https://spacyr.quanteda.io/articles/entity_rules.html).
+- **Positions in the original text.** With `offsets = TRUE`,
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md),
+  [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  and
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  return the character positions of what they found, and
+  [`entity_visualize()`](https://spacyr.quanteda.io/reference/entity_visualize.md)
+  shows a text with its entities highlighted.
+- **Working with quanteda.**
+  [`as_index()`](https://spacyr.quanteda.io/reference/as_index.md) gives
+  matches and entities to
+  [`quanteda::kwic()`](https://quanteda.io/reference/kwic.html) for a
+  concordance, and `as.tokens()` keeps the document variables of a
+  corpus that was parsed.
+
+[From Text to Auditable
+Annotations](https://spacyr.quanteda.io/articles/annotations.html) shows
+these working together, with one example.
+
+Version 2.0 is the development version until it is on CRAN: install it
+from GitHub, as described below. Most code written for 1.4.0 runs
+unchanged, and the [news](https://spacyr.quanteda.io/news/index.html)
+lists what to check when upgrading.
+
 ## Installing the package
 
 1.  Install the **spacyr** R package:
@@ -72,7 +112,7 @@ processing” Python library from <https://spacy.io>.
     starting Python, with:
 
     \
-    [`spacy_installed`](https://spacyr.quanteda.io/reference/spacy_installed.md)`(``"en_core_web_sm"``)`
+    [`spacy_is_installed`](https://spacyr.quanteda.io/reference/spacy_is_installed.md)`(``"en_core_web_sm"``)`
 
 [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
 creates its environment with a version of Python supported by the spaCy
@@ -259,6 +299,8 @@ commands to customise your setup.
 - [`entity_patterns_read()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
   [`entity_patterns_write()`](https://spacyr.quanteda.io/reference/entity_patterns_read.md)
   : Read and write entity patterns
+- [`entity_visualize()`](https://spacyr.quanteda.io/reference/entity_visualize.md)
+  : Visualize the named entities of parsed documents
 - [`nounphrase_extract()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   [`nounphrase_consolidate()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
   : Extract or consolidate noun phrases from parsed documents
@@ -285,7 +327,7 @@ commands to customise your setup.
   : Install spaCy in a virtual environment
 - [`spacy_install_virtualenv()`](https://spacyr.quanteda.io/reference/spacy_install_virtualenv.md)
   : Install spaCy to a virtual environment
-- [`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md)
+- [`spacy_is_installed()`](https://spacyr.quanteda.io/reference/spacy_is_installed.md)
   : Check whether spaCy is installed
 - [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
   : Match patterns in texts using spaCy
@@ -303,15 +345,20 @@ commands to customise your setup.
 
 # Articles
 
-### All vignettes
+### Using spacyr
 
-- [Using spacyr with
-  Docker](https://spacyr.quanteda.io/articles/docker.md):
+- [A Guide to Using
+  spacyr](https://spacyr.quanteda.io/articles/using_spacyr.md):
+
+### Advanced
+
+- [From Text to Auditable
+  Annotations](https://spacyr.quanteda.io/articles/annotations.md):
 - [Adding Rule-Based Named
   Entities](https://spacyr.quanteda.io/articles/entity_rules.md):
 - [Rule-Based
   Matching](https://spacyr.quanteda.io/articles/matching.md):
 - [Improving
   Performance](https://spacyr.quanteda.io/articles/performance.md):
-- [A Guide to Using
-  spacyr](https://spacyr.quanteda.io/articles/using_spacyr.md):
+- [Using spacyr with
+  Docker](https://spacyr.quanteda.io/articles/docker.md):

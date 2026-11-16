@@ -13,7 +13,8 @@ spacy_extract_nounphrases(
   multithread,
   n_process = 1L,
   batch_size = NULL,
-  ...
+  ...,
+  offsets = FALSE
 )
 ```
 
@@ -54,6 +55,17 @@ spacy_extract_nounphrases(
 
   unused
 
+- offsets:
+
+  logical; if `TRUE`, also return the position of each noun phrase in
+  its text as it was given in `x`, in the columns `start` and `end`: the
+  positions of the noun phrase's first and last characters, counted from
+  1 as in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  so that `substring(text, start, end)` gives the noun phrases of a
+  text. This needs `output = "data.frame"`. It comes after `...`, so it
+  has to be given by its full name.
+
 ## Value
 
 either a `list` or `data.frame` of tokens
@@ -61,7 +73,8 @@ either a `list` or `data.frame` of tokens
 ## Details
 
 When the option `output = "data.frame"` is selected, the function
-returns a `data.frame` with the following fields.
+returns a `data.frame` with the following fields, and with `start` and
+`end` after them when `offsets = TRUE`.
 
 - `root_text`:
 
@@ -83,6 +96,19 @@ returns a `data.frame` with the following fields.
 
   number of words (tokens) included in a noun-phrase (e.g. for a
   noun-phrase, "individual car owners", `length = 3`)
+
+## Components that are left out
+
+The components of spaCy's pipeline that noun phrases do not need are
+left out of the call, which makes it faster: with spaCy's English
+models, the lemmatizer and the named entity recognizer. The output is
+the same as when every component runs, so a component stays whenever a
+later one that stays may read what it sets, and nothing is left out when
+the pipeline has a component that is not one of spaCy's standard ones,
+or finds its noun phrases by a function that is not spaCy's own for the
+language, which may read any annotation. See the details of
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+and the article "Improving Performance" on the package website.
 
 ## Examples
 

@@ -36,7 +36,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
-<li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+<li><a class="dropdown-item" href="../articles/annotations.html">Auditable annotations</a></li>
+    <li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
     <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
     <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
     <li><a class="dropdown-item" href="../articles/docker.html">Using spacyr with Docker</a></li>
@@ -65,7 +66,7 @@
                         <h4 data-toc-skip class="author">Kenneth
 Benoit</h4>
             
-            <h4 data-toc-skip class="date">2026-11-10</h4>
+            <h4 data-toc-skip class="date">2026-11-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/quanteda/spacyr/blob/HEAD/vignettes/articles/performance.Rmd" class="external-link"><code>vignettes/articles/performance.Rmd</code></a></small>
       <div class="d-none name"><code>performance.Rmd</code></div>
@@ -141,30 +142,62 @@ anything:</p>
 <h2 id="ask-only-for-what-you-need-from-the-right-function">Ask only for what you need, from the right function<a class="anchor" aria-label="anchor" href="#ask-only-for-what-you-need-from-the-right-function"></a>
 </h2>
 <p>The options of <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>, such as <code>pos</code>,
-<code>lemma</code> or <code>dependency</code>, choose the columns of its
-output. They do not turn components of the pipeline on or off: every
-component runs whatever the options are. So returning the dependencies
-costs little more than leaving them out, as reported in <a href="https://github.com/quanteda/spacyr/issues/188" class="external-link">#188</a>, and the
-same holds for turning several options off, or on, together:</p>
+<code>lemma</code> or <code>entity</code>, choose the columns of its
+output, and with them the components that run. A component whose results
+no option asks for is left out of the call:</p>
+<ul>
+<li>the named entity recogniser, with <code>entity = FALSE</code>;</li>
+<li>the lemmatizer, with <code>lemma = FALSE</code>;</li>
+<li>the tagger and the attribute ruler, when <code>pos</code>,
+<code>tag</code>, <code>lemma</code>, <code>nounphrase</code> and
+<code>dependency</code> are all <code>FALSE</code>. The lemmatizer and
+the noun phrases need the parts of speech; and in spaCy’s English models
+the attribute ruler, which reads the tags, also sets the dependency of
+whitespace tokens.</li>
+</ul>
+<p>The parser always runs: it sets the sentence boundaries, by which
+<code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> numbers the tokens. So with the default
+options, returning the dependencies costs little more than leaving them
+out, as reported in <a href="https://github.com/quanteda/spacyr/issues/188" class="external-link">#188</a>, while
+turning off the options you do not need saves the time of their
+components:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"defaults"</span>,</span>
 <span>              <span class="st">"adding dependency"</span>,</span>
-<span>              <span class="st">"no pos, lemma or entity"</span>,</span>
-<span>              <span class="st">"adding tag, dependency and nounphrase"</span><span class="op">)</span>,</span>
+<span>              <span class="st">"adding tag, dependency and nounphrase"</span>,</span>
+<span>              <span class="st">"no entity"</span>,</span>
+<span>              <span class="st">"no lemma"</span>,</span>
+<span>              <span class="st">"no pos or lemma"</span>,</span>
+<span>              <span class="st">"no pos, lemma or entity"</span><span class="op">)</span>,</span>
 <span>  seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, pos <span class="op">=</span> <span class="cn">FALSE</span>, lemma <span class="op">=</span> <span class="cn">FALSE</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, tag <span class="op">=</span> <span class="cn">TRUE</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, tag <span class="op">=</span> <span class="cn">TRUE</span>, dependency <span class="op">=</span> <span class="cn">TRUE</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, lemma <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, pos <span class="op">=</span> <span class="cn">FALSE</span>, lemma <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, pos <span class="op">=</span> <span class="cn">FALSE</span>, lemma <span class="op">=</span> <span class="cn">FALSE</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">##                                 options seconds</span></span>
-<span><span class="co">## 1                              defaults     2.6</span></span>
-<span><span class="co">## 2                     adding dependency     2.7</span></span>
-<span><span class="co">## 3               no pos, lemma or entity     2.6</span></span>
-<span><span class="co">## 4 adding tag, dependency and nounphrase     2.8</span></span></code></pre></div>
-<p>What extra time there is comes from building the extra columns, not
-from running the pipeline.</p>
-<p>So it is better to ask for all the columns you will need in one call,
+<span><span class="co">## 1                              defaults     3.3</span></span>
+<span><span class="co">## 2                     adding dependency     3.0</span></span>
+<span><span class="co">## 3 adding tag, dependency and nounphrase     3.1</span></span>
+<span><span class="co">## 4                             no entity     2.3</span></span>
+<span><span class="co">## 5                              no lemma     2.7</span></span>
+<span><span class="co">## 6                       no pos or lemma     1.7</span></span>
+<span><span class="co">## 7               no pos, lemma or entity     1.0</span></span></code></pre></div>
+<p>The output does not depend on which components were left out: its
+columns are the same as those of a parse with every option. To make sure
+of that, a component stays whenever it sets something that the output
+has, or that a later component may read, and <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>
+leaves nothing out in two cases, where it cannot know what a component
+needs or sets: when <code>additional_attributes</code> are asked for,
+and when the pipeline has a component that is not one of spaCy’s
+standard ones. With entity rules from
+<code>spacy_initialize(entity_patterns = )</code>, the components that
+the rules may read stay as long as <code>entity = TRUE</code>.</p>
+<p>Each call runs the tokenizer, the vectors and the parser again, so it
+is still better to ask for all the columns you will need in one call,
 than to call <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> once for each.
 <code><a href="../reference/entity_extract.html">entity_extract()</a></code> and <code><a href="../reference/nounphrase_extract.html">nounphrase_extract()</a></code> take
 the entities and noun phrases from the output of
@@ -181,20 +214,58 @@ the entities and noun phrases from the output of
 <span><span class="co">## 1 1789-Washington           1 Fellow-Citizens</span></span>
 <span><span class="co">## 2 1789-Washington           1      the_Senate</span></span>
 <span><span class="co">## 3 1789-Washington           1       the_House</span></span></code></pre></div>
-<p>The exception is <code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code>, which turns off every
-component, and only splits the texts into tokens:</p>
+<p><code><a href="../reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> and
+<code><a href="../reference/spacy_extract_nounphrases.html">spacy_extract_nounphrases()</a></code> leave out components in the
+same way: the first runs neither the tagger, the attribute ruler nor the
+lemmatizer, which entities do not need, and the second neither the
+lemmatizer nor the entity recogniser. So when you need only the
+entities, or only the noun phrases, they are faster than
+<code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> with its default options:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  call <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'spacy_parse(txt)'</span>,</span>
+<span>           <span class="st">'spacy_extract_entity(txt)'</span>,</span>
+<span>           <span class="st">'spacy_extract_nounphrases(txt)'</span><span class="op">)</span>,</span>
+<span>  seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_extract_entity.html">spacy_extract_entity</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_extract_nounphrases.html">spacy_extract_nounphrases</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">##                             call seconds</span></span>
+<span><span class="co">## 1               spacy_parse(txt)     3.0</span></span>
+<span><span class="co">## 2      spacy_extract_entity(txt)     1.6</span></span>
+<span><span class="co">## 3 spacy_extract_nounphrases(txt)     2.4</span></span></code></pre></div>
+<p><code><a href="../reference/spacy_match.html">spacy_match()</a></code> runs the components that its patterns ask
+for. Phrases, words and the values of a dictionary are matched on the
+text of the tokens, so they need only the parser, for the sentence of
+each match; a pattern on the part of speech also needs the tagger and
+the attribute ruler, but neither the lemmatizer nor the entity
+recogniser:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">adj_noun</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ADJ_NOUN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>POS <span class="op">=</span> <span class="st">"ADJ"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>POS <span class="op">=</span> <span class="st">"NOUN"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  pattern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'phrase("fellow citizens")'</span>,</span>
+<span>              <span class="st">'adj_noun'</span><span class="op">)</span>,</span>
+<span>  seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="fu"><a href="https://quanteda.io/reference/phrase.html" class="external-link">phrase</a></span><span class="op">(</span><span class="st">"fellow citizens"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_match.html">spacy_match</a></span><span class="op">(</span><span class="va">txt</span>, <span class="va">adj_noun</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">##                     pattern seconds</span></span>
+<span><span class="co">## 1 phrase("fellow citizens")     1.1</span></span>
+<span><span class="co">## 2                  adj_noun     2.9</span></span></code></pre></div>
+<p><code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code> goes further: it turns off every
+component, and only splits the texts into tokens:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">## [1] 0.2</span></span></code></pre></div>
 <p>If you need only the tokens, <code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code> is many
 times faster than <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code>. Its options
 <code>remove_punct</code>, <code>remove_numbers</code> and
 <code>remove_url</code> depend only on the tokens, and keep it fast, but
-two of its options need the pipeline, and make it run all of the
-components: <code>remove_symbols</code>, which uses the part-of-speech
-tags, and <code>what = "sentence"</code>, since the sentence boundaries
-come from the parser:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+two of its options need components of the pipeline, and run those,
+leaving out the others: <code>what = "sentence"</code> needs the parser,
+which sets the sentence boundaries, and <code>remove_symbols</code> the
+parts of speech, for which spaCy’s English models run the tagger, the
+parser and the attribute ruler:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  call <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'spacy_tokenize(txt)'</span>,</span>
 <span>           <span class="st">'spacy_tokenize(txt, remove_punct = TRUE)'</span>,</span>
@@ -208,8 +279,8 @@ come from the parser:</p>
 <span><span class="co">##                                         call seconds</span></span>
 <span><span class="co">## 1                        spacy_tokenize(txt)     0.2</span></span>
 <span><span class="co">## 2   spacy_tokenize(txt, remove_punct = TRUE)     0.2</span></span>
-<span><span class="co">## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.6</span></span>
-<span><span class="co">## 4     spacy_tokenize(txt, what = "sentence")     2.5</span></span></code></pre></div>
+<span><span class="co">## 3 spacy_tokenize(txt, remove_symbols = TRUE)     2.2</span></span>
+<span><span class="co">## 4     spacy_tokenize(txt, what = "sentence")     1.2</span></span></code></pre></div>
 <p>To remove symbols quickly, tokenize with
 <code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code>, and remove them afterwards, for instance
 with <strong>quanteda</strong>’s
@@ -219,28 +290,31 @@ symbol characters instead of using the tags. The two can differ:
 instance, where spaCy may tag them otherwise and keep them.</p>
 </div>
 <div class="section level2">
-<h2 id="turn-off-the-entity-recogniser">Turn off the entity recogniser<a class="anchor" aria-label="anchor" href="#turn-off-the-entity-recogniser"></a>
+<h2 id="turn-off-the-entity-recogniser-for-every-function">Turn off the entity recogniser for every function<a class="anchor" aria-label="anchor" href="#turn-off-the-entity-recogniser-for-every-function"></a>
 </h2>
-<p>The one component that <strong>spacyr</strong> can turn off is the
-named entity recogniser. <code>spacy_initialize(entity = FALSE)</code>
-loads the model with the recogniser disabled, so that it does not run
-when texts are parsed, which here saves about a quarter of the parsing
-time:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">with_ner</span> <span class="op">&lt;-</span> <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">sents</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<p>Each function leaves the named entity recogniser out of its own calls
+when it does not need it. <code>spacy_initialize(entity = FALSE)</code>
+loads the model with the recogniser disabled, so that it runs in no call
+at all. That matters where a function leaves nothing out: when
+<code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> is asked for
+<code>additional_attributes</code>, or when the pipeline has a component
+or a tokenizer that is not one of spaCy’s standard ones. Here it is
+asked for an additional attribute:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">with_ner</span> <span class="op">&lt;-</span> <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">sents</span>, entity <span class="op">=</span> <span class="cn">FALSE</span>, additional_attributes <span class="op">=</span> <span class="st">"is_stop"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span>entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">without_ner</span> <span class="op">&lt;-</span> <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">sents</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">without_ner</span> <span class="op">&lt;-</span> <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">sents</span>, entity <span class="op">=</span> <span class="cn">FALSE</span>, additional_attributes <span class="op">=</span> <span class="st">"is_stop"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ner <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"in the pipeline"</span>, <span class="st">"disabled"</span><span class="op">)</span>,</span>
 <span>           seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">with_ner</span>, <span class="va">without_ner</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##               ner seconds</span></span>
-<span><span class="co">## 1 in the pipeline     2.7</span></span>
-<span><span class="co">## 2        disabled     2.0</span></span></code></pre></div>
+<span><span class="co">## 1 in the pipeline     3.2</span></span>
+<span><span class="co">## 2        disabled     2.5</span></span></code></pre></div>
 <p><code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> then has no entities to return, and says
 so if asked for them, unless entity rules are added with
 <code>spacy_initialize(entity_patterns = )</code> (see the article on <a href="entity_rules.html">entity rules</a>). The rules work without the
@@ -252,12 +326,12 @@ recogniser, so long as they do not build on the entities it finds.</p>
 <p>The models of a language differ mostly in their size and accuracy.
 Here, <code>en_core_web_lg</code> takes about as long as
 <code>en_core_web_sm</code>:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"en_core_web_lg"</span><span class="op">)</span></span>
 <span><span class="co">## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_lg)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## [1] 3</span></span>
+<span><span class="co">## [1] 3.7</span></span>
 <span><span class="fu"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>since the two have the same components; most of what makes the large
 model large is its table of word vectors, which takes more memory and
@@ -274,7 +348,7 @@ at a time, and <strong>spacyr</strong>’s functions pass the
 <code>batch_size = NULL</code>, uses the model’s own setting, which is
 256 documents for <code>en_core_web_sm</code>. Very small batches are
 slower, but beyond some size, larger ones make little difference:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_initialize.html">spacy_initialize</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">## successfully initialized (spaCy Version: 3.8.18, language model: en_core_web_sm)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">txt</span>, entity <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
@@ -283,10 +357,10 @@ slower, but beyond some size, larger ones make little difference:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>batch_size <span class="op">=</span> <span class="va">sizes</span>,</span>
 <span>           seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">sizes</span>, <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">sents</span>, batch_size <span class="op">=</span> <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##   batch_size seconds</span></span>
-<span><span class="co">## 1          1     6.0</span></span>
-<span><span class="co">## 2         10     3.7</span></span>
-<span><span class="co">## 3        100     2.8</span></span>
-<span><span class="co">## 4       1000     2.8</span></span></code></pre></div>
+<span><span class="co">## 1          1     6.9</span></span>
+<span><span class="co">## 2         10     4.4</span></span>
+<span><span class="co">## 3        100     3.4</span></span>
+<span><span class="co">## 4       1000     3.5</span></span></code></pre></div>
 <p>The default is usually a good choice. A batch of long documents takes
 more memory than one of short documents, so with long documents, a
 smaller batch can avoid running out of memory.</p>
@@ -300,39 +374,36 @@ documents between them; <code>n_process = -1</code> uses all the CPUs.
 Starting the processes, loading the model in each, and sending the
 parsed documents back all take time, so they help only with many
 documents. For 5,473 sentences, more processes are slower:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">procs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>n_process <span class="op">=</span> <span class="va">procs</span>,</span>
 <span>           seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">procs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">sents</span>, n_process <span class="op">=</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##   n_process seconds</span></span>
-<span><span class="co">## 1         1     2.7</span></span>
-<span><span class="co">## 2         2     3.4</span></span>
-<span><span class="co">## 3         4     4.1</span></span></code></pre></div>
-<p>and for six times as many, timed once each, they make little
-difference:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<span><span class="co">## 1         1     3.3</span></span>
+<span><span class="co">## 2         2     4.9</span></span>
+<span><span class="co">## 3         4     5.5</span></span></code></pre></div>
+<p>and for six times as many, timed once each, they help:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">more</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">sents</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>n_process <span class="op">=</span> <span class="va">procs</span>,</span>
 <span>           seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">procs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_parse.html">spacy_parse</a></span><span class="op">(</span><span class="va">more</span>, n_process <span class="op">=</span> <span class="va">p</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##   n_process seconds</span></span>
-<span><span class="co">## 1         1    16.4</span></span>
-<span><span class="co">## 2         2    15.1</span></span>
-<span><span class="co">## 3         4    14.9</span></span></code></pre></div>
-<p>So on this machine, with this model and these texts, there is little
-to gain. The gain may differ with other models, texts and machines, so
-time <code>n_process</code> on a sample of your own texts before relying
-on it. <strong>spacyr</strong> itself also adds some cost with more than
-one process, which <a href="https://github.com/quanteda/spacyr/issues/289" class="external-link">#289</a> is about.
-Since <code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code> runs no components, it gains nothing
-from more processes, and only pays the costs of starting them and of
-sending the documents between them:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>n_process <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span>,</span>
-<span>           seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span><span class="op">(</span><span class="va">more</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>                       <span class="fu">seconds</span><span class="op">(</span><span class="fu"><a href="../reference/spacy_tokenize.html">spacy_tokenize</a></span><span class="op">(</span><span class="va">more</span>, n_process <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">##   n_process seconds</span></span>
-<span><span class="co">## 1         1     0.8</span></span>
-<span><span class="co">## 2         4    11.4</span></span></code></pre></div>
+<span><span class="co">## 1         1    29.9</span></span>
+<span><span class="co">## 2         2    23.8</span></span>
+<span><span class="co">## 3         4    20.6</span></span></code></pre></div>
+<p>So on this machine, with this model and these texts, the gain is
+modest: four processes are far from four times as fast as one, since the
+parsed documents are sent back to the R session’s own process, which
+still puts the output together. The gain may differ with other models,
+texts and machines, so time <code>n_process</code> on a sample of your
+own texts before relying on it.</p>
+<p>Splitting texts into words with <code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code> runs no
+components, so more processes would only add the costs of starting them
+and of sending the documents between them. It therefore always uses one
+process for that, whatever <code>n_process</code> is.
+<code>n_process</code> does apply to <code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code> when
+components run, which is for <code>what = "sentence"</code> and for
+<code>remove_symbols = TRUE</code>.</p>
 <p>A few things to keep in mind with more than one process:</p>
 <ul>
 <li>Each process has its own copy of the model, so they need more
@@ -349,9 +420,11 @@ the other processes can import.</li>
 <li>With a pipeline that uses Hugging Face’s <strong>tokenizers</strong>
 library, as some transformer pipelines do, see the section below.</li>
 </ul>
-<p>The output does not depend on <code>n_process</code> or
-<code>batch_size</code>: documents come back in their original
-order.</p>
+<p>With spaCy’s built-in components and default error handlers,
+documents come back in their original order. With custom components or
+error handlers, <strong>spacyr</strong> passes document names through
+the pipeline so the results stay attached to the right names if any
+documents are dropped or reordered.</p>
 </div>
 <div class="section level2">
 <h2 id="long-documents">Long documents<a class="anchor" aria-label="anchor" href="#long-documents"></a>
@@ -398,29 +471,35 @@ happen.</p>
 </h2>
 <ul>
 <li>Use <code><a href="../reference/spacy_tokenize.html">spacy_tokenize()</a></code> when you need only the tokens. Its
-<code>remove_symbols</code> option runs the whole pipeline; removing
+<code>remove_symbols</code> option runs most of the pipeline; removing
 symbols afterwards, by their characters, is faster, if that definition
 of a symbol suits your task.</li>
-<li>Ask <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> for all the columns you need in a
-single call; turning its options off saves little time.</li>
+<li>Ask <code><a href="../reference/spacy_parse.html">spacy_parse()</a></code> for the columns you need, and no
+others, in a single call: <code>entity = FALSE</code>,
+<code>lemma = FALSE</code> and <code>pos = FALSE</code> save the time of
+the components that they do not need.</li>
+<li>Use <code><a href="../reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> or
+<code><a href="../reference/spacy_extract_nounphrases.html">spacy_extract_nounphrases()</a></code> when you need only the entities
+or only the noun phrases.</li>
 <li>Use <code>spacy_initialize(entity = FALSE)</code> when you do not
-need named entities.</li>
+need named entities, and ask for <code>additional_attributes</code> or
+have a pipeline with components of your own.</li>
 <li>Leave <code>batch_size</code> at its default, unless memory runs
 short.</li>
 <li>Try <code>n_process</code> greater than 1 only for large numbers of
 documents, after timing it on a sample.</li>
 <li>Split very long documents into smaller ones.</li>
 </ul>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/spacy_finalize.html">spacy_finalize</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The times in this article were computed on this machine:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.info.html" class="external-link">Sys.info</a></span><span class="op">(</span><span class="op">)</span><span class="op">[[</span><span class="st">"sysname"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">## [1] "Darwin"</span></span>
 <span><span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">## [1] 10</span></span>
 <span><span class="va">R.version.string</span></span>
-<span><span class="co">## [1] "R version 4.6.1 (2026-06-24)"</span></span></code></pre></div>
+<span><span class="co">## [1] "R version 4.6.2 (2026-10-29)"</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://spacyr.quanteda.io/404.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/articles/annotations.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/articles/docker.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/articles/entity_rules.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/articles/index.html</loc></url>
@@ -16,6 +17,7 @@
 <url><loc>https://spacyr.quanteda.io/reference/data_char_sentences.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/entity_extract.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/entity_patterns_read.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/reference/entity_visualize.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/find_spacy.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/get-functions.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/index.html</loc></url>
@@ -31,6 +33,7 @@
 <url><loc>https://spacyr.quanteda.io/reference/spacy_install.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_install_virtualenv.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_installed.html</loc></url>
+<url><loc>https://spacyr.quanteda.io/reference/spacy_is_installed.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_match.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_parse.html</loc></url>
 <url><loc>https://spacyr.quanteda.io/reference/spacy_tokenize.html</loc></url>

@@ -64,8 +64,8 @@ spacy_tokenize(
 - remove_symbols:
 
   remove symbols. The symbols are either `SYM` in `pos` field, or
-  currency symbols. Since this needs the part-of-speech tags, it runs
-  all the components of the pipeline, which makes tokenization much
+  currency symbols. Since this needs the part of speech, it runs the
+  components of the pipeline that set it, which makes tokenization much
   slower; the other `remove_*` options do not.
 
 - padding:
@@ -87,13 +87,15 @@ spacy_tokenize(
 
 - n_process:
 
-  the number of processes for spaCy's `nlp.pipe()` to use: `1` (the
-  default) processes the documents in the current R session's Python
-  process, a larger number starts that many Python processes, and `-1`
-  uses all CPUs. Starting the processes and loading the model in each
-  takes time, so more than one process helps only for large numbers of
-  documents. A custom pipeline component must be defined in an
-  importable Python module to be used in other processes.
+  the number of processes for spaCy's `nlp.pipe()` to use, as in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md):
+  `1` (the default) uses the current R session's Python process, a
+  larger number starts that many Python processes, and `-1` uses all
+  CPUs. It is used only when components of the pipeline run, which is
+  for `what = "sentence"` and for `remove_symbols = TRUE`. Splitting
+  texts into words runs no components, so more processes would only add
+  the time to start them: the words are always tokenized in one process,
+  whatever `n_process` is.
 
 - batch_size:
 
@@ -108,6 +110,22 @@ spacy_tokenize(
 ## Value
 
 either `list` or `data.frame` of tokens
+
+## Details
+
+Splitting texts into words runs no component of spaCy's pipeline. Two
+options need some of them, and leave out the others: `what = "sentence"`
+needs the components that set the sentences, which is the parser in
+spaCy's models, and `remove_symbols = TRUE` those that set the part of
+speech, which in spaCy's English models are the tagger, the parser and
+the attribute ruler. The output is the same as when every component
+runs, by the rules described in the details of
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md):
+a component stays whenever a later one that stays may read what it sets,
+and nothing is left out when the pipeline has a component that is not
+one of spaCy's standard ones, or a tokenizer that is not spaCy's own,
+which can give the documents a function of its own to find the
+sentences.
 
 ## Examples
 

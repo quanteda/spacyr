@@ -1,0 +1,199 @@
+---
+title: "From Text to Auditable Annotations"
+author: "Kenneth Benoit"
+date: "`r Sys.Date()`"
+---
+
+<!-- An article for the pkgdown site only: vignettes/articles is in
+.Rbuildignore, so it is not part of the package. Its code needs spaCy, so its
+results are computed ahead of time: edit vignettes/articles/annotations.Rmd.orig,
+then run `make vignette` to knit it into vignettes/articles/annotations.Rmd,
+which pkgdown builds without running the code. -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "##"
+)
+# wide enough for a concordance
+options(width = 100)
+```
+
+## Introduction
+
+Much analysis of text with spaCy ends in a count: how often presidents speak of Congress, or how many passive verbs a manifesto has. A count does not show what was counted. Before relying on it, you want to see each thing that was found, in the text where it was found, and to change the rule that found it when the rule is wrong.
+
+This article does that for one small example: references to the legislature and to the courts in four inaugural addresses of US presidents. It arrives at this, a passage of George Bush's address of 1989 with its entities highlighted, and every reference to the legislature in that address in its context:
+
+<!-- The preview runs the code of chunks that come later in the article, by
+their labels, so that it cannot differ from what they show. -->
+
+```{r preview-run, include = FALSE, ref.label = c("corpus", "rules", "parse", "passage")}
+```
+
+```{r preview-passage, echo = FALSE, ref.label = "visualize"}
+```
+
+```{r preview-kwic, echo = FALSE}
+preview <- spacy_match(corp, rules)
+kwic(as.tokens(parsed), index = as_index(preview[preview$doc_id == "1989-Bush", ]), window = 4)
+```
+
+```{r preview-end, include = FALSE}
+spacy_finalize()
+rm(list = ls())
+```
+
+Version 2.0 of **spacyr** adds what this takes:
+
+- rules written in R, as a **quanteda** dictionary or as patterns, which `spacy_match()` finds in the texts and `spacy_initialize()` adds to the pipeline as named entities;
+- the position of every match, entity and token, in spaCy's tokens and, with `offsets = TRUE`, in the characters of the original text;
+- `entity_visualize()`, which shows the text with its entities highlighted;
+- `as_index()`, which gives matches to `quanteda::kwic()` for a concordance, and methods that turn a parse into **quanteda** tokens, with the document variables of the corpus that was parsed.
+
+The article goes through these in turn. For more detail on each step, see the articles on [rule-based matching](matching.html), [rule-based named entities](entity_rules.html) and [improving performance](performance.html).
+
+## The texts
+
+The texts are four of the inaugural addresses in **quanteda**'s `data_corpus_inaugural`, a corpus whose document variables record the year, the president and the party:
+
+```{r corpus, message = FALSE}
+library("spacyr")
+library("quanteda")
+corp <- corpus_subset(data_corpus_inaugural, Year %in% c(1789, 1861, 1933, 1989))
+docvars(corp)
+```
+
+## Define what to find
+
+A **quanteda** dictionary says what to find. Its keys are the labels, and its values are the words and phrases to find under each:
+
+```{r dictionary}
+dict <- dictionary(list(LEGISLATURE = c("Congress", "Senate", "House of Representatives", "House"),
+                        JUDICIARY = "Supreme Court"),
+                   tolower = FALSE)
+```
+
+`spacy_match()` finds them in the texts. It returns a data.frame with one row for each match: the document, the label, the matched text, and where the match is.
+
+```{r match}
+spacy_initialize()
+m <- spacy_match(corp, dict)
+head(m, 3)
+table(m$doc_id, m$label)
+```
+
+That is 21 references. Whether they are what we meant is the next question.
+
+## Inspect the matches
+
+`quanteda::kwic()` shows each occurrence of a pattern with the words around it. It can do the same for positions found elsewhere, given as an index, and `as_index()` makes one from a table of matches. The positions count spaCy's tokens, so the tokens to give `kwic()` are those of `spacy_parse()` for the same texts, which `as.tokens()` converts. Only the tokens are needed here, so the parse leaves out the lemmas, the parts of speech and the entities:
+
+```{r inspect}
+toks <- as.tokens(spacy_parse(corp, lemma = FALSE, pos = FALSE, entity = FALSE))
+kwic(toks, index = as_index(m), window = 5)
+```
+
+Two of the 21 are not references to the legislature: Roosevelt's "our own national house", and the "House" of Bush's "White House". Both come from the value `"House"`, which matches in any case and wherever the word is, as a dictionary value does in **quanteda**. The table of counts could not have shown this.
+
+## Revise the rules
+
+Two changes remove them: the value becomes `"the House"`, and the values match in their own case. `as_entity_patterns()` makes a set of rules from a dictionary with that setting. Both `spacy_match()` and `spacy_initialize()` take the rules.
+
+```{r rules}
+dict <- dictionary(list(LEGISLATURE = c("Congress", "Senate", "House of Representatives", "the House"),
+                        JUDICIARY = "Supreme Court"),
+                   tolower = FALSE)
+rules <- as_entity_patterns(dict, case_insensitive = FALSE)
+rules
+```
+
+```{r rematch}
+m <- spacy_match(corp, rules, offsets = TRUE)
+kwic(toks, index = as_index(m[grepl("House", m$text), ]), window = 5)
+table(m$doc_id, m$label)
+```
+
+The two false matches are gone, and the House that Bush meant is still found. A rule has its limits too: this one would miss a sentence that began with "The House", and none of these addresses has one.
+
+Matching does not change the pipeline, so rules can be tried and revised like this without starting spaCy again. Rules need not be words and phrases. `spacy_match()` also takes patterns that describe tokens by their attributes, such as their part of speech, and patterns that describe tokens connected in the dependency parse; the article on [rule-based matching](matching.html) uses them to find passive verbs.
+
+## Back to the original text
+
+With `offsets = TRUE`, each match also has `start` and `end`, the positions of its first and last characters in the document. They count characters from 1, as R does, so `substring()` recovers the match from the original text, or the match with as much of the text around it as you want:
+
+```{r offsets}
+txt <- as.character(corp)
+all(substring(txt[m$doc_id], m$start, m$end) == m$text)
+court <- m[m$label == "JUDICIARY", ]
+data.frame(doc_id = court$doc_id,
+           context = substring(txt[court$doc_id], court$start - 30, court$end + 30))
+```
+
+Unlike the positions of tokens, these do not depend on how the text was split into tokens. They can mark the matches in the documents themselves, or send them to another program or to a human coder.
+
+## Rules as named entities
+
+Rules that find what they should can become part of the pipeline. `spacy_initialize(entity_patterns = )` adds them to it as spaCy's entity ruler, and what they find is then among the named entities of every parse. spaCy is running without the rules, so it is finalized first:
+
+```{r finalize}
+spacy_finalize()
+```
+
+Then it is initialized with the rules, and the texts are parsed, with the offsets of their tokens:
+
+```{r parse}
+spacy_initialize(entity_patterns = rules)
+parsed <- spacy_parse(corp, offsets = TRUE)
+```
+
+The `entity` column of the parse has the labels of the rules next to those of the language model. These are the first two sentences in which Bush refers to the legislature, and the last tokens of the second:
+
+```{r passage}
+bush <- parsed[parsed$doc_id == "1989-Bush", ]
+sentences <- unique(bush$sentence_id[grepl("^LEGISLATURE", bush$entity)])
+passage <- bush[bush$sentence_id %in% sentences[1:2], ]
+tail(passage, 7)
+```
+
+`offsets = TRUE` works for `spacy_parse()` as it does for `spacy_match()`, and gives the position of each token in the text. Counting the entities of each type gives the model's entities and ours, and the same 17 and 2 that `spacy_match()` found:
+
+```{r entities}
+table(entity_extract(parsed)$entity_type)
+```
+
+Matches and entities serve different purposes. `spacy_match()` leaves the pipeline as it is and returns a table. Its matches can overlap when their labels differ, and it takes patterns for things that are not entities. Entities are part of the parse. No two of them overlap, and where a rule's entity overlaps one of the model's, the rule's is kept, unless `overwrite_entities = FALSE`. Every function that works with entities then has them: `entity_extract()`, `entity_consolidate()`, `spacy_extract_entity()` and `entity_visualize()`.
+
+## Highlight the entities
+
+`entity_visualize()` shows parsed documents with their entities highlighted and labelled, as HTML. Because the parse has the offsets of its tokens, the text is spaced as the original was. With `view = TRUE` the result opens in the browser. In an R Markdown document, `knitr::raw_html()` puts it into the page:
+
+```{r visualize}
+knitr::raw_html(entity_visualize(passage, colors = c(LEGISLATURE = "#ffd966")))
+```
+
+Labels of the model have colours of their own, and `colors` sets one for a label of ours, which would otherwise be grey. The passage also shows what the model does by itself: it takes "the Executive" for a location. To show only some labels, name them, as in `entity_visualize(parsed, entities = names(dict))`.
+
+## Back in quanteda
+
+`as.tokens()` turns the parse into **quanteda** tokens, and restores the document variables of the corpus that was parsed. The counts can then be set beside the year and the party of each address, and the tokens go on to any analysis in **quanteda**:
+
+```{r docvars}
+toks <- as.tokens(parsed)
+counts <- table(factor(m$doc_id, levels = docnames(toks)), m$label)
+cbind(docvars(toks), unclass(counts))
+```
+
+The levels of the factor are the names of all the documents, so that a document without a match would stay in the table, with zeros.
+
+## Larger corpora
+
+For a larger corpus, it matters that the functions run no more of spaCy's pipeline than they need. `spacy_match()` runs only the components that its patterns ask for, and words and phrases need only the parser. `spacy_parse()` leaves out the components of the columns that are not asked for, as the parse for the concordance did above. Both take `batch_size` and `n_process`, for the number of documents that spaCy handles at a time and the number of processes it uses. Whether more processes are faster depends on the number and the length of the documents, so time them on a sample first. The article on [improving performance](performance.html) has the measurements.
+
+```{r end}
+spacy_finalize()
+```
+
+## Upgrading from 1.4.0
+
+Most code written for **spacyr** 1.4.0 runs unchanged in 2.0. What can need attention is listed under "Upgrading from 1.4.0" in the [news](../news/index.html): the versions of R and spaCy that are needed, `n_process` and `batch_size` in place of `multithread`, and the functions that are deprecated or have a new name.

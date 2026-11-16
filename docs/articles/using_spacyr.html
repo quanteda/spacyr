@@ -36,7 +36,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
-<li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+<li><a class="dropdown-item" href="../articles/annotations.html">Auditable annotations</a></li>
+    <li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
     <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
     <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
     <li><a class="dropdown-item" href="../articles/docker.html">Using spacyr with Docker</a></li>
@@ -111,8 +112,8 @@ connection by being initialized within your R session.</p>
 which attempts to make this process as painless as possible. When spaCy
 has been installed with <code><a href="../reference/spacy_install.html">spacy_install()</a></code> (see <a href="https://spacyr.quanteda.io" class="uri">https://spacyr.quanteda.io</a> for detailed instructions),
 <code><a href="../reference/spacy_initialize.html">spacy_initialize()</a></code> uses the virtual environment it created.
-<code><a href="../reference/spacy_installed.html">spacy_installed()</a></code> checks whether that environment, and any
-language models you need, are ready.</p>
+<code><a href="../reference/spacy_is_installed.html">spacy_is_installed()</a></code> checks whether that environment, and
+any language models you need, are ready.</p>
 <p>Users with their own setup of spaCy, for instance in a conda
 environment, can instead point <strong>spacyr</strong> to the Python
 executable of that environment by setting the

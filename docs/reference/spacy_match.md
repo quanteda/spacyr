@@ -28,7 +28,8 @@ spacy_match(
   overlap = c("longest", "all", "first"),
   n_process = 1L,
   batch_size = NULL,
-  ...
+  ...,
+  offsets = FALSE
 )
 ```
 
@@ -169,7 +170,17 @@ spacy_match(
 
 - ...:
 
-  not used. An argument that is not one of those above is an error.
+  not used. An argument that is not one of those of this function is an
+  error.
+
+- offsets:
+
+  logical; if `TRUE`, also return the position of each match in its text
+  as it was given in `x`, in the columns `start` and `end`: the
+  positions of its first and last characters, counted from 1 as in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  so that `substring(text, start, end)` gives the matches of a text. It
+  comes after `...`, so it has to be given by its full name.
 
 ## Value
 
@@ -224,6 +235,11 @@ token, which then has a row for each.
 - `length`:
 
   the number of tokens: of the sequence, or 1 for a node
+
+- `start`, `end`:
+
+  only with `offsets = TRUE`: the positions in the text of the first and
+  the last character of the sequence, or of the node's token
 
 Rows are in the order of the documents in `x`. Within a document,
 matches are in the order of the `start_id` of their first row: the first
@@ -395,6 +411,21 @@ that partly overlap, of which `overlap = "longest"` keeps one. A
 concordance of the matches themselves, with `kwic(index = as_index(m))`,
 shows the matches that `overlap` kept: see
 [`as_index()`](https://spacyr.quanteda.io/reference/as_index.md).
+
+## Components that are left out
+
+The components of spaCy's pipeline that the patterns do not ask for are
+left out of the call, which makes it faster. Phrases, words and the
+values of a dictionary are matched on the text of the tokens, and need
+only the parser, which sets the sentences. A pattern on `POS`, `TAG` or
+`MORPH` also needs the components that set the tags, one on `LEMMA` the
+lemmatizer, one on `DEP` or a dependency pattern the dependencies, and
+one on `ENT_TYPE` the entities. The output is the same as when every
+component runs, by the rules in the details of
+[`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md).
+Nothing is left out when a pattern asks for an attribute that is not one
+of spaCy's token attributes known here, such as an extension attribute
+(`_`).
 
 ## See also
 

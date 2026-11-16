@@ -42,7 +42,9 @@ following fields:
 `nounphrase_consolidate` returns a modified `data.frame` of parsed
 results, where the noun phrases have been combined into a single
 "token". Currently, dependency parsing is removed when this
-consolidation occurs.
+consolidation occurs. If `x` has the columns `start` and `end` of
+`spacy_parse(offsets = TRUE)`, a consolidated noun phrase runs from the
+start of its first token to the end of its last.
 
 ## Examples
 

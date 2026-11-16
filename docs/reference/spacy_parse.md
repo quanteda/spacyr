@@ -5,8 +5,8 @@ texts, and returns a data.frame of the results, with one row per token.
 The function provides options for universal (`pos`) and detailed (`tag`)
 part-of-speech tags, lemmatization (`lemma`), named entity recognition
 (`entity`), dependency parsing (`dependency`), noun phrases
-(`nounphrase`), and any other token attributes from spaCy
-(`additional_attributes`).
+(`nounphrase`), the position of each token in its text (`offsets`), and
+any other token attributes from spaCy (`additional_attributes`).
 
 ## Usage
 
@@ -23,6 +23,7 @@ spacy_parse(
   additional_attributes = NULL,
   n_process = 1L,
   batch_size = NULL,
+  offsets = FALSE,
   ...
 )
 ```
@@ -97,6 +98,19 @@ spacy_parse(
   `NULL` (the default) uses the pipeline's default (`nlp.batch_size`).
   Larger batches can be faster, but use more memory.
 
+- offsets:
+
+  logical; if `TRUE`, return the position of each token in its text as
+  it was given in `x`, in two columns after `token`: `start`, the
+  position of the token's first character, and `end`, that of its last.
+  Positions are counted from 1 in characters as R counts them,
+  whitespace included, so that `substring(text, start, end)` gives the
+  tokens of a text. Some of spaCy's tokenizers, such as the one for
+  Korean, make a document whose whitespace differs from that of the
+  text; the positions are still those in the text. If a tokenizer
+  changes anything else, so that a token is not found in the text or the
+  text has more than whitespace outside the tokens, this is an error.
+
 - ...:
 
   not used directly
@@ -110,6 +124,46 @@ quanteda corpus, for the [quanteda
 methods](https://spacyr.quanteda.io/reference/quanteda-methods.md) such
 as
 [`quanteda::as.tokens()`](https://quanteda.io/reference/as.tokens.html).
+
+## Details
+
+The components of spaCy's pipeline whose results the options do not ask
+for are left out of the call, which makes it faster: the named entity
+recognizer with `entity = FALSE`; the lemmatizer with `lemma = FALSE`;
+and the tagger and the attribute ruler when `pos`, `tag`, `lemma` and
+`nounphrase` are all `FALSE`. The output is the same as when every
+component runs, so a component stays whenever it sets something that the
+output has, or that a later component may read:
+
+- The parser always runs, since it sets the sentences.
+
+- An attribute ruler stays if any of its rules sets something that is
+  returned. That of spaCy's English models also sets the dependency of
+  whitespace tokens, so with `dependency = TRUE` it stays, and so does
+  the tagger, whose tags its rules read.
+
+- With entity rules from `spacy_initialize(entity_patterns = )` and
+  `entity = TRUE`, the components that the rules may read stay.
+
+- A component stays if the model of a later component reads what it
+  sets, as an entity recognizer that was trained to use the part of
+  speech does. The models of spaCy's own pipelines read only the text of
+  the tokens. What a model reads is told from its settings; a model that
+  is not built by spaCy's own functions is taken to read everything.
+
+- Nothing is left out when `additional_attributes` are asked for, or
+  when the pipeline has a component that is not one of spaCy's standard
+  ones.
+
+- Nothing is left out either when the pipeline's tokenizer is not
+  spaCy's own. Such a tokenizer can give the documents a function of its
+  own to find the sentences, which may read any annotation.
+
+- With `nounphrase = TRUE`, nothing is left out either when the pipeline
+  finds its noun phrases by a function that is not spaCy's own for the
+  language, which may read any annotation.
+
+See the article "Improving Performance" on the package website.
 
 ## Examples
 
@@ -130,5 +184,9 @@ spacy_parse(txt2, entity = TRUE, dependency = TRUE)
 txt3 <- "We analyzed the Supreme Court with three natural language processing tools." 
 spacy_parse(txt3, entity = TRUE, nounphrase = TRUE)
 spacy_parse(txt3, additional_attributes = c("like_num", "is_punct"))
+
+# the position of each token in the text
+parsed <- spacy_parse(txt3, offsets = TRUE)
+substring(txt3, parsed$start, parsed$end)
 } # }
 ```

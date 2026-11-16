@@ -6,6 +6,17 @@ template:
     bg: "#ffffff"
     fg: "#333333"
     primary: "#4582ec"
+articles:
+- title: "Using spacyr"
+  contents:
+  - using_spacyr
+- title: "Advanced"
+  contents:
+  - articles/annotations
+  - articles/entity_rules
+  - articles/matching
+  - articles/performance
+  - articles/docker
 navbar:
   title: "spacyr"
   type: inverse
@@ -22,6 +33,8 @@ navbar:
     advanced:
       text: "Advanced"
       menu:
+      - text: "Auditable annotations"
+        href: articles/annotations.html
       - text: "Entity rules"
         href: articles/entity_rules.html
       - text: "Matching"

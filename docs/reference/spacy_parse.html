@@ -4,12 +4,14 @@ texts, and returns a data.frame of the results, with one row per token. The
 function provides options for universal (pos) and detailed (tag)
 part-of-speech tags, lemmatization (lemma), named entity recognition
 (entity), dependency parsing (dependency), noun phrases (nounphrase),
-and any other token attributes from spaCy (additional_attributes)."><meta property="og:description" content="The spacy_parse() function calls spaCy to both tokenize and tag the
+the position of each token in its text (offsets), and any other token
+attributes from spaCy (additional_attributes)."><meta property="og:description" content="The spacy_parse() function calls spaCy to both tokenize and tag the
 texts, and returns a data.frame of the results, with one row per token. The
 function provides options for universal (pos) and detailed (tag)
 part-of-speech tags, lemmatization (lemma), named entity recognition
 (entity), dependency parsing (dependency), noun phrases (nounphrase),
-and any other token attributes from spaCy (additional_attributes)."></head><body>
+the position of each token in its text (offsets), and any other token
+attributes from spaCy (additional_attributes)."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -30,7 +32,8 @@ and any other token attributes from spaCy (additional_attributes)."></head><body
 <li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/annotations.html">Auditable annotations</a></li>
+    <li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
     <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
     <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
     <li><a class="dropdown-item" href="../articles/docker.html">Using spacyr with Docker</a></li>
@@ -57,7 +60,8 @@ texts, and returns a data.frame of the results, with one row per token. The
 function provides options for universal (<code>pos</code>) and detailed (<code>tag</code>)
 part-of-speech tags, lemmatization (<code>lemma</code>), named entity recognition
 (<code>entity</code>), dependency parsing (<code>dependency</code>), noun phrases (<code>nounphrase</code>),
-and any other token attributes from spaCy (<code>additional_attributes</code>).</p>
+the position of each token in its text (<code>offsets</code>), and any other token
+attributes from spaCy (<code>additional_attributes</code>).</p>
     </div>
 
     <div class="section level2">
@@ -74,6 +78,7 @@ and any other token attributes from spaCy (<code>additional_attributes</code>).<
 <span>  additional_attributes <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_process <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  offsets <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -152,6 +157,19 @@ processes together; <code>NULL</code> (the default) uses the pipeline's default
 more memory.</p></dd>
 
 
+<dt id="arg-offsets">offsets<a class="anchor" aria-label="anchor" href="#arg-offsets"></a></dt>
+<dd><p>logical; if <code>TRUE</code>, return the position of each token in
+its text as it was given in <code>x</code>, in two columns after <code>token</code>: <code>start</code>,
+the position of the token's first character, and <code>end</code>, that of its
+last. Positions are counted from 1 in characters as R counts them,
+whitespace included, so that <code>substring(text, start, end)</code> gives the
+tokens of a text. Some of spaCy's tokenizers, such as the one for
+Korean, make a document whose whitespace differs from that of the text;
+the positions are still those in the text. If a tokenizer changes
+anything else, so that a token is not found in the text or the text
+has more than whitespace outside the tokens, this is an error.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>not used directly</p></dd>
 
@@ -163,6 +181,36 @@ more memory.</p></dd>
 those in which spaCy found no tokens, and the document variables of a
 <span class="pkg">quanteda</span> corpus, for the <a href="quanteda-methods.html">quanteda methods</a> such
 as <code><a href="https://quanteda.io/reference/as.tokens.html" class="external-link">quanteda::as.tokens()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The components of spaCy's pipeline whose results the options do not ask
+for are left out of the call, which makes it faster: the named entity
+recognizer with <code>entity = FALSE</code>; the lemmatizer with <code>lemma = FALSE</code>; and
+the tagger and the attribute ruler when <code>pos</code>, <code>tag</code>, <code>lemma</code> and
+<code>nounphrase</code> are all <code>FALSE</code>. The output is the same as when every
+component runs, so a component stays whenever it sets something that the
+output has, or that a later component may read:</p><ul><li><p>The parser always runs, since it sets the sentences.</p></li>
+<li><p>An attribute ruler stays if any of its rules sets something that is
+returned. That of spaCy's English models also sets the dependency of
+whitespace tokens, so with <code>dependency = TRUE</code> it stays, and so does
+the tagger, whose tags its rules read.</p></li>
+<li><p>With entity rules from <code>spacy_initialize(entity_patterns = )</code> and
+<code>entity = TRUE</code>, the components that the rules may read stay.</p></li>
+<li><p>A component stays if the model of a later component reads what it sets,
+as an entity recognizer that was trained to use the part of speech
+does. The models of spaCy's own pipelines read only the text of the
+tokens. What a model reads is told from its settings; a model that is
+not built by spaCy's own functions is taken to read everything.</p></li>
+<li><p>Nothing is left out when <code>additional_attributes</code> are asked for, or when
+the pipeline has a component that is not one of spaCy's standard ones.</p></li>
+<li><p>Nothing is left out either when the pipeline's tokenizer is not
+spaCy's own. Such a tokenizer can give the documents a function of its
+own to find the sentences, which may read any annotation.</p></li>
+<li><p>With <code>nounphrase = TRUE</code>, nothing is left out either when the pipeline
+finds its noun phrases by a function that is not spaCy's own for the
+language, which may read any annotation.</p></li>
+</ul><p>See the article "Improving Performance" on the package website.</p>
     </div>
 
     <div class="section level2">
@@ -183,6 +231,10 @@ as <code><a href="https://quanteda.io/reference/as.tokens.html" class="external-
 <span class="r-in"><span><span class="va">txt3</span> <span class="op">&lt;-</span> <span class="st">"We analyzed the Supreme Court with three natural language processing tools."</span> </span></span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, entity <span class="op">=</span> <span class="cn">TRUE</span>, nounphrase <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, additional_attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"like_num"</span>, <span class="st">"is_punct"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># the position of each token in the text</span></span></span>
+<span class="r-in"><span><span class="va">parsed</span> <span class="op">&lt;-</span> <span class="fu">spacy_parse</span><span class="op">(</span><span class="va">txt3</span>, offsets <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substring</a></span><span class="op">(</span><span class="va">txt3</span>, <span class="va">parsed</span><span class="op">$</span><span class="va">start</span>, <span class="va">parsed</span><span class="op">$</span><span class="va">end</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

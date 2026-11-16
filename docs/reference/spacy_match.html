@@ -44,7 +44,8 @@ pipeline or the entities of a document."></head><body>
 <li class="nav-item"><a class="nav-link" href="../articles/using_spacyr.html">Using spacyr</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/annotations.html">Auditable annotations</a></li>
+    <li><a class="dropdown-item" href="../articles/entity_rules.html">Entity rules</a></li>
     <li><a class="dropdown-item" href="../articles/matching.html">Matching</a></li>
     <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
     <li><a class="dropdown-item" href="../articles/docker.html">Using spacyr with Docker</a></li>
@@ -91,7 +92,8 @@ pipeline or the entities of a document.</p>
 <span>  overlap <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"longest"</span>, <span class="st">"all"</span>, <span class="st">"first"</span><span class="op">)</span>,</span>
 <span>  n_process <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  offsets <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -216,8 +218,17 @@ more memory.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>not used. An argument that is not one of those above is an
-error.</p></dd>
+<dd><p>not used. An argument that is not one of those of this
+function is an error.</p></dd>
+
+
+<dt id="arg-offsets">offsets<a class="anchor" aria-label="anchor" href="#arg-offsets"></a></dt>
+<dd><p>logical; if <code>TRUE</code>, also return the position of each match
+in its text as it was given in <code>x</code>, in the columns <code>start</code> and <code>end</code>:
+the positions of its first and last characters, counted from 1 as in
+<code><a href="spacy_parse.html">spacy_parse()</a></code>, so that <code>substring(text, start, end)</code> gives the matches
+of a text. It comes after <code>...</code>, so it has to be given by its full
+name.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -262,6 +273,11 @@ token of spaCy's, as the rows of <code><a href="spacy_parse.html">spacy_parse()<
 
 <dt><code>length</code></dt>
 <dd><p>the number of tokens: of the sequence, or 1 for a node</p></dd>
+
+<dt><code>start</code>, <code>end</code></dt>
+<dd><p>only with <code>offsets = TRUE</code>: the positions in the
+text of the first and the last character of the sequence, or of the
+node's token</p></dd>
 
 
 </dl><p>Rows are in the order of the documents in <code>x</code>. Within a document,
@@ -397,6 +413,22 @@ matches of one label that partly overlap, of which <code>overlap = "longest"</co
 keeps one. A concordance of the matches themselves, with
 <code>kwic(index = as_index(m))</code>, shows the matches that <code>overlap</code> kept: see
 <code><a href="as_index.html">as_index()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="components-that-are-left-out">Components that are left out<a class="anchor" aria-label="anchor" href="#components-that-are-left-out"></a></h2>
+
+
+<p>The components of spaCy's pipeline that the patterns do not ask for are
+left out of the call, which makes it faster. Phrases, words and the
+values of a dictionary are matched on the text of the tokens, and need
+only the parser, which sets the sentences. A pattern on <code>POS</code>, <code>TAG</code> or
+<code>MORPH</code> also needs the components that set the tags, one on <code>LEMMA</code> the
+lemmatizer, one on <code>DEP</code> or a dependency pattern the dependencies, and
+one on <code>ENT_TYPE</code> the entities. The output is the same as when every
+component runs, by the rules in the details of <code><a href="spacy_parse.html">spacy_parse()</a></code>. Nothing
+is left out when a pattern asks for an attribute that is not one of
+spaCy's token attributes known here, such as an extension attribute
+(<code>_</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

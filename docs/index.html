@@ -38,7 +38,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
-<li><a class="dropdown-item" href="articles/entity_rules.html">Entity rules</a></li>
+<li><a class="dropdown-item" href="articles/annotations.html">Auditable annotations</a></li>
+    <li><a class="dropdown-item" href="articles/entity_rules.html">Entity rules</a></li>
     <li><a class="dropdown-item" href="articles/matching.html">Matching</a></li>
     <li><a class="dropdown-item" href="articles/performance.html">Performance</a></li>
     <li><a class="dropdown-item" href="articles/docker.html">Using spacyr with Docker</a></li>
@@ -62,6 +63,23 @@
 </h1></div>
 <p><a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://www.r-pkg.org/badges/version/spacyr" alt="CRAN Version"></a> <a href="https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/quanteda/spacyr/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/quanteda/spacyr?branch=main" class="external-link"><img src="https://codecov.io/gh/quanteda/spacyr/branch/main/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/spacyr" alt="Downloads"></a> <a href="https://CRAN.R-project.org/package=spacyr" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange" alt="Total Downloads"></a></p>
 <p>An R wrapper to the spaCy “industrial strength natural language processing” Python library from <a href="https://spacy.io" class="external-link uri">https://spacy.io</a>.</p>
+<div class="section level2">
+<h2 id="new-in-version-20">New in version 2.0<a class="anchor" aria-label="anchor" href="#new-in-version-20"></a>
+</h2>
+<p>Version 2.0 finds things in texts by rules, and shows where each of them was found:</p>
+<ul>
+<li>
+<strong>Rule-based matching.</strong> <code><a href="reference/spacy_match.html">spacy_match()</a></code> finds words, phrases, the values of a <strong>quanteda</strong> dictionary, and patterns of tokens or of the dependency parse. See <a href="https://spacyr.quanteda.io/articles/matching.html">Rule-Based Matching</a>.</li>
+<li>
+<strong>Rule-based named entities.</strong> <code><a href="reference/as_entity_patterns.html">as_entity_patterns()</a></code> makes rules in R, and <code>spacy_initialize(entity_patterns = )</code> adds them to the pipeline. See <a href="https://spacyr.quanteda.io/articles/entity_rules.html">Adding Rule-Based Named Entities</a>.</li>
+<li>
+<strong>Positions in the original text.</strong> With <code>offsets = TRUE</code>, <code><a href="reference/spacy_parse.html">spacy_parse()</a></code>, <code><a href="reference/spacy_match.html">spacy_match()</a></code>, <code><a href="reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> and <code><a href="reference/spacy_extract_nounphrases.html">spacy_extract_nounphrases()</a></code> return the character positions of what they found, and <code><a href="reference/entity_visualize.html">entity_visualize()</a></code> shows a text with its entities highlighted.</li>
+<li>
+<strong>Working with quanteda.</strong> <code><a href="reference/as_index.html">as_index()</a></code> gives matches and entities to <code><a href="https://quanteda.io/reference/kwic.html" class="external-link">quanteda::kwic()</a></code> for a concordance, and <code>as.tokens()</code> keeps the document variables of a corpus that was parsed.</li>
+</ul>
+<p><a href="https://spacyr.quanteda.io/articles/annotations.html">From Text to Auditable Annotations</a> shows these working together, with one example.</p>
+<p>Version 2.0 is the development version until it is on CRAN: install it from GitHub, as described below. Most code written for 1.4.0 runs unchanged, and the <a href="https://spacyr.quanteda.io/news/index.html">news</a> lists what to check when upgrading.</p>
+</div>
 <div class="section level2">
 <h2 id="installing-the-package">Installing the package<a class="anchor" aria-label="anchor" href="#installing-the-package"></a>
 </h2>
@@ -105,7 +123,7 @@
 <p>Check out available models at <a href="https://spacy.io/usage/models" class="external-link uri">https://spacy.io/usage/models</a>.</p>
 <p>You can check whether spaCy and a model are ready to use, without starting Python, with:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_installed.html">spacy_installed</a></span><span class="op">(</span><span class="st">"en_core_web_sm"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/spacy_is_installed.html">spacy_is_installed</a></span><span class="op">(</span><span class="st">"en_core_web_sm"</span><span class="op">)</span></span></code></pre></div>
 </li>
 </ol>
 <p><code><a href="reference/spacy_install.html">spacy_install()</a></code> creates its environment with a version of Python supported by the spaCy release being installed, and offers to install one through <code><a href="https://rstudio.github.io/reticulate/reference/install_python.html" class="external-link">reticulate::install_python()</a></code> if none is found. On Windows, <code>install_python()</code> requires <a href="https://git-scm.com/downloads/" class="external-link">git</a> to be installed and on your <code>PATH</code>.</p>

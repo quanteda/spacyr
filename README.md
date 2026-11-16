@@ -16,6 +16,37 @@ Downloads](https://cranlogs.r-pkg.org/badges/grand-total/spacyr?color=orange)](h
 An R wrapper to the spaCy “industrial strength natural language
 processing” Python library from <https://spacy.io>.
 
+## New in version 2.0
+
+Version 2.0 finds things in texts by rules, and shows where each of them
+was found:
+
+- **Rule-based matching.** `spacy_match()` finds words, phrases, the
+  values of a **quanteda** dictionary, and patterns of tokens or of the
+  dependency parse. See [Rule-Based
+  Matching](https://spacyr.quanteda.io/articles/matching.html).
+- **Rule-based named entities.** `as_entity_patterns()` makes rules in
+  R, and `spacy_initialize(entity_patterns = )` adds them to the
+  pipeline. See [Adding Rule-Based Named
+  Entities](https://spacyr.quanteda.io/articles/entity_rules.html).
+- **Positions in the original text.** With `offsets = TRUE`,
+  `spacy_parse()`, `spacy_match()`, `spacy_extract_entity()` and
+  `spacy_extract_nounphrases()` return the character positions of what
+  they found, and `entity_visualize()` shows a text with its entities
+  highlighted.
+- **Working with quanteda.** `as_index()` gives matches and entities to
+  `quanteda::kwic()` for a concordance, and `as.tokens()` keeps the
+  document variables of a corpus that was parsed.
+
+[From Text to Auditable
+Annotations](https://spacyr.quanteda.io/articles/annotations.html) shows
+these working together, with one example.
+
+Version 2.0 is the development version until it is on CRAN: install it
+from GitHub, as described below. Most code written for 1.4.0 runs
+unchanged, and the [news](https://spacyr.quanteda.io/news/index.html)
+lists what to check when upgrading.
+
 ## Installing the package
 
 1.  Install the **spacyr** R package:

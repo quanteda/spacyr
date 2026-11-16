@@ -27,11 +27,39 @@ attention; each is described in full below.
 - [`process_document()`](https://spacyr.quanteda.io/reference/process_document.md)
   and the `get_*()` functions are deprecated: use
   [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md).
+- [`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md)
+  is deprecated: use
+  [`spacy_is_installed()`](https://spacyr.quanteda.io/reference/spacy_is_installed.md),
+  the same function under a new name.
 - **spacyr** no longer creates the Python variables `nlp`, `spobj`,
   `texts` and others in Python’s `__main__` namespace.
 
 ### New features
 
+- New function
+  [`entity_visualize()`](https://spacyr.quanteda.io/reference/entity_visualize.md)
+  shows parsed documents with their named entities highlighted and
+  labelled, as HTML made by displaCy, spaCy’s visualizer
+  ([\#214](https://github.com/quanteda/spacyr/issues/214)). It takes the
+  output of
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  as
+  [`entity_extract()`](https://spacyr.quanteda.io/reference/entity_extract.md)
+  and
+  [`entity_consolidate()`](https://spacyr.quanteda.io/reference/entity_extract.md)
+  do, or that of
+  [`entity_consolidate()`](https://spacyr.quanteda.io/reference/entity_extract.md),
+  and shows the entities of the parse without processing the documents
+  again; these include entities from rules given to
+  [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
+  as `entity_patterns`. With `spacy_parse(x, offsets = TRUE)` the tokens
+  are spaced as they were in the text; otherwise there is a space
+  between every two tokens, and a message, given once in a session, says
+  so. `entities` chooses the entity labels to highlight and `colors`
+  sets the colours of labels. The result is one HTML fragment for all
+  the documents, in their order, which can be put into a page, an R
+  Markdown document or a Shiny app; `view = TRUE` also opens it in the
+  browser.
 - New function
   [`as_entity_patterns()`](https://spacyr.quanteda.io/reference/as_entity_patterns.md)
   creates patterns for rule-based named entities, as used by spaCy’s
@@ -65,6 +93,18 @@ attention; each is described in full below.
   with wildcards (`valuetype = "glob"`, the default) become token
   patterns with a regular expression for each part that has a wildcard,
   and `valuetype = "regex"` and `"fixed"` are also supported.
+- A new article on the package website, “From Text to Auditable
+  Annotations”, shows how the new functions work together, with
+  references to the legislature in four inaugural addresses as the
+  example: finding them with a **quanteda** dictionary and
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md),
+  checking each match in a concordance with
+  [`as_index()`](https://spacyr.quanteda.io/reference/as_index.md) and
+  [`quanteda::kwic()`](https://quanteda.io/reference/kwic.html),
+  revising the rules, finding the matches in the original text with
+  `offsets`, adding the rules as named entities, and highlighting them
+  with
+  [`entity_visualize()`](https://spacyr.quanteda.io/reference/entity_visualize.md).
 - A new article on the package website, “Adding Rule-Based Named
   Entities”, shows how to add entities by rules: phrases, token patterns
   such as academic titles, rules and the model’s own entities,
@@ -303,10 +343,66 @@ attention; each is described in full below.
   `batch_size` the number of documents processed together; the defaults,
   `n_process = 1` and `batch_size = NULL` (the pipeline’s default batch
   size), process documents as before. The output does not depend on
-  either.
+  either. With more than one process, pipelines with only spaCy’s
+  built-in components and default error handlers send plain text to the
+  workers. This avoids tokenizing and serializing the input documents in
+  the main process. Pipelines with custom components or error handlers
+  carry the document names through the pipeline, so the names stay with
+  the documents if any are dropped or reordered
+  ([\#289](https://github.com/quanteda/spacyr/issues/289)).
+  [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+  uses `n_process` only when components of the pipeline run, which is
+  for `what = "sentence"` and for `remove_symbols = TRUE`: splitting
+  texts into words runs none, so it is always done in one process, since
+  more would only add the time to start them
+  ([\#289](https://github.com/quanteda/spacyr/issues/289)).
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  has a new argument `offsets`
+  ([\#311](https://github.com/quanteda/spacyr/issues/311)). With
+  `offsets = TRUE`, the output has two more columns after `token`:
+  `start` and `end`, the positions of each token’s first and last
+  characters in its document. They are counted from 1 in characters as R
+  counts them, whitespace included, so that
+  `substring(text, start, end)` gives the tokens of a text. The
+  positions are those in the text as it was given, also when spaCy’s
+  tokenizer makes a document with other whitespace, as the one for
+  Korean can; if a tokenizer changes the text in another way, so that a
+  token cannot be found in it or it has more than whitespace outside the
+  tokens, `offsets = TRUE` is an error.
+  [`entity_consolidate()`](https://spacyr.quanteda.io/reference/entity_extract.md)
+  and
+  [`nounphrase_consolidate()`](https://spacyr.quanteda.io/reference/nounphrase_extract.md)
+  keep the two columns, with a consolidated token running from the start
+  of its first token to the end of its last.
+- [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md),
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  and
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  have the new argument `offsets` too
+  ([\#311](https://github.com/quanteda/spacyr/issues/311)). With
+  `offsets = TRUE`, their data.frame has two more columns at its end:
+  `start` and `end`, the positions in the text of the first and last
+  characters of each entity, noun phrase or match, counted as in
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
+  so that `substring(text, start, end)` gives them as they are in a
+  text. For a dependency pattern they are those of each node’s token.
+  The extractors need `output = "data.frame"` for it. In these three
+  functions `offsets` comes after `...`, so it has to be given by its
+  full name, and the arguments before it are matched as they were.
 
 ### Deprecated
 
+- [`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md)
+  is renamed
+  [`spacy_is_installed()`](https://spacyr.quanteda.io/reference/spacy_is_installed.md),
+  a name that says it answers a question, as
+  [`spacy_install()`](https://spacyr.quanteda.io/reference/spacy_install.md)
+  and
+  [`spacy_uninstall()`](https://spacyr.quanteda.io/reference/spacy_uninstall.md)
+  say they act.
+  [`spacy_installed()`](https://spacyr.quanteda.io/reference/spacy_installed.md)
+  is deprecated: it still works, gives a warning on every call, and will
+  be removed in a future version.
 - The `multithread` argument of
   [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md),
   [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md),
@@ -352,6 +448,90 @@ attention; each is described in full below.
   frees as before.
 
 ### Changes
+
+- [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  now leaves out of a call the components of spaCy’s pipeline whose
+  results its options do not ask for
+  ([\#308](https://github.com/quanteda/spacyr/issues/308)): the named
+  entity recognizer with `entity = FALSE`, the lemmatizer with
+  `lemma = FALSE`, and the tagger and the attribute ruler when `pos`,
+  `tag`, `lemma` and `nounphrase` are all `FALSE`. Before, every
+  component ran whatever the options were, so that turning them off
+  saved almost no time
+  ([\#188](https://github.com/quanteda/spacyr/issues/188)); now
+  `spacy_parse(x, pos = FALSE, lemma = FALSE, entity = FALSE)` takes
+  less than half the time of the defaults with spaCy’s small English
+  model. The output is the same as when every component runs, also with
+  `n_process` greater than 1. A component stays whenever it sets
+  something that the output has or that a later component may read. So
+  the parser always runs, since it sets the sentences; and an attribute
+  ruler stays if any of its rules sets something that is returned: that
+  of spaCy’s English models also sets the dependency of whitespace
+  tokens, so with `dependency = TRUE` it stays, and with it the tagger,
+  whose tags its rules read. A component also stays if the model of a
+  later component reads what it sets, as a recognizer trained to use the
+  part of speech does; this is told from the model’s settings, and a
+  model that is not built by spaCy’s own functions is taken to read
+  everything. Nothing is left out when `additional_attributes` are asked
+  for, or when the pipeline has a component that is not one of spaCy’s
+  standard ones, since such a component may read or set anything; with
+  entity rules from `spacy_initialize(entity_patterns = )` and
+  `entity = TRUE`, the components that the rules may read stay. The
+  “Improving Performance” article is updated.
+
+- [`spacy_extract_entity()`](https://spacyr.quanteda.io/reference/spacy_extract_entity.md)
+  and
+  [`spacy_extract_nounphrases()`](https://spacyr.quanteda.io/reference/spacy_extract_nounphrases.md)
+  leave out components in the same way
+  ([\#308](https://github.com/quanteda/spacyr/issues/308)): with spaCy’s
+  English models, the first no longer runs the tagger, the attribute
+  ruler and the lemmatizer, and the second the lemmatizer and the named
+  entity recognizer, which took about 40 and 25 per cent off their time
+  for the inaugural addresses of **quanteda**. Their output is the same
+  as when every component runs, by the rules that
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  follows. For noun phrases, also those of
+  `spacy_parse(nounphrase = TRUE)`, nothing is left out when the
+  pipeline finds them by a function that is not spaCy’s own for the
+  language (`Vocab.get_noun_chunks`), which may read any annotation.
+
+- [`spacy_tokenize()`](https://spacyr.quanteda.io/reference/spacy_tokenize.md)
+  with `what = "sentence"` or `remove_symbols = TRUE`, which ran every
+  component of the pipeline, now runs only those that the sentences or
+  the parts of speech need
+  ([\#308](https://github.com/quanteda/spacyr/issues/308)). With spaCy’s
+  English models, sentences need the parser, and no longer run the
+  tagger, the attribute ruler, the lemmatizer and the named entity
+  recognizer; removing symbols no longer runs the lemmatizer and the
+  recognizer. For the inaugural addresses of **quanteda**, this took
+  about 60 and 30 per cent off their time. The output is the same, by
+  the rules that
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  follows. Splitting texts into words runs no component, as before.
+
+- [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  now runs only the components that its patterns ask for
+  ([\#308](https://github.com/quanteda/spacyr/issues/308)). Phrases,
+  words and the values of a dictionary are matched on the text of the
+  tokens, and need only the parser, for the sentence of each match: for
+  the inaugural addresses of **quanteda** they took about 65 per cent
+  less time. A pattern on `POS` or `TAG` also runs the components that
+  set the tags, one on `LEMMA` the lemmatizer, and one on `ENT_TYPE` the
+  named entity recognizer, which took 20 to 45 per cent less. The output
+  is the same, by the rules that
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  follows. Every component runs when a pattern asks for an attribute
+  that is not known, such as an extension attribute. In all the
+  functions, an attribute ruler that stays and has such an attribute in
+  the pattern of a rule keeps every component before it; and one with a
+  rule that sets such an attribute, whose setter may read and set any
+  annotation, always stays, with every component before it.
+
+- None of these functions leaves out a component when the pipeline’s
+  tokenizer or language class is not spaCy’s own. Such a tokenizer can
+  give each document a function of its own to find the sentences
+  (`Doc.user_hooks["sents"]`), which may read any annotation, such as
+  the part of speech.
 
 - [`spacy_initialize()`](https://spacyr.quanteda.io/reference/spacy_initialize.md)
   now sets the environment variable `TOKENIZERS_PARALLELISM` to
