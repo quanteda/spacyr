@@ -66,7 +66,7 @@
 <div class="section level2">
 <h2 id="new-in-version-20">New in version 2.0<a class="anchor" aria-label="anchor" href="#new-in-version-20"></a>
 </h2>
-<p>Version 2.0 finds things in texts by rules, and shows where each of them was found:</p>
+<p>The article <a href="https://spacyr.quanteda.io/articles/annotations.html">From Text to Auditable Annotations</a> shows the new functions of version 2.0 working together, with one example. In brief:</p>
 <ul>
 <li>
 <strong>Rule-based matching.</strong> <code><a href="reference/spacy_match.html">spacy_match()</a></code> finds words, phrases, the values of a <strong>quanteda</strong> dictionary, and patterns of tokens or of the dependency parse. See <a href="https://spacyr.quanteda.io/articles/matching.html">Rule-Based Matching</a>.</li>
@@ -76,8 +76,9 @@
 <strong>Positions in the original text.</strong> With <code>offsets = TRUE</code>, <code><a href="reference/spacy_parse.html">spacy_parse()</a></code>, <code><a href="reference/spacy_match.html">spacy_match()</a></code>, <code><a href="reference/spacy_extract_entity.html">spacy_extract_entity()</a></code> and <code><a href="reference/spacy_extract_nounphrases.html">spacy_extract_nounphrases()</a></code> return the character positions of what they found, and <code><a href="reference/entity_visualize.html">entity_visualize()</a></code> shows a text with its entities highlighted.</li>
 <li>
 <strong>Working with quanteda.</strong> <code><a href="reference/as_index.html">as_index()</a></code> gives matches and entities to <code><a href="https://quanteda.io/reference/kwic.html" class="external-link">quanteda::kwic()</a></code> for a concordance, and <code>as.tokens()</code> keeps the document variables of a corpus that was parsed.</li>
+<li>
+<strong>Speed.</strong> <code><a href="reference/spacy_parse.html">spacy_parse()</a></code> and <code><a href="reference/spacy_match.html">spacy_match()</a></code> run only the components of spaCy’s pipeline that a call needs, and the functions that process texts take <code>n_process</code> and <code>batch_size</code>, for the number of processes and the size of the batches. See <a href="https://spacyr.quanteda.io/articles/performance.html">Improving Performance</a>.</li>
 </ul>
-<p><a href="https://spacyr.quanteda.io/articles/annotations.html">From Text to Auditable Annotations</a> shows these working together, with one example.</p>
 <p>Version 2.0 is the development version until it is on CRAN: install it from GitHub, as described below. Most code written for 1.4.0 runs unchanged, and the <a href="https://spacyr.quanteda.io/news/index.html">news</a> lists what to check when upgrading.</p>
 </div>
 <div class="section level2">

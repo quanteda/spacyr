@@ -14,8 +14,10 @@ processing” Python library from <https://spacy.io>.
 
 ## New in version 2.0
 
-Version 2.0 finds things in texts by rules, and shows where each of them
-was found:
+The article [From Text to Auditable
+Annotations](https://spacyr.quanteda.io/articles/annotations.html) shows
+the new functions of version 2.0 working together, with one example. In
+brief:
 
 - **Rule-based matching.**
   [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
@@ -42,10 +44,14 @@ was found:
   [`quanteda::kwic()`](https://quanteda.io/reference/kwic.html) for a
   concordance, and `as.tokens()` keeps the document variables of a
   corpus that was parsed.
-
-[From Text to Auditable
-Annotations](https://spacyr.quanteda.io/articles/annotations.html) shows
-these working together, with one example.
+- **Speed.**
+  [`spacy_parse()`](https://spacyr.quanteda.io/reference/spacy_parse.md)
+  and
+  [`spacy_match()`](https://spacyr.quanteda.io/reference/spacy_match.md)
+  run only the components of spaCy’s pipeline that a call needs, and the
+  functions that process texts take `n_process` and `batch_size`, for
+  the number of processes and the size of the batches. See [Improving
+  Performance](https://spacyr.quanteda.io/articles/performance.html).
 
 Version 2.0 is the development version until it is on CRAN: install it
 from GitHub, as described below. Most code written for 1.4.0 runs
